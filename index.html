@@ -1,40 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SmartWerk ZZP</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk WOW Portal</title>
   <style>
     body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      text-align: center;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f11;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
+
     h1 {
-      color: #333;
+      font-size: 2.4em;
+      margin-bottom: 20px;
+      color: #00ffee;
+      text-shadow: 0 0 10px #00ffee88;
     }
-    .btn {
-      display: block;
-      padding: 12px 20px;
-      margin: 15px 0;
-      background-color: #0070f3;
-      color: white;
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      width: 90%;
+      max-width: 960px;
+    }
+
+    .tile {
+      background: #1a1a1d;
+      border: 1px solid #333;
+      padding: 24px;
+      text-align: center;
+      border-radius: 12px;
+      transition: 0.3s;
+      cursor: pointer;
+      box-shadow: 0 0 12px #00ffee22;
+    }
+
+    .tile:hover {
+      background: #222;
+      transform: scale(1.03);
+      box-shadow: 0 0 20px #00ffee55;
+    }
+
+    .tile a {
       text-decoration: none;
-      border-radius: 6px;
+      color: #00ffee;
+      font-size: 1.1em;
+      font-weight: bold;
     }
-    .btn:hover {
-      background-color: #0059c1;
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.85em;
+      color: #777;
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>👋 Ласкаво просимо до SmartWerk</h1>
-  <p>Обери, куди хочеш перейти:</p>
+  <h1>🚀 SmartWerk: Start Here</h1>
+  <div class="grid">
+    <div class="tile"><a href="/wow.html">📂 Безкоштовні файли</a></div>
+    <div class="tile"><a href="/pro_index.html">🚀 Перейти на PRO</a></div>
+    <div class="tile"><a href="/pdfs/wow/upgrade/SmartWerk_Compare_Free_vs_Pro_v2.0.pdf" target="_blank">⚖️ Порівняння (Free vs PRO)</a></div>
+    <div class="tile"><a href="/pdfs/wow/wow/WOW_AI_vs_Others_v1.pdf" target="_blank">✨ Чим ми унікальні</a></div>
+    <div class="tile"><a href="/assistant_index.html">🤖 AI-помічник</a></div>
+  </div>
 
-  <a class="btn" href="/wow.html">📄 Переглянути WOW-презентацію</a>
-  <a class="btn" href="/pro_index.html">🚀 Upgrade naar PRO</a>
-  <a class="btn" href="/асистент_індекс.html">🤖 AI-помічник</a>
-
+  <footer>
+    SmartWerk © 2025 — Made with ❤️ in Netherlands
+  </footer>
 </body>
 </html>
