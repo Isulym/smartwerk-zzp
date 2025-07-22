@@ -1,40 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SmartWerk ZZP</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk: Start Here</title>
   <style>
     body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      text-align: center;
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #0f0f11;
+      color: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
     }
+
     h1 {
-      color: #333;
+      font-size: 2.5em;
+      margin-bottom: 0.5em;
+      color: #00ffff;
     }
+
+    p {
+      margin-bottom: 2em;
+      color: #999;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
     .btn {
-      display: block;
-      padding: 12px 20px;
-      margin: 15px 0;
-      background-color: #0070f3;
-      color: white;
+      background: #1a1a1f;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 15px 25px;
       text-decoration: none;
-      border-radius: 6px;
+      color: #fff;
+      font-weight: bold;
+      transition: all 0.2s ease-in-out;
     }
+
     .btn:hover {
-      background-color: #0059c1;
+      background: #00ffff;
+      color: #111;
+      transform: scale(1.05);
+    }
+
+    footer {
+      margin-top: 3em;
+      font-size: 0.9em;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <h1>👋 Ласкаво просимо до SmartWerk</h1>
-  <p>Обери, куди хочеш перейти:</p>
+  <h1>🚀 SmartWerk: Start Here</h1>
+  <p>AI-powered PDF tools for modern freelancers</p>
 
-  <a class="btn" href="/wow.html">📄 Переглянути WOW-презентацію</a>
-  <a class="btn" href="/pro_index.html">🚀 Upgrade naar PRO</a>
-  <a class="btn" href="/асистент_індекс.html">🤖 AI-помічник</a>
+  <div class="buttons">
+    <a href="/portal.html" class="btn">📂 Free Files</a>
+    <a href="/pro_index.html" class="btn">🚀 Go PRO</a>
+    <a href="/pdfs/upgrade/SmartWerk_Compare_Free_vs_Pro_v2.0.pdf" class="btn">⚖️ Compare Free vs PRO</a>
+    <a href="/pdfs/WOW/WOW_AI_vs_Others_v1.pdf" class="btn">✨ Why SmartWerk</a>
+    <a href="/assistant_index.html" class="btn">🤖 AI Assistant</a>
+  </div>
 
+  <footer>
+    SmartWerk © 2025 — Made with ❤️ in Netherlands
+  </footer>
 </body>
 </html>
