@@ -2,150 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk WOW: PDF Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk WOW Portal</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f2f2f2; }
-    h1 { color: #333; }
-    h2 { margin-top: 30px; color: #555; border-bottom: 1px solid #ccc; }
-    ul { list-style: none; padding-left: 0; }
-    li { margin-bottom: 10px; }
-    a { color: #0066cc; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .section { margin-bottom: 40px; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f11;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    h1 {
+      font-size: 2.4em;
+      margin-bottom: 20px;
+      color: #00ffee;
+      text-shadow: 0 0 10px #00ffee88;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      width: 90%;
+      max-width: 960px;
+    }
+
+    .tile {
+      background: #1a1a1d;
+      border: 1px solid #333;
+      padding: 24px;
+      text-align: center;
+      border-radius: 12px;
+      transition: 0.3s;
+      cursor: pointer;
+      box-shadow: 0 0 12px #00ffee22;
+    }
+
+    .tile:hover {
+      background: #222;
+      transform: scale(1.03);
+      box-shadow: 0 0 20px #00ffee55;
+    }
+
+    .tile a {
+      text-decoration: none;
+      color: #00ffee;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.85em;
+      color: #777;
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>📁 SmartWerk WOW: PDF Download Center</h1>
-
-  <div class="section">
-    <h2>AI</h2>
-    <ul>
-      <li><a href="/pdfs/wow/ai/SmartWerk_AI_FAQ_v2.pdf" target="_blank">AI FAQ</a></li>
-      <li><a href="/pdfs/wow/ai/SmartWerk_AI_Features_Explained_v2.pdf" target="_blank">AI Features Explained</a></li>
-      <li><a href="/pdfs/wow/ai/SmartWerk_Templates_Library_v2.pdf" target="_blank">Templates Library</a></li>
-    </ul>
+  <h1>🚀 SmartWerk: Start Here</h1>
+  <div class="grid">
+    <div class="tile"><a href="/wow.html">📂 Безкоштовні файли</a></div>
+    <div class="tile"><a href="/pro_index.html">🚀 Перейти на PRO</a></div>
+    <div class="tile"><a href="/pdfs/wow/upgrade/SmartWerk_Compare_Free_vs_Pro_v2.0.pdf" target="_blank">⚖️ Порівняння (Free vs PRO)</a></div>
+    <div class="tile"><a href="/pdfs/wow/wow/WOW_AI_vs_Others_v1.pdf" target="_blank">✨ Чим ми унікальні</a></div>
+    <div class="tile"><a href="/assistant_index.html">🤖 AI-помічник</a></div>
   </div>
 
-  <div class="section">
-    <h2>Comparison</h2>
-    <ul>
-      <li><a href="/pdfs/wow/comparison/SmartWerk_Why_Its_Different_FINAL.pdf" target="_blank">Why It’s Different</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Core</h2>
-    <ul>
-      <li><a href="/pdfs/wow/core/SmartWerk_Core_Features_FINAL_REUPLOAD_FIXED.pdf" target="_blank">Core Features</a></li>
-      <li><a href="/pdfs/wow/core/SmartWerk_Onboarding_Checklist_v2_UNIQUE_FIXED_FINAL.pdf" target="_blank">Onboarding Checklist</a></li>
-      <li><a href="/pdfs/wow/core/SmartWerk_Pro_vs_Free_v2.pdf" target="_blank">Pro vs Free</a></li>
-      <li><a href="/pdfs/wow/core/SmartWerk_Start_Here_v2.1_PRO_FIXED.pdf" target="_blank">Start Here PRO</a></li>
-      <li><a href="/pdfs/wow/core/SmartWerk_Start_Here_v2.pdf" target="_blank">Start Here</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>FAQ</h2>
-    <ul>
-      <li><a href="/pdfs/wow/faq/SmartWerk_FAQ_v2.1.pdf" target="_blank">FAQ v2.1</a></li>
-      <li><a href="/pdfs/wow/faq/SmartWerk_FAQ_ZZP_v2.pdf" target="_blank">FAQ ZZP</a></li>
-      <li><a href="/pdfs/wow/faq/SmartWerk_Common_Mistakes_ZZP_Beginners_v2.pdf" target="_blank">Common Mistakes ZZP</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Glossary</h2>
-    <ul>
-      <li><a href="/pdfs/wow/glossary/SmartWerk_Glossary_ZZP_Terms_v2.pdf" target="_blank">Glossary ZZP Terms</a></li>
-      <li><a href="/pdfs/wow/glossary/SmartWerk_Glossary_v3_all_languages.pdf" target="_blank">Glossary All Languages</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Info</h2>
-    <ul>
-      <li><a href="/pdfs/wow/info/SmartWerk_About_Mission_FINAL_MINIMAL.pdf" target="_blank">About Mission</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Feature_Overview_v2.pdf" target="_blank">Feature Overview</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Future_PWA_Info_v2_FIXED_CLEAN.pdf" target="_blank">Future PWA Info</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Help_Center_v2.0_FINAL.pdf" target="_blank">Help Center</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_How_to_Save_As_App_v2.pdf" target="_blank">Save as App</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Lets_Stay_Connected_v2.pdf" target="_blank">Let’s Stay Connected</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Overview_v2.0.pdf" target="_blank">Overview v2.0</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Overzicht_v2.0_NL.pdf" target="_blank">Overzicht NL</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Roadmap_2024_2026_v3_fixed.pdf" target="_blank">Roadmap 2024–2026</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Roadmap_v2.1_EXTENDED_OK.pdf" target="_blank">Roadmap Extended</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Roadmap_v2.pdf" target="_blank">Roadmap v2</a></li>
-      <li><a href="/pdfs/wow/info/SmartWerk_Vision_2030_v2.pdf" target="_blank">Vision 2030</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Journey</h2>
-    <ul>
-      <li><a href="/pdfs/wow/journey/SmartWerk_User_Journey_v2.pdf" target="_blank">User Journey</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Overview</h2>
-    <ul>
-      <li><a href="/pdfs/wow/overview/SmartWerk_Overview_EN_NL_FINAL_v2.1.pdf" target="_blank">Overview EN/NL</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>ROI</h2>
-    <ul>
-      <li><a href="/pdfs/wow/roi/SmartWerk_ROI_Estimator_v2.1.pdf" target="_blank">ROI Estimator v2.1</a></li>
-      <li><a href="/pdfs/wow/roi/SmartWerk_ROI_Estimator_v2.pdf" target="_blank">ROI Estimator v2</a></li>
-      <li><a href="/pdfs/wow/roi/SmartWerk_ROI_Estimator_v3_FINAL_FIXED.pdf" target="_blank">ROI Estimator v3</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Templates</h2>
-    <ul>
-      <li><a href="/pdfs/wow/templates/SmartWerk_CSV_Guide_v2.pdf" target="_blank">CSV Guide</a></li>
-      <li><a href="/pdfs/wow/templates/SmartWerk_Invoice_Template_v2.pdf" target="_blank">Invoice Template</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Tools</h2>
-    <ul>
-      <li><a href="/pdfs/wow/tools/SmartWerk_Days11to30_v2.pdf" target="_blank">Days 11–30</a></li>
-      <li><a href="/pdfs/wow/tools/SmartWerk_Days1to3_v3.1.pdf" target="_blank">Days 1–3</a></li>
-      <li><a href="/pdfs/wow/tools/SmartWerk_Days4to10_v2.pdf" target="_blank">Days 4–10</a></li>
-      <li><a href="/pdfs/wow/tools/SmartWerk_Income_Calculator_v2.pdf" target="_blank">Income Calculator</a></li>
-      <li><a href="/pdfs/wow/tools/SmartWerk_Income_Estimator_v2_Extended.pdf" target="_blank">Income Estimator Extended</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Upgrade</h2>
-    <ul>
-      <li><a href="/pdfs/wow/upgrade/SmartWerk_Compare_Free_vs_Pro_v2.0.pdf" target="_blank">Compare Free vs Pro</a></li>
-      <li><a href="/pdfs/wow/upgrade/SmartWerk_PRO_Bonus_Features_v2.2_CLEANED_FIXED.pdf" target="_blank">PRO Bonus Features</a></li>
-      <li><a href="/pdfs/wow/upgrade/SmartWerk_Upgrade_CTA_v2.4_MINIMAL.pdf" target="_blank">Upgrade CTA</a></li>
-      <li><a href="/pdfs/wow/upgrade/SmartWerk_Why_Upgrade_to_PRO_v2.2_FIXED_CLEAN.pdf" target="_blank">Why Upgrade</a></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>WOW Set</h2>
-    <ul>
-      <li><a href="/pdfs/wow/wow/SmartWerk_User_Reviews_v2_EXTENDED_FIXED.pdf" target="_blank">User Reviews</a></li>
-      <li><a href="/pdfs/wow/wow/SmartWerk_WOW_Effect_v2.5_FULL_FINAL.pdf" target="_blank">WOW Effect FULL</a></li>
-      <li><a href="/pdfs/wow/wow/SmartWerk_WOW_MOBILE_Preview_REAL.pdf" target="_blank">WOW Preview Mobile</a></li>
-      <li><a href="/pdfs/wow/wow/WOW_AI_vs_Others_v1.pdf" target="_blank">WOW AI vs Others</a></li>
-      <li><a href="/pdfs/wow/wow/WOW_CTA_Upgrade_v1.pdf" target="_blank">WOW CTA Upgrade</a></li>
-      <li><a href="/pdfs/wow/wow/WOW_Example_Prompt_v1.pdf" target="_blank">WOW Example Prompt</a></li>
-      <li><a href="/pdfs/wow/wow/WOW_Intro_v1.pdf" target="_blank">WOW Intro</a></li>
-      <li><a href="/pdfs/wow/wow/WOW_Results_in_30_Days_v1.pdf" target="_blank">WOW Results in 30 Days</a></li>
-    </ul>
-  </div>
-
-  <p style="margin-top: 50px; color: #999;">Last updated: 21 July 2025</p>
+  <footer>
+    SmartWerk © 2025 — Made with ❤️ in Netherlands
+  </footer>
 </body>
 </html>
