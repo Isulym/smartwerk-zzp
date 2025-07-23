@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk PDF Chat Assistant</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      padding: 16px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      background-color: #222;
+      padding: 10px;
+      justify-content: center;
+      gap: 10px;
+      border-bottom: 1px solid #333;
+    }
+
+    nav button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    nav button:hover {
+      background-color: #555;
+    }
+
+    .typing-status {
+      text-align: center;
+      padding: 8px;
+      font-size: 14px;
+      font-style: italic;
+      color: #ccc;
+      background-color: #181818;
+      border-bottom: 1px solid #333;
+    }
+
+    iframe {
+      flex-grow: 1;
+      border: none;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>🤖 SmartWerk PDF Chat Assistant</header>
+
+  <nav>
+    <button onclick="loadChat('faq')">📄 ZZP FAQ</button>
+    <button onclick="loadChat('invoice')">🧾 Invoice</button>
+    <button onclick="loadChat('csv')">📊 CSV Guide</button>
+    <button onclick="loadChat('bol')">🛒 Bol.com</button>
+    <button onclick="loadChat('ai')">🧠 AI Tools</button>
+  </nav>
+
+  <div class="typing-status" id="typingStatus">SmartWerk is typing…</div>
+
+  <iframe
+    id="chatIframe"
+    src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls"
+    style="min-height: 700px"
+  ></iframe>
+
+  <script>
+    const iframe = document.getElementById("chatIframe");
+    const status = document.getElementById("typingStatus");
+
+    const chatIDs = {
+      faq: "uy7T8ni8HnK8A2Hb3onls",
+      invoice: "uy7T8ni8HnK8A2Hb3onls",
+      csv: "uy7T8ni8HnK8A2Hb3onls",
+      bol: "uy7T8ni8HnK8A2Hb3onls",
+      ai: "uy7T8ni8HnK8A2Hb3onls"
+    };
+
+    function loadChat(type) {
+      const id = chatIDs[type] || chatIDs.faq;
+      status.innerText = "SmartWerk is typing…";
+      iframe.src = "https://www.chatbase.co/chatbot-iframe/" + id;
+
+      setTimeout(() => {
+        status.innerText = "";
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
