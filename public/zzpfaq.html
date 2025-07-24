@@ -1,69 +1,82 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartWerk – ZZP FAQ Chat</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-        }
-        header {
-            background-color: #111;
-            padding: 1em;
-            text-align: center;
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #fff;
-            border-bottom: 1px solid #333;
-        }
-        nav {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            background-color: #222;
-            padding: 0.5em;
-            gap: 0.5em;
-        }
-        nav a {
-            color: #fff;
-            background-color: #333;
-            padding: 0.5em 1em;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 0.95em;
-        }
-        nav a:hover {
-            background-color: #555;
-        }
-        iframe {
-            width: 100%;
-            height: 85vh;
-            border: none;
-        }
-        footer {
-            text-align: center;
-            font-size: 0.9em;
-            padding: 1em;
-            background-color: #111;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk – ZZP FAQ Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #222;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    nav a {
+      color: white;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .section {
+      padding: 30px 20px;
+      background: white;
+      margin: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .section h2 {
+      margin-top: 0;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 500px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-    <header>💬 SmartWerk – ZZP FAQ Chat</header>
-    <nav>
-        <a href="#">KvK Number</a>
-        <a href="#">Invoicing</a>
-        <a href="#">Tax Benefits</a>
-        <a href="#">Common Mistakes</a>
-        <a href="#">General ZZP Rules</a>
-    </nav>
-    <iframe src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls" title="FAQ Chatbot"></iframe>
-    <footer>SmartWerk © 2025 – AI-powered FAQ Assistant for ZZP 🇳🇱</footer>
+
+<header>
+  <h2>📚 SmartWerk – ZZP FAQ Chat</h2>
+  <nav>
+    <a href="#faq-section">FAQ</a>
+    <a href="#mistakes-section">Mistakes</a>
+    <a href="#chat-section">AI Chat</a>
+  </nav>
+</header>
+
+<div class="section" id="faq-section">
+  <h2>📘 SmartWerk ZZP FAQ</h2>
+  <ul>
+    <li><a href="/pdfs/wow/faq/SmartWerk_FAQ_ZZP_v2.pdf" target="_blank">SmartWerk_FAQ_ZZP_v2.pdf</a></li>
+    <li><a href="/pdfs/wow/faq/SmartWerk_FAQ_v2.1.pdf" target="_blank">SmartWerk_FAQ_v2.1.pdf</a></li>
+  </ul>
+</div>
+
+<div class="section" id="mistakes-section">
+  <h2>⚠️ Common Mistakes by ZZP Beginners</h2>
+  <ul>
+    <li><a href="/pdfs/wow/faq/SmartWerk_Common_Mistakes_ZZP_Beginners_v2.pdf" target="_blank">SmartWerk_Common_Mistakes_ZZP_Beginners_v2.pdf</a></li>
+  </ul>
+</div>
+
+<div class="section" id="chat-section">
+  <h2>💬 SmartWerk AI FAQ Assistant</h2>
+  <iframe src="https://www.chatbase.co/chatbot-iframe/YOUR-CHATBASE-ID"
+          frameborder="0">
+  </iframe>
+</div>
+
 </body>
 </html>
