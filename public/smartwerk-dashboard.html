@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk AI Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #0e0e11;
+      color: #f2f2f2;
+    }
+    header {
+      background: #1b1b1e;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.8em;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 15px;
+      background: #161618;
+      border-bottom: 1px solid #333;
+    }
+    nav a {
+      text-decoration: none;
+      color: #fff;
+      background: #2a2a2e;
+      padding: 10px 16px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    nav a:hover {
+      background: #4b4b50;
+    }
+    section {
+      padding: 30px 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h2 {
+      color: #f6f6f6;
+      border-bottom: 1px solid #444;
+      padding-bottom: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .card {
+      background: #1f1f22;
+      border: 1px solid #2e2e31;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .card h3 {
+      margin-top: 0;
+    }
+    button {
+      padding: 10px 15px;
+      background: #12b886;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    iframe {
+      width: 100%;
+      border: none;
+      min-height: 600px;
+      margin-top: 20px;
+    }
+    @media (max-width: 600px) {
+      nav {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>SmartWerk AI Dashboard</header>
+
+  <nav>
+    <a href="#free-files">Free Files</a>
+    <a href="#calculator">Income Estimator</a>
+    <a href="#ai-chat">AI Chat</a>
+    <a href="#upgrade">Go PRO</a>
+  </nav>
+
+  <section id="free-files">
+    <h2>📂 Free SmartWerk PDF Files</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>CSV Guide</h3>
+        <p>Step-by-step help to manage your ZZP income via spreadsheet.</p>
+        <a href="/pdfs/wow/templates/SmartWerk_CSV_Guide_v2.pdf" target="_blank"><button>Open PDF</button></a>
+      </div>
+      <div class="card">
+        <h3>Invoice Template</h3>
+        <p>Use this ready-made invoice for your freelance work (downloadable).</p>
+        <a href="/pdfs/wow/templates/SmartWerk_Invoice_Template_v2.pdf" target="_blank"><button>Download PDF</button></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="calculator">
+    <h2>🧮 Income Estimator (Preview)</h2>
+    <form onsubmit="calculateIncome(event)">
+      <label for="hourRate">Your hourly rate (€):</label><br/>
+      <input type="number" id="hourRate" placeholder="e.g. 40" required /><br/><br/>
+      <label for="hoursPerWeek">Hours/week:</label><br/>
+      <input type="number" id="hoursPerWeek" placeholder="e.g. 20" required /><br/><br/>
+      <button type="submit">Estimate My Monthly Income</button>
+    </form>
+    <p id="incomeResult" style="margin-top:15px; font-weight:bold;"></p>
+  </section>
+
+  <section id="ai-chat">
+    <h2>💬 Ask AI Anything</h2>
+    <p>Chat with SmartWerk AI to get real-time answers.</p>
+    <iframe src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls" style="height: 700px;"></iframe>
+  </section>
+
+  <section id="upgrade">
+    <h2>🔓 Unlock Full Power with SmartWerk PRO</h2>
+    <p>PRO includes 30+ tools, templates, calculators, and real AI Assistant for taxes & invoices.</p>
+    <a href="/pro/index.html"><button>Go PRO</button></a>
+  </section>
+
+  <script>
+    function calculateIncome(event) {
+      event.preventDefault();
+      const rate = parseFloat(document.getElementById("hourRate").value);
+      const hours = parseFloat(document.getElementById("hoursPerWeek").value);
+      const monthly = rate * hours * 4;
+      document.getElementById("incomeResult").innerText = `Estimated Monthly Income: €${monthly.toFixed(2)}`;
+    }
+  </script>
+</body>
+</html>
