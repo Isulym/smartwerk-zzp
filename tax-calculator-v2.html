@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk Tax Calculator v2.0</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f0f0; transition: background 0.3s, color 0.3s; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    h1 { text-align: center; }
+    .step { display: none; background: #fff; padding: 20px; margin-top: 20px; border-radius: 8px; }
+    .step.active { display: block; }
+    .nav-buttons { text-align: center; margin-top: 20px; }
+    button { padding: 10px 20px; margin: 5px; font-weight: bold; cursor: pointer; border: none; border-radius: 6px; background: #0077cc; color: white; }
+    button:hover { background: #005fa3; }
+    .progress { height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+    .progress-bar { height: 100%; width: 20%; background: #0077cc; transition: width 0.3s; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #333; color: #fff; }
+    .theme-toggle { background: #fff; color: #333; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    .dark body { background: #222; color: #eee; }
+    .dark .step { background: #333; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div>SmartWerk Tax Calculator v2.0</div>
+    <div class="theme-toggle" onclick="toggleTheme()">🌗 Toggle Theme</div>
+  </div>
+  <div class="container">
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div class="step active" id="step1">
+      <h2>Step 1: Income</h2>
+      <p><b>Hours worked:</b> <input type="number" placeholder="e.g. 65" /></p>
+      <p><b>Hourly rate (EUR):</b> <input type="number" placeholder="e.g. 30" /></p>
+      <button onclick="fillExample(1)">✨ Fill Example</button>
+    </div>
+
+    <div class="step" id="step2">
+      <h2>Step 2: Expenses</h2>
+      <p><b>Tools & Software (EUR):</b> <input type="number" /></p>
+      <p><b>Transport (EUR):</b> <input type="number" /></p>
+      <button onclick="fillExample(2)">✨ Fill Example</button>
+    </div>
+
+    <div class="step" id="step3">
+      <h2>Step 3: Benefits</h2>
+      <p><b>Registered KvK:</b> <select><option>Yes</option><option>No</option></select></p>
+      <p><b>Worked 1,225+ hours this year?</b> <select><option>Yes</option><option>No</option></select></p>
+      <button onclick="fillExample(3)">✨ Fill Example</button>
+    </div>
+
+    <div class="step" id="step4">
+      <h2>Step 4: Taxes</h2>
+      <p><b>BTW Rate:</b> <select><option>21%</option><option>9%</option><option>0%</option></select></p>
+      <p><b>Use KOR?</b> <select><option>Yes</option><option>No</option></select></p>
+      <button onclick="fillExample(4)">✨ Fill Example</button>
+    </div>
+
+    <div class="step" id="step5">
+      <h2>Summary</h2>
+      <p>✅ You're ready to export and view your report!</p>
+      <button>📤 Export as PDF (coming soon)</button>
+      <button onclick="askAI()">🤖 Ask SmartWerk AI</button>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="prevStep()">← Back</button>
+      <button onclick="nextStep()">Next →</button>
+    </div>
+  </div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 5;
+  const progressBar = document.getElementById("progressBar");
+
+  function showStep(step) {
+    for (let i = 1; i <= totalSteps; i++) {
+      document.getElementById("step" + i).classList.remove("active");
+    }
+    document.getElementById("step" + step).classList.add("active");
+    progressBar.style.width = (step * 20) + "%";
+  }
+
+  function nextStep() {
+    if (currentStep < totalSteps) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 1) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle("dark");
+  }
+
+  function fillExample(step) {
+    alert("Example filled for step " + step + " (in real version this fills input)");
+  }
+
+  function askAI() {
+    alert("SmartWerk AI (coming soon): Explains this step...");
+  }
+</script>
+</body>
+</html>
