@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartWerk Tax Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
+        h1 { text-align: center; }
+        .step { display: none; background: #fff; padding: 20px; margin: 10px auto; border-radius: 8px; max-width: 600px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .step.active { display: block; }
+        .navigation { text-align: center; margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; border: none; background: #0066cc; color: white; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #005bb5; }
+        .pdf-link { display: block; margin: 10px 0; text-align: center; }
+    </style>
+</head>
+<body>
+
+<h1>SmartWerk Tax Calculator</h1>
+
+<div class="step active" id="step1">
+    <h2>Step 1: Income</h2>
+    <a class="pdf-link" href="SmartWerk_Tax_Income_v1.pdf" target="_blank">📄 Open Income PDF</a>
+</div>
+
+<div class="step" id="step2">
+    <h2>Step 2: Expenses</h2>
+    <a class="pdf-link" href="SmartWerk_Tax_Expenses_v1.pdf" target="_blank">📄 Open Expenses PDF</a>
+</div>
+
+<div class="step" id="step3">
+    <h2>Step 3: Benefits</h2>
+    <a class="pdf-link" href="SmartWerk_Tax_Benefits_v1.pdf" target="_blank">📄 Open Benefits PDF</a>
+</div>
+
+<div class="step" id="step4">
+    <h2>Step 4: Taxes</h2>
+    <a class="pdf-link" href="SmartWerk_Tax_Taxes_v1.pdf" target="_blank">📄 Open Taxes PDF</a>
+</div>
+
+<div class="step" id="step5">
+    <h2>Summary & Export</h2>
+    <a class="pdf-link" href="SmartWerk_Tax_Extra_v1.pdf" target="_blank">📄 Final Checks (Extra)</a>
+    <p style="text-align:center;">✅ Once you complete all steps, you can export your final report as PDF and send it to Belastingdienst.</p>
+</div>
+
+<div class="navigation">
+    <button onclick="prevStep()">← Back</button>
+    <button onclick="nextStep()">Next →</button>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function showStep(step) {
+        for (let i = 1; i <= totalSteps; i++) {
+            document.getElementById("step" + i).classList.remove("active");
+        }
+        document.getElementById("step" + step).classList.add("active");
+    }
+
+    function nextStep() {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+</script>
+
+</body>
+</html>

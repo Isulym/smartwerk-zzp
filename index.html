@@ -2,85 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk WOW Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk: Start Here</title>
   <style>
     body {
-      margin: 0;
+      background-color: #111;
+      color: #00ffe1;
       font-family: 'Segoe UI', sans-serif;
-      background: #0f0f11;
-      color: #f0f0f0;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      height: 100vh;
-    }
-
-    h1 {
-      font-size: 2.4em;
-      margin-bottom: 20px;
-      color: #00ffee;
-      text-shadow: 0 0 10px #00ffee88;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      width: 90%;
-      max-width: 960px;
-    }
-
-    .tile {
-      background: #1a1a1d;
-      border: 1px solid #333;
-      padding: 24px;
+      justify-content: center;
+      min-height: 100vh;
       text-align: center;
-      border-radius: 12px;
-      transition: 0.3s;
-      cursor: pointer;
-      box-shadow: 0 0 12px #00ffee22;
+      margin: 0;
     }
-
-    .tile:hover {
-      background: #222;
-      transform: scale(1.03);
-      box-shadow: 0 0 20px #00ffee55;
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 30px;
     }
-
-    .tile a {
+    .button {
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
       text-decoration: none;
-      color: #00ffee;
-      font-size: 1.1em;
       font-weight: bold;
+      margin: 8px;
+      display: inline-block;
+      transition: 0.3s;
     }
-
-    footer {
-      margin-top: 40px;
-      font-size: 0.85em;
-      color: #777;
+    .button:hover {
+      background-color: #333;
     }
-
-    @media (max-width: 600px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    .footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #888;
     }
   </style>
 </head>
 <body>
   <h1>🚀 SmartWerk: Start Here</h1>
-  <div class="grid">
-    <div class="tile"><a href="/wow.html">📂 Безкоштовні файли</a></div>
-    <div class="tile"><a href="/pro_index.html">🚀 Перейти на PRO</a></div>
-    <div class="tile"><a href="/pdfs/wow/upgrade/SmartWerk_Compare_Free_vs_Pro_v2.0.pdf" target="_blank">⚖️ Порівняння (Free vs PRO)</a></div>
-    <div class="tile"><a href="/pdfs/wow/wow/WOW_AI_vs_Others_v1.pdf" target="_blank">✨ Чим ми унікальні</a></div>
-    <div class="tile"><a href="/assistant_index.html">🤖 AI-помічник</a></div>
+
+  <div>
+    <a href="pro_index.html" class="button">🧳 Go PRO</a>
+    <a href="compare.html" class="button">🪪 Compare Free vs PRO (Free vs PRO)</a>
+    <a href="wow.html" class="button">✨ Why SmartWerk</a> 
+    <a href="wow-files.html" class="button">📁 Free Files</a>
+    <a href="assistant_index.html" class="button">🤖 AI Assistant</a>
+    <a href="zzpfaq.html" class="button">❓ FAQ SmartWerk</a>
+    <a href="tax-calculator.html" class="button">🧾 Tax Calculator</a>
   </div>
 
-  <footer>
+  <div class="footer">
     SmartWerk © 2025 — Made with ❤️ in Netherlands
-  </footer>
+  </div>
 </body>
 </html>
