@@ -2,18 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SmartWerk Tax Calculator</title>
+  <title>SmartWerk Tax Calculator v2.0</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-    .container { max-width: 700px; margin: 50px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; }
-    label { display: block; margin-top: 15px; }
-    input, select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
-    button { margin-top: 20px; padding: 12px 25px; background: #0077cc; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
-    button:hover { background: #005fa3; }
-    .hidden { display: none; }
-    .summary-box { background: #eef; padding: 20px; border-radius: 6px; margin-top: 20px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .summary-box {
+      background: #eef;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 6px;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -37,15 +72,16 @@
     </select>
 
     <button onclick="calculate()">Calculate</button>
+    <button onclick="fillExample()">✨ Fill Example</button>
+    <button onclick="downloadPDF()">Export as PDF</button>
+    <button onclick="window.open('ai-assistant.html', '_blank')">Ask SmartWerk AI</button>
 
     <div id="results" class="summary-box hidden">
       <h3>Summary</h3>
-      <p><strong>Gross Income:</strong> €<span id="gross"></span></p>
-      <p><strong>Expenses:</strong> €<span id="exp"></span></p>
-      <p><strong>BTW (Tax):</strong> €<span id="btwResult"></span></p>
-      <p><strong>Estimated Net Profit:</strong> €<span id="net"></span></p>
-      <button onclick="downloadPDF()">Export as PDF</button>
-      <button onclick="window.open('ai-assistant.html', '_blank')">Ask SmartWerk AI</button>
+      <p><strong>Gross Income:</strong> <span id="gross"></span></p>
+      <p><strong>Expenses:</strong> <span id="exp"></span></p>
+      <p><strong>BTW (Tax):</strong> <span id="btwResult"></span></p>
+      <p><strong>Estimated Net Profit:</strong> <span id="net"></span></p>
     </div>
   </div>
 
@@ -56,42 +92,27 @@
       const expenses = parseFloat(document.getElementById('expenses').value);
       const btwRate = parseFloat(document.getElementById('btw').value);
 
-      if (isNaN(hours) || isNaN(rate) || isNaN(expenses)) {
-        alert("Please fill in all fields correctly.");
-        return;
-      }
+      const grossIncome = hours * rate;
+      const btw = grossIncome * btwRate;
+      const netProfit = grossIncome - expenses - btw;
 
-      const gross = hours * rate;
-      const btw = gross * btwRate;
-      const net = gross - expenses - btw;
+      document.getElementById('gross').textContent = grossIncome.toFixed(2) + " €";
+      document.getElementById('exp').textContent = expenses.toFixed(2) + " €";
+      document.getElementById('btwResult').textContent = btw.toFixed(2) + " €";
+      document.getElementById('net').textContent = netProfit.toFixed(2) + " €";
 
-      document.getElementById('gross').innerText = gross.toFixed(2);
-      document.getElementById('exp').innerText = expenses.toFixed(2);
-      document.getElementById('btwResult').innerText = btw.toFixed(2);
-      document.getElementById('net').innerText = net.toFixed(2);
-      document.getElementById('results').classList.remove('hidden');
+      document.getElementById('results').classList.remove("hidden");
+    }
+
+    function fillExample() {
+      document.getElementById("hours").value = 160;
+      document.getElementById("rate").value = 35;
+      document.getElementById("expenses").value = 500;
+      document.getElementById("btw").value = "0.21";
     }
 
     function downloadPDF() {
-      const gross = document.getElementById('gross').innerText;
-      const exp = document.getElementById('exp').innerText;
-      const btw = document.getElementById('btwResult').innerText;
-      const net = document.getElementById('net').innerText;
-
-      const content = `
-        SmartWerk Tax Summary\n
-        ----------------------\n
-        Gross Income: €${gross}
-        Expenses: €${exp}
-        BTW: €${btw}
-        Net Profit: €${net}
-      `;
-
-      const blob = new Blob([content], { type: 'application/pdf' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'SmartWerk_Tax_Summary.pdf';
-      link.click();
+      alert("📄 PDF export coming soon!");
     }
   </script>
 </body>
