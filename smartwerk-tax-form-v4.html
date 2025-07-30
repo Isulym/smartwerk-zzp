@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartWerk Tax Form v4 – WOW Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #2c3e50;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      background: #1e1e1e;
+      color: #ecf0f1;
+    }
+    h2, h3 { margin-top: 0; }
+    .step {
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+    .dark-mode .step {
+      background: #2b2b2b;
+      border-color: #444;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1a252f;
+    }
+    .tooltip {
+      display: inline-block;
+      border-bottom: 1px dotted #999;
+      cursor: help;
+      color: #3498db;
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .note {
+      font-size: 12px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="section-title">
+    <h2>SmartWerk: Tax Form v4</h2>
+    <button onclick="toggleDarkMode()">🌙 Theme</button>
+  </div>
+
+  <form id="taxForm">
+    <div class="step">
+      <h3>Step 1: Your Info</h3>
+      <label>Full Name <input name="name" required></label>
+      <label>Email <input name="email" type="email"></label>
+      <label>Phone <input name="phone" type="tel"></label>
+      <label>Company Name <input name="company"></label>
+      <label>KvK Number <input name="kvk"></label>
+      <label>IBAN <input name="iban"></label>
+      <label>Period <input name="period" placeholder="e.g. Q1 2025"></label>
+      <label>Registered KvK? <select name="kvk_registered"><option>Yes</option><option>No</option></select></label>
+      <label>Worked 1,225+ hours? <select name="worked_1225"><option>Yes</option><option>No</option></select></label>
+      <label>Experience level <select id="userMode" onchange="toggleTips()"><option>Beginner</option><option>Advanced</option></select></label>
+    </div>
+
+    <div class="step">
+      <h3>Step 2: Income & Hours</h3>
+      <label>Hours Worked <input name="hours" type="number" step="0.1"></label>
+      <label>Hourly Rate (EUR) <input name="rate" type="number" step="0.01"></label>
+      <label>Total Income (EUR) <input name="income" type="number" step="0.01" placeholder="Leave blank if using hours"></label>
+      <label>Benefits / Deductions (EUR) <input name="benefits" type="number" step="0.01" value="0"></label>
+    </div>
+
+    <div class="step">
+      <h3>Step 3: Expenses</h3>
+      <label>Car Expenses <input name="car_exp" type="number" step="0.01"></label>
+      <label>Office Expenses <input name="office_exp" type="number" step="0.01"></label>
+      <label>Equipment & Software <input name="equip_exp" type="number" step="0.01"></label>
+      <label>Marketing & Ads <input name="marketing_exp" type="number" step="0.01"></label>
+      <label>Other Expenses <input name="other_exp" type="number" step="0.01"></label>
+      <label>Upload Receipt <input type="file" name="receipt"></label>
+    </div>
+
+    <div class="step">
+      <h3>Step 4: Taxes</h3>
+      <label>BTW Rate <select name="btw_rate"><option value="21">21%</option><option value="9">9%</option><option value="0">0%</option></select></label>
+      <label>Use KOR? <select name="kor"><option>No</option><option>Yes</option></select></label>
+      <label>Already paid VAT? <select name="paid_vat"><option>No</option><option>Yes</option></select></label>
+    </div>
+
+    <div class="step">
+      <h3>Preview</h3>
+      <pre id="preview" style="white-space: pre-wrap; background:#eee; padding: 10px; border-radius: 5px;"></pre>
+    </div>
+
+    <button type="button" onclick="sendToAccountant()">Send to accountant</button>
+    <button type="button" onclick="window.open('ai-assistant.html')">Ask SmartWerk AI</button>
+  </form>
+
+  <p class="note">SmartWerk 2025 © All rights reserved.</p>
+
+  <script>
+    const form = document.forms.taxForm;
+    const preview = document.getElementById('preview');
+
+    function updatePreview() {
+      const f = Object.fromEntries(new FormData(form));
+      const income = f.income ? parseFloat(f.income) : (parseFloat(f.hours || 0) * parseFloat(f.rate || 0));
+      const expenses = ['car_exp','office_exp','equip_exp','marketing_exp','other_exp'].reduce((acc,k)=>acc+parseFloat(f[k]||0),0);
+      const benefits = parseFloat(f.benefits || 0);
+      const profit = income - expenses - benefits;
+      const btw = f.kor === 'Yes' ? 0 : (profit * parseFloat(f.btw_rate || 21) / 100);
+      const net = profit - btw;
+      preview.textContent = `
+Name: ${f.name}
+Company: ${f.company}
+Email: ${f.email}
+KvK: ${f.kvk}
+IBAN: ${f.iban}
+Period: ${f.period}
+Registered KvK: ${f.kvk_registered}, Worked 1,225+: ${f.worked_1225}
+
+Income: €${income.toFixed(2)}
+Benefits: €${benefits.toFixed(2)}
+Total Expenses: €${expenses.toFixed(2)}
+Profit: €${profit.toFixed(2)}
+VAT (${f.btw_rate}%): €${btw.toFixed(2)}
+KOR: ${f.kor}
+Net Profit: €${net.toFixed(2)}
+      `.trim();
+    }
+
+    form.addEventListener('input', updatePreview);
+    window.addEventListener('DOMContentLoaded', updatePreview);
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function sendToAccountant() {
+      alert("This will send the PDF to your accountant. Feature coming soon!");
+    }
+
+    function toggleTips() {
+      const mode = document.getElementById('userMode').value;
+      alert(mode === 'Beginner' ? 'Beginner tips activated!' : 'Advanced mode enabled.');
+    }
+  </script>
+</body>
+</html>
