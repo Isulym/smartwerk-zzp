@@ -1,28 +1,27 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk Tax Form v8.5</title>
+  <title>SmartWerk Tax Form v9</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-    .step { display: none; }
-    .step.active { display: block; }
-    .buttons { margin-top: 20px; }
-    .buttons button { margin-right: 10px; }
-    .summary, .ai-summary { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    h1 { color: #333; }
+    label { display: block; margin-top: 10px; }
+    input, select { padding: 8px; width: 100%; margin-top: 5px; }
+    .section { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    button { margin-top: 20px; padding: 10px 20px; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>SmartWerk Tax Form v8.5 — WOW Edition</h1>
 
-  <div id="step1" class="step active">
-    <h2>Step 1: Your Company</h2>
-    <label>Company Name: <input type="text" id="company" /></label><br/>
-    <label>Email: <input type="email" id="email" /></label><br/>
-    <label>Phone: <input type="text" id="phone" /></label><br/>
-    <label>Period:
+  <h1>SmartWerk Tax Form v9</h1>
+
+  <div class="section">
+    <h2>Step 1: Your Details</h2>
+    <label>Company Name: <input type="text" id="companyName"></label>
+    <label>Email: <input type="email" id="email"></label>
+    <label>Period: 
       <select id="period">
         <option>January – March (Q1)</option>
         <option>April – June (Q2)</option>
@@ -30,104 +29,90 @@
         <option>October – December (Q4)</option>
       </select>
     </label>
-  </div>
-
-  <div id="step2" class="step">
-    <h2>Step 2: Income & Expenses</h2>
-    <label>Hours Worked: <input type="number" id="hours" /></label><br/>
-    <label>Hourly Rate (EUR): <input type="number" id="rate" /></label><br/>
-    <label>Extra Benefits (EUR): <input type="number" id="benefits" /></label><br/>
-    <label>Expenses (EUR): <input type="number" id="expenses" /></label><br/>
-    <label>Upload Receipt: <input type="file" id="receipt" /></label>
-  </div>
-
-  <div id="step3" class="step">
-    <h2>Step 3: Tax Details</h2>
-    <label>KvK Registered?
+    <label>Hours Worked: <input type="number" id="hoursWorked"></label>
+    <label>Hourly Rate (€): <input type="number" id="hourlyRate"></label>
+    <label>KvK Registered? 
       <select id="kvk">
         <option>Yes</option><option>No</option>
       </select>
-    </label><br/>
-    <label>Worked 1,225+ hours?
-      <select id="hours1255">
-        <option>Yes</option><option>No</option>
-      </select>
-    </label><br/>
-    <label>BTW Rate:
-      <select id="btw">
-        <option value="21">21%</option>
-        <option value="9">9%</option>
-        <option value="0">0%</option>
-      </select>
-    </label><br/>
-    <label>Use KOR?
-      <select id="kor">
+    </label>
+    <label>Worked 1,225+ hours this year? 
+      <select id="hoursBonus">
         <option>Yes</option><option>No</option>
       </select>
     </label>
   </div>
 
-  <div id="step4" class="step">
-    <h2>Step 4: Result</h2>
-    <div class="summary" id="summary"></div>
-    <div class="ai-summary" id="aiSummary">💡 AI Tip: Make sure your expenses are categorized. Contact SmartWerk AI for help!</div>
-    <div class="buttons">
-      <button onclick="exportPDF()">Export as PDF</button>
-      <button onclick="alert('Sending to accountant...')">Send to accountant</button>
-      <button onclick="window.open('ai-assistant.html', '_blank')">Ask SmartWerk AI</button>
-    </div>
+  <div class="section">
+    <h2>Step 2: Revenue & Expenses</h2>
+    <label>Total Revenue (€): <input type="number" id="revenue"></label>
+    <label>BTW Rate (%): 
+      <select id="btw">
+        <option value="21">21%</option>
+        <option value="9">9%</option>
+        <option value="0">0%</option>
+      </select>
+    </label>
+
+    <label>Vehicle Expenses (€): <input type="number" id="vehicle"></label>
+    <label>Office Expenses (€): <input type="number" id="office"></label>
+    <label>Internet/Software (€): <input type="number" id="internet"></label>
+    <label>Advertising/Marketing (€): <input type="number" id="ads"></label>
+    <label>Other Expenses (€): <input type="number" id="other"></label>
   </div>
 
-  <div class="buttons">
-    <button onclick="prevStep()">Back</button>
-    <button onclick="nextStep()">Next</button>
+  <div class="section">
+    <h2>Step 3: Summary & Profit</h2>
+    <p><strong>Total Expenses:</strong> <span id="totalExpenses">€0</span></p>
+    <p><strong>Net Profit:</strong> <span id="netProfit">€0</span></p>
+    <p><strong>BTW to Pay:</strong> <span id="btwPay">€0</span></p>
+    <p><strong>Income Tax:</strong> <span id="incomeTax">€0</span></p>
+    <p><strong>Net After Tax:</strong> <span id="afterTax">€0</span></p>
   </div>
 
-<script>
-  let currentStep = 1;
-  function showStep(step) {
-    for (let i = 1; i <= 4; i++) {
-      document.getElementById('step' + i).classList.remove('active');
+  <button onclick="calculate()">Calculate</button>
+  <button onclick="window.print()">Export as PDF</button>
+  <button onclick="window.open('ai-assistant.html', '_blank')">Ask SmartWerk AI</button>
+
+  <script>
+    function calculate() {
+      const revenue = parseFloat(document.getElementById("revenue").value) || 0;
+      const vehicle = parseFloat(document.getElementById("vehicle").value) || 0;
+      const office = parseFloat(document.getElementById("office").value) || 0;
+      const internet = parseFloat(document.getElementById("internet").value) || 0;
+      const ads = parseFloat(document.getElementById("ads").value) || 0;
+      const other = parseFloat(document.getElementById("other").value) || 0;
+      const btwRate = parseFloat(document.getElementById("btw").value) || 0;
+
+      const totalExpenses = vehicle + office + internet + ads + other;
+      const netProfit = revenue - totalExpenses;
+      const btwPay = revenue * (btwRate / 100);
+
+      // Income tax logic
+      let incomeTax = 0;
+      if (netProfit <= 75000) {
+        incomeTax = netProfit * 0.3693;
+      } else {
+        incomeTax = (75000 * 0.3693) + ((netProfit - 75000) * 0.495);
+      }
+
+      // Apply deductions
+      let deductions = 0;
+      if (document.getElementById("kvk").value === "Yes" && document.getElementById("hoursBonus").value === "Yes") {
+        deductions += 5030; // zelfstandigenaftrek
+        deductions += netProfit * 0.14; // mkb-vrijstelling
+      }
+
+      const afterTax = netProfit - incomeTax + deductions;
+
+      // Update fields
+      document.getElementById("totalExpenses").innerText = "€" + totalExpenses.toFixed(2);
+      document.getElementById("netProfit").innerText = "€" + netProfit.toFixed(2);
+      document.getElementById("btwPay").innerText = "€" + btwPay.toFixed(2);
+      document.getElementById("incomeTax").innerText = "€" + incomeTax.toFixed(2);
+      document.getElementById("afterTax").innerText = "€" + afterTax.toFixed(2);
     }
-    document.getElementById('step' + step).classList.add('active');
-  }
-  function nextStep() {
-    if (currentStep < 4) {
-      currentStep++;
-      showStep(currentStep);
-      if (currentStep === 4) calculateSummary();
-    }
-  }
-  function prevStep() {
-    if (currentStep > 1) {
-      currentStep--;
-      showStep(currentStep);
-    }
-  }
+  </script>
 
-  function calculateSummary() {
-    const hours = parseFloat(document.getElementById('hours').value) || 0;
-    const rate = parseFloat(document.getElementById('rate').value) || 0;
-    const benefits = parseFloat(document.getElementById('benefits').value) || 0;
-    const expenses = parseFloat(document.getElementById('expenses').value) || 0;
-    const btw = parseFloat(document.getElementById('btw').value) || 0;
-
-    const income = hours * rate + benefits;
-    const net = income - expenses;
-    const tax = net * (btw / 100);
-    const profit = net - tax;
-
-    document.getElementById('summary').innerHTML = `
-      <p>🧾 Gross Income: €${income.toFixed(2)}</p>
-      <p>💸 Expenses: €${expenses.toFixed(2)}</p>
-      <p>🧮 Tax (${btw}%): €${tax.toFixed(2)}</p>
-      <p>✅ Net Profit: €${profit.toFixed(2)}</p>
-    `;
-  }
-
-  function exportPDF() {
-    alert("🧾 Export to PDF in real version. Coming soon!");
-  }
-</script>
 </body>
 </html>
