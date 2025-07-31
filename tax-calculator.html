@@ -1,134 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk Tax Calculator</title>
+  <meta charset="UTF-8">
+  <title>SmartWerk Tax Calculator v10.5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 700px; margin: auto; background: #f9f9f9; }
-    h2 { margin-top: 40px; }
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; }
     label { display: block; margin-top: 10px; font-weight: bold; }
     input, select { width: 100%; padding: 8px; margin-top: 5px; }
+    .summary { margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ccc; }
+    .tooltip { cursor: help; color: blue; }
     .section { margin-bottom: 30px; }
-    .summary { background: #eee; padding: 15px; border-radius: 5px; }
-    button { padding: 10px 20px; margin-top: 20px; cursor: pointer; }
-    small { display: block; color: #666; margin-top: 3px; font-size: 12px; }
+    button { padding: 10px 15px; margin-top: 20px; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <h1>💼 SmartWerk Tax Calculator</h1>
+  <h1>SmartWerk Tax Calculator v10.5</h1>
 
   <div class="section">
-    <h2>Step 1: Your Info</h2>
-    <label>Company Name</label><input type="text" id="company">
-    <label>Email</label><input type="email" id="email">
+    <h2>Step 1: Your Information</h2>
+    <label>Company Name</label><input id="companyName" type="text">
+
+    <label>Email / Phone</label><input id="contactInfo" type="text">
+
     <label>Period</label>
     <select id="period">
-      <option>January – March (Q1)</option>
-      <option>April – June (Q2)</option>
-      <option>July – September (Q3)</option>
-      <option>October – December (Q4)</option>
+      <option>January – March</option>
+      <option>April – June</option>
+      <option>July – September</option>
+      <option>October – December</option>
     </select>
-    <label>Hours Worked</label><input type="number" id="hours" value="0">
-    <label>Hourly Rate (€)</label><input type="number" id="rate" value="0">
+
+    <label>Total Income (€)</label><input id="income" type="number">
+
     <label>KvK Registered?</label>
     <select id="kvk"><option>Yes</option><option>No</option></select>
+
     <label>Worked 1225+ hours?</label>
-    <select id="worked"><option>Yes</option><option>No</option></select>
+    <select id="hours"><option>Yes</option><option>No</option></select>
   </div>
 
   <div class="section">
     <h2>Step 2: Expenses</h2>
-    <label>Office Costs (€)</label><input type="number" id="office" value="0">
-    <label>Equipment (€)</label><input type="number" id="equipment" value="0">
-    <label>Transport (€)</label><input type="number" id="transport" value="0">
-    <label>Marketing (€)</label><input type="number" id="marketing" value="0">
-    <label>Other (€)</label><input type="number" id="other" value="0">
-    <label>Extra Benefits (subsidies etc) (€)</label><input type="number" id="benefits" value="0">
+    <label>Auto Costs (€)</label><input id="auto" type="number">
+    <label>Office Costs (€)</label><input id="office" type="number">
+    <label>Internet & Phone (€)</label><input id="internet" type="number">
+    <label>Marketing (€)</label><input id="ads" type="number">
+    <label>Other Expenses (€)</label><input id="other" type="number">
   </div>
 
   <div class="section">
-    <h2>Step 3: VAT & Tax Settings</h2>
-    <label>BTW Rate</label>
-    <select id="btw"><option value="21">21%</option><option value="9">9%</option><option value="0">0%</option></select>
+    <h2>Step 3: Tax Settings</h2>
+    <label>BTW Rate
+      <span class="tooltip" title="Standard: 21%, reduced: 9%, 0% for exempt">ℹ️</span>
+    </label>
+    <select id="btwRate">
+      <option value="21">21%</option>
+      <option value="9">9%</option>
+      <option value="0">0%</option>
+    </select>
+
     <label>Use KOR?</label>
     <select id="kor"><option>No</option><option>Yes</option></select>
+
+    <label>Extra Benefits / Subsidies (€)</label><input id="benefits" type="number">
   </div>
 
   <div class="section">
-    <h2>Step 4: Summary</h2>
-    <div class="summary" id="result">
-      Fill in the fields to calculate your taxes...
-    </div>
-    <button onclick="exportPDF()">Export as PDF</button>
+    <button onclick="calculate()">Calculate Tax Summary</button>
+    <button onclick="exportPDF()">Export PDF</button>
   </div>
 
-<script>
-function exportPDF() {
-  const result = document.getElementById("result").innerText;
-  const blob = new Blob([result], { type: 'text/plain' });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "SmartWerk_Tax_Report.txt";
-  link.click();
-}
+  <div class="summary" id="summary" style="display:none;"></div>
 
-function calculate() {
-  const hours = +document.getElementById("hours").value;
-  const rate = +document.getElementById("rate").value;
-  const income = hours * rate;
-  const office = +document.getElementById("office").value;
-  const equipment = +document.getElementById("equipment").value;
-  const transport = +document.getElementById("transport").value;
-  const marketing = +document.getElementById("marketing").value;
-  const other = +document.getElementById("other").value;
-  const benefits = +document.getElementById("benefits").value;
-  const expenses = office + equipment + transport + marketing + other;
-  const profit = income - expenses + benefits;
+  <script>
+    function calculate() {
+      const income = parseFloat(document.getElementById("income").value) || 0;
+      const expenses = ['auto','office','internet','ads','other'].reduce((sum,id) => sum + (parseFloat(document.getElementById(id).value) || 0), 0);
+      const btwRate = parseFloat(document.getElementById("btwRate").value);
+      const benefits = parseFloat(document.getElementById("benefits").value) || 0;
+      const kor = document.getElementById("kor").value === "Yes";
+      const kvk = document.getElementById("kvk").value === "Yes";
+      const workedHours = document.getElementById("hours").value === "Yes";
 
-  const kvk = document.getElementById("kvk").value === "Yes";
-  const worked = document.getElementById("worked").value === "Yes";
-  let zelfstandigenaftrek = (kvk && worked) ? 5030 : 0;
-  let startersaftrek = (kvk && worked) ? 2123 : 0;
-  let taxable = profit - zelfstandigenaftrek - startersaftrek;
+      const profit = income - expenses + benefits;
+      let taxable = profit;
 
-  let incomeTax = 0;
-  if (taxable <= 73131) incomeTax = taxable * 0.3707;
-  else if (taxable <= 200000) incomeTax = 73131 * 0.3707 + (taxable - 73131) * 0.49;
-  else incomeTax = 73131 * 0.3707 + (200000 - 73131) * 0.49 + (taxable - 200000) * 0.509;
+      let deductions = 0;
+      if (kvk && workedHours) {
+        deductions += 2123; // startersaftrek
+        deductions += 5030; // zelfstandigenaftrek
+      }
 
-  const zwv = profit * 0.0532;
-  const mkb = (profit - zelfstandigenaftrek - startersaftrek) * 0.127;
-  const finalTax = incomeTax + zwv - mkb;
+      let afterDeduction = taxable - deductions;
+      afterDeduction -= afterDeduction * 0.127; // MKB-vrijstelling 12.7%
+      const cappedRate = 0.3748;
+      const finalTaxBase = Math.min(afterDeduction, taxable);
+      const cappedDeduction = taxable - finalTaxBase;
 
-  const btwRate = +document.getElementById("btw").value;
-  const btwAmount = (profit * btwRate) / 100;
+      // Income tax (progressive 2025)
+      let incomeTax = 0;
+      if (finalTaxBase <= 37626) {
+        incomeTax = finalTaxBase * 0.3673;
+      } else if (finalTaxBase <= 74000) {
+        incomeTax = 37626 * 0.3673 + (finalTaxBase - 37626) * 0.403;
+      } else {
+        incomeTax = 37626 * 0.3673 + (74000 - 37626) * 0.403 + (finalTaxBase - 74000) * 0.495;
+      }
 
-  document.getElementById("result").innerText = `
-Gross income: €${income.toFixed(2)}
-Expenses: €${expenses.toFixed(2)}
-Profit after benefits: €${profit.toFixed(2)}
+      const btw = kor ? 0 : income * btwRate / 100;
+      const zvw = finalTaxBase * 0.0532;
+      const totalTax = incomeTax + zvw + btw;
 
-Self-employed deductions: €${zelfstandigenaftrek}
-Startersaftrek: €${startersaftrek}
-Taxable income: €${taxable.toFixed(2)}
+      let output = `
+        <h3>Tax Summary for ${document.getElementById("period").value}</h3>
+        <p><b>Gross Income:</b> €${income.toFixed(2)}</p>
+        <p><b>Total Expenses:</b> €${expenses.toFixed(2)}</p>
+        <p><b>Profit:</b> €${profit.toFixed(2)}</p>
+        <p><b>Deductions:</b> €${deductions.toFixed(2)}</p>
+        <p><b>MKB Exemption (12.7%):</b> €${(taxable * 0.127).toFixed(2)}</p>
+        <p><b>Final Taxable Income:</b> €${finalTaxBase.toFixed(2)}</p>
+        <p><b>Income Tax:</b> €${incomeTax.toFixed(2)}</p>
+        <p><b>ZVW (5.32%):</b> €${zvw.toFixed(2)}</p>
+        <p><b>BTW (${btwRate}%):</b> €${btw.toFixed(2)}</p>
+        <p><b>Total Estimated Tax:</b> <strong>€${totalTax.toFixed(2)}</strong></p>
+        <p><b>You Saved:</b> €${deductions.toFixed(2)} with ZZP deductions</p>
+      `;
 
-Income Tax: €${incomeTax.toFixed(2)}
-ZVW (5.32%): €${zwv.toFixed(2)}
-MKB Deduction (12.7%): -€${mkb.toFixed(2)}
+      document.getElementById("summary").innerHTML = output;
+      document.getElementById("summary").style.display = "block";
+    }
 
-Final Tax: €${finalTax.toFixed(2)}
-BTW to pay (at ${btwRate}%): €${btwAmount.toFixed(2)}
-
-➤ You saved: €${(zelfstandigenaftrek + startersaftrek + mkb).toFixed(2)} with deductions.
-  `;
-}
-
-document.querySelectorAll("input, select").forEach(e => {
-  e.addEventListener("input", calculate);
-});
-</script>
+    function exportPDF() {
+      const content = document.getElementById("summary").innerText;
+      const blob = new Blob([content], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "smartwerk-tax-summary.pdf";
+      link.click();
+    }
+  </script>
 
 </body>
 </html>
