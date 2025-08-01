@@ -104,52 +104,65 @@
 
     function calculateTax() {
   const income = +document.getElementById("income").value || 0;
-  const expenses = +document.getElementById("vehicle").value + +document.getElementById("office").value +
-                   +document.getElementById("internet").value + +document.getElementById("marketing").value +
-                   +document.getElementById("other").value;
+  const expenses = 
+    (+document.getElementById("vehicle").value || 0) +
+    (+document.getElementById("office").value || 0) +
+    (+document.getElementById("internet").value || 0) +
+    (+document.getElementById("marketing").value || 0) +
+    (+document.getElementById("other").value || 0);
   const extra = +document.getElementById("extraBenefits").value || 0;
-  const isKvK = document.getElementById("kvk").value === "yes";
-  const is1225Hours = document.getElementById("zzpHours").value === "yes";
 
-  const profitBeforeTax = income - expenses + extra;
+  const kvk = document.getElementById("kvk").value === "yes";
+  const zzpHours = document.getElementById("zzpHours").value === "yes";
+  const btwRate = +document.getElementById("btwRate").value || 0;
 
-  // --- Пільги ---
-  let zelfstandigenaftrek = (isKvK && is1225Hours) ? 5030 : 0;
-  let startersaftrek = (isKvK && is1225Hours) ? 2123 : 0;
-  let totalFixed = zelfstandigenaftrek + startersaftrek;
+  // 1. Профіт до пільг
+  const gross = income;
+  const totalExpenses = expenses;
+  const profit = income - totalExpenses + extra;
 
-  let maxDeductible = profitBeforeTax * 0.3748;
-  let cappedFixed = Math.min(totalFixed, maxDeductible);
+  // 2. ZZP пільги
+  let deductions = 0;
+  if (kvk && zzpHours) deductions += 5030 + 2123; // zelfstandigenaftrek + startersaftrek
 
-  let remainingProfit = Math.max(profitBeforeTax - cappedFixed, 0);
-  let mkb = remainingProfit * 0.127;
-  let totalDeductions = cappedFixed + mkb;
+  const afterZZP = Math.max(0, profit - deductions);
 
-  // --- Податкова база ---
-  let taxableProfit = Math.max(profitBeforeTax - totalDeductions, 0);
+  // 3. MKB-winstvrijstelling (12.7%)
+  const mkbVrij = afterZZP * 0.127;
+  const finalTaxable = afterZZP - mkbVrij;
 
-  // --- Податок за шкалою ---
+  // 4. Податок на прибуток (прогресивна шкала)
   let incomeTax = 0;
-  if (taxableProfit <= 200000) {
-    incomeTax = taxableProfit * 0.19;
+  if (finalTaxable <= 200000) {
+    incomeTax = finalTaxable * 0.19;
   } else {
-    incomeTax = (200000 * 0.19) + ((taxableProfit - 200000) * 0.258);
+    incomeTax = (200000 * 0.19) + ((finalTaxable - 200000) * 0.258);
   }
 
-  // --- ZVW ---
-  let zvw = profitBeforeTax * 0.0532;
-  let totalTax = incomeTax + zvw;
+  // 5. ZVW (5.32% від прибутку)
+  const zvw = profit * 0.0532;
 
-  // --- Вивід ---
+  // 6. BTW (лише інформаційно, не входить до розрахунку податку на прибуток)
+  const btw = income * (btwRate / 100);
+
+  const totalTax = incomeTax + zvw + btw;
+
+  // 7. Вивід
   document.getElementById("result").innerHTML = `
-    💼 Taxable profit: €${taxableProfit.toFixed(2)}<br>
-    🧾 Tax after deductions: €${incomeTax.toFixed(2)}<br>
-    💰 ZVW (5.32%): €${zvw.toFixed(2)}<br>
-    🟢 <b>Total Estimated Tax: €${totalTax.toFixed(2)}</b><br>
-    ✅ You saved: €${totalDeductions.toFixed(2)}
+    <h4>Tax Summary for ${document.getElementById("period").selectedOptions[0].text}</h4>
+    <p><b>Gross Income:</b> €${gross.toFixed(2)}</p>
+    <p><b>Total Expenses:</b> €${totalExpenses.toFixed(2)}</p>
+    <p><b>Profit:</b> €${profit.toFixed(2)}</p>
+    <p><b>Deductions:</b> €${deductions.toFixed(2)}</p>
+    <p><b>MKB Exemption (12.7%):</b> €${mkbVrij.toFixed(2)}</p>
+    <p><b>Final Taxable Income:</b> €${finalTaxable.toFixed(2)}</p>
+    <p><b>Income Tax:</b> €${incomeTax.toFixed(2)}</p>
+    <p><b>ZVW (5.32%):</b> €${zvw.toFixed(2)}</p>
+    <p><b>BTW (${btwRate}%):</b> €${btw.toFixed(2)}</p>
+    <p><b>Total Estimated Tax:</b> <span style="color:green;">€${totalTax.toFixed(2)}</span></p>
+    <p><b>You Saved:</b> €${deductions.toFixed(2)} with ZZP deductions</p>
   `;
 }
-
     function exportPDF() {
       alert("📝 PDF Export coming soon...");
     }
