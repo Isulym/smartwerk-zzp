@@ -102,72 +102,78 @@
       document.getElementById("income").value = h * r;
     }
 
-        function calculateTax() {
-  const grossIncome = +document.getElementById("income").value || 0;
-  const expenses = +document.getElementById("vehicle").value + +document.getElementById("office").value +
-                   +document.getElementById("internet").value + +document.getElementById("marketing").value +
-                   +document.getElementById("other").value;
-  const extra = +document.getElementById("extraBenefits").value || 0;
-  const kvk = document.getElementById("kvk").value === "yes";
-  const zzp = document.getElementById("zzpHours").value === "yes";
+function calculate() {
+  // 1. Вхідні дані
+  const hours = +document.getElementById("hoursWorked").value || 0;
+  const rate = +document.getElementById("hourlyRate").value || 0;
+  const incomeInput = +document.getElementById("income").value || 0;
+  const income = hours > 0 && rate > 0 ? hours * rate : incomeInput;
+
+  const vehicle = +document.getElementById("vehicle").value || 0;
+  const office = +document.getElementById("office").value || 0;
+  const internet = +document.getElementById("internet").value || 0;
+  const marketing = +document.getElementById("marketing").value || 0;
+  const other = +document.getElementById("other").value || 0;
+  const extraBenefits = +document.getElementById("extraBenefits").value || 0;
+
+  const isKvK = document.getElementById("kvk").value === "yes";
+  const is1225 = document.getElementById("zzpHours").value === "yes";
   const kor = document.getElementById("kor").value === "yes";
-  const btwRate = +document.getElementById("btwRate").value;
 
-  const profit = grossIncome - expenses + extra;
+  const btwRate = +document.getElementById("btwRate").value || 0;
 
-  // Пільги
-  let deductions = 0;
-  if (kvk && zzp) {
-    deductions += 5030 + 2123; // zelfstandigenaftrek + startersaftrek
+  // 2. Витрати і прибуток
+  const totalExpenses = vehicle + office + internet + marketing + other;
+  const profit = income - totalExpenses + extraBenefits;
+
+  // 3. Пільги
+  let aftrek = 0;
+  if (isKvK && is1225) {
+    aftrek += 5030; // zelfstandigenaftrek
+    aftrek += 2123; // startersaftrek
   }
 
-  // Основне оподатковуване
-  let taxable = Math.max(0, profit - deductions);
+  let taxableProfit = Math.max(0, profit - aftrek);
+  const mkbVrijstelling = taxableProfit * 0.127;
+  let afterMkb = taxableProfit - mkbVrijstelling;
 
-  // MKB vrijstelling 12.7%
-  const mkbVrijstelling = taxable * 0.127;
+  // 4. Обмеження пільг (макс 37.48% зменшення)
+  const capped = Math.min(afterMkb, taxableProfit * (1 - 0.3748));
 
-  // Остаточний прибуток
-  const finalTaxable = Math.max(0, taxable - mkbVrijstelling);
-
-  // Income tax: 19% до €200k, далі 25.8%
+  // 5. Прогресивна ставка
   let incomeTax = 0;
-  if (finalTaxable <= 200000) {
-    incomeTax = finalTaxable * 0.19;
+  if (capped <= 200000) {
+    incomeTax = capped * 0.19;
   } else {
-    incomeTax = 200000 * 0.19 + (finalTaxable - 200000) * 0.258;
+    incomeTax = 200000 * 0.19 + (capped - 200000) * 0.258;
   }
 
-  // ZVW
-  const zvw = profit * 0.0532;
+  // 6. ZVW (5.32%) — з max обмеженням (наприклад, €3.865)
+  let zvw = profit * 0.0532;
+  if (zvw > 3865) zvw = 3865;
 
-  // BTW
-  const btw = kor ? 0 : grossIncome * (btwRate / 100);
+  // 7. Total Tax
+  let totalTax = incomeTax + zvw;
 
-  // Загальна сума податків
-  const totalTax = incomeTax + zvw + btw;
+  // 8. KOR — спрощена модель (немає VAT, якщо так)
+  const korNote = kor ? "<br>⚠️ KOR selected — simplified VAT scheme applied." : "";
 
-  // Реальна економія
-  const baseIncomeTax = profit * 0.19;
-  const baseBTW = grossIncome * (btwRate / 100);
-  const saved = (baseIncomeTax + baseBTW) - (incomeTax + btw);
-
-  // Вивід
-  document.getElementById("result").innerHTML = `
-    <h4>Tax Summary for ${document.getElementById("period").value}</h4>
-    ⭐ <b>Gross Income:</b> €${grossIncome.toFixed(2)}<br>
-    📦 <b>Total Expenses:</b> €${expenses.toFixed(2)}<br>
-    💼 <b>Profit:</b> €${profit.toFixed(2)}<br>
-    ✅ <b>Deductions:</b> €${deductions.toFixed(2)}<br>
-    🧾 <b>MKB Exemption (12.7%):</b> €${mkbVrijstelling.toFixed(2)}<br>
-    📊 <b>Final Taxable Income:</b> €${finalTaxable.toFixed(2)}<br>
-    💸 <b>Income Tax:</b> €${incomeTax.toFixed(2)}<br>
-    🧬 <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
-    💰 <b>BTW (${kor ? "KOR" : btwRate + "%" }):</b> €${btw.toFixed(2)}<br>
-    🟢 <b>Total Estimated Tax:</b> <span style="color:green;">€${totalTax.toFixed(2)}</span><br>
-    🟡 <b>You saved:</b> €${saved.toFixed(2)} with ZZP deductions
-  `;
+  // 9. Вивід
+  document.getElementById("income").value = income.toFixed(2);
+  document.getElementById("result").innerHTML =
+    `💼 <b>Taxable profit:</b> €${taxableProfit.toFixed(2)}<br>
+    🔻 <b>After mkb-winstvrijstelling (12.7%):</b> €${afterMkb.toFixed(2)}<br>
+    🧮 <b>Income Tax:</b> €${incomeTax.toFixed(2)}<br>
+    🏥 <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
+    💰 <b>Total Estimated Tax:</b> €${totalTax.toFixed(2)}<br>
+    ✅ <b>You saved:</b> €${(aftrek + mkbVrijstelling).toFixed(2)}${korNote}`;
 }
+
+// Автоматичний підрахунок при кожній зміні
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("input", calculate);
+  el.addEventListener("change", calculate);
+});
 </body>
 </html>  }    function exportPDF() {
       alert("📝 PDF Export coming soon...");
