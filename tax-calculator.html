@@ -103,34 +103,52 @@
     }
 
     function calculateTax() {
-      const income = +document.getElementById("income").value || 0;
-      const expenses = +document.getElementById("vehicle").value + +document.getElementById("office").value +
-                       +document.getElementById("internet").value + +document.getElementById("marketing").value +
-                       +document.getElementById("other").value;
-      const extra = +document.getElementById("extraBenefits").value || 0;
-      const zzp = document.getElementById("zzpHours").value === "yes";
-      const kvk = document.getElementById("kvk").value === "yes";
+  const income = +document.getElementById("income").value || 0;
+  const expenses = +document.getElementById("vehicle").value + +document.getElementById("office").value +
+                   +document.getElementById("internet").value + +document.getElementById("marketing").value +
+                   +document.getElementById("other").value;
+  const extra = +document.getElementById("extraBenefits").value || 0;
+  const isKvK = document.getElementById("kvk").value === "yes";
+  const is1225Hours = document.getElementById("zzpHours").value === "yes";
 
-      let profit = income - expenses + extra;
+  const profitBeforeTax = income - expenses + extra;
 
-      let aftrek = 0;
-      if (kvk && zzp) aftrek += 5030 + 2123; // zelfstandigenaftrek + startersaftrek
-      let taxable = Math.max(0, profit - aftrek);
+  // --- Пільги ---
+  let zelfstandigenaftrek = (isKvK && is1225Hours) ? 5030 : 0;
+  let startersaftrek = (isKvK && is1225Hours) ? 2123 : 0;
+  let totalFixed = zelfstandigenaftrek + startersaftrek;
 
-      let winstvrij = taxable * 0.127;
-      let cappedTaxable = taxable - winstvrij;
-      cappedTaxable = Math.min(cappedTaxable, 200000) * 0.19 + Math.max(0, cappedTaxable - 200000) * 0.258;
+  let maxDeductible = profitBeforeTax * 0.3748;
+  let cappedFixed = Math.min(totalFixed, maxDeductible);
 
-      let zvw = profit * 0.0532;
-      let totalTax = cappedTaxable + zvw;
+  let remainingProfit = Math.max(profitBeforeTax - cappedFixed, 0);
+  let mkb = remainingProfit * 0.127;
+  let totalDeductions = cappedFixed + mkb;
 
-      document.getElementById("result").innerHTML =
-        `💼 Taxable profit: €${taxable.toFixed(2)}<br>
-        🧾 Tax after deductions: €${cappedTaxable.toFixed(2)}<br>
-        💰 ZVW (5.32%): €${zvw.toFixed(2)}<br>
-        🟢 <b>Total Estimated Tax: €${totalTax.toFixed(2)}</b><br>
-        ✅ You saved: €${aftrek + winstvrij}`
-    }
+  // --- Податкова база ---
+  let taxableProfit = Math.max(profitBeforeTax - totalDeductions, 0);
+
+  // --- Податок за шкалою ---
+  let incomeTax = 0;
+  if (taxableProfit <= 200000) {
+    incomeTax = taxableProfit * 0.19;
+  } else {
+    incomeTax = (200000 * 0.19) + ((taxableProfit - 200000) * 0.258);
+  }
+
+  // --- ZVW ---
+  let zvw = profitBeforeTax * 0.0532;
+  let totalTax = incomeTax + zvw;
+
+  // --- Вивід ---
+  document.getElementById("result").innerHTML = `
+    💼 Taxable profit: €${taxableProfit.toFixed(2)}<br>
+    🧾 Tax after deductions: €${incomeTax.toFixed(2)}<br>
+    💰 ZVW (5.32%): €${zvw.toFixed(2)}<br>
+    🟢 <b>Total Estimated Tax: €${totalTax.toFixed(2)}</b><br>
+    ✅ You saved: €${totalDeductions.toFixed(2)}
+  `;
+}
 
     function exportPDF() {
       alert("📝 PDF Export coming soon...");
