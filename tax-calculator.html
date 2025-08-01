@@ -103,67 +103,70 @@
     }
 
     function calculateTax() {
-  const income = +document.getElementById("income").value || 0;
-  const expenses = 
-    (+document.getElementById("vehicle").value || 0) +
-    (+document.getElementById("office").value || 0) +
-    (+document.getElementById("internet").value || 0) +
-    (+document.getElementById("marketing").value || 0) +
-    (+document.getElementById("other").value || 0);
-  const extra = +document.getElementById("extraBenefits").value || 0;
+    const income = +document.getElementById("income").value || 0;
+    const expenses = (
+      +document.getElementById("vehicle").value +
+      +document.getElementById("office").value +
+      +document.getElementById("internet").value +
+      +document.getElementById("marketing").value +
+      +document.getElementById("other").value
+    );
+    const extraBenefits = +document.getElementById("extraBenefits").value || 0;
+    const zzp = document.getElementById("zzpHours").value === "yes";
+    const kvk = document.getElementById("kvk").value === "yes";
+    const kor = document.getElementById("kor").value === "yes";
+    const btwRate = +document.getElementById("btwRate").value || 0;
 
-  const kvk = document.getElementById("kvk").value === "yes";
-  const zzpHours = document.getElementById("zzpHours").value === "yes";
-  const btwRate = +document.getElementById("btwRate").value || 0;
+    const gross = income;
+    const totalExpenses = expenses;
+    const profit = income - expenses + extraBenefits;
 
-  // 1. Профіт до пільг
-  const gross = income;
-  const totalExpenses = expenses;
-  const profit = income - totalExpenses + extra;
+    // ZZP deductions
+    let zzpDeductions = 0;
+    if (kvk && zzp) {
+      zzpDeductions += 5030 + 2123; // zelfstandigenaftrek + startersaftrek
+    }
 
-  // 2. ZZP пільги
-  let deductions = 0;
-  if (kvk && zzpHours) deductions += 5030 + 2123; // zelfstandigenaftrek + startersaftrek
+    let taxableAfterDeductions = Math.max(0, profit - zzpDeductions);
+    let mkbVrijstelling = taxableAfterDeductions * 0.127;
+    let finalTaxable = taxableAfterDeductions - mkbVrijstelling;
 
-  const afterZZP = Math.max(0, profit - deductions);
+    // Income Tax (progressive 19% up to 200K, then 25.8%)
+    let incomeTax = 0;
+    if (finalTaxable <= 200000) {
+      incomeTax = finalTaxable * 0.19;
+    } else {
+      incomeTax = 200000 * 0.19 + (finalTaxable - 200000) * 0.258;
+    }
 
-  // 3. MKB-winstvrijstelling (12.7%)
-  const mkbVrij = afterZZP * 0.127;
-  const finalTaxable = afterZZP - mkbVrij;
+    // Apply cap: max 37.48% of taxableAfterDeductions
+    const maxAllowed = taxableAfterDeductions * 0.3748;
+    incomeTax = Math.min(incomeTax, maxAllowed);
 
-  // 4. Податок на прибуток (прогресивна шкала)
-  let incomeTax = 0;
-  if (finalTaxable <= 200000) {
-    incomeTax = finalTaxable * 0.19;
-  } else {
-    incomeTax = (200000 * 0.19) + ((finalTaxable - 200000) * 0.258);
-  }
+    // ZVW 5.32%
+    const zvw = profit * 0.0532;
 
-  // 5. ZVW (5.32% від прибутку)
-  const zvw = profit * 0.0532;
+    // BTW — якщо KOR активний, тоді 0
+    const btw = kor ? 0 : income * (btwRate / 100);
 
-  // 6. BTW (лише інформаційно, не входить до розрахунку податку на прибуток)
-  const btw = income * (btwRate / 100);
+    const totalTax = incomeTax + zvw + btw;
 
-  const totalTax = incomeTax + zvw + btw;
-
-  // 7. Вивід
-  document.getElementById("result").innerHTML = `
-    <h4>Tax Summary for ${document.getElementById("period").selectedOptions[0].text}</h4>
-    <p><b>Gross Income:</b> €${gross.toFixed(2)}</p>
-    <p><b>Total Expenses:</b> €${totalExpenses.toFixed(2)}</p>
-    <p><b>Profit:</b> €${profit.toFixed(2)}</p>
-    <p><b>Deductions:</b> €${deductions.toFixed(2)}</p>
-    <p><b>MKB Exemption (12.7%):</b> €${mkbVrij.toFixed(2)}</p>
-    <p><b>Final Taxable Income:</b> €${finalTaxable.toFixed(2)}</p>
-    <p><b>Income Tax:</b> €${incomeTax.toFixed(2)}</p>
-    <p><b>ZVW (5.32%):</b> €${zvw.toFixed(2)}</p>
-    <p><b>BTW (${btwRate}%):</b> €${btw.toFixed(2)}</p>
-    <p><b>Total Estimated Tax:</b> <span style="color:green;">€${totalTax.toFixed(2)}</span></p>
-    <p><b>You Saved:</b> €${deductions.toFixed(2)} with ZZP deductions</p>
-  `;
-}
-    function exportPDF() {
+    // Output
+    document.getElementById("result").innerHTML = `
+      <strong>Tax Summary for ${document.getElementById("period").selectedOptions[0].text}</strong><br><br>
+      💼 <b>Gross Income:</b> €${gross.toFixed(2)}<br>
+      📦 <b>Total Expenses:</b> €${totalExpenses.toFixed(2)}<br>
+      💸 <b>Profit:</b> €${profit.toFixed(2)}<br>
+      🧾 <b>Deductions:</b> €${zzpDeductions.toFixed(2)}<br>
+      🧮 <b>MKB Exemption (12.7%):</b> €${mkbVrijstelling.toFixed(2)}<br>
+      💰 <b>Final Taxable Income:</b> €${finalTaxable.toFixed(2)}<br>
+      🧾 <b>Income Tax:</b> €${incomeTax.toFixed(2)}<br>
+      🧍 <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
+      💶 <b>BTW (${kor ? 'KOR' : btwRate + '%' }):</b> €${btw.toFixed(2)}<br>
+      🧮 <b>Total Estimated Tax:</b> <span style="color:green;">€${totalTax.toFixed(2)}</span><br>
+      ✅ <b>You Saved:</b> €${zzpDeductions.toFixed(2)} with ZZP deductions
+    `;
+  }    function exportPDF() {
       alert("📝 PDF Export coming soon...");
     }
   </script>
