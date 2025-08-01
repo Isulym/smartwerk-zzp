@@ -1,138 +1,162 @@
-<!-- SmartWerk Tax Calculator v10.7 FINAL -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk Tax Calculator</title>
+  <meta charset="UTF-8">
+  <title>SmartWerk Tax Calculator v10</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-    }
-    h2 { margin-top: 30px; }
-    label, input, select {
-      display: block;
-      width: 100%;
-      margin-bottom: 12px;
-    }
-    .section {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 6px;
-    }
-    .summary {
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-radius: 6px;
-    }
+    body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+    h2 { color: #2c3e50; }
+    .step { margin-bottom: 30px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    .tooltip { font-size: 12px; color: #555; margin-top: 4px; }
+    #result { font-weight: bold; font-size: 18px; }
+    .summary-box { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1>SmartWerk Tax Calculator</h1>
 
-  <!-- Step 1 -->
-  <div class="section">
-    <h2>Step 1: Your Info</h2>
-    <label>Company Name <input id="companyName" /></label>
-    <label>Email / Phone <input id="contact" /></label>
-    <label>Hours Worked <input id="hoursWorked" type="number" /></label>
-    <label>Hourly Rate (€) <input id="hourlyRate" type="number" /></label>
-    <label>KvK Registered?
-      <select id="kvk"><option value="yes">Yes</option><option value="no">No</option></select>
-    </label>
-    <label>Worked 1,225+ hours?
-      <select id="hours1225"><option value="yes">Yes</option><option value="no">No</option></select>
-    </label>
+  <h2>💼 SmartWerk Tax Calculator v10</h2>
+
+  <div class="step">
+    <h3>Step 1: Your Business Info</h3>
+    <label>Company Name:</label>
+    <input type="text" id="company">
+
+    <label>Email / Phone:</label>
+    <input type="text" id="contact">
+
+    <label>Period:</label>
+    <select id="period">
+      <option>January – March</option>
+      <option>April – June</option>
+      <option>July – September</option>
+      <option>October – December</option>
+    </select>
+
+    <label>Hours worked:</label>
+    <input type="number" id="hours" value="0">
+
+    <label>Hourly rate (EUR):</label>
+    <input type="number" id="rate" value="0">
+
+    <label>Registered KvK?</label>
+    <select id="kvk">
+      <option>Yes</option>
+      <option>No</option>
+    </select>
+
+    <label>Worked 1225+ hours?</label>
+    <select id="worked1225">
+      <option>Yes</option>
+      <option>No</option>
+    </select>
+
+    <label>BTW Rate:</label>
+    <select id="btw">
+      <option value="0">0%</option>
+      <option value="9">9%</option>
+      <option value="21">21%</option>
+    </select>
+    <label>Use KOR?</label>
+    <select id="kor">
+      <option>No</option>
+      <option>Yes</option>
+    </select>
   </div>
 
-  <!-- Step 2 -->
-  <div class="section">
-    <h2>Step 2: Expenses</h2>
-    <label>Auto Costs (€) <input id="autoCosts" type="number" /></label>
-    <label>Office Costs (€) <input id="officeCosts" type="number" /></label>
-    <label>Internet & Phone (€) <input id="internetCosts" type="number" /></label>
-    <label>Marketing (€) <input id="marketingCosts" type="number" /></label>
-    <label>Other Expenses (€) <input id="otherCosts" type="number" /></label>
-    <label>Extra Benefits / Subsidies (€) <input id="benefits" type="number" /></label>
+  <div class="step">
+    <h3>Step 2: Expenses</h3>
+    <label>Car Expenses (€):</label>
+    <input type="number" id="car" value="0">
+    <label>Office Expenses (€):</label>
+    <input type="number" id="office" value="0">
+    <label>Internet (€):</label>
+    <input type="number" id="internet" value="0">
+    <label>Advertising (€):</label>
+    <input type="number" id="ads" value="0">
+    <label>Other (€):</label>
+    <input type="number" id="other" value="0">
   </div>
 
-  <!-- Step 3 -->
-  <div class="section">
-    <h2>Step 3: Tax Settings</h2>
-    <label>BTW Rate
-      <select id="btwRate">
-        <option value="21">21%</option>
-        <option value="9">9%</option>
-        <option value="0">0%</option>
-      </select>
-    </label>
-    <label>Use KOR?
-      <select id="kor"><option value="no">No</option><option value="yes">Yes</option></select>
-    </label>
+  <div class="step">
+    <h3>Step 3: Benefits</h3>
+    <label>Extra Benefits (e.g. subsidies, kinderopvang):</label>
+    <input type="number" id="benefits" value="0">
   </div>
 
-  <!-- Step 4 -->
-  <div class="section summary">
-    <h2>Step 4: Summary</h2>
-    <div id="summary"></div>
+  <div class="step">
+    <h3>Step 4: Summary & Result</h3>
+    <div id="result"></div>
+    <div class="summary-box" id="summaryBox" style="display:none;"></div>
   </div>
 
   <script>
-    const fields = [
-      "hoursWorked", "hourlyRate", "autoCosts", "officeCosts",
-      "internetCosts", "marketingCosts", "otherCosts", "benefits",
-      "btwRate", "kor", "kvk", "hours1225"
-    ];
-    fields.forEach(id => document.getElementById(id).addEventListener("input", calculate));
-
     function calculate() {
-      const income = +hoursWorked.value * +hourlyRate.value;
-      const expenses = +autoCosts.value + +officeCosts.value + +internetCosts.value +
-                       +marketingCosts.value + +otherCosts.value;
-      const benefits = +benefits.value || 0;
-      const taxable = income - expenses + benefits;
+      const hours = +document.getElementById("hours").value;
+      const rate = +document.getElementById("rate").value;
+      const kvk = document.getElementById("kvk").value === "Yes";
+      const worked1225 = document.getElementById("worked1225").value === "Yes";
+      const btwRate = +document.getElementById("btw").value;
+      const kor = document.getElementById("kor").value === "Yes";
 
-      // BTW
-      const btwRate = +btwRateSelect.value;
-      const btwAmount = btwRate === 0 ? 0 : (taxable * btwRate / 100);
+      const grossIncome = hours * rate;
+      const car = +document.getElementById("car").value;
+      const office = +document.getElementById("office").value;
+      const internet = +document.getElementById("internet").value;
+      const ads = +document.getElementById("ads").value;
+      const other = +document.getElementById("other").value;
+      const benefits = +document.getElementById("benefits").value;
 
-      // Startersaftrek
-      let deduction = 0;
-      if (kvk.value === "yes" && hours1225.value === "yes") deduction += 2123;
-      deduction += taxable * 0.127; // MKB
+      const expenses = car + office + internet + ads + other;
+      let taxableIncome = grossIncome + benefits - expenses;
 
-      const taxableIncome = Math.max(0, taxable - deduction);
+      let deductions = 0;
+      if (kvk && worked1225) {
+        deductions += 2123; // Startersaftrek
+        deductions += 5030; // Zelfstandigenaftrek
+      }
 
-      // Income tax: 19% до €200k, 25.8% понад
+      const profitAfterDeductions = taxableIncome - deductions;
+      const mkbWinstVrijstelling = 0.127 * Math.max(0, profitAfterDeductions);
+      const finalTaxBase = profitAfterDeductions - mkbWinstVrijstelling;
+
+      // Income tax
       let incomeTax = 0;
-      if (taxableIncome <= 200000) incomeTax = taxableIncome * 0.19;
-      else incomeTax = 200000 * 0.19 + (taxableIncome - 200000) * 0.258;
+      if (finalTaxBase <= 37981) incomeTax = finalTaxBase * 0.095;
+      else if (finalTaxBase <= 73971) incomeTax = 37981 * 0.095 + (finalTaxBase - 37981) * 0.3735;
+      else incomeTax = 37981 * 0.095 + (73971 - 37981) * 0.3735 + (finalTaxBase - 73971) * 0.495;
 
-      // ZVW
-      const zvw = taxableIncome * 0.0532;
+      const zvw = 0.0532 * Math.min(finalTaxBase, 67000);
+      const btw = kor ? 0 : (btwRate / 100 * grossIncome);
 
-      // Final
-      const totalTax = incomeTax + zvw;
-      const net = taxable - totalTax;
+      const totalTax = incomeTax + zvw + btw;
 
-      summary.innerHTML = `
-        <p><strong>Gross Income:</strong> €${income.toFixed(2)}</p>
-        <p><strong>Total Expenses:</strong> €${expenses.toFixed(2)}</p>
-        <p><strong>Taxable Income:</strong> €${taxableIncome.toFixed(2)}</p>
-        <p><strong>BTW (${btwRate}%):</strong> €${btwAmount.toFixed(2)}</p>
-        <p><strong>Income Tax:</strong> €${incomeTax.toFixed(2)}</p>
-        <p><strong>ZVW (5.32%):</strong> €${zvw.toFixed(2)}</p>
-        <p><strong>Total Tax:</strong> €${totalTax.toFixed(2)}</p>
-        <p><strong>Net Profit:</strong> €${net.toFixed(2)}</p>
-        <p style="color:green"><strong>You saved €${deduction.toFixed(2)} in deductions!</strong></p>
+      const summary = `
+        💰 Gross Income: €${grossIncome.toFixed(2)}<br>
+        💸 Expenses: €${expenses.toFixed(2)}<br>
+        🧾 Taxable Income: €${taxableIncome.toFixed(2)}<br>
+        📉 Deductions: €${deductions.toFixed(2)}<br>
+        🔻 Profit After Deductions: €${profitAfterDeductions.toFixed(2)}<br>
+        🧮 MKB Winstvrijstelling (12.7%): €${mkbWinstVrijstelling.toFixed(2)}<br>
+        🧾 Final Tax Base: €${finalTaxBase.toFixed(2)}<br><br>
+        💼 Income Tax: €${incomeTax.toFixed(2)}<br>
+        💡 ZVW (5.32%): €${zvw.toFixed(2)}<br>
+        💶 BTW (${btwRate}%): €${btw.toFixed(2)}<br><br>
+        🟢 <strong>Total Tax: €${totalTax.toFixed(2)}</strong><br><br>
+        ✅ <strong>You saved €${deductions.toFixed(2)} with ZZP deductions</strong>
       `;
+
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("summaryBox").innerHTML = summary;
+      document.getElementById("summaryBox").style.display = "block";
     }
 
+    const inputs = document.querySelectorAll("input, select");
+    inputs.forEach(i => i.addEventListener("input", calculate));
     window.onload = calculate;
   </script>
+
 </body>
 </html>
