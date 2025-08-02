@@ -78,9 +78,10 @@
 
 <div class="button-group">
   <button onclick="calculate()">📊 Calculate Tax</button>
+  <button onclick="exportPDF()">📄 Export as PDF</button>
+  <button onclick="alert('Sending to accountant...')">📤 Send to Accountant</button>
+  <button onclick="window.open('ai-assistant.html')">🤖 Ask SmartWerk AI</button>
 </div>
-
-<div id="result">Complete the form to see summary…</div>
 
 <script>
 function autoCalcIncome() {
@@ -90,63 +91,60 @@ function autoCalcIncome() {
 }
 
 function calculate() {
-  const income = parseFloat(document.getElementById("income").value) || 0;
-  const vehicle = parseFloat(document.getElementById("vehicle").value) || 0;
-  const office = parseFloat(document.getElementById("office").value) || 0;
-  const internet = parseFloat(document.getElementById("internet").value) || 0;
-  const marketing = parseFloat(document.getElementById("marketing").value) || 0;
-  const other = parseFloat(document.getElementById("other").value) || 0;
-  const extra = parseFloat(document.getElementById("extraBenefits").value) || 0;
+  const income = +document.getElementById("income").value || 0;
+  const expenses = +document.getElementById("vehicle").value + +document.getElementById("office").value +
+                   +document.getElementById("internet").value + +document.getElementById("marketing").value +
+                   +document.getElementById("other").value || 0;
+  const extra = +document.getElementById("extraBenefits").value || 0;
+  const profit = income - expenses + extra;
 
-  const expenses = vehicle + office + internet + marketing + other;
-  const profit = income - expenses;
-
-  const kvk = document.getElementById("kvk").value === "yes";
   const zzp = document.getElementById("zzpHours").value === "yes";
-
-  const aftrek = (kvk && zzp) ? 2123 + 5030 : 0;
-  const zzpDeduction = aftrek + extra;
-  const taxable = Math.max(0, profit - zzpDeduction);
-  const mkb = taxable * 0.127;
-  const cappedTaxable = taxable - mkb;
-  const incomeTax = cappedTaxable <= 20000 ? cappedTaxable * 0.19 : cappedTaxable * 0.258;
-  const zvw = profit * 0.0532;
-
+  const kvk = document.getElementById("kvk").value === "yes";
   const kor = document.getElementById("kor").value === "yes";
   const btwRate = parseFloat(document.getElementById("btwRate").value) || 0;
-  const btw = kor ? 0 : income * (btwRate / 100);
 
+  let aftrek = (kvk && zzp) ? (6030 + 2123) : 0;
+  let taxable = profit - aftrek;
+  let mkb = taxable * 0.127;
+  let cappedTaxable = taxable - mkb;
+  let incomeTax = 0;
+
+  if (cappedTaxable <= 20000) incomeTax = cappedTaxable * 0.19;
+  else incomeTax = 20000 * 0.19 + (cappedTaxable - 20000) * 0.258;
+
+  const zvw = income * 0.0532;
+  const btw = kor ? 0 : income * (btwRate / 100);
   const totalTax = incomeTax + zvw + btw;
 
   document.getElementById("result").innerHTML = `
     <b>Gross Income:</b> €${income.toFixed(2)}<br>
     <b>Total Expenses:</b> €${expenses.toFixed(2)}<br>
     <b>Profit:</b> €${profit.toFixed(2)}<br>
-    <b>Deductions:</b> €${zzpDeduction.toFixed(2)}<br>
+    <b>Deductions:</b> €${aftrek.toFixed(2)}<br>
+    <b>MKB Exemption (12.7%):</b> €${mkb.toFixed(2)}<br>
     <b>Final Taxable Income:</b> €${cappedTaxable.toFixed(2)}<br>
     <b>Income Tax:</b> €${incomeTax.toFixed(2)}<br>
     <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
-    <b>BTW (${kor ? "KOR" : btwRate + "%" }):</b> €${btw.toFixed(2)}<br>
-    <b>Total Estimated Tax:</b> €${totalTax.toFixed(2)}<br>
-    ✅ <b>You saved:</b> €${zzpDeduction.toFixed(2)} with ZZP deductions
+    <b>${kor ? '💸 BTW (KOR):' : '💸 BTW (' + btwRate + '%):'}</b> €${btw.toFixed(2)}<br>
+    ✅ <b>Total Estimated Tax:</b> €${totalTax.toFixed(2)}<br>
+    🟢 <b>You saved:</b> €${aftrek.toFixed(2)} with ZZP deductions
   `;
 }
 
-window.onload = () => {
-  autoCalcIncome();
-  calculate();
-  document.querySelectorAll("input, select").forEach(el => {
-    el.addEventListener("input", () => {
-      autoCalcIncome();
-      calculate();
-    });
-    el.addEventListener("change", () => {
-      autoCalcIncome();
-      calculate();
-    });
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("input", () => {
+    autoCalcIncome();
+    calculate();
   });
-};
-</script>
+  el.addEventListener("change", () => {
+    autoCalcIncome();
+    calculate();
+  });
+});
 
+function exportPDF() {
+  alert("📄 PDF Export coming soon...");
+}
+</script>
 </body>
 </html>
