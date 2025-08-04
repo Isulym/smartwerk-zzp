@@ -2,131 +2,148 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SmartWerk Tax Calculator v11.3</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk Tax Calculator</title>
   <style>
-    body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
-    h1, h2 { color: #333; }
-    label { display: block; margin-top: 10px; }
-    input, select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; }
-    .result { background: #e0ffe0; padding: 15px; border-radius: 8px; margin-top: 20px; }
-    .tooltip { font-size: 0.9em; color: #666; }
+    body { font-family: sans-serif; padding: 2em; background: #f9f9f9; }
+    h2, h3 { color: #333; }
+    .section { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.05); }
+    label { display: block; margin-top: 12px; }
+    input, select { width: 100%; padding: 8px; margin-top: 4px; }
+    .summary { background: #e6ffe6; }
+    .button-group { margin-top: 20px; }
+    .button-group button { margin-right: 10px; padding: 10px 15px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>SmartWerk Tax Calculator v11.3</h1>
 
-    <label>Hours worked:</label>
-    <input id="hours" type="number" oninput="autoCalc()">
+<h2>SmartWerk Tax Calculator</h2>
 
-    <label>Hourly rate (€):</label>
-    <input id="rate" type="number" oninput="autoCalc()">
+<div class="section">
+  <h3>Step 1: Your Data</h3>
+  <label>Company Name:</label><input type="text" id="companyName">
+  <label>Email / Phone:</label><input type="text" id="contactInfo">
+  <label>Period:</label>
+  <select id="period">
+    <option value="Q1">January – March (Q1)</option>
+    <option value="Q2">April – June (Q2)</option>
+    <option value="Q3">July – September (Q3)</option>
+    <option value="Q4">October – December (Q4)</option>
+  </select>
+  <label>Hours Worked:</label><input type="number" id="hoursWorked" oninput="autoCalcIncome()">
+  <label>Hourly Rate (EUR):</label><input type="number" id="hourlyRate" oninput="autoCalcIncome()">
+  <label>Total Income (auto):</label><input type="number" id="income" readonly>
+</div>
 
-    <label>Extra Benefits (€):</label>
-    <input id="benefits" type="number" oninput="autoCalc()">
+<div class="section">
+  <h3>Step 2: Expenses</h3>
+  <label>Vehicle Expenses:</label><input type="number" id="vehicle">
+  <label>Office Expenses:</label><input type="number" id="office">
+  <label>Internet Expenses:</label><input type="number" id="internet">
+  <label>Marketing Expenses:</label><input type="number" id="marketing">
+  <label>Other Expenses:</label><input type="number" id="other">
+  <label>Extra Benefits (EUR):</label><input type="number" id="extraBenefits">
+</div>
 
-    <label>Vehicle expenses (€):</label>
-    <input id="vehicle" type="number" oninput="autoCalc()">
-    <label>Office expenses (€):</label>
-    <input id="office" type="number" oninput="autoCalc()">
-    <label>Internet (€):</label>
-    <input id="internet" type="number" oninput="autoCalc()">
-    <label>Marketing (€):</label>
-    <input id="marketing" type="number" oninput="autoCalc()">
-    <label>Other expenses (€):</label>
-    <input id="other" type="number" oninput="autoCalc()">
+<div class="section">
+  <h3>Step 3: Tax Options</h3>
+  <label>KvK Registered?</label>
+  <select id="kvk" onchange="calculateAutomatically()">
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+  </select>
+  <label>Worked 1,225+ hours?</label>
+  <select id="zzpHours" onchange="calculateAutomatically()">
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+  </select>
+  <label>BTW Rate:</label>
+  <select id="btwRate" onchange="calculateAutomatically()">
+    <option value="21">21%</option>
+    <option value="9">9%</option>
+    <option value="0">0%</option>
+  </select>
+  <label>Use KOR?</label>
+  <select id="kor" onchange="calculateAutomatically()">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+</div>
 
-    <label>KvK Registered?</label>
-    <select id="kvk" onchange="autoCalc()">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
+<div class="section summary">
+  <h3>Step 4: Result</h3>
+  <div id="result">🔄 Waiting for input...</div>
+</div>
 
-    <label>Worked 1,225+ hours?</label>
-    <select id="zzp" onchange="autoCalc()">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
+<div class="button-group">
+  <button onclick="calculateTax()">🔄 Calculate Tax</button>
+  <button onclick="alert('Export to PDF coming soon')">📄 Export PDF</button>
+  <button onclick="alert('Ask SmartWerk AI')">🤖 Ask SmartWerk AI</button>
+</div>
 
-    <label>Use KOR?</label>
-    <select id="kor" onchange="autoCalc()">
-      <option value="no">No</option>
-      <option value="yes">Yes</option>
-    </select>
+<script>
+function autoCalcIncome() {
+  const h = +document.getElementById("hoursWorked").value || 0;
+  const r = +document.getElementById("hourlyRate").value || 0;
+  document.getElementById("income").value = h * r;
+  calculateAutomatically();
+}
 
-    <div class="result" id="result">Fill in your details...</div>
+function calculateAutomatically() {
+  if (typeof calculateTax === "function") {
+    calculateTax();
+  }
+}
 
-    <br>
-    <button onclick="window.print()">📄 Export as PDF</button>
-    <button onclick="window.open('ai-assistant.html')">🤖 Ask SmartWerk AI</button>
-  </div>
+function calculateTax() {
+  const income = +document.getElementById("income").value || 0;
+  const vehicle = +document.getElementById("vehicle").value || 0;
+  const office = +document.getElementById("office").value || 0;
+  const internet = +document.getElementById("internet").value || 0;
+  const marketing = +document.getElementById("marketing").value || 0;
+  const other = +document.getElementById("other").value || 0;
+  const extraBenefits = +document.getElementById("extraBenefits").value || 0;
+  const kvk = document.getElementById("kvk").value === "yes";
+  const zzp = document.getElementById("zzpHours").value === "yes";
+  const kor = document.getElementById("kor").value === "yes";
 
-  <script>
-    function autoCalc() {
-      const hours = +document.getElementById("hours").value || 0;
-      const rate = +document.getElementById("rate").value || 0;
-      const benefits = +document.getElementById("benefits").value || 0;
+  const totalExpenses = vehicle + office + internet + marketing + other;
+  const profit = income - totalExpenses + extraBenefits;
 
-      const vehicle = +document.getElementById("vehicle").value || 0;
-      const office = +document.getElementById("office").value || 0;
-      const internet = +document.getElementById("internet").value || 0;
-      const marketing = +document.getElementById("marketing").value || 0;
-      const other = +document.getElementById("other").value || 0;
+  let deductions = 0;
+  if (kvk && zzp) {
+    deductions += 5030;
+    deductions += 2123;
+  }
 
-      const isKvK = document.getElementById("kvk").value === "yes";
-      const isZZP = document.getElementById("zzp").value === "yes";
-      const useKOR = document.getElementById("kor").value === "yes";
+  let taxable = Math.max(0, profit - deductions);
+  const mkbVrijstelling = taxable * 0.127;
+  taxable -= mkbVrijstelling;
 
-      const income = hours * rate;
-      const expenses = vehicle + office + internet + marketing + other;
-      const grossProfit = income + benefits - expenses;
+  let incomeTax = 0;
+  if (taxable <= 200000) {
+    incomeTax = taxable * 0.19;
+  } else {
+    incomeTax = 200000 * 0.19 + (taxable - 200000) * 0.258;
+  }
 
-      let deductions = 0;
-      if (isKvK && isZZP) {
-        deductions += 5030 + 2123; // zelfstandigenaftrek + startersaftrek
-      }
+  const zvw = profit * 0.0532;
+  if (kor) incomeTax *= 0.8;
 
-      let taxable = Math.max(0, grossProfit - deductions);
-      const mkbVrijstelling = taxable * 0.127;
-      const finalTaxable = taxable - mkbVrijstelling;
+  const totalTax = incomeTax + zvw;
+  const totalSaved = deductions + mkbVrijstelling;
 
-      // Income tax (progressive)
-      let incomeTax = 0;
-      if (finalTaxable <= 200000) {
-        incomeTax = finalTaxable * 0.19;
-      } else {
-        incomeTax = 200000 * 0.19 + (finalTaxable - 200000) * 0.258;
-      }
+  document.getElementById("result").innerHTML = `
+    💼 <b>Profit:</b> €${profit.toFixed(2)}<br>
+    📉 <b>Deductions:</b> €${deductions.toFixed(2)}<br>
+    🏦 <b>MKB Exemption (12.7%):</b> €${mkbVrijstelling.toFixed(2)}<br>
+    💸 <b>Income Tax:</b> €${incomeTax.toFixed(2)}<br>
+    🏥 <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
+    🧾 <b>Total Tax:</b> €${totalTax.toFixed(2)}<br>
+    ✅ <b>You Saved:</b> €${totalSaved.toFixed(2)}
+  `;
+}
+</script>
 
-      // Tariff cap
-      const capped = Math.min(incomeTax, finalTaxable * 0.3748);
-
-      // ZVW
-      const zvw = grossProfit * 0.0532;
-
-      // KOR logic (simple placeholder: removes BTW if yes)
-      const btwReduction = useKOR ? finalTaxable * 0.21 : 0;
-
-      const totalTax = capped + zvw - btwReduction;
-
-      document.getElementById("result").innerHTML = `
-        💼 <b>Gross Income:</b> €${income.toFixed(2)}<br>
-        💸 <b>Expenses:</b> €${expenses.toFixed(2)}<br>
-        💰 <b>Profit:</b> €${grossProfit.toFixed(2)}<br>
-        🛡️ <b>Deductions (ZZP/Startersaftrek):</b> €${deductions.toFixed(2)}<br>
-        🧾 <b>MKB Exemption:</b> €${mkbVrijstelling.toFixed(2)}<br>
-        💳 <b>Taxable Income:</b> €${finalTaxable.toFixed(2)}<br>
-        💼 <b>Income Tax (capped):</b> €${capped.toFixed(2)}<br>
-        💊 <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
-        🧾 <b>KOR Reduction:</b> -€${btwReduction.toFixed(2)}<br><br>
-        ✅ <b>Total Estimated Tax:</b> €${totalTax.toFixed(2)}<br>
-        🎉 <b>You saved:</b> €${(deductions + mkbVrijstelling + btwReduction).toFixed(2)}
-      `;
-    }
-
-    window.onload = autoCalc;
-  </script>
 </body>
 </html>
