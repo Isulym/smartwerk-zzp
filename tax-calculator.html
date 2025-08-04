@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,8 +21,8 @@
     #result {
       margin-top: 20px;
       padding: 20px;
-      background: #e8ffe8;
-      border-radius: 8px;
+      background: #e0ffe0;
+      border-radius: 6px;
       font-size: 16px;
     }
   </style>
@@ -46,124 +45,110 @@
 <input type="number" id="income" placeholder="Total Income (auto)" readonly><br>
 
 <h3>Step 2: Expenses</h3>
-<div>
-  <label>Vehicle Expenses:</label>
-  <input id="vehicle" type="number" />
-</div>
-<div>
-  <label>Office Expenses:</label>
-  <input id="office" type="number" />
-</div>
-<div>
-  <label>Internet Expenses:</label>
-  <input id="internet" type="number" />
-</div>
-<div>
-  <label>Marketing Expenses:</label>
-  <input id="marketing" type="number" />
-</div>
-<div>
-  <label>Other Expenses:</label>
-  <input id="other" type="number" />
-</div>
-<div>
-  <label>Extra Benefits (EUR):</label>
-  <input id="extra" type="number" />
-</div>  
+<label>Vehicle Expenses:</label><br><input id="vehicle" type="number"><br>
+<label>Office Expenses:</label><br><input id="office" type="number"><br>
+<label>Internet Expenses:</label><br><input id="internet" type="number"><br>
+<label>Marketing Expenses:</label><br><input id="marketing" type="number"><br>
+<label>Other Expenses:</label><br><input id="other" type="number"><br>
+<label>Extra Benefits (EUR):</label><br><input id="extra" type="number"><br>
+
 <h3>Step 3: Tax Options</h3>
-<label>KvK Registered?</label>
-<select id="kvk">
+<label>KvK Registered?</label><br>
+<select id="KvK">
   <option value="yes">Yes</option>
   <option value="no">No</option>
 </select><br>
-<label>Worked 1,225+ hours?</label>
+<label>Worked 1,225+ hours?</label><br>
 <select id="zzpHours">
   <option value="yes">Yes</option>
   <option value="no">No</option>
 </select><br>
-<label>BTW Rate</label>
+<label>BTW Rate:</label><br>
 <select id="btwRate">
   <option value="21">21%</option>
   <option value="9">9%</option>
   <option value="0">0%</option>
 </select><br>
-<label>Use KOR?</label>
-<select id="kor">
+<label>Use KOR?</label><br>
+<select id="KOR">
   <option value="no">No</option>
   <option value="yes">Yes</option>
-</select><br>
+</select><br><br>
 
-  <div class="button-group">
-  <button onclick="calculate()">📊 Calculate Tax</button>
-  <button onclick="exportPDF()">📄 Export as PDF</button>
-  <button onclick="alert('Sending to accountant...')">📤 Send to Accountant</button>
-  <button onclick="window.open('ai-assistant.html')">🤖 Ask SmartWerk AI</button>
+<div class="button-group">
+  <button onclick="calculate()">Calculate Tax</button>
+  <button onclick="exportPDF()">Export as PDF</button>
+  <button onclick="alert('Sending to accountant...')">Send to Accountant</button>
+  <button onclick="window.open('ai-assistant.html')">Ask SmartWerk AI</button>
 </div>
 
+<div id="result"></div>
+
 <script>
-  function autoCalcIncome() {
-    const h = +document.getElementById("hoursWorked").value || 0;
-    const r = +document.getElementById("hourlyRate").value || 0;
-    document.getElementById("income").value = h * r;
-  }
+function autoCalcIncome() {
+  const h = document.getElementById("hoursWorked").value || 0;
+  const r = document.getElementById("hourlyRate").value || 0;
+  document.getElementById("income").value = h * r;
+}
 
-  function calculate() {
-    const income = +document.getElementById("income").value || 0;
-    const expenses = +document.getElementById("vehicle").value + 
-                     +document.getElementById("office").value +
-                     +document.getElementById("internet").value +
-                     +document.getElementById("marketing").value +
-                     +document.getElementById("other").value || 0;
-    const extra = +document.getElementById("extraBenefits").value || 0;
-    const profit = income - expenses + extra;
+function calculate() {
+  const income = +document.getElementById("income").value || 0;
+  const expenses = +document.getElementById("vehicle").value +
+                   +document.getElementById("office").value +
+                   +document.getElementById("internet").value +
+                   +document.getElementById("marketing").value +
+                   +document.getElementById("other").value;
+  const extra = +document.getElementById("extra").value || 0;
+  const profit = income - expenses + extra;
 
-    const zzp = document.getElementById("zzpHours").value === "yes";
-    const kvk = document.getElementById("kvk").value === "yes";
-    const btwRate = parseFloat(document.getElementById("btwRate").value) || 0;
-    const kor = document.getElementById("kor").value === "yes";
+  const zzp = document.getElementById("zzpHours").value === "yes";
+  const kvk = document.getElementById("KvK").value === "yes";
+  const btwRate = parseFloat(document.getElementById("btwRate").value) || 0;
+  const kor = document.getElementById("KOR").value === "yes";
 
-    const aftrek = (kvk && zzp) ? (6030 + 2123) : 0;
-    const taxable = profit - aftrek;
-    const mkb = taxable * 0.127;
-    let cappedTaxable = taxable - mkb;
-    let incomeTax = 0;
+  const aftrek = (kvk && zzp) ? 6030 + 2123 : 0;
+  const taxable = profit - aftrek;
+  const mkb = taxable * 0.127;
+  const cappedTaxable = taxable - mkb;
+  let incomeTax = 0;
 
-    if (cappedTaxable <= 20000) incomeTax = cappedTaxable * 0.19;
-    else incomeTax = 20000 * 0.19 + (cappedTaxable - 20000) * 0.254;
+  if (cappedTaxable <= 20000) incomeTax = cappedTaxable * 0.19;
+  else incomeTax = 20000 * 0.19 + (cappedTaxable - 20000) * 0.254;
 
-    const zvw = income * 0.0532;
-    const btw = kor ? 0 : income * (btwRate / 100);
-    const totalTax = incomeTax + zvw + btw;
+  const zvw = income * 0.0532;
+  const btw = kor ? 0 : income * (btwRate / 100);
+  const totalTax = incomeTax + zvw + btw;
 
-    document.getElementById("result").innerHTML = `
-      <b>💰 Gross Income:</b> €${income.toFixed(2)}<br>
-      <b>🧾 Total Expenses:</b> €${expenses.toFixed(2)}<br>
-      <b>📈 Profit:</b> €${profit.toFixed(2)}<br>
-      <b>🛡 ZZP Deductions:</b> €${aftrek.toFixed(2)}<br>
-      <b>🏢 MKB Exemption (12.7%):</b> €${mkb.toFixed(2)}<br>
-      <b>📊 Final Taxable Income:</b> €${cappedTaxable.toFixed(2)}<br>
-      <b>📉 Income Tax:</b> €${incomeTax.toFixed(2)}<br>
-      <b>🧮 ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
-      <b>🧾 BTW (${kor ? "KOR" : btwRate + "%" }):</b> €${btw.toFixed(2)}<br>
-      <b>✅ Total Estimated Tax:</b> €${totalTax.toFixed(2)}<br>
-      <b>🎉 You saved:</b> €${(aftrek + mkb).toFixed(2)} with ZZP deductions
-    `;
-  }
+  document.getElementById("result").innerHTML = `
+    <b>Total Expenses:</b> €${expenses.toFixed(2)}<br>
+    <b>Gross Income:</b> €${income.toFixed(2)}<br>
+    <b>Profit (after benefits):</b> €${profit.toFixed(2)}<br>
+    <b>Taxable Profit:</b> €${taxable.toFixed(2)}<br>
+    <b>Final Taxable Income (after MKB):</b> €${cappedTaxable.toFixed(2)}<br>
+    <b>Income Tax (19–25.4%):</b> €${incomeTax.toFixed(2)}<br>
+    <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
+    <b>BTW (${btwRate}%):</b> €${btw.toFixed(2)}<br>
+    <b>Total Estimated Taxes:</b> €${totalTax.toFixed(2)}<br>
+    <b>You saved:</b> €${(aftrek + mkb).toFixed(2)} with ZZP deductions
+  `;
+}
 
-  // Автоматичний запуск при кожній зміні
-  document.querySelectorAll('input, select').forEach(el => {
-    el.addEventListener("input", () => {
-      autoCalcIncome();
-      calculate();
-    });
-    el.addEventListener("change", () => {
-      autoCalcIncome();
-      calculate();
-    });
+// Автоматичний запуск підрахунків
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("input", () => {
+    autoCalcIncome();
+    calculate();
   });
+  el.addEventListener("change", () => {
+    autoCalcIncome();
+    calculate();
+  });
+});
 
-  function exportPDF() {
-    alert("📄 PDF Export coming soon...");
-  }
-</script></body>
+function exportPDF() {
+  alert("PDF export coming soon...");
+}
+</script>
+
+</body>
 </html>
