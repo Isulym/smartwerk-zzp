@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk Tax Calculator v11.2</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f4f4f4; }
+    h2 { color: #222; }
+    .section { background: #fff; padding: 1em 2em; margin-bottom: 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    label { display: block; margin: 10px 0 5px; }
+    input, select { width: 100%; padding: 8px; margin-bottom: 10px; }
+    .summary { background: #e0ffe0; padding: 1em; border-radius: 6px; }
+    .tooltip { font-size: 0.85em; color: #555; }
+    .button-group button { margin-right: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>SmartWerk Tax Calculator v11.2</h2>
+
+  <div class="section">
+    <h3>Step 1: Your Info</h3>
+    <label>Company Name:</label>
+    <input type="text" id="companyName" />
+
+    <label>Email / Phone:</label>
+    <input type="text" id="contactInfo" />
+
+    <label>Period:</label>
+    <select id="period">
+      <option value="Q1">January – March (Q1)</option>
+      <option value="Q2">April – June (Q2)</option>
+      <option value="Q3">July – September (Q3)</option>
+      <option value="Q4">October – December (Q4)</option>
+    </select>
+
+    <label>Hours Worked:</label>
+    <input type="number" id="hoursWorked" oninput="autoCalcIncome()" />
+
+    <label>Hourly Rate (EUR):</label>
+    <input type="number" id="hourlyRate" oninput="autoCalcIncome()" />
+
+    <label>Total Income (auto):</label>
+    <input type="number" id="income" readonly />
+  </div>
+
+  <div class="section">
+    <h3>Step 2: Expenses</h3>
+    <label>Vehicle Expenses:</label><input type="number" id="vehicle" oninput="calculateTax()" />
+    <label>Office Expenses:</label><input type="number" id="office" oninput="calculateTax()" />
+    <label>Internet Expenses:</label><input type="number" id="internet" oninput="calculateTax()" />
+    <label>Marketing Expenses:</label><input type="number" id="marketing" oninput="calculateTax()" />
+    <label>Other Expenses:</label><input type="number" id="other" oninput="calculateTax()" />
+    <label>Extra Benefits (EUR):</label><input type="number" id="extraBenefits" oninput="calculateTax()" />
+  </div>
+
+  <div class="section">
+    <h3>Step 3: Tax Options</h3>
+    <label>KvK Registered?</label>
+    <select id="kvk" onchange="calculateTax()">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <label>Worked 1,225+ hours?</label>
+    <select id="zzpHours" onchange="calculateTax()">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <label>BTW Rate:</label>
+    <select id="btwRate" onchange="calculateTax()">
+      <option value="21">21%</option>
+      <option value="9">9%</option>
+      <option value="0">0%</option>
+    </select>
+
+    <label>Use KOR?</label>
+    <select id="kor" onchange="calculateTax()">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
+  </div>
+
+  <div class="section summary">
+    <h3>Step 4: Result</h3>
+    <div id="result">Waiting for input...</div>
+  </div>
+
+  <div class="button-group">
+    <button onclick="exportPDF()">📄 Export as PDF</button>
+    <button onclick="window.open('ai-assistant.html')">🤖 Ask SmartWerk AI</button>
+  </div>
+
+<script>
+function autoCalcIncome() {
+  const h = +document.getElementById("hoursWorked").value || 0;
+  const r = +document.getElementById("hourlyRate").value || 0;
+  document.getElementById("income").value = (h * r).toFixed(2);
+  calculateTax();
+}
+
+function calculateTax() {
+  const income = +document.getElementById("income").value || 0;
+  const expenses = +document.getElementById("vehicle").value + +document.getElementById("office").value +
+                   +document.getElementById("internet").value + +document.getElementById("marketing").value +
+                   +document.getElementById("other").value;
+  const extra = +document.getElementById("extraBenefits").value || 0;
+  const zzp = document.getElementById("zzpHours").value === "yes";
+  const kvk = document.getElementById("kvk").value === "yes";
+  const btw = +document.getElementById("btwRate").value || 0;
+  const kor = document.getElementById("kor").value === "yes";
+
+  let profit = income - expenses + extra;
+  let aftrek = 0;
+  if (kvk && zzp) aftrek += 5030 + 2123;
+  let taxable = Math.max(0, profit - aftrek);
+  let winstvrij = taxable * 0.127;
+  let cappedBase = taxable - winstvrij;
+
+  let incomeTax = 0;
+  if (cappedBase <= 200000) {
+    incomeTax = cappedBase * 0.19;
+  } else {
+    incomeTax = 200000 * 0.19 + (cappedBase - 200000) * 0.258;
+  }
+
+  let zvw = profit * 0.0532;
+  let btwAmount = kor ? 0 : (income * btw / 100);
+  let totalTax = incomeTax + zvw;
+
+  document.getElementById("result").innerHTML =
+    `💼 Taxable profit: €${taxable.toFixed(2)}<br>
+     🧾 Income Tax: €${incomeTax.toFixed(2)}<br>
+     💰 ZVW (5.32%): €${zvw.toFixed(2)}<br>
+     💸 BTW: €${btwAmount.toFixed(2)} (${btw}%) ${kor ? "(KOR applied)" : ""}<br>
+     ✅ You saved: €${aftrek.toFixed(2)} + €${winstvrij.toFixed(2)}<br>
+     🟢 <b>Total Estimated Tax: €${totalTax.toFixed(2)}</b>`;
+}
+
+function exportPDF() {
+  alert("Export to PDF will be implemented soon.");
+}
+</script>
+
+</body>
+</html>
