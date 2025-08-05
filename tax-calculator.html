@@ -119,7 +119,15 @@
       </div>
     </div>
   </div>
-
+<div id="deductionBreakdown">
+  <h4>📌 Deduction Breakdown</h4>
+  <ul>
+    <li id="line-zzp">❌ Zelfstandigenaftrek: not eligible</li>
+    <li id="line-starter">❌ Startersaftrek: not eligible</li>
+    <li id="line-mkb">❌ MKB-vrijstelling: not eligible</li>
+    <li id="line-kor">❌ KOR: not used</li>
+  </ul>
+</div>
   <div class="button-group">
     <button onclick="calculateTax()">🧮 Calculate Tax</button>
     <button onclick="alert('Export to PDF coming soon!')">📄 Export PDF</button>
@@ -155,6 +163,9 @@
 
       const totalExpenses = vehicle + office + internet + marketing + other;
       const profit = income - totalExpenses + extraBenefits;
+      
+const btwAmount = kor ? 0 : profit * (btwRate / 100);
+document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
 
       let deductions = 0;
       if (kvk && zzp) {
@@ -166,18 +177,23 @@
       const mkbVrijstelling = taxable * 0.127;
       taxable -= mkbVrijstelling;
 
-      let incomeTax = 0;
-      if (taxable <= 200000) {
-        incomeTax = taxable * 0.19;
-      } else {
-        incomeTax = 200000 * 0.19 + (taxable - 200000) * 0.258;
-      }
+const cappedDeduction = Math.min(deductions, taxable * 0.3748);
+const cappedMkb = Math.min(mkbVrijstelling, (taxable - cappedDeduction) * 0.3748);
+const totalSaved = cappedDeduction + cappedMkb;
 
-      const zvw = profit * 0.0532;
+const baseTax = (taxable - totalSaved) * 0.19;
+if (taxable >= 200000) {
+  const extraTax = (taxable - 200000 - totalSaved) * 0.258;
+  incomeTax = baseTax + (extraTax > 0 ? extraTax : 0);
+} else {
+  incomeTax = baseTax > 0 ? baseTax : 0;
+}      const zvw = profit * 0.0532;
       if (kor) incomeTax -= 8;
 
       const totalTax = incomeTax + zvw;
-      const totalSaved = deductions + mkbVrijstelling;
+      const cappedDeduction = Math.min(deductions, taxable * 0.3748);
+      const cappedMkb = Math.min(mkbVrijstelling, (taxable - cappedDeduction) * 0.3748);
+      const totalSaved = cappedDeduction + cappedMkb;
 
       document.getElementById("grossIncome").textContent = income.toFixed(2);
       document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
@@ -190,6 +206,21 @@
       document.getElementById("btwAmount").textContent = (profit * btwRate).toFixed(2);
       document.getElementById("totalTax").textContent = totalTax.toFixed(2);
       document.getElementById("youSaved").textContent = totalSaved.toFixed(2);
+      document.getElementById("line-zzp").textContent = deductions >= 5030
+  ? "✅ Zelfstandigenaftrek: €5,030"
+  : "❌ Zelfstandigenaftrek: not eligible";
+
+document.getElementById("line-starter").textContent = deductions >= 7153
+  ? "✅ Startersaftrek: €2,123"
+  : "❌ Startersaftrek: not eligible";
+
+document.getElementById("line-mkb").textContent = mkbVrijstelling > 0
+  ? `✅ MKB-vrijstelling: 12.7%`
+  : "❌ MKB-vrijstelling: not eligible";
+
+document.getElementById("line-kor").textContent = kor
+  ? "✅ KOR: applied (no VAT due)"
+  : "❌ KOR: not used";
     }
   </script>
 </body>
