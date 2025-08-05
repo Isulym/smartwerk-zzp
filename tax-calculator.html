@@ -95,16 +95,37 @@
   <div class="section summary">
     <h3>Step 4: Result</h3>
     <div id="result">
-      <p>💰 <strong>Gross Income:</strong> <span id="grossIncome">–</span></p>
-      <p>📉 <strong>Total Expenses:</strong> <span id="totalExpenses">–</span></p>
-      <p>💼 <strong>Taxable Profit:</strong> <span id="taxableProfit">–</span></p>
-      <p>🛡️ <strong>ZZP Deductions:</strong> <span id="zzpDeductions">–</span></p>
-      <p>🏦 <strong>MKB Exemption (12.7%):</strong> <span id="mkbVrijstelling">–</span></p>
-      <p>📊 <strong>Final Taxable Income:</strong> <span id="finalTaxable">–</span></p>
-      <p>💸 <strong>Income Tax (19% / 25.8%):</strong> <span id="incomeTax">–</span> <span title="Progressive: 19% to €200K, 25.8% above">ℹ️</span></p>
-      <p>💶 <strong>ZVW (5.32%):</strong> <span id="zvwAmount">–</span> <span title="Mandatory healthcare contribution (ZVW)">ℹ️</span></p>
-      <p>🧮 <strong>BTW Amount:</strong> <span id="btwAmount">–</span> <span title="Based on selected BTW rate">ℹ️</span></p>
-      <p>🟢 <strong>Total Estimated Tax:</strong> <span id="totalTax">–</span></p>
+     <p><strong>Gross Income:</strong> <span id="grossIncome"></span></p>
+
+<p><strong>Total Expenses:</strong> <span id="totalExpenses"></span></p>
+
+<p><strong>Taxable Profit:</strong> <span id="taxableProfit" title="Gross income minus expenses"></span></p>
+
+<p><strong>ZZP Deductions:</strong> <span id="zzpDeductions" title="ZZP deductions (Zelfstandigenaftrek + Startersaftrek if eligible)"></span></p>
+
+<p><strong>MKB Exemption (12.7%):</strong> <span id="mkbVrijstelling" title="MKB exemption: 12.7% after all deductions"></span></p>
+
+<p><strong>Final Taxable Income:</strong> <span id="finalTaxable" title="Income after deductions and exemptions"></span></p>
+
+<p><strong>Income Tax (19% / 25.8%):</strong>
+  <span id="incomeTax" title="Calculated based on Dutch progressive income tax rates"></span>
+  <span title="Progressive: 19% to €200K, 25.8% above">ℹ️</span>
+</p>
+
+<p><strong>ZVW (5.32%):</strong>
+  <span id="zvwAmount" title="Mandatory health insurance contribution (ZVW)"></span>
+  <span title="Health contribution (Zorgverzekeringswet)">ℹ️</span>
+</p>
+
+<p><strong>BTW Amount:</strong>
+  <span id="btwAmount" title="Calculated VAT amount based on rate and KOR status"></span>
+  <span title="Based on selected BTW rate and KOR">ℹ️</span>
+</p>
+
+<p><strong>Total Estimated Tax:</strong>
+  <span id="totalTax" title="Income Tax + ZVW - benefits from deductions"></span>
+</p>
+
       <p <style>
   .highlight-positive {
     color: green;
