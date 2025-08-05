@@ -129,6 +129,7 @@ function calculateAutomatically() {
 
 function calculateTax() {
   const income = +document.getElementById("income").value || 0;
+  const btwRate = +document.getElementById("btw").value / 100;
   const vehicle = +document.getElementById("vehicle").value || 0;
   const office = +document.getElementById("office").value || 0;
   const internet = +document.getElementById("internet").value || 0;
@@ -166,13 +167,17 @@ function calculateTax() {
   const totalSaved = deductions + mkbVrijstelling;
 
   document.getElementById("result").innerHTML = `
-    💼 <b>Profit:</b> €${profit.toFixed(2)}<br>
-    📉 <b>Deductions:</b> €${deductions.toFixed(2)}<br>
-    🏦 <b>MKB Exemption (12.7%):</b> €${mkbVrijstelling.toFixed(2)}<br>
-    💸 <b>Income Tax:</b> €${incomeTax.toFixed(2)}<br>
-    🏥 <b>ZVW (5.32%):</b> €${zvw.toFixed(2)}<br>
-    🧾 <b>Total Tax:</b> €${totalTax.toFixed(2)}<br>
-    ✅ <b>You Saved:</b> €${totalSaved.toFixed(2)}
+document.getElementById("grossIncome").textContent = income.toFixed(2);
+document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
+document.getElementById("taxableProfit").textContent = profit.toFixed(2);
+document.getElementById("zzpDeductions").textContent = deductions.toFixed(2);
+document.getElementById("mkbExemption").textContent = mkbVrijstelling.toFixed(2);
+document.getElementById("finalTaxable").textContent = taxable.toFixed(2);
+document.getElementById("incomeTax").textContent = incomeTax.toFixed(2);
+document.getElementById("zvwAmount").textContent = zvw.toFixed(2);
+document.getElementById("btwAmount").textContent = (profit * btwRate).toFixed(2);
+document.getElementById("totalTax").textContent = totalTax.toFixed(2);
+document.getElementById("youSaved").textContent = totalSaved.toFixed(2);
   `;
 }
 </script>
