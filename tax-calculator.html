@@ -105,7 +105,31 @@
       <p>💶 <strong>ZVW (5.32%):</strong> <span id="zvwAmount">–</span> <span title="Mandatory healthcare contribution (ZVW)">ℹ️</span></p>
       <p>🧮 <strong>BTW Amount:</strong> <span id="btwAmount">–</span> <span title="Based on selected BTW rate">ℹ️</span></p>
       <p>🟢 <strong>Total Estimated Tax:</strong> <span id="totalTax">–</span></p>
-      <p style="color:green"><strong>✅ You saved:</strong> <span id="youSaved">–</span></p>
+      <p <style>
+  .highlight-positive {
+    color: green;
+    font-weight: bold;
+  }
+
+  .highlight-negative {
+    color: red;
+    font-weight: bold;
+  }
+
+  .result-block {
+    padding: 8px 0;
+    border-bottom: 1px dashed #ccc;
+  }
+
+  .result-label {
+    display: inline-block;
+    width: 180px;
+  }
+
+  .result-icon {
+    margin-right: 4px;
+  }
+</style>
 
       <hr/>
       <div id="deductionBreakdown">
@@ -119,14 +143,14 @@
       </div>
     </div>
   </div>
-<div id="deductionBreakdown">
-  <h4>📌 Deduction Breakdown</h4>
+<<div id="deductionBreakdown">
+  <h4>💡 Deduction Breakdown</h4>
   <ul>
-    <li id="line-zzp">❌ Zelfstandigenaftrek: not eligible</li>
-    <li id="line-starter">❌ Startersaftrek: not eligible</li>
-    <li id="line-mkb">❌ MKB-vrijstelling: not eligible</li>
-    <li id="line-kor">❌ KOR: not used</li>
-  </ul>
+  <li id="line-zzp">✅ Zelfstandigenaftrek (€5,030) <span id="zzp-status" title="Applied if KvK is Yes and 1225+ hours worked">eligible</span></li>
+  <li id="line-starter">✅ Startersaftrek (€2,123) <span id="starter-status" title="Only applies for first 3 years">eligible</span></li>
+  <li id="line-mkb">✅ MKB-vrijstelling (12.7%) <span id="mkb-status" title="Applied after all other deductions">applied</span></li>
+  <li id="line-kor">✅ KOR <span id="kor-status" title="Applied if turnover < €20,000 and selected Yes">applied</span></li>
+</ul>
 </div>
   <div class="button-group">
     <button onclick="calculateTax()">🧮 Calculate Tax</button>
@@ -184,7 +208,7 @@ const totalSaved = cappedDeduction + cappedMkb;
 const baseTax = (taxable - totalSaved) * 0.19;
 if (taxable >= 200000) {
   const extraTax = (taxable - 200000 - totalSaved) * 0.258;
-  incomeTax = baseTax + (extraTax > 0 ? extraTax : 0);
+  incomeTax = Math.max(0, baseTax + (extraTax > 0 ? extraTax : 0));
 } else {
   incomeTax = baseTax > 0 ? baseTax : 0;
 }      const zvw = profit * 0.0532;
@@ -194,19 +218,31 @@ if (taxable >= 200000) {
       const cappedDeduction = Math.min(deductions, taxable * 0.3748);
       const cappedMkb = Math.min(mkbVrijstelling, (taxable - cappedDeduction) * 0.3748);
       const totalSaved = cappedDeduction + cappedMkb;
+      const profitElement = document.getElementById("taxableProfit");
+profitElement.textContent = profit.toFixed(2);
+profitElement.className = profit > 0 ? 'highlight-positive' : 'highlight-negative';
+
+const taxElement = document.getElementById("incomeTax");
+taxElement.textContent = incomeTax.toFixed(2);
+taxElement.className = incomeTax > 0 ? 'highlight-negative' : 'highlight-positive';
+
+const savedElement = document.getElementById("youSaved");
+savedElement.textContent = totalSaved.toFixed(2);
+savedElement.className = totalSaved > 0 ? 'highlight-positive' : 'highlight-negative';
 
       document.getElementById("grossIncome").textContent = income.toFixed(2);
       document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
-      document.getElementById("taxableProfit").textContent = profit.toFixed(2);
       document.getElementById("zzpDeductions").textContent = deductions.toFixed(2);
       document.getElementById("mkbVrijstelling").textContent = mkbVrijstelling.toFixed(2);
       document.getElementById("finalTaxable").textContent = taxable.toFixed(2);
-      document.getElementById("incomeTax").textContent = incomeTax.toFixed(2);
       document.getElementById("zvwAmount").textContent = zvw.toFixed(2);
       document.getElementById("btwAmount").textContent = (profit * btwRate).toFixed(2);
       document.getElementById("totalTax").textContent = totalTax.toFixed(2);
-      document.getElementById("youSaved").textContent = totalSaved.toFixed(2);
       document.getElementById("line-zzp").textContent = deductions >= 5030
+      document.getElementById("zzp-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
+      document.getElementById("starter-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
+      document.getElementById("mkb-status").textContent = mkbVrijstelling > 0 ? "applied ✅" : "not eligible ❌";
+      document.getElementById("kor-status").textContent = kor ? "applied ✅" : "not used ❌";
   ? "✅ Zelfstandigenaftrek: €5,030"
   : "❌ Zelfstandigenaftrek: not eligible";
 
