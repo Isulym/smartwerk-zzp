@@ -52,8 +52,15 @@
       <option value="Q3">July – September (Q3)</option>
       <option value="Q4">October – December (Q4)</option>
     </select>
-    <label>Hours Worked:</label><input type="number" id="hoursWorked" oninput="autoCalcIncome()"/>
-    <label>Hourly Rate (EUR):</label><input type="number" id="hourlyRate" oninput="autoCalcIncome()"/>
+    <label>Hours Worked:</label>
+<input type="number" id="hoursWorked" 
+       onchange="autoCalcIncome()" 
+       onkeyup="autoCalcIncome()" />
+
+<label>Hourly Rate (EUR):</label>
+<input type="number" id="hourlyRate" 
+       onchange="autoCalcIncome()" 
+       onkeyup="autoCalcIncome()" />
     <label>Total Income (auto):</label><input type="number" id="income" readonly/>
   </div>
 
@@ -178,6 +185,10 @@
   document.getElementById("income").value = (h * r).toFixed(2);
   calculateAutomatically();
 }
+   window.onload = function () {
+  document.getElementById("hoursWorked").addEventListener("input", autoCalcIncome);
+  document.getElementById("hourlyRate").addEventListener("input", autoCalcIncome);
+};
 
     function calculateAutomatically() {
       if (typeof calculateTax === "function") {
