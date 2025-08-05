@@ -166,7 +166,6 @@ function calculateTax() {
   const totalTax = incomeTax + zvw;
   const totalSaved = deductions + mkbVrijstelling;
 
-  document.getElementById("result").innerHTML = `
 document.getElementById("grossIncome").textContent = income.toFixed(2);
 document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
 document.getElementById("taxableProfit").textContent = profit.toFixed(2);
