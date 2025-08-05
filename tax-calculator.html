@@ -173,8 +173,8 @@
 
   <script>
     function autoCalcIncome() {
-      const h = document.getElementById("hoursWorked").value || 0;
-      const r = document.getElementById("hourlyRate").value || 0;
+      const h = +document.getElementById("hoursWorked").value || 0;
+      const r = +document.getElementById("hourlyRate").value || 0;
       document.getElementById("income").value = h * r;
       calculateAutomatically();
     }
