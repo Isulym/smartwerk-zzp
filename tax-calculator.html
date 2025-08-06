@@ -174,8 +174,7 @@ let mkbVrijstelling = (kvk && zzp) ? taxableBeforeMKB * 0.127 : 0;
   const zvw = profit * 0.0532;
 
   // BTW
-  const btwAmount = kor ? 0 : profit * (btwRate / 100);
-
+  const btwAmount = kor ? 0 : income * (btwRate / 100);
   // Total Tax
   const totalTax = incomeTax + zvw;
 
