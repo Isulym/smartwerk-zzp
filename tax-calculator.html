@@ -130,58 +130,74 @@
     }
 
     function calculateTax() {
-      const income = +document.getElementById("income").value || 0;
-      const vehicle = +document.getElementById("vehicle").value || 0;
-      const office = +document.getElementById("office").value || 0;
-      const internet = +document.getElementById("internet").value || 0;
-      const marketing = +document.getElementById("marketing").value || 0;
-      const other = +document.getElementById("other").value || 0;
-      const extraBenefits = +document.getElementById("extraBenefits").value || 0;
-      const kvk = document.getElementById("kvk").value === "yes";
-      const zzp = document.getElementById("zzpHours").value === "yes";
-      const kor = document.getElementById("kor").value === "yes";
-      const btwRate = +document.getElementById("btw").value || 0;
+  const income = +document.getElementById("income").value || 0;
+  const vehicle = +document.getElementById("vehicle").value || 0;
+  const office = +document.getElementById("office").value || 0;
+  const internet = +document.getElementById("internet").value || 0;
+  const marketing = +document.getElementById("marketing").value || 0;
+  const other = +document.getElementById("other").value || 0;
+  const extraBenefits = +document.getElementById("extraBenefits").value || 0;
 
-      const totalExpenses = vehicle + office + internet + marketing + other;
-      const profit = income - totalExpenses + extraBenefits;
+  const kvk = document.getElementById("kvk").value === "yes";
+  const zzp = document.getElementById("zzpHours").value === "yes";
+  const kor = document.getElementById("kor").value === "yes";
+  const btwRate = +document.getElementById("btw").value;
 
-      let deductions = 0;
-      if (kvk && zzp) {
-        deductions += 5030;
-        deductions += 2123;
-      }
+  const totalExpenses = vehicle + office + internet + marketing + other;
+  const profit = income - totalExpenses + extraBenefits;
 
-      let taxable = Math.max(0, profit - deductions);
-      const mkbVrijstelling = taxable * 0.127;
-      taxable -= mkbVrijstelling;
+  // Пільги
+  let zzpDeductions = 0;
+  if (kvk && zzp) {
+    zzpDeductions = 5030 + 2123; // Zelfstandigenaftrek + Startersaftrek
+  }
 
-      const cappedDeduction = Math.min(deductions, taxable * 0.3748);
-      const cappedMkb = Math.min(mkbVrijstelling, (taxable - cappedDeduction) * 0.3748);
-      const totalSaved = cappedDeduction + cappedMkb;
+  let taxableBeforeMKB = Math.max(0, profit - zzpDeductions);
+  let mkbVrijstelling = taxableBeforeMKB * 0.127;
 
-      let incomeTax = 0;
-      if (taxable <= 200000) {
-        incomeTax = (taxable - totalSaved) * 0.19;
-      } else {
-        incomeTax = (200000 - totalSaved) * 0.19 + (taxable - 200000) * 0.258;
-      }
+  // Tariff cap: максимум 37.48% від доходу
+  const maxDeductible = profit * 0.3748;
+  const cappedZZP = Math.min(zzpDeductions, maxDeductible);
+  const cappedMKB = Math.min(mkbVrijstelling, Math.max(0, maxDeductible - cappedZZP));
+  const totalSaved = cappedZZP + cappedMKB;
 
-      const zvw = profit * 0.0532;
-      const btwAmount = kor ? 0 : profit * (btwRate / 100);
-      const totalTax = incomeTax + zvw;
+  let finalTaxable = Math.max(0, profit - totalSaved);
 
-      document.getElementById("grossIncome").textContent = income.toFixed(2);
-      document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
-      document.getElementById("taxableProfit").textContent = profit.toFixed(2);
-      document.getElementById("zzpDeductions").textContent = deductions.toFixed(2);
-      document.getElementById("mkbVrijstelling").textContent = mkbVrijstelling.toFixed(2);
-      document.getElementById("finalTaxable").textContent = taxable.toFixed(2);
-      document.getElementById("incomeTax").textContent = incomeTax.toFixed(2);
-      document.getElementById("zvwAmount").textContent = zvw.toFixed(2);
-      document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
-      document.getElementById("totalTax").textContent = totalTax.toFixed(2);
-    }
+  // Income Tax
+  let incomeTax = 0;
+  if (finalTaxable > 200000) {
+    incomeTax = 200000 * 0.19 + (finalTaxable - 200000) * 0.258;
+  } else {
+    incomeTax = finalTaxable * 0.19;
+  }
 
+  // ZVW
+  const zvw = profit * 0.0532;
+
+  // BTW
+  const btwAmount = kor ? 0 : profit * (btwRate / 100);
+
+  // Total Tax
+  const totalTax = incomeTax + zvw;
+
+  // Вивід у DOM
+  document.getElementById("grossIncome").textContent = income.toFixed(2);
+  document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
+  document.getElementById("taxableProfit").textContent = profit.toFixed(2);
+  document.getElementById("zzpDeductions").textContent = zzpDeductions.toFixed(2);
+  document.getElementById("mkbVrijstelling").textContent = mkbVrijstelling.toFixed(2);
+  document.getElementById("finalTaxable").textContent = finalTaxable.toFixed(2);
+  document.getElementById("incomeTax").textContent = incomeTax.toFixed(2);
+  document.getElementById("zvwAmount").textContent = zvw.toFixed(2);
+  document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
+  document.getElementById("totalTax").textContent = (incomeTax + zvw).toFixed(2);
+
+  // Статуси пільг
+  document.getElementById("zzp-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
+  document.getElementById("starter-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
+  document.getElementById("mkb-status").textContent = mkbVrijstelling > 0 ? "applied ✅" : "not eligible ❌";
+  document.getElementById("kor-status").textContent = kor ? "applied ✅" : "not used ❌";
+}
     window.onload = function () {
       document.getElementById("hoursWorked").addEventListener("input", autoCalcIncome);
       document.getElementById("hourlyRate").addEventListener("input", autoCalcIncome);
