@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,6 +35,14 @@
     .summary {
       background: #eafbe5;
     }
+    .highlight-positive {
+      color: green;
+      font-weight: bold;
+    }
+    .highlight-negative {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -53,9 +60,9 @@
       <option value="Q4">October – December (Q4)</option>
     </select>
     <label>Hours Worked:</label>
-<input type="number" id="hoursWorked" oninput="autoCalcIncome()" />
-<label>Hourly Rate (EUR):</label>
-<input type="number" id="hourlyRate" oninput="autoCalcIncome()" />
+    <input type="number" id="hoursWorked" />
+    <label>Hourly Rate (EUR):</label>
+    <input type="number" id="hourlyRate" />
     <label>Total Income (auto):</label><input type="number" id="income" readonly/>
   </div>
 
@@ -72,23 +79,23 @@
   <div class="section">
     <h3>Step 3: Tax Options</h3>
     <label>KvK Registered?</label>
-    <select id="kvk" onchange="calculateAutomatically()">
+    <select id="kvk">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select>
     <label>Worked 1,225+ hours?</label>
-    <select id="zzpHours" onchange="calculateAutomatically()">
+    <select id="zzpHours">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select>
     <label>BTW Rate:</label>
-    <select id="btw" onchange="calculateAutomatically()">
+    <select id="btw">
       <option value="21">21%</option>
       <option value="9">9%</option>
       <option value="0">0%</option>
     </select>
     <label>Use KOR?</label>
-    <select id="kor" onchange="calculateAutomatically()">
+    <select id="kor">
       <option value="no">No</option>
       <option value="yes">Yes</option>
     </select>
@@ -97,103 +104,33 @@
   <div class="section summary">
     <h3>Step 4: Result</h3>
     <div id="result">
-     <p><strong>Gross Income:</strong> <span id="grossIncome"></span></p>
-
-<p><strong>Total Expenses:</strong> <span id="totalExpenses"></span></p>
-
-<p><strong>Taxable Profit:</strong> <span id="taxableProfit" title="Gross income minus expenses"></span></p>
-
-<p><strong>ZZP Deductions:</strong> <span id="zzpDeductions" title="ZZP deductions (Zelfstandigenaftrek + Startersaftrek if eligible)"></span></p>
-
-<p><strong>MKB Exemption (12.7%):</strong> <span id="mkbVrijstelling" title="MKB exemption: 12.7% after all deductions"></span></p>
-
-<p><strong>Final Taxable Income:</strong> <span id="finalTaxable" title="Income after deductions and exemptions"></span></p>
-
-<p><strong>Income Tax (19% / 25.8%):</strong>
-  <span id="incomeTax" title="Calculated based on Dutch progressive income tax rates"></span>
-  <span title="Progressive: 19% to €200K, 25.8% above">ℹ️</span>
-</p>
-
-<p><strong>ZVW (5.32%):</strong>
-  <span id="zvwAmount" title="Mandatory health insurance contribution (ZVW)"></span>
-  <span title="Health contribution (Zorgverzekeringswet)">ℹ️</span>
-</p>
-
-<p><strong>BTW Amount:</strong>
-  <span id="btwAmount" title="Calculated VAT amount based on rate and KOR status"></span>
-  <span title="Based on selected BTW rate and KOR">ℹ️</span>
-</p>
-
-<p><strong>Total Estimated Tax:</strong>
-  <span id="totalTax" title="Income Tax + ZVW - benefits from deductions"></span>
-</p>
-
-      <p <style>
-  .highlight-positive {
-    color: green;
-    font-weight: bold;
-  }
-
-  .highlight-negative {
-    color: red;
-    font-weight: bold;
-  }
-
-  .result-block {
-    padding: 8px 0;
-    border-bottom: 1px dashed #ccc;
-  }
-
-  .result-label {
-    display: inline-block;
-    width: 180px;
-  }
-
-  .result-icon {
-    margin-right: 4px;
-  }
-</style>
-
-      <hr/>
-      
+      <p><strong>Gross Income:</strong> <span id="grossIncome"></span></p>
+      <p><strong>Total Expenses:</strong> <span id="totalExpenses"></span></p>
+      <p><strong>Taxable Profit:</strong> <span id="taxableProfit"></span></p>
+      <p><strong>ZZP Deductions:</strong> <span id="zzpDeductions"></span></p>
+      <p><strong>MKB Exemption (12.7%):</strong> <span id="mkbVrijstelling"></span></p>
+      <p><strong>Final Taxable Income:</strong> <span id="finalTaxable"></span></p>
+      <p><strong>Income Tax:</strong> <span id="incomeTax"></span></p>
+      <p><strong>ZVW (5.32%):</strong> <span id="zvwAmount"></span></p>
+      <p><strong>BTW Amount:</strong> <span id="btwAmount"></span></p>
+      <p><strong>Total Estimated Tax:</strong> <span id="totalTax"></span></p>
     </div>
   </div>
-<<div id="deductionBreakdown">
-  <h4>💡 Deduction Breakdown</h4>
-  <ul>
-  <li id="line-zzp">✅ Zelfstandigenaftrek (€5,030) <span id="zzp-status" title="Applied if KvK is Yes and 1225+ hours worked">eligible</span></li>
-  <li id="line-starter">✅ Startersaftrek (€2,123) <span id="starter-status" title="Only applies for first 3 years">eligible</span></li>
-  <li id="line-mkb">✅ MKB-vrijstelling (12.7%) <span id="mkb-status" title="Applied after all other deductions">applied</span></li>
-  <li id="line-kor">✅ KOR <span id="kor-status" title="Applied if turnover < €20,000 and selected Yes">applied</span></li>
-</ul>
-</div>
+
   <div class="button-group">
     <button onclick="calculateTax()">🧮 Calculate Tax</button>
-    <button onclick="alert('Export to PDF coming soon!')">📄 Export PDF</button>
-    <button onclick="alert('Ask AI coming soon!')">🤖 Ask SmartWerk AI</button>
   </div>
 
   <script>
- function autoCalcIncome() {
-  const h = +document.getElementById("hoursWorked").value || 0;
-  const r = +document.getElementById("hourlyRate").value || 0;
-  document.getElementById("income").value = (h * r).toFixed(2);
-  calculateAutomatically();
-}
-   window.onload = function () {
-  document.getElementById("hoursWorked").addEventListener("input", autoCalcIncome);
-  document.getElementById("hourlyRate").addEventListener("input", autoCalcIncome);
-};
-
-    function calculateAutomatically() {
-      if (typeof calculateTax === "function") {
-        calculateTax();
-      }
+    function autoCalcIncome() {
+      const h = +document.getElementById("hoursWorked").value || 0;
+      const r = +document.getElementById("hourlyRate").value || 0;
+      document.getElementById("income").value = (h * r).toFixed(2);
+      calculateTax();
     }
 
     function calculateTax() {
       const income = +document.getElementById("income").value || 0;
-      const btwRate = +document.getElementById("btw").value / 100;
       const vehicle = +document.getElementById("vehicle").value || 0;
       const office = +document.getElementById("office").value || 0;
       const internet = +document.getElementById("internet").value || 0;
@@ -203,12 +140,10 @@
       const kvk = document.getElementById("kvk").value === "yes";
       const zzp = document.getElementById("zzpHours").value === "yes";
       const kor = document.getElementById("kor").value === "yes";
+      const btwRate = +document.getElementById("btw").value || 0;
 
       const totalExpenses = vehicle + office + internet + marketing + other;
       const profit = income - totalExpenses + extraBenefits;
-      
-const btwAmount = kor ? 0 : profit * (btwRate / 100);
-document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
 
       let deductions = 0;
       if (kvk && zzp) {
@@ -220,63 +155,43 @@ document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
       const mkbVrijstelling = taxable * 0.127;
       taxable -= mkbVrijstelling;
 
-const cappedDeduction = Math.min(deductions, taxable * 0.3748);
-const cappedMkb = Math.min(mkbVrijstelling, (taxable - cappedDeduction) * 0.3748);
-const totalSaved = cappedDeduction + cappedMkb;
-
-const baseTax = (taxable - totalSaved) * 0.19;
-if (taxable >= 200000) {
-  const extraTax = (taxable - 200000 - totalSaved) * 0.258;
-  incomeTax = Math.max(0, baseTax + (extraTax > 0 ? extraTax : 0));
-} else {
-  incomeTax = baseTax > 0 ? baseTax : 0;
-}      const zvw = profit * 0.0532;
-      if (kor) incomeTax -= 8;
-
-      const totalTax = incomeTax + zvw;
       const cappedDeduction = Math.min(deductions, taxable * 0.3748);
       const cappedMkb = Math.min(mkbVrijstelling, (taxable - cappedDeduction) * 0.3748);
       const totalSaved = cappedDeduction + cappedMkb;
-      const profitElement = document.getElementById("taxableProfit");
-profitElement.textContent = profit.toFixed(2);
-profitElement.className = profit > 0 ? 'highlight-positive' : 'highlight-negative';
 
-const taxElement = document.getElementById("incomeTax");
-taxElement.textContent = incomeTax.toFixed(2);
-taxElement.className = incomeTax > 0 ? 'highlight-negative' : 'highlight-positive';
+      let incomeTax = 0;
+      if (taxable <= 200000) {
+        incomeTax = (taxable - totalSaved) * 0.19;
+      } else {
+        incomeTax = (200000 - totalSaved) * 0.19 + (taxable - 200000) * 0.258;
+      }
 
-const savedElement = document.getElementById("youSaved");
-savedElement.textContent = totalSaved.toFixed(2);
-savedElement.className = totalSaved > 0 ? 'highlight-positive' : 'highlight-negative';
+      const zvw = profit * 0.0532;
+      const btwAmount = kor ? 0 : profit * (btwRate / 100);
+      const totalTax = incomeTax + zvw;
 
       document.getElementById("grossIncome").textContent = income.toFixed(2);
       document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
+      document.getElementById("taxableProfit").textContent = profit.toFixed(2);
       document.getElementById("zzpDeductions").textContent = deductions.toFixed(2);
       document.getElementById("mkbVrijstelling").textContent = mkbVrijstelling.toFixed(2);
       document.getElementById("finalTaxable").textContent = taxable.toFixed(2);
+      document.getElementById("incomeTax").textContent = incomeTax.toFixed(2);
       document.getElementById("zvwAmount").textContent = zvw.toFixed(2);
-      document.getElementById("btwAmount").textContent = (profit * btwRate).toFixed(2);
+      document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
       document.getElementById("totalTax").textContent = totalTax.toFixed(2);
-      document.getElementById("line-zzp").textContent = deductions >= 5030
-      document.getElementById("zzp-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
-      document.getElementById("starter-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
-      document.getElementById("mkb-status").textContent = mkbVrijstelling > 0 ? "applied ✅" : "not eligible ❌";
-      document.getElementById("kor-status").textContent = kor ? "applied ✅" : "not used ❌";
-  ? "✅ Zelfstandigenaftrek: €5,030"
-  : "❌ Zelfstandigenaftrek: not eligible";
-
-document.getElementById("line-starter").textContent = deductions >= 7153
-  ? "✅ Startersaftrek: €2,123"
-  : "❌ Startersaftrek: not eligible";
-
-document.getElementById("line-mkb").textContent = mkbVrijstelling > 0
-  ? `✅ MKB-vrijstelling: 12.7%`
-  : "❌ MKB-vrijstelling: not eligible";
-
-document.getElementById("line-kor").textContent = kor
-  ? "✅ KOR: applied (no VAT due)"
-  : "❌ KOR: not used";
     }
+
+    window.onload = function () {
+      document.getElementById("hoursWorked").addEventListener("input", autoCalcIncome);
+      document.getElementById("hourlyRate").addEventListener("input", autoCalcIncome);
+
+      const selects = document.querySelectorAll("select");
+      selects.forEach(sel => sel.addEventListener("change", calculateTax));
+
+      const inputs = document.querySelectorAll("input");
+      inputs.forEach(inp => inp.addEventListener("input", calculateTax));
+    };
   </script>
 </body>
 </html>
