@@ -152,7 +152,7 @@
     zzpDeductions = 5030 + 2123; // Zelfstandigenaftrek + Startersaftrek
   }
 let taxableBeforeMKB = Math.max(0, profit - zzpDeductions);
-let mkbVrijstelling = zzpDeductions > 0 ? taxableBeforeMKB * 0.127 : 0;
+let mkbVrijstelling = taxableBeforeMKB * 0.127;
       
   // Tariff cap: максимум 37.48% від доходу
   const maxDeductible = profit * 0.3748;
