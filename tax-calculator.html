@@ -174,14 +174,14 @@
     }
 
     function calculateTax() {
-  const income = +document.getElementById("income").value || 0;
-  const vehicle = +document.getElementById("vehicle").value || 0;
-  const office = +document.getElementById("office").value || 0;
-  const internet = +document.getElementById("internet").value || 0;
-  const marketing = +document.getElementById("marketing").value || 0;
-  const other = +document.getElementById("other").value || 0;
-  const extraBenefits = +document.getElementById("extraBenefits").value || 0;
-
+  const income = parseFloat(document.getElementById("income").value) || 0;
+const vehicle = parseFloat(document.getElementById("vehicle").value) || 0;
+const office = parseFloat(document.getElementById("office").value) || 0;
+const internet = parseFloat(document.getElementById("internet").value) || 0;
+const marketing = parseFloat(document.getElementById("marketing").value) || 0;
+const other = parseFloat(document.getElementById("other").value) || 0;
+const extraBenefits = parseFloat(document.getElementById("extraBenefits").value) || 0;
+      
   const kvk = document.getElementById("kvk").value === "yes";
   const zzp = document.getElementById("zzpHours").value === "yes";
   const kor = document.getElementById("kor").value === "yes";
