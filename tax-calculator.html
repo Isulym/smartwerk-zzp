@@ -168,6 +168,9 @@
       <p><strong>ZVW (5.32%):</strong> <span id="zvwAmount"></span></p>
       <p><strong>BTW Amount:</strong> <span id="btwAmount"></span></p>
       <p><strong>Total Estimated Tax:</strong> <span id="totalTax"></span></p>
+   <div id="reportingNotesWrapper" style="display: none;">
+  <p><strong>Reporting Notes:</strong> <span id="reportingNotesOutput"></span></p>
+</div>
     </div>
   </div>
 
@@ -242,6 +245,16 @@ let mkbVrijstelling = (kvk && zzp) ? baseForMKB * 0.127 : 0;
   document.getElementById("zvwAmount").textContent = zvw.toFixed(2);
   document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
   document.getElementById("totalTax").textContent = totalTax.toFixed(2);
+ const reportingNotes = document.getElementById("reportingNotes").value;
+const notesOutput = document.getElementById("reportingNotesOutput");
+const notesWrapper = document.getElementById("reportingNotesWrapper");
+
+if (reportingNotes.trim() !== "") {
+    notesOutput.textContent = reportingNotes;
+    notesWrapper.style.display = "block";
+} else {
+    notesWrapper.style.display = "none";
+}
 
   // Статуси пільг
   document.getElementById("zzp-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
