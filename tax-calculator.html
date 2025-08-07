@@ -195,7 +195,8 @@ const extraBenefits = parseFloat(document.getElementById("extraBenefits").value)
     zzpDeductions = 5030 + 2123; // Zelfstandigenaftrek + Startersaftrek
   }
 let taxableBeforeMKB = Math.max(0, profit - zzpDeductions);
-let mkbVrijstelling = (kvk && zzp) ? taxableBeforeMKB * 0.127 : 0;
+let baseForMKB = Math.round(taxableBeforeMKB * 100) / 100;
+let mkbVrijstelling = (kvk && zzp) ? baseForMKB * 0.127 : 0;
       
   // Tariff cap: максимум 37.48% від доходу
   const maxDeductible = profit * 0.3748;
@@ -212,12 +213,13 @@ let mkbVrijstelling = (kvk && zzp) ? taxableBeforeMKB * 0.127 : 0;
   } else {
     incomeTax = finalTaxable * 0.19;
   }
+      incomeTax = Math.round(incomeTax * 100) / 100;
 
   // ZVW
-  const zvw = finalTaxable * 0.0532;
+  const zvw = Math.round(finalTaxable * 0.0532 * 100) / 100;
   // BTW
-  const btwAmount = kor ? 0 : profit * (btwRate / 100);  // Total Tax
-  const totalTax = incomeTax + zvw + btwAmount;
+ const btwAmount = kor ? 0 : Math.round(profit * (btwRate / 100) * 100) / 100; // Total Tax
+ const totalTax = Math.round((incomeTax + zvw + btwAmount) * 100) / 100;
 
   // Вивід у DOM
   document.getElementById("grossIncome").textContent = income.toFixed(2);
