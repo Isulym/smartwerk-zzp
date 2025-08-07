@@ -105,31 +105,46 @@
   </label>
   <input type="number" id="extraBenefits" />
 </div>
-  <div class="section">
-    <h3>Step 3: Tax Options</h3>
-    <label>KvK Registered?</label>
-    <select id="kvk">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
-    <label>Worked 1,225+ hours?</label>
-    <select id="zzpHours">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
-    <label>BTW Rate:</label>
-    <select id="btw">
-      <option value="21">21%</option>
-      <option value="9">9%</option>
-      <option value="0">0%</option>
-    </select>
-    <label>Use KOR?</label>
-    <select id="kor">
-      <option value="no">No</option>
-      <option value="yes">Yes</option>
-    </select>
-  </div>
+ <div class="section">
+  <h3>Step 3: Tax Options</h3>
 
+  <label>
+    KvK Registered?
+    <span title="Are you officially registered in the Dutch Chamber of Commerce (KvK)? Required for most deductions.">ℹ️</span>
+  </label>
+  <select id="kvk">
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+  </select>
+
+  <label>
+    Worked 1,225+ hours?
+    <span title="Did you work at least 1,225 hours on your business this year? Required for ZZP deductions.">ℹ️</span>
+  </label>
+  <select id="hours">
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+  </select>
+
+  <label>
+    BTW Rate:
+    <span title="Select the VAT rate that applies to your services: 21% (standard), 9% (reduced), or 0% (exempt).">ℹ️</span>
+  </label>
+  <select id="btwRate">
+    <option value="21">21%</option>
+    <option value="9">9%</option>
+    <option value="0">0%</option>
+  </select>
+
+  <label>
+    Use KOR?
+    <span title="Are you using the Small Business Scheme (KOR)? This exempts you from charging VAT.">ℹ️</span>
+  </label>
+  <select id="kor">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+</div>
   <div class="section summary">
     <h3>Step 4: Result</h3>
     <div id="result">
