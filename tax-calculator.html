@@ -187,9 +187,8 @@ const extraBenefits = parseFloat(document.getElementById("extraBenefits").value)
   const kor = document.getElementById("kor").value === "yes";
   const btwRate = +document.getElementById("btw").value;
 
-  const totalExpenses = vehicle + office + internet + marketing + other;
-  const profit = income - totalExpenses + extraBenefits;
-
+  const totalExpenses = vehicle + office + internet + marketing + other + extraBenefits;
+  const profit = income - totalExpenses;
   // Пільги
   let zzpDeductions = 0;
   if (kvk && zzp) {
