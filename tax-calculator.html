@@ -273,79 +273,87 @@ if (reportingNotes.trim() !== "") {
       const inputs = document.querySelectorAll("input");
       inputs.forEach(inp => inp.addEventListener("input", calculateTax));
     };
-     function exportPDF() {
-    const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-       // ... решта твого коду ...
-  doc.text("SmartWerk Tax Report", 15, 10);
-  
-    // Дані
-    const companyName = document.getElementById("companyName").value;
-    const emailPhone = document.getElementById("email").value;
-    const period = document.getElementById("period").value;
-    const hours = document.getElementById("hoursWorked").value;
-    const hourlyRate = document.getElementById("hourlyRate").value;
-    const income = document.getElementById("income").value;
-    const kvk = document.getElementById("kvkNumber").value;
-    const vat = document.getElementById("vatNumber").value;
-    const iban = document.getElementById("iban").value;
-    const contact = document.getElementById("contactPerson").value;
-    const notes = document.getElementById("reportingNotes").value;
+    
+   function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-    // Результати
-    const grossIncome = document.getElementById("grossIncome").textContent;
-    const totalExpenses = document.getElementById("totalExpenses").textContent;
-    const taxableProfit = document.getElementById("taxableProfit").textContent;
-    const zzpDeductions = document.getElementById("zzpDeductions").textContent;
-    const mkbVrijstelling = document.getElementById("mkbVrijstelling").textContent;
-    const finalTaxable = document.getElementById("finalTaxable").textContent;
-    const incomeTax = document.getElementById("incomeTax").textContent;
-    const zvwAmount = document.getElementById("zvwAmount").textContent;
-    const btwAmount = document.getElementById("btwAmount").textContent;
-    const totalTax = document.getElementById("totalTax").textContent;
+  // Відступ зверху
+  let y = 10;
 
-    // PDF вміст
-    let y = 10;
-    doc.setFontSize(14);
-    doc.text("SmartWerk Tax Report", 15, y); y += 10;
+  // Заголовок
+  doc.setFontSize(14);
+  doc.text("SmartWerk Tax Report", 15, y); 
+  y += 10;
 
-    doc.setFontSize(11);
-    doc.text(`Company: ${companyName}`, 15, y); y += 6;
-    doc.text(`Email / Phone: ${emailPhone}`, 15, y); y += 6;
-    doc.text(`Period: ${period}`, 15, y); y += 6;
-    doc.text(`Hours Worked: ${hours}`, 15, y); y += 6;
-    doc.text(`Hourly Rate: €${hourlyRate}`, 15, y); y += 6;
-    doc.text(`Total Income: €${income}`, 15, y); y += 6;
-    doc.text(`KvK Number: ${kvk}`, 15, y); y += 6;
-    doc.text(`VAT Number: ${vat}`, 15, y); y += 6;
-    doc.text(`IBAN: ${iban}`, 15, y); y += 6;
-    doc.text(`Contact Person: ${contact}`, 15, y); y += 10;
+  // Дані
+  const companyName = document.getElementById("companyName").value;
+  const emailPhone = document.getElementById("email").value;
+  const period = document.getElementById("period").value;
+  const hours = document.getElementById("hoursWorked").value;
+  const hourlyRate = document.getElementById("hourlyRate").value;
+  const income = document.getElementById("income").value;
+  const kvk = document.getElementById("kvkNumber").value;
+  const vat = document.getElementById("vatNumber").value;
+  const iban = document.getElementById("iban").value;
+  const contact = document.getElementById("contactPerson").value;
+  const notes = document.getElementById("reportingNotes").value;
 
+  // Результати
+  const grossIncome = document.getElementById("grossIncome").textContent;
+  const totalExpenses = document.getElementById("totalExpenses").textContent;
+  const taxableProfit = document.getElementById("taxableProfit").textContent;
+  const zzpDeductions = document.getElementById("zzpDeductions").textContent;
+  const mkbVrijstelling = document.getElementById("mkbVrijstelling").textContent;
+  const finalTaxable = document.getElementById("finalTaxable").textContent;
+  const incomeTax = document.getElementById("incomeTax").textContent;
+  const zvwAmount = document.getElementById("zvwAmount").textContent;
+  const btwAmount = document.getElementById("btwAmount").textContent;
+  const totalTax = document.getElementById("totalTax").textContent;
+
+  // Контактна інформація
+  doc.setFontSize(11);
+  doc.text(`Company: ${companyName}`, 15, y += 6);
+  doc.text(`Email / Phone: ${emailPhone}`, 15, y += 6);
+  doc.text(`Period: ${period}`, 15, y += 6);
+  doc.text(`Hours Worked: ${hours}`, 15, y += 6);
+  doc.text(`Hourly Rate: €${hourlyRate}`, 15, y += 6);
+  doc.text(`Total Income: €${income}`, 15, y += 6);
+  doc.text(`KvK Number: ${kvk}`, 15, y += 6);
+  doc.text(`VAT Number: ${vat}`, 15, y += 6);
+  doc.text(`IBAN: ${iban}`, 15, y += 6);
+  doc.text(`Contact Person: ${contact}`, 15, y += 10);
+
+  // Блок підсумку
+  doc.setFontSize(12);
+  doc.text("Calculation Summary:", 15, y += 8);
+
+  doc.setFontSize(11);
+  doc.text(`Gross Income: €${grossIncome}`, 15, y += 6);
+  doc.text(`Total Expenses: €${totalExpenses}`, 15, y += 6);
+  doc.text(`Taxable Profit: €${taxableProfit}`, 15, y += 6);
+  doc.text(`ZZP Deductions: €${zzpDeductions}`, 15, y += 6);
+  doc.text(`MKB Exemption: €${mkbVrijstelling}`, 15, y += 6);
+  doc.text(`Final Taxable Income: €${finalTaxable}`, 15, y += 6);
+  doc.text(`Income Tax: €${incomeTax}`, 15, y += 6);
+  doc.text(`ZVW (5.32%): €${zvwAmount}`, 15, y += 6);
+  doc.text(`BTW Amount: €${btwAmount}`, 15, y += 6);
+
+  doc.setFont(undefined, 'bold');
+  doc.text(`Total Estimated Tax: €${totalTax}`, 15, y += 10);
+  doc.setFont(undefined, 'normal');
+
+  // Коментарі
+  if (notes && notes.trim() !== "") {
     doc.setFontSize(12);
-    doc.text("Calculation Summary:", 15, y); y += 8;
+    doc.text("Reporting Notes:", 15, y += 8);
     doc.setFontSize(11);
-    doc.text(`Gross Income: €${grossIncome}`, 15, y); y += 6;
-    doc.text(`Total Expenses: €${totalExpenses}`, 15, y); y += 6;
-    doc.text(`Taxable Profit: €${taxableProfit}`, 15, y); y += 6;
-    doc.text(`ZZP Deductions: €${zzpDeductions}`, 15, y); y += 6;
-    doc.text(`MKB Exemption: €${mkbVrijstelling}`, 15, y); y += 6;
-    doc.text(`Final Taxable Income: €${finalTaxable}`, 15, y); y += 6;
-    doc.text(`Income Tax: €${incomeTax}`, 15, y); y += 6;
-    doc.text(`ZVW (5.32%): €${zvwAmount}`, 15, y); y += 6;
-    doc.text(`BTW Amount: €${btwAmount}`, 15, y); y += 6;
-    doc.setFont(undefined, 'bold');
-    doc.text(`Total Estimated Tax: €${totalTax}`, 15, y); y += 10;
-    doc.setFont(undefined, 'normal');
-
-    if (notes && notes.trim() !== "") {
-      doc.setFontSize(12);
-      doc.text("Reporting Notes:", 15, y); y += 8;
-      doc.setFontSize(11);
-      doc.text(doc.splitTextToSize(notes, 180), 15, y);
-    }
-
-    doc.save("SmartWerk_Tax_Report.pdf");
+    doc.text(doc.splitTextToSize(notes, 180), 15, y += 6);
   }
+
+  // Збереження PDF
+  doc.save("SmartWerk_Tax_Report.pdf");
+}
     
   </script>
 </body>
