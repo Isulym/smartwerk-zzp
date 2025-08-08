@@ -276,8 +276,8 @@ if (reportingNotes.trim() !== "") {
       const inputs = document.querySelectorAll("input");
       inputs.forEach(inp => inp.addEventListener("input", calculateTax));
     };
-      window.onload = function () {
-
+    
+   window.onload = function () {
   function exportPDF() {
     const doc = new jsPDF();
 
@@ -358,7 +358,7 @@ if (reportingNotes.trim() !== "") {
   }  
      // Прив’язка до кнопки
   document.querySelector("button[onclick='exportPDF()']").onclick = exportPDF;
-};
+}
     
   </script>
 </body>
