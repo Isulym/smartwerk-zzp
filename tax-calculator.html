@@ -45,7 +45,9 @@
     }
   </style>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>window.jsPDF = window.jspdf.jsPDF;</script>
+  <script>
+    window.jsPDF = window.jspdf.jsPDF;
+  </script>
 </head>
 <body>
   <h2>SmartWerk Tax Calculator</h2>
@@ -274,10 +276,11 @@ if (reportingNotes.trim() !== "") {
       const inputs = document.querySelectorAll("input");
       inputs.forEach(inp => inp.addEventListener("input", calculateTax));
     };
-    
-     function exportPDF() {
-  const doc = new jsPDF(); // ← просто так, без window.jspdf
-  
+      window.onload = function () {
+
+  function exportPDF() {
+    const doc = new jsPDF();
+
   let y = 10;
 
   // Заголовок
@@ -352,7 +355,10 @@ if (reportingNotes.trim() !== "") {
 
   // Збереження PDF
   doc.save("SmartWerk_Tax_Report.pdf");
-}
+  }  
+     // Прив’язка до кнопки
+  document.querySelector("button[onclick='exportPDF()']").onclick = exportPDF;
+};
     
   </script>
 </body>
