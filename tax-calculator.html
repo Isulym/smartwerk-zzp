@@ -277,7 +277,7 @@ if (reportingNotes.trim() !== "") {
     const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
        // ... решта твого коду ...
-  //doc.text("SmartWerk Tax Report", 15, 10);
+  doc.text("SmartWerk Tax Report", 15, 10);
   
     // Дані
     const companyName = document.getElementById("companyName").value;
