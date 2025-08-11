@@ -476,6 +476,102 @@
   run();
 })();
 });
+  
+/* === FINAL WIRING (safe) ===
+   Підключаємо події тільки після готовності DOM.
+   Робимо функції глобальними, якщо вони оголошені вище.
+   Перерахунок: на будь-яку зміну полів.
+   Кнопки: Calculate / Export / Run validation.
+*/
+
+(function wireEverything(){
+  function exposeGlobals(){
+    // якщо функції оголошені вище — зробимо доступними як window.*
+    if (typeof calculateTax === "function")  window.calculateTax = calculateTax;
+    if (typeof exportPDF    === "function")  window.exportPDF    = exportPDF;
+    if (typeof validateState=== "function")  window.validateState= validateState;
+    if (typeof autoCalcIncome=== "function") window.autoCalcIncome= autoCalcIncome;
+  }
+
+  function runValidationUI(){
+    // якщо є панель — оновимо статус
+    var s = document.getElementById("validateStatus");
+    var o = document.getElementById("debugOut");
+    if (!s || !o) return;                            // панелі може не бути — ок
+    if (typeof window.validateState !== "function"){ // немає самої перевірки
+      s.textContent = "ℹ️ Validation script not found";
+      s.style.color = "#666";
+      o.textContent = "";
+      return;
+    }
+    var errs = window.validateState();
+    if (errs.length){
+      s.textContent = "❌ Issues found";
+      s.style.color = "#c00";
+      o.textContent = errs.map((e,i)=>`${i+1}. ${e}`).join("\n");
+    } else {
+      s.textContent = "✅ No issues found";
+      s.style.color = "#0a0";
+      o.textContent = "All values look valid.";
+    }
+  }
+
+  function attachHandlers(){
+    // 1) Autocalc + перерахунок на будь-яке введення
+    document.querySelectorAll("input, select, textarea").forEach(function(el){
+      el.addEventListener("input",  function(){
+        if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+        if (typeof window.calculateTax   === "function") window.calculateTax();
+        runValidationUI();
+      });
+      el.addEventListener("change", function(){
+        if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+        if (typeof window.calculateTax   === "function") window.calculateTax();
+        runValidationUI();
+      });
+    });
+
+    // 2) Кнопка Calculate
+    var btnCalc = document.getElementById("btn-calc");
+    if (btnCalc) btnCalc.addEventListener("click", function(){
+      if (typeof window.calculateTax === "function") window.calculateTax();
+      runValidationUI();
+    });
+
+    // 3) Кнопка Export PDF
+    var btnPdf = document.getElementById("btn-pdf");
+    if (btnPdf) btnPdf.addEventListener("click", function(){
+      if (typeof window.exportPDF === "function") window.exportPDF();
+    });
+
+    // 4) Кнопка Run validation
+    var btnVal = document.getElementById("btn-validate");
+    if (btnVal) btnVal.addEventListener("click", runValidationUI);
+  }
+
+  // Чекаємо DOM, тоді експонуємо функції та прив’язуємо події
+  document.addEventListener("DOMContentLoaded", function(){
+    exposeGlobals();
+    attachHandlers();
+    // первинний прогін
+    if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+    if (typeof window.calculateTax   === "function") window.calculateTax();
+    runValidationUI();
+  });
+
+  // На випадок, якщо скрипти вище завантажаться пізніше — зробимо кілька спроб
+  var tries = 0;
+  var t = setInterval(function(){
+    tries++;
+    exposeGlobals();
+    if (window.calculateTax && (document.readyState === "complete" || document.readyState === "interactive")){
+      try { attachHandlers(); if (window.autoCalcIncome) window.autoCalcIncome(); window.calculateTax && window.calculateTax(); runValidationUI(); } catch(e){}
+      clearInterval(t);
+    }
+    if (tries > 20) clearInterval(t); // ~10 секунд максимум
+  }, 500);
+})();
+</script>
   </script>
 </body>
 </html>
