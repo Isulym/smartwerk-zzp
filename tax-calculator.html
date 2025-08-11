@@ -383,10 +383,65 @@ function validateState() {
   const exp   = num(get('totalExpenses'));
   const prof  = num(get('taxableProfit'));
 
-  if (isNaN(gross)) issues.push('Gross income is required');
-  if (isNaN(exp))   issues.push('Total expenses are required');
-  if (isNaN(prof))  issues.push('Taxable profit is required');
+// ---- Balanced-логіка ----
+const EPS = 0.5;
 
+// зчитувач значень зі span
+const getNum = (id) => {
+  const s = (document.getElementById(id)?.textContent || '').trim();
+  const v = parseFloat(String(s).replace(',', '.'));
+  return Number.isFinite(v) ? v : NaN;
+};
+
+// 1) Profit ≈ Gross - Expenses
+if (!isNaN(gross) && !isNaN(exp) && !isNaN(prof)) {
+  const diff = Math.abs((gross - exp) - prof);
+  if (diff > EPS) issues.push(`❌ Taxable Profit should equal Gross - Expenses (diff €${diff.toFixed(2)})`);
+}
+
+// 2) TotalTax ≈ IncomeTax + ZVW + BTW
+const incomeTax = getNum('incomeTax');
+const zvwAmount = getNum('zvwAmount');
+const btwAmount = getNum('btwAmount');
+const totalTax  = getNum('totalTax');
+
+if ([incomeTax, zvwAmount, btwAmount, totalTax].every(v => !isNaN(v))) {
+  const diff = Math.abs((incomeTax + zvwAmount + btwAmount) - totalTax);
+  if (diff > EPS) issues.push(`❌ Total Tax should equal IncomeTax + ZVW + BTW (diff €${diff.toFixed(2)})`);
+}
+
+// 3) ZZP/MKB обмеження та умови
+const kvk      = (document.getElementById('kvk')?.value === 'yes');
+const zzpHours = (document.getElementById('zzpHours')?.value === 'yes');
+const kor      = (document.getElementById('kor')?.value === 'yes');
+const btwRateV = (document.getElementById('btwRate')?.value || '21'); // '0','9','21'
+
+const zzpDed = getNum('zzpDeductions');
+const mkb    = getNum('mkbVrijstelling');
+
+if (!isNaN(zzpDed)) {
+  if (!(kvk && zzpHours) && zzpDed > 0) {
+    issues.push('❌ ZZP deductions require KVK=Yes and ≥1225 hours.');
+  }
+  if (!isNaN(mkb) && !isNaN(prof) && prof > 0) {
+    const cap = 0.3748 * prof;
+    if (zzpDed + mkb > cap + 0.01) issues.push('❌ ZZP + MKB exceed 37.48% cap of profit.');
+  }
+}
+
+// 4) KOR правила
+if (kor) {
+  if (btwAmount > EPS) issues.push('❌ KOR=Yes → BTW must be 0.');
+  if (!['0','9','21'].includes(btwRateV)) issues.push('❌ Invalid BTW rate (allowed: 0, 9, 21).');
+}
+
+// 5) Мінуси / витрати > дохід
+[['Gross income', gross], ['Total expenses', exp], ['Taxable profit', prof]].forEach(([name,val])=>{
+  if (!isNaN(val) && val < 0) issues.push(`❌ ${name} cannot be negative.`);
+});
+if (!isNaN(exp) && !isNaN(gross) && exp > gross) {
+  issues.push('⚠️ Expenses are higher than income.');
+}
   return issues;
 }
 
