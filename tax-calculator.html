@@ -3,165 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk Tax Calculator 1</title>
+  <title>SmartWerk Tax Calculator</title>
+
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 2em;
-      background: #f9f9f9;
-    }
-    h2, h3 {
-      color: #333;
-    }
-    section {
-      background: #fff;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
-    }
-    input, select {
-      width: 100%;
-      padding: 6px;
-      margin-top: 4px;
-    }
-    .button-group {
-      margin-top: 15px;
-    }
-    .button-group button {
-      margin-right: 10px;
-      padding: 10px 15px;
-    }
-    .summary {
-      background: #eafbe5;
-    }
-    .highlight-positive {
-      color: green;
-      font-weight: bold;
-    }
-    .highlight-negative {
-      color: red;
-      font-weight: bold;
-    }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 2rem; background: #f9f9f9; color:#222; }
+    h2, h3 { color:#333; margin: 0 0 .75rem 0; }
+    .section { background:#fff; padding:20px; margin-bottom:20px; border-radius:10px; box-shadow: 0 8px 18px rgba(0,0,0,.05); }
+    label { display:block; margin-top:10px; font-weight:600; }
+    input, select, textarea { width:100%; padding:10px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-size:15px; }
+    textarea { resize: vertical; min-height: 70px; }
+    .button-group{ display:flex; gap:12px; margin-top:16px; }
+    .button-group button{ padding:10px 14px; border:0; border-radius:8px; cursor:pointer; font-weight:700; }
+    .button-primary{ background:#0b5cff; color:#fff; }
+    .button-secondary{ background:#eee; color:#111; }
+    .summary p{ margin:.25rem 0; }
+    .muted{ color:#666; font-weight:400; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   </style>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    window.jsPDF = window.jspdf.jsPDF;
-  </script>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>window.jsPDF = window.jspdf.jsPDF;</script>
 </head>
 <body>
   <h2>SmartWerk Tax Calculator</h2>
 
+  <!-- Step 1 -->
   <div class="section">
     <h3>Step 1: Your Data</h3>
-    <label>Company Name:</label><input type="text" id="companyName"/>
-    <label>Email / Phone:</label><input type="text" id="email" />
-    <label>Period:</label>
+
+    <label>Company Name:<input type="text" id="companyName"/></label>
+    <label>Email / Phone:<input type="text" id="email"/></label>
+
+    <label for="period">Period</label>
     <select id="period">
       <option value="Q1">January – March (Q1)</option>
       <option value="Q2">April – June (Q2)</option>
       <option value="Q3">July – September (Q3)</option>
       <option value="Q4">October – December (Q4)</option>
     </select>
-    <label>Hours Worked:</label>
-    <input type="number" id="hoursWorked" />
-    <label>Hourly Rate (EUR):</label>
-    <input type="number" id="hourlyRate" />
-    <label>Total Income (auto):</label><input type="number" id="income" readonly/>
-    <label>KvK Number:</label>
-<input type="text" id="kvkNumber" />
-<label>VAT Number:</label>
-<input type="text" id="vatNumber" />
-<label>IBAN:</label>
-<input type="text" id="iban" />
-<label>Contact Person:</label>
-<input type="text" id="contactPerson" />
-<label for="reportingNotes">Reporting Notes (optional – add any comments or explanations):</label>
-<textarea id="reportingNotes" rows="2" placeholder="E.g. This report includes one-time setup costs, or pending invoices..."></textarea>
+
+    <label>Hours Worked:<input type="number" id="hoursWorked"/></label>
+    <label>Hourly Rate (EUR):<input type="number" id="hourlyRate"/></label>
+    <label>Total Income (auto):<input type="number" id="income" readonly/></label>
+
+    <label>KvK Number:<input type="text" id="kvkNumber"/></label>
+    <label>VAT Number:<input type="text" id="vatNumber"/></label>
+    <label>IBAN:<input type="text" id="iban"/></label>
+    <label>Contact Person:<input type="text" id="contactPerson"/></label>
+
+    <label for="reportingNotes">Reporting Notes (optional):</label>
+    <textarea id="reportingNotes" rows="2" placeholder="E.g. one-time setup costs, pending invoices…"></textarea>
   </div>
 
-<div class="section">
-  <h3>Step 2: Business Expenses</h3>
+  <!-- Step 2 -->
+  <div class="section">
+    <h3>Step 2: Business Expenses</h3>
 
-  <label>
-    🚗 Transport & Vehicle Costs:
-    <span title="Car, fuel, public transport, bike lease, or other travel costs related to your business">ℹ️</span>
-  </label>
-  <input type="number" id="vehicle" />
+    <label>Transport & Vehicle Costs:
+      <span class="muted">(car, fuel, public transport, bike lease, etc.)</span>
+      <input type="number" id="vehicle"/>
+    </label>
 
-  <label>
-    🏢 Workspace & Rent Costs:
-    <span title="Home office rent, coworking space, energy, heating, workspace-related costs">ℹ️</span>
-  </label>
-  <input type="number" id="office" />
+    <label>Workspace & Rent Costs:
+      <span class="muted">(home office, coworking, energy, heating, etc.)</span>
+      <input type="number" id="office"/>
+    </label>
 
-  <label>
-    🌐 Internet & Communication:
-    <span title="Mobile, Wi-Fi, VoIP, domain registration, business calls, etc.">ℹ️</span>
-  </label>
-  <input type="number" id="internet" />
+    <label>Internet & Communication:
+      <span class="muted">(mobile, Wi-Fi, VoIP, domain, calls, etc.)</span>
+      <input type="number" id="internet"/>
+    </label>
 
-  <label>
-    📣 Marketing & Advertising:
-    <span title="Website, social media ads, flyers, design, campaigns, logo creation, etc.">ℹ️</span>
-  </label>
-  <input type="number" id="marketing" />
+    <label>Marketing & Advertising:
+      <span class="muted">(website, ads, design, campaigns, etc.)</span>
+      <input type="number" id="marketing"/>
+    </label>
 
-  <label>
-    🎁 Business Gifts & Representation:
-    <span title="Client gifts, networking meals, drinks, business events, etc.">ℹ️</span>
-  </label>
-  <input type="number" id="other" />
+    <label>Business Gifts & Representation:
+      <span class="muted">(networking, client gifts, events, etc.)</span>
+      <input type="number" id="other"/>
+    </label>
 
-  <label>
-    📚 Study, Insurance & Miscellaneous:
-    <span title="Online courses, insurance, banking fees, accountant, administration tools, and more">ℹ️</span>
-  </label>
-  <input type="number" id="extraBenefits" />
-</div>
- <div class="section">
-  <h3>Step 3: Tax Options</h3>
+    <label>Study, Insurance & Misc:
+      <span class="muted">(courses, software, accountant, insurance, banking, etc.)</span>
+      <input type="number" id="extraBenefits"/>
+    </label>
+  </div>
 
-  <label>
-    KvK Registered?
-    <span title="Are you officially registered in the Dutch Chamber of Commerce (KvK)? Required for most deductions.">ℹ️</span>
-  </label>
-  <select id="kvk">
-    <option value="yes">Yes</option>
-    <option value="no">No</option>
-  </select>
+  <!-- Step 3 -->
+  <div class="section">
+    <h3>Step 3: Tax Options</h3>
 
-  <label>
-    Worked 1,225+ hours?
-    <span title="Did you work at least 1,225 hours on your business this year? Required for ZZP deductions.">ℹ️</span>
-  </label>
- <select id="zzpHours">
-  <option value="yes">Yes</option>
-  <option value="no">No</option>
-</select>
+    <label for="kvk">KvK Registered?
+      <span class="muted">(required for most deductions)</span>
+    </label>
+    <select id="kvk">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
 
-  <label>
-    BTW Rate:
-    <span title="Select the VAT rate that applies to your services: 21% (standard), 9% (reduced), or 0% (exempt).">ℹ️</span>
-  </label>
-  <select id="btwRate">
-    <option value="21">21%</option>
-    <option value="9">9%</option>
-    <option value="0">0%</option>
-  </select>
+    <label for="zzpHours">Worked ≥1,225 hours?
+      <span class="muted">(required for ZZP deductions)</span>
+    </label>
+    <select id="zzpHours">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
 
-  <label>
-    Use KOR?
-    <span title="Are you using the Small Business Scheme (KOR)? This exempts you from charging VAT.">ℹ️</span>
-  </label>
-  <select id="kor">
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-  </select>
-</div>
+    <label for="btwRate">BTW Rate:
+      <span class="muted">(21% standard, 9% reduced, 0% exempt)</span>
+    </label>
+    <select id="btwRate">
+      <option value="21">21%</option>
+      <option value="9">9%</option>
+      <option value="0">0%</option>
+    </select>
+
+    <label for="kor">Use KOR?
+      <span class="muted">(Small Business Scheme; exempts charging VAT)</span>
+    </label>
+    <select id="kor">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
+  </div>
+
+  <!-- Step 4 -->
   <div class="section summary">
     <h3>Step 4: Result</h3>
+
     <div id="result">
+      <!-- Deduction Breakdown (statuses) -->
+      <div class="section" id="deduction-breakdown" style="padding:12px; margin:0 0 12px 0;">
+        <h3 style="margin:0 0 .5rem 0;">Deduction Breakdown</h3>
+        <p><strong>ZZP eligibility:</strong> <span id="zzp-status">—</span></p>
+        <p><strong>KvK status:</strong> <span id="kvk-status">—</span></p>
+        <p><strong>KOR usage:</strong> <span id="kor-status">—</span></p>
+      </div>
+
       <p><strong>Gross Income:</strong> <span id="grossIncome"></span></p>
       <p><strong>Total Expenses:</strong> <span id="totalExpenses"></span></p>
       <p><strong>Taxable Profit:</strong> <span id="taxableProfit"></span></p>
@@ -172,194 +152,215 @@
       <p><strong>ZVW (5.32%):</strong> <span id="zvwAmount"></span></p>
       <p><strong>BTW Amount:</strong> <span id="btwAmount"></span></p>
       <p><strong>Total Estimated Tax:</strong> <span id="totalTax"></span></p>
-   <div id="reportingNotesWrapper" style="display: none;">
-  <p><strong>Reporting Notes:</strong> <span id="reportingNotesOutput"></span></p>
-</div>
+
+      <div id="reportingNotesWrapper" style="display:none;">
+        <p><strong>Reporting Notes:</strong> <span id="reportingNotesOutput"></span></p>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
+      <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
     </div>
   </div>
 
- <div class="button-group">
-  <button onclick="calculateTax()">🧮 Calculate Tax</button>
-  <button type="button" onclick="exportPDF()">Export as PDF</button>
-</div>
+  <!-- ===== Utilities & Logic ===== -->
   <script>
-    function autoCalcIncome() {
-      const h = +document.getElementById("hoursWorked").value || 0;
-      const r = +document.getElementById("hourlyRate").value || 0;
-      document.getElementById("income").value = (h * r).toFixed(2);
-      calculateTax();
+    // ---------- Anti-null expected IDs ----------
+    const REQUIRED_IDS = [
+      "companyName","email","period","hoursWorked","hourlyRate","income",
+      "kvkNumber","vatNumber","iban","contactPerson","reportingNotes",
+      "vehicle","office","internet","marketing","other","extraBenefits",
+      "kvk","zzpHours","btwRate","kor",
+      "grossIncome","totalExpenses","taxableProfit","zzpDeductions",
+      "mkbVrijstelling","finalTaxable","incomeTax","zvwAmount","btwAmount","totalTax",
+      "reportingNotesWrapper","reportingNotesOutput",
+      "zzp-status","kvk-status","kor-status"
+    ];
+    function $(id){ return document.getElementById(id); }
+    const Safe = {
+      text(id, v){ const el=$(id); if(el){ el.textContent=String(v); } else { console.warn(`⛔ Missing #${id}`);} },
+      val(id){ const el=$(id); if(!el){ console.warn(`⛔ Missing #${id}`); return ""; } return el.value ?? ""; }
+    };
+    function num(id){ const s=(Safe.val(id)||"").toString().replace(",","."); const n=parseFloat(s); return Number.isFinite(n)?n:0; }
+    function round2(x){ return Math.round((x + Number.EPSILON) * 100) / 100; }
+    function clamp0(x){ return x < 0 ? 0 : x; }
+
+    // highlight missing IDs on load
+    document.addEventListener("DOMContentLoaded", () => {
+      const missing = REQUIRED_IDS.filter(id => !$(id));
+      if (missing.length){
+        console.table(missing.map(id => ({missing:id})));
+        const b = document.createElement("div");
+        b.style.cssText = "position:fixed;top:0;left:0;right:0;padding:10px;background:#d00;color:#fff;z-index:9999";
+        b.textContent = "Missing IDs: " + missing.join(", ");
+        document.body.appendChild(b);
+        setTimeout(()=>b.remove(), 10000);
+      }
+    });
+
+    // ---------- Auto income from hours * rate ----------
+    function autoCalcIncome(){
+      const h = num("hoursWorked");
+      const r = num("hourlyRate");
+      const val = round2(h * r);
+      const incomeEl = $("income");
+      if (incomeEl) incomeEl.value = val.toFixed(2);
     }
 
-    function calculateTax() {
-  const income = parseFloat(document.getElementById("income").value) || 0;
-const vehicle = parseFloat(document.getElementById("vehicle").value) || 0;
-const office = parseFloat(document.getElementById("office").value) || 0;
-const internet = parseFloat(document.getElementById("internet").value) || 0;
-const marketing = parseFloat(document.getElementById("marketing").value) || 0;
-const other = parseFloat(document.getElementById("other").value) || 0;
-const extraBenefits = parseFloat(document.getElementById("extraBenefits").value) || 0;
-      
-  const kvk = document.getElementById("kvk").value === "yes";
-  const zzp = document.getElementById("zzpHours").value === "yes";
-  const kor = document.getElementById("kor").value === "yes";
-  const btwRate = +document.getElementById("btwRate").value;
+    // ---------- Main calculation ----------
+    function calculateTax(){
+      autoCalcIncome();
 
-  const totalExpenses = vehicle + office + internet + marketing + other + extraBenefits;
-  const profit = income - totalExpenses;
-  // Пільги
-  let zzpDeductions = 0;
-  if (kvk && zzp) {
-    zzpDeductions = 5030 + 2123; // Zelfstandigenaftrek + Startersaftrek
-  }
-let taxableBeforeMKB = Math.max(0, profit - zzpDeductions);
-let baseForMKB = Math.round(taxableBeforeMKB * 100) / 100;
-let mkbVrijstelling = (kvk && zzp) ? baseForMKB * 0.127 : 0;
-      
-  // Tariff cap: максимум 37.48% від доходу
-  const maxDeductible = profit * 0.3748;
-  const cappedZZP = Math.min(zzpDeductions, maxDeductible);
-  const cappedMKB = Math.min(mkbVrijstelling, Math.max(0, maxDeductible - cappedZZP));
-  const totalSaved = cappedZZP + cappedMKB;
+      const income        = num("income");
+      const vehicle       = num("vehicle");
+      const office        = num("office");
+      const internet      = num("internet");
+      const marketing     = num("marketing");
+      const other         = num("other");
+      const extraBenefits = num("extraBenefits");
 
-  let finalTaxable = Math.max(0, profit - totalSaved);
+      const kvk     = Safe.val("kvk") === "yes";
+      const zzp     = Safe.val("zzpHours") === "yes";
+      const kor     = Safe.val("kor") === "yes";
+      const btwRate = parseFloat((Safe.val("btwRate")||"0").replace(",", ".")) || 0;
 
-  // Income Tax
-  let incomeTax = 0;
-  if (finalTaxable > 200000) {
-    incomeTax = 200000 * 0.19 + (finalTaxable - 200000) * 0.258;
-  } else {
-    incomeTax = finalTaxable * 0.19;
-  }
-      incomeTax = Math.round(incomeTax * 100) / 100;
+      const totalExpenses = vehicle + office + internet + marketing + other + extraBenefits;
+      const profit = income - totalExpenses;
 
-  // ZVW
-  const zvw = Math.round(finalTaxable * 0.0532 * 100) / 100;
-  // BTW
- const btwAmount = kor ? 0 : Math.round(profit * (btwRate / 100) * 100) / 100; // Total Tax
- const totalTax = Math.round((incomeTax + zvw + btwAmount) * 100) / 100;
+      // ZZP deductions (basic model)
+      const zelfstandigenaftrek = 5030;
+      const startersaftrek = (kvk && zzp) ? 2123 : 0;
+      const zzpDeductions = (kvk && zzp) ? (zelfstandigenaftrek + startersaftrek) : 0;
 
-  // Вивід у DOM
-  document.getElementById("grossIncome").textContent = income.toFixed(2);
-  document.getElementById("totalExpenses").textContent = totalExpenses.toFixed(2);
-  document.getElementById("taxableProfit").textContent = profit.toFixed(2);
-  document.getElementById("zzpDeductions").textContent = zzpDeductions.toFixed(2);
-  document.getElementById("mkbVrijstelling").textContent = mkbVrijstelling.toFixed(2);
-  document.getElementById("finalTaxable").textContent = finalTaxable.toFixed(2);
-  document.getElementById("incomeTax").textContent = incomeTax.toFixed(2);
-  document.getElementById("zvwAmount").textContent = zvw.toFixed(2);
-  document.getElementById("btwAmount").textContent = btwAmount.toFixed(2);
-  document.getElementById("totalTax").textContent = totalTax.toFixed(2);
- const reportingNotes = document.getElementById("reportingNotes").value;
-const notesOutput = document.getElementById("reportingNotesOutput");
-const notesWrapper = document.getElementById("reportingNotesWrapper");
+      // MKB 12.7% after ZZP
+      const taxableBeforeMKB = clamp0(profit - zzpDeductions);
+      const mkbVrijstelling  = round2(taxableBeforeMKB * 0.127);
 
-if (reportingNotes.trim() !== "") {
-    notesOutput.textContent = reportingNotes;
-    notesWrapper.style.display = "block";
-} else {
-    notesWrapper.style.display = "none";
-}
+      // Tariff cap 37.48%
+      const maxDeductibleValue = round2(profit * 0.3748);
+      const cappedZZP = Math.min(zzpDeductions, maxDeductibleValue);
+      const cappedMKB = Math.min(mkbVrijstelling, clamp0(maxDeductibleValue - cappedZZP));
+      const totalSaved = cappedZZP + cappedMKB;
 
-  // Статуси пільг
-  document.getElementById("zzp-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
-  document.getElementById("starter-status").textContent = (kvk && zzp) ? "eligible ✅" : "not eligible ❌";
-  document.getElementById("mkb-status").textContent = mkbVrijstelling > 0 ? "applied ✅" : "not eligible ❌";
-  document.getElementById("kor-status").textContent = kor ? "applied ✅" : "not used ❌";
-}
-    window.onload = function () {
-      document.getElementById("hoursWorked").addEventListener("input", autoCalcIncome);
-      document.getElementById("hourlyRate").addEventListener("input", autoCalcIncome);
+      const finalTaxable = clamp0(profit - totalSaved);
 
-      const selects = document.querySelectorAll("select");
-      selects.forEach(sel => sel.addEventListener("change", calculateTax));
+      // Income tax: 19% to 200k, then 25.8%
+      let incomeTax = 0;
+      if (finalTaxable > 200000){
+        incomeTax = round2(200000 * 0.19 + (finalTaxable - 200000) * 0.258);
+      } else {
+        incomeTax = round2(finalTaxable * 0.19);
+      }
 
-      const inputs = document.querySelectorAll("input");
-      inputs.forEach(inp => inp.addEventListener("input", calculateTax));
-    };
-    
-   window.onload = function () {
-  function exportPDF() {
-    const doc = new jsPDF();
+      // ZVW 5.32%
+      const zvwAmount = round2(finalTaxable * 0.0532);
 
-  let y = 10;
+      // BTW
+      const btwAmount = kor ? 0 : round2(profit * (btwRate / 100));
+      const totalTax  = round2(incomeTax + zvwAmount + btwAmount);
 
-  // Заголовок
-  doc.setFontSize(14);
-  doc.text("SmartWerk Tax Report", 15, y); 
-  y += 10;
+      // DOM output
+      Safe.text("grossIncome", income.toFixed(2));
+      Safe.text("totalExpenses", totalExpenses.toFixed(2));
+      Safe.text("taxableProfit", profit.toFixed(2));
+      Safe.text("zzpDeductions", zzpDeductions.toFixed(2));
+      Safe.text("mkbVrijstelling", mkbVrijstelling.toFixed(2));
+      Safe.text("finalTaxable", finalTaxable.toFixed(2));
+      Safe.text("incomeTax", incomeTax.toFixed(2));
+      Safe.text("zvwAmount", zvwAmount.toFixed(2));
+      Safe.text("btwAmount", btwAmount.toFixed(2));
+      Safe.text("totalTax", totalTax.toFixed(2));
 
-  // Дані
-  const companyName = document.getElementById("companyName").value;
-  const emailPhone = document.getElementById("email").value;
-  const period = document.getElementById("period").value;
-  const hours = document.getElementById("hoursWorked").value;
-  const hourlyRate = document.getElementById("hourlyRate").value;
-  const income = document.getElementById("income").value;
-  const kvk = document.getElementById("kvkNumber").value;
-  const vat = document.getElementById("vatNumber").value;
-  const iban = document.getElementById("iban").value;
-  const contact = document.getElementById("contactPerson").value;
-  const notes = document.getElementById("reportingNotes").value;
+      // Notes show/hide
+      const notes = Safe.val("reportingNotes");
+      const wrap = $("reportingNotesWrapper");
+      const out  = $("reportingNotesOutput");
+      if (wrap && out){
+        if ((notes||"").trim()){
+          out.textContent = notes;
+          wrap.style.display = "block";
+        } else {
+          wrap.style.display = "none";
+        }
+      }
 
-  // Результати
-  const grossIncome = document.getElementById("grossIncome").textContent;
-  const totalExpenses = document.getElementById("totalExpenses").textContent;
-  const taxableProfit = document.getElementById("taxableProfit").textContent;
-  const zzpDeductions = document.getElementById("zzpDeductions").textContent;
-  const mkbVrijstelling = document.getElementById("mkbVrijstelling").textContent;
-  const finalTaxable = document.getElementById("finalTaxable").textContent;
-  const incomeTax = document.getElementById("incomeTax").textContent;
-  const zvwAmount = document.getElementById("zvwAmount").textContent;
-  const btwAmount = document.getElementById("btwAmount").textContent;
-  const totalTax = document.getElementById("totalTax").textContent;
+      // statuses
+      Safe.text("zzp-status", (kvk && zzp) ? "eligible ✅" : "not eligible ❌");
+      Safe.text("kvk-status", kvk ? "eligible ✅" : "not eligible ❌");
+      Safe.text("kor-status", kor ? "applied ✅" : "not used ❌");
+    }
 
-  // Контактна інформація
-  doc.setFontSize(11);
-  doc.text(`Company: ${companyName}`, 15, y += 6);
-  doc.text(`Email / Phone: ${emailPhone}`, 15, y += 6);
-  doc.text(`Period: ${period}`, 15, y += 6);
-  doc.text(`Hours Worked: ${hours}`, 15, y += 6);
-  doc.text(`Hourly Rate: €${hourlyRate}`, 15, y += 6);
-  doc.text(`Total Income: €${income}`, 15, y += 6);
-  doc.text(`KvK Number: ${kvk}`, 15, y += 6);
-  doc.text(`VAT Number: ${vat}`, 15, y += 6);
-  doc.text(`IBAN: ${iban}`, 15, y += 6);
-  doc.text(`Contact Person: ${contact}`, 15, y += 10);
+    // ---------- PDF export ----------
+    function exportPDF(){
+      const doc = new jsPDF();
+      doc.setFontSize(14);
+      doc.text("SmartWerk Tax Report", 15, 15);
+      let y = 25;
 
-  // Блок підсумку
-  doc.setFontSize(12);
-  doc.text("Calculation Summary:", 15, y += 8);
+      const T = id => ($(id)?.textContent ?? "");
+      const V = id => Safe.val(id);
 
-  doc.setFontSize(11);
-  doc.text(`Gross Income: €${grossIncome}`, 15, y += 6);
-  doc.text(`Total Expenses: €${totalExpenses}`, 15, y += 6);
-  doc.text(`Taxable Profit: €${taxableProfit}`, 15, y += 6);
-  doc.text(`ZZP Deductions: €${zzpDeductions}`, 15, y += 6);
-  doc.text(`MKB Exemption: €${mkbVrijstelling}`, 15, y += 6);
-  doc.text(`Final Taxable Income: €${finalTaxable}`, 15, y += 6);
-  doc.text(`Income Tax: €${incomeTax}`, 15, y += 6);
-  doc.text(`ZVW (5.32%): €${zvwAmount}`, 15, y += 6);
-  doc.text(`BTW Amount: €${btwAmount}`, 15, y += 6);
+      // Contact block
+      doc.setFontSize(11);
+      [
+        `Company: ${V("companyName")}`,
+        `Email / Phone: ${V("email")}`,
+        `Period: ${V("period")}`,
+        `Hours worked: ${V("hoursWorked")}`,
+        `Hourly Rate: €${V("hourlyRate")}`,
+        `Input 'Income': €${V("income")}`,
+        `KvK Number: ${V("kvkNumber")}`,
+        `VAT Number: ${V("vatNumber")}`,
+        `IBAN: ${V("iban")}`,
+        `Contact Person: ${V("contactPerson")}`
+      ].forEach(line => { doc.text(line, 15, y); y += 6; });
+      y += 6;
 
-  doc.setFont(undefined, 'bold');
-  doc.text(`Total Estimated Tax: €${totalTax}`, 15, y += 10);
-  doc.setFont(undefined, 'normal');
+      // Summary
+      doc.setFontSize(12);
+      doc.text("Calculation Summary:", 15, y); y += 8;
+      doc.setFontSize(11);
+      [
+        `Gross Income: €${T("grossIncome")}`,
+        `Total Expenses: €${T("totalExpenses")}`,
+        `Taxable Profit: €${T("taxableProfit")}`,
+        `ZZP Deductions: €${T("zzpDeductions")}`,
+        `MKB Exemption (12.7%): €${T("mkbVrijstelling")}`,
+        `Final Taxable Income: €${T("finalTaxable")}`,
+        `Income Tax: €${T("incomeTax")}`,
+        `ZVW (5.32%): €${T("zvwAmount")}`,
+        `BTW: €${T("btwAmount")}`,
+        `Total Estimated Tax: €${T("totalTax")}`
+      ].forEach(line => { doc.text(line, 15, y); y += 6; });
 
-  // Коментарі
-  if (notes && notes.trim() !== "") {
-    doc.setFontSize(12);
-    doc.text("Reporting Notes:", 15, y += 8);
-    doc.setFontSize(11);
-    doc.text(doc.splitTextToSize(notes, 180), 15, y += 6);
-  }
+      // Notes
+      const notes = V("reportingNotes");
+      if ((notes||"").trim()){
+        y += 8;
+        doc.setFontSize(12);
+        doc.text("Reporting Notes:", 15, y); y += 7;
+        doc.setFontSize(11);
+        doc.splitTextToSize(notes, 180).forEach(row => { doc.text(row, 15, y); y += 6; });
+      }
 
-  // Збереження PDF
-  doc.save("SmartWerk_Tax_Report.pdf");
-  }  
-     // Прив’язка до кнопки
-  document.querySelector("button[onclick='exportPDF()']").onclick = exportPDF;
-}
-    
+      doc.save("smartwerk-tax-report.pdf");
+    }
+
+    // ---------- Wiring ----------
+    document.addEventListener("DOMContentLoaded", () => {
+      // listeners
+      document.querySelectorAll("input, select, textarea")
+        .forEach(el => { el.addEventListener("input", calculateTax); el.addEventListener("change", calculateTax); });
+
+      const btnCalc = $("btn-calc");
+      const btnPdf  = $("btn-pdf");
+      if (btnCalc) btnCalc.addEventListener("click", calculateTax);
+      if (btnPdf)  btnPdf.addEventListener("click", exportPDF);
+
+      // initial
+      calculateTax();
+    });
   </script>
 </body>
 </html>
