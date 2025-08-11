@@ -369,7 +369,29 @@
     if (typeof validateState=== "function")  window.validateState= validateState;
     if (typeof autoCalcIncome=== "function") window.autoCalcIncome= autoCalcIncome;
   }
+function validateState() {
+  const issues = [];
 
+  // хелпери
+  const get = id => (document.getElementById(id)?.textContent || '').trim();
+  const num = s => {
+    const v = parseFloat(String(s).replace(',', '.'));
+    return Number.isFinite(v) ? v : NaN;
+  };
+
+  const gross = num(get('grossIncome'));
+  const exp   = num(get('totalExpenses'));
+  const prof  = num(get('taxableProfit'));
+
+  if (isNaN(gross)) issues.push('Gross income is required');
+  if (isNaN(exp))   issues.push('Total expenses are required');
+  if (isNaN(prof))  issues.push('Taxable profit is required');
+
+  return issues;
+}
+
+window.validateState = validateState; // залишаємо це
+  
   function runValidationUI(){
     // якщо є панель — оновимо статус
     var s = document.getElementById("validateStatus");
