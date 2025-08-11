@@ -141,6 +141,11 @@
         <p><strong>KvK status:</strong> <span id="kvk-status">—</span></p>
         <p><strong>KOR usage:</strong> <span id="kor-status">—</span></p>
       </div>
+      <div id="debugPanel" style="margin-top:12px; padding:10px; background:#f3f3f3; border-radius:8px;">
+  <button id="btn-validate" type="button">🧪 Run validation</button>
+  <span id="validateStatus" style="margin-left:10px; font-weight:600;">—</span>
+  <pre id="debugOut" style="margin-top:8px; max-height:160px; overflow:auto; background:#fff; padding:8px; border:1px solid #ddd; border-radius:6px;"></pre>
+</div>
 
       <p><strong>Gross Income:</strong> <span id="grossIncome"></span></p>
       <p><strong>Total Expenses:</strong> <span id="totalExpenses"></span></p>
@@ -361,6 +366,32 @@
       // initial
       calculateTax();
     });
+    document.getElementById("btn-validate").addEventListener("click", function () {
+    let issues = [];
+
+    // Приклад перевірок
+    let income = parseFloat(document.getElementById("grossIncome").textContent) || 0;
+    let expenses = parseFloat(document.getElementById("totalExpenses").textContent) || 0;
+
+    if (income <= 0) {
+        issues.push("❌ Gross income is zero or negative.");
+    }
+    if (expenses < 0) {
+        issues.push("❌ Expenses cannot be negative.");
+    }
+    if (expenses > income) {
+        issues.push("⚠️ Expenses are higher than income.");
+    }
+
+    // Виводимо результат
+    if (issues.length === 0) {
+        document.getElementById("validateStatus").textContent = "✅ No issues found";
+        document.getElementById("debugOut").textContent = "All values look valid.";
+    } else {
+        document.getElementById("validateStatus").textContent = "⚠️ Issues found";
+        document.getElementById("debugOut").textContent = issues.join("\n");
+    }
+});
   </script>
 </body>
 </html>
