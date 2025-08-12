@@ -254,7 +254,7 @@ let taxableBeforeMKBRaw = 0;
 let mkbVrijstellingRaw  = 0;
 if (kvk && zzp) {
   taxableBeforeMKBRaw = clamp0(profit - zzpDeductionsRaw);
- const mkbVrijstellingRaw  = (kvk && zzp) ? round2(taxableBeforeMKBRaw * 0.127) : 0;
+  mkbVrijstellingRaw = round2(taxableBeforeMKBRaw * 0.127); // ✅ без const
 }
   // ----- Tariff cap 37.48% (застосовуємо м’яко) -----
   const maxDeductibleValue  = round2(Math.max(0, profit) * 0.3748);
