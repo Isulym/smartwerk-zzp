@@ -214,87 +214,111 @@
     }
 
     // ---------- Main calculation ----------
-    function calculateTax(){
-      autoCalcIncome();
+  function calculateTax(){
+  // авто-підстановка доходу
+  autoCalcIncome();
 
-      const income        = num("income");
-      const vehicle       = num("vehicle");
-      const office        = num("office");
-      const internet      = num("internet");
-      const marketing     = num("marketing");
-      const other         = num("other");
-      const extraBenefits = num("extraBenefits");
+  // ----- Вхідні -----
+  const income        = num("income");
+  const vehicle       = num("vehicle");
+  const office        = num("office");
+  const internet      = num("internet");
+  const marketing     = num("marketing");
+  const other         = num("other");
+  const extraBenefits = num("extraBenefits");
 
-      const kvk     = Safe.val("kvk") === "yes";
-      const zzp     = Safe.val("zzpHours") === "yes";
-      const kor     = Safe.val("kor") === "yes";
-      const btwRate = parseFloat((Safe.val("btwRate")||"0").replace(",", ".")) || 0;
+  const kvk     = Safe.val("kvk") === "yes";
+  const zzp     = Safe.val("zzpHours") === "yes";
+  const kor     = Safe.val("kor") === "yes";
+  const btwRate = parseFloat((Safe.val("btwRate")||"0").replace(",", ".")) || 0;
 
-      const totalExpenses = vehicle + office + internet + marketing + other + extraBenefits;
-      const profit = income - totalExpenses;
+  // ----- Базова математика -----
+  const totalExpenses = vehicle + office + internet + marketing + other + extraBenefits;
+  const profit = income - totalExpenses;
 
-      // ZZP deductions (basic model)
-      const zelfstandigenaftrek = 5030;
-      const startersaftrek = (kvk && zzp) ? 2123 : 0;
-      const zzpDeductions = (kvk && zzp) ? (zelfstandigenaftrek + startersaftrek) : 0;
+  // ----- ZZP deductions (модель) -----
+  const zelfstandigenaftrek = 5030;
+  const startersaftrek      = (kvk && zzp) ? 2123 : 0;
+  const zzpDeductionsRaw    = (kvk && zzp) ? (zelfstandigenaftrek + startersaftrek) : 0;
 
-      // MKB 12.7% after ZZP
-      const taxableBeforeMKB = clamp0(profit - zzpDeductions);
-      const mkbVrijstelling  = round2(taxableBeforeMKB * 0.127);
+  // ----- MKB 12.7% після ZZP -----
+  const taxableBeforeMKBRaw = clamp0(profit - zzpDeductionsRaw);
+  const mkbVrijstellingRaw  = round2(taxableBeforeMKBRaw * 0.127);
 
-      // Tariff cap 37.48%
-      const maxDeductibleValue = round2(profit * 0.3748);
-      const cappedZZP = Math.min(zzpDeductions, maxDeductibleValue);
-      const cappedMKB = Math.min(mkbVrijstelling, clamp0(maxDeductibleValue - cappedZZP));
-      const totalSaved = cappedZZP + cappedMKB;
+  // ----- Tariff cap 37.48% (застосовуємо м’яко) -----
+  const maxDeductibleValue  = round2(Math.max(0, profit) * 0.3748);
+  const cappedZZP           = Math.min(zzpDeductionsRaw, maxDeductibleValue);
+  const cappedMKB           = Math.min(mkbVrijstellingRaw, clamp0(maxDeductibleValue - cappedZZP));
 
-      const finalTaxable = clamp0(profit - totalSaved);
+  // теоретично-заявлені (raw) vs застосовані (capped)
+  const theoreticalSaved    = zzpDeductionsRaw + mkbVrijstellingRaw;
+  const appliedSaved        = round2(cappedZZP + cappedMKB);
 
-      // Income tax: 19% to 200k, then 25.8%
-      let incomeTax = 0;
-      if (finalTaxable > 200000){
-        incomeTax = round2(200000 * 0.19 + (finalTaxable - 200000) * 0.258);
-      } else {
-        incomeTax = round2(finalTaxable * 0.19);
-      }
+  // Остаточно оподатковуваний дохід
+  const finalTaxable = clamp0(profit - appliedSaved);
 
-      // ZVW 5.32%
-      const zvwAmount = round2(finalTaxable * 0.0532);
+  // ----- Податки -----
+  let incomeTax = 0;
+  if (finalTaxable > 200000){
+    incomeTax = round2(200000 * 0.19 + (finalTaxable - 200000) * 0.258);
+  } else {
+    incomeTax = round2(finalTaxable * 0.19);
+  }
+  const zvwAmount = round2(finalTaxable * 0.0532);
+  const btwAmount = kor ? 0 : round2(profit * (btwRate / 100));
+  const totalTax  = round2(incomeTax + zvwAmount + btwAmount);
 
-      // BTW
-      const btwAmount = kor ? 0 : round2(profit * (btwRate / 100));
-      const totalTax  = round2(incomeTax + zvwAmount + btwAmount);
+  // ----- Вивід у DOM (показуємо застосовані суми!) -----
+  Safe.text("grossIncome",     income.toFixed(2));
+  Safe.text("totalExpenses",   totalExpenses.toFixed(2));
+  Safe.text("taxableProfit",   profit.toFixed(2));
+  Safe.text("zzpDeductions",   cappedZZP.toFixed(2));      // applied
+  Safe.text("mkbVrijstelling", cappedMKB.toFixed(2));      // applied
+  Safe.text("finalTaxable",    finalTaxable.toFixed(2));
+  Safe.text("incomeTax",       incomeTax.toFixed(2));
+  Safe.text("zvwAmount",       zvwAmount.toFixed(2));
+  Safe.text("btwAmount",       btwAmount.toFixed(2));
+  Safe.text("totalTax",        totalTax.toFixed(2));
 
-      // DOM output
-      Safe.text("grossIncome", income.toFixed(2));
-      Safe.text("totalExpenses", totalExpenses.toFixed(2));
-      Safe.text("taxableProfit", profit.toFixed(2));
-      Safe.text("zzpDeductions", zzpDeductions.toFixed(2));
-      Safe.text("mkbVrijstelling", mkbVrijstelling.toFixed(2));
-      Safe.text("finalTaxable", finalTaxable.toFixed(2));
-      Safe.text("incomeTax", incomeTax.toFixed(2));
-      Safe.text("zvwAmount", zvwAmount.toFixed(2));
-      Safe.text("btwAmount", btwAmount.toFixed(2));
-      Safe.text("totalTax", totalTax.toFixed(2));
+  // ----- Дружнє попередження про ліміт (жовте), без паніки -----
+  // авто-створимо блок, якщо його ще немає
+  let capEl = $("capWarning");
+  if (!capEl){
+    capEl = document.createElement("div");
+    capEl.id = "capWarning";
+    capEl.style.cssText = "margin-top:8px;padding:8px;border-radius:6px;background:#fff3cd;color:#856404;display:none;";
+    const result = $("result");
+    // вставляємо перед блоком нотаток, якщо він є
+    const beforeNode = $("reportingNotesWrapper") || null;
+    if (result) result.insertBefore(capEl, beforeNode);
+  }
+  // логіка попередження: якщо “теоретичні” відрахування > ліміту
+  if (theoreticalSaved > maxDeductibleValue + 0.01) {
+    capEl.textContent = `⚠️ ZZP + MKB exceed the legal cap (37.48% of profit). We automatically applied the maximum allowed: €${maxDeductibleValue.toFixed(2)}.`;
+    capEl.style.display = "block";
+  } else {
+    capEl.textContent = "";
+    capEl.style.display = "none";
+  }
 
-      // Notes show/hide
-      const notes = Safe.val("reportingNotes");
-      const wrap = $("reportingNotesWrapper");
-      const out  = $("reportingNotesOutput");
-      if (wrap && out){
-        if ((notes||"").trim()){
-          out.textContent = notes;
-          wrap.style.display = "block";
-        } else {
-          wrap.style.display = "none";
-        }
-      }
-
-      // statuses
-      Safe.text("zzp-status", (kvk && zzp) ? "eligible ✅" : "not eligible ❌");
-      Safe.text("kvk-status", kvk ? "eligible ✅" : "not eligible ❌");
-      Safe.text("kor-status", kor ? "applied ✅" : "not used ❌");
+  // ----- Notes show/hide -----
+  const notes = Safe.val("reportingNotes");
+  const wrap = $("reportingNotesWrapper");
+  const out  = $("reportingNotesOutput");
+  if (wrap && out){
+    if ((notes||"").trim()){
+      out.textContent = notes;
+      wrap.style.display = "block";
+    } else {
+      wrap.style.display = "none";
     }
+  }
+
+  // ----- Статуси -----
+  Safe.text("zzp-status", (kvk && zzp) ? "eligible ✅" : "not eligible ❌");
+  Safe.text("kvk-status", kvk ? "eligible ✅" : "not eligible ❌");
+  Safe.text("kor-status", kor ? "applied ✅" : "not used ❌");
+}
 
     // ---------- PDF export ----------
     function exportPDF(){
@@ -348,7 +372,16 @@
         doc.setFontSize(11);
         doc.splitTextToSize(notes, 180).forEach(row => { doc.text(row, 15, y); y += 6; });
       }
-
+// Cap warning у PDF (якщо є)
+const capNote = (document.getElementById("capWarning")?.textContent || "").trim();
+if (capNote){
+  y += 8;
+  doc.setFontSize(12);
+  doc.text("Notes:", 15, y); y += 7;
+  doc.setFontSize(11);
+  doc.splitTextToSize(capNote, 180).forEach(row => { doc.text(row, 15, y); y += 6; });
+}
+      
       doc.save("smartwerk-tax-report.pdf");
     }
 
