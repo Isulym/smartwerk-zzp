@@ -242,9 +242,13 @@
   const zzpDeductionsRaw    = (kvk && zzp) ? (zelfstandigenaftrek + startersaftrek) : 0;
 
   // ----- MKB 12.7% після ZZP -----
-  const taxableBeforeMKBRaw = clamp0(profit - zzpDeductionsRaw);
-  const mkbVrijstellingRaw  = round2(taxableBeforeMKBRaw * 0.127);
-
+ // ----- MKB 12.7% (тільки якщо ZZP eligible) -----
+let taxableBeforeMKBRaw = 0;
+let mkbVrijstellingRaw  = 0;
+if (kvk && zzp) {
+  taxableBeforeMKBRaw = clamp0(profit - zzpDeductionsRaw);
+  mkbVrijstellingRaw  = round2(taxableBeforeMKBRaw * 0.127);
+}
   // ----- Tariff cap 37.48% (застосовуємо м’яко) -----
   const maxDeductibleValue  = round2(Math.max(0, profit) * 0.3748);
   const cappedZZP           = Math.min(zzpDeductionsRaw, maxDeductibleValue);
@@ -456,6 +460,11 @@ if (!isNaN(zzpDed)) {
   if (!(kvk && zzpHours) && zzpDed > 0) {
     issues.push('❌ ZZP deductions require KVK=Yes and ≥1225 hours.');
   }
+// MKB доступний лише якщо є ZZP-еліжибіліті
+if (!(kvk && zzpHours) && mkb > 0) {
+  issues.push('❌ MKB requires ZZP eligibility (KVK=Yes and ≥1225 hours).');
+}
+  
   if (!isNaN(mkb) && !isNaN(prof) && prof > 0) {
     const cap = 0.3748 * prof;
     if (zzpDed + mkb > cap + 0.01) issues.push('❌ ZZP + MKB exceed 37.48% cap of profit.');
