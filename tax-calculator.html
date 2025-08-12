@@ -158,6 +158,13 @@
       <p><strong>BTW Amount:</strong> <span id="btwAmount"></span></p>
       <p><strong>Total Estimated Tax:</strong> <span id="totalTax"></span></p>
 
+      <p><strong>You saved (ZZP + MKB):</strong>
+  <span id="totalSavings" class="mono" style="color:#0a0;"></span>
+</p>
+<p><strong>Net Income after Tax:</strong>
+  <span id="netIncome" class="mono"></span>
+</p>
+
       <div id="reportingNotesWrapper" style="display:none;">
         <p><strong>Reporting Notes:</strong> <span id="reportingNotesOutput"></span></p>
       </div>
@@ -179,7 +186,7 @@
       "kvk","zzpHours","btwRate","kor",
       "grossIncome","totalExpenses","taxableProfit","zzpDeductions",
       "mkbVrijstelling","finalTaxable","incomeTax","zvwAmount","btwAmount","totalTax",
-      "reportingNotesWrapper","reportingNotesOutput",
+      "reportingNotesWrapper","reportingNotesOutput","totalSavings","netIncome",
       "zzp-status","kvk-status","kor-status"
     ];
     function $(id){ return document.getElementById(id); }
@@ -247,7 +254,7 @@ let taxableBeforeMKBRaw = 0;
 let mkbVrijstellingRaw  = 0;
 if (kvk && zzp) {
   taxableBeforeMKBRaw = clamp0(profit - zzpDeductionsRaw);
-  mkbVrijstellingRaw  = round2(taxableBeforeMKBRaw * 0.127);
+ const mkbVrijstellingRaw  = (kvk && zzp) ? round2(taxableBeforeMKBRaw * 0.127) : 0;
 }
   // ----- Tariff cap 37.48% (застосовуємо м’яко) -----
   const maxDeductibleValue  = round2(Math.max(0, profit) * 0.3748);
@@ -283,6 +290,8 @@ if (kvk && zzp) {
   Safe.text("zvwAmount",       zvwAmount.toFixed(2));
   Safe.text("btwAmount",       btwAmount.toFixed(2));
   Safe.text("totalTax",        totalTax.toFixed(2));
+  Safe.text("totalSavings", appliedSaved.toFixed(2));
+  Safe.text("netIncome",    round2(income - totalExpenses - totalTax).toFixed(2)); // "чистий" після витрат і податків
 
   // ----- Дружнє попередження про ліміт (жовте), без паніки -----
   // авто-створимо блок, якщо його ще немає
@@ -354,6 +363,8 @@ if (kvk && zzp) {
       doc.setFontSize(12);
       doc.text("Calculation Summary:", 15, y); y += 8;
       doc.setFontSize(11);
+      doc.text(`You saved (ZZP + MKB): €${T("totalSavings")}`, 15, y); y += 6;
+      doc.text(`Net Income after Tax: €${T("netIncome")}`, 15, y); y += 6;
       [
         `Gross Income: €${T("grossIncome")}`,
         `Total Expenses: €${T("totalExpenses")}`,
