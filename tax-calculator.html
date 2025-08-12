@@ -419,6 +419,8 @@ function validateState() {
   const gross = num(get('grossIncome'));
   const exp   = num(get('totalExpenses'));
   const prof  = num(get('taxableProfit'));
+  // MKB Exemption (12.7%) — рахуємо завжди, валідація потім перевірить право
+let mkb = prof * 0.127;
 
 // ---- Balanced-логіка ----
 const EPS = 0.5;
