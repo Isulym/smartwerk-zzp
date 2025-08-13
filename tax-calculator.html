@@ -291,7 +291,11 @@ if (kvk && zzp) {
   Safe.text("btwAmount",       btwAmount.toFixed(2));
   Safe.text("totalTax",        totalTax.toFixed(2));
   Safe.text("totalSavings", appliedSaved.toFixed(2));
-  Safe.text("netIncome",    round2(income - totalExpenses - totalTax).toFixed(2)); // "чистий" після витрат і податків
+ // Net after tax: віднімаємо BTW лише якщо KOR не застосовано
+const netIncomeAfterTax = kor
+  ? round2(income - totalExpenses - incomeTax - zvwAmount)                       // KOR=Yes → BTW і так 0, не віднімаємо
+  : round2(income - totalExpenses - incomeTax - zvwAmount - btwAmount);          // KOR=No  → віднімаємо BTW
+Safe.text("netIncome", netIncomeAfterTax.toFixed(2));
 
   // ----- Дружнє попередження про ліміт (жовте), без паніки -----
   // авто-створимо блок, якщо його ще немає
