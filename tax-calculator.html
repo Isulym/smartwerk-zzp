@@ -175,7 +175,8 @@
     <div class="button-group">
       <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
       <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
-     <button type="button" onclick="exportExcel()">Export as Excel</button>
+      <button type="button" onclick="exportExcel()">Export as Excel</button>
+      <button type="button" id="btn-ai">🤖 Ask SmartWerk AI</button>
     </div>
   </div>
 
@@ -400,7 +401,58 @@ if (capNote){
       
       doc.save("smartwerk-tax-report.pdf");
     }
+  function openAIChat() {
+    // 1) Вхідні поля (Step 1–3)
+    const payload = {
+      companyName:  (document.getElementById('companyName')?.value || '').trim(),
+      emailPhone:   (document.getElementById('email')?.value || '').trim(),
+      period:       (document.getElementById('period')?.value || '').trim(),
+      hoursWorked:  (document.getElementById('hoursWorked')?.value || '').trim(),
+      hourlyRate:   (document.getElementById('hourlyRate')?.value || '').trim(),
+      income:       (document.getElementById('income')?.value || '').trim(),
+      kvkNumber:    (document.getElementById('kvkNumber')?.value || '').trim(),
+      vatNumber:    (document.getElementById('vatNumber')?.value || '').trim(),
+      iban:         (document.getElementById('iban')?.value || '').trim(),
+      contactPerson:(document.getElementById('contactPerson')?.value || '').trim(),
+      reportingNotes:(document.getElementById('reportingNotes')?.value || '').trim(),
 
+      vehicle:        (document.getElementById('vehicle')?.value || '').trim(),
+      office:         (document.getElementById('office')?.value || '').trim(),
+      internet:       (document.getElementById('internet')?.value || '').trim(),
+      marketing:      (document.getElementById('marketing')?.value || '').trim(),
+      other:          (document.getElementById('other')?.value || '').trim(),
+      extraBenefits:  (document.getElementById('extraBenefits')?.value || '').trim(),
+
+      kvk:    document.getElementById('kvk')?.value || '',
+      zzp:    document.getElementById('zzpHours')?.value || '',
+      kor:    document.getElementById('kor')?.value || '',
+      btwRate:document.getElementById('btwRate')?.value || ''
+    };
+
+    // 2) Результати (Step 4)
+    const getText = id => (document.getElementById(id)?.textContent || '').trim();
+    payload.results = {
+      grossIncome:    getText('grossIncome'),
+      totalExpenses:  getText('totalExpenses'),
+      taxableProfit:  getText('taxableProfit'),
+      zzpDeductions:  getText('zzpDeductions'),
+      mkbVrijstelling:getText('mkbVrijstelling'),
+      finalTaxable:   getText('finalTaxable'),
+      incomeTax:      getText('incomeTax'),
+      zvwAmount:      getText('zvwAmount'),
+      btwAmount:      getText('btwAmount'),
+      totalTax:       getText('totalTax')
+    };
+
+    // 3) Кладемо в localStorage і відкриваємо сторінку чату
+    localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
+    window.open('ai-assistant.html', '_blank'); // ця сторінка у вас вже є в репо
+  }
+
+  // Прив’язуємо до кнопки
+  document.getElementById('btn-ai')?.addEventListener('click', openAIChat);
+
+    
   // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
 
   function exportExcel() {
