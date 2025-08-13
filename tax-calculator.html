@@ -269,7 +269,7 @@ function calculateTax(){
     incomeTax = round2(finalTaxable * 0.19);
   }
   const zvwAmount = round2(finalTaxable * 0.0532);
-  const btwAmount = kor ? 0 : round2(profit * (btwRate / 100));
+  const btwAmount = kor ? 0 : round2(income * (btwRate / 100));
   const totalTax  = round2(incomeTax + zvwAmount + btwAmount);
 
   // ----- Вивід у DOM -----
