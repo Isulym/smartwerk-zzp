@@ -459,26 +459,31 @@ if ([incomeTax, zvwAmount, btwAmount, totalTax].every(v => !isNaN(v))) {
 }
 
 // 3) ZZP/MKB обмеження та умови
-const kvk      = (document.getElementById('kvk')?.value === 'yes');
-const zzpHours = (document.getElementById('zzpHours')?.value === 'yes');
-const kor      = (document.getElementById('kor')?.value === 'yes');
-const btwRateV = (document.getElementById('btwRate')?.value || '21'); // '0','9','21'
+const kvk       = (document.getElementById('kvk')?.value === 'yes');
+const zzpHours  = (document.getElementById('zzpHours')?.value === 'yes');
+const kor       = (document.getElementById('kor')?.value === 'yes');
+const btwRateV  = (document.getElementById('btwRate')?.value || '21'); // '0','9','21'
+
+const zzpEligible = kvk && zzpHours;
 
 const zzpDed = getNum('zzpDeductions');
 const mkb    = getNum('mkbVrijstelling');
 
-if (!isNaN(zzpDed)) {
-  if (!(kvk && zzpHours) && zzpDed > 0) {
-    issues.push('❌ ZZP deductions require KVK=Yes and ≥1225 hours.');
-  }
-// MKB доступний лише якщо є ZZP-еліжибіліті
-if (!(kvk && zzpHours) && mkb > 0) {
-  issues.push('❌ MKB requires ZZP eligibility (KVK=Yes and ≥1225 hours).');
+// ZZP доступні лише якщо KvK=Yes та ≥1225 годин
+if (!isNaN(zzpDed) && zzpDed > 0 && !zzpEligible) {
+  issues.push('❌ ZZP deductions require KvK=Yes and ≥1225 hours.');
 }
-  
-  if (!isNaN(mkb) && !isNaN(prof) && prof > 0) {
-    const cap = 0.3748 * prof;
-    if (zzpDed + mkb > cap + 0.01) issues.push('❌ ZZP + MKB exceed 37.48% cap of profit.');
+
+// MKB доступний лише якщо ZZP eligible
+if (!isNaN(mkb) && mkb > 0 && !zzpEligible) {
+  issues.push('❌ MKB exemption requires ZZP eligibility (KvK=Yes and ≥1225 hours).');
+}
+
+// Ліміт 37.48% від профіту (тільки якщо всі числа валідні і профіт > 0)
+if (!isNaN(zzpDed) && !isNaN(mkb) && !isNaN(prof) && prof > 0) {
+  const cap = 0.3748 * prof;
+  if (zzpDed + mkb > cap + 0.01) {
+    issues.push('❌ ZZP + MKB exceed 37.48% cap of profit.');
   }
 }
 
