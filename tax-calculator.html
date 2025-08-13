@@ -24,6 +24,8 @@
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>window.jsPDF = window.jspdf.jsPDF;</script>
+ <!-- SheetJS (XLSX) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <h2>SmartWerk Tax Calculator</h2>
@@ -173,6 +175,7 @@
     <div class="button-group">
       <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
       <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
+     <button type="button" onclick="exportExcel()">Export as Excel</button>
     </div>
   </div>
 
@@ -397,6 +400,57 @@ if (capNote){
       
       doc.save("smartwerk-tax-report.pdf");
     }
+
+  // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
+
+  function exportExcel() {
+    // гарантуємо, що підсумки пораховані
+    try { calculateTax(); } catch(e) {}
+
+    // 1) Забираємо всі потрібні дані з форми та з підсумкового блоку
+    const v = id => (document.getElementById(id)?.value ?? "").toString().trim();
+    const t = id => (document.getElementById(id)?.textContent ?? "").toString().trim();
+
+    const data = [
+      ["SmartWerk Tax Report"],
+      [],
+      ["Company", v("companyName")],
+      ["Email / Phone", v("email")],
+      ["Period", v("period")],
+      ["Hours Worked", v("hoursWorked")],
+      ["Hourly Rate (€)", v("hourlyRate")],
+      ["Total Income (€)", v("income")],
+      ["KvK Number", v("kvkNumber")],
+      ["VAT Number", v("vatNumber")],
+      ["IBAN", v("iban")],
+      ["Contact Person", v("contactPerson")],
+      [],
+      ["Gross Income (€)", t("grossIncome")],
+      ["Total Expenses (€)", t("totalExpenses")],
+      ["Taxable Profit (€)", t("taxableProfit")],
+      ["ZZP Deductions (€)", t("zzpDeductions")],
+      ["MKB Exemption (€)", t("mkbVrijstelling")],
+      ["Final Taxable Income (€)", t("finalTaxable")],
+      ["Income Tax (€)", t("incomeTax")],
+      ["ZVW (5.32%) (€)", t("zvwAmount")],
+      ["BTW Amount (€)", t("btwAmount")],
+      ["Total Estimated Tax (€)", t("totalTax")],
+      [],
+      ["Reporting Notes", v("reportingNotes")]
+    ];
+
+    // 2) Формуємо аркуш і книгу
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // опціонально — зробимо трохи ширші колонки
+    ws["!cols"] = [{wch:26},{wch:28}];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Tax Report");
+
+    // 3) Зберігаємо .xlsx
+    XLSX.writeFile(wb, "SmartWerk_Tax_Report.xlsx");
+  }
 
 
   
