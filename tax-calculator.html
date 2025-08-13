@@ -335,6 +335,64 @@ function calculateTax(){
   Safe.text("kor-status", kor ? "applied ✅" : "not used ❌");
 }
 
+  function openAIChat() {
+    // короткі хелпери
+    const v  = id => (document.getElementById(id)?.value || '').trim();
+    const t  = id => (document.getElementById(id)?.textContent || '').trim();
+    const €  = n  => (Number(n || 0)).toFixed(2);
+
+    // поля Step 1
+    const companyName = v('companyName');
+    const email       = v('email');
+    const period      = v('period');
+    const hours       = v('hoursWorked');
+    const hourlyRate  = v('hourlyRate');
+    const income      = v('income');
+    const kvkNumber   = v('kvkNumber');
+    const vatNumber   = v('vatNumber');
+    const iban        = v('iban');
+    const contact     = v('contactPerson');
+    const notes       = v('reportingNotes');
+
+    // результати Step 4
+    const ctx = {
+      companyName,
+      email, period, hours, hourlyRate, income,
+      kvkNumber, vatNumber, iban, contact, notes,
+      grossIncome:     t('grossIncome'),
+      totalExpenses:   t('totalExpenses'),
+      taxableProfit:   t('taxableProfit'),
+      zzpDeductions:   t('zzpDeductions'),
+      mkbVrijstelling: t('mkbVrijstelling'),
+      finalTaxable:    t('finalTaxable'),
+      incomeTax:       t('incomeTax'),
+      zvwAmount:       t('zvwAmount'),
+      btwAmount:       t('btwAmount'),
+      totalTax:        t('totalTax')
+    };
+
+    // зручний текстовий підсумок
+    ctx.textSummary =
+`SmartWerk Tax Calculation Summary
+Company: ${companyName}
+Period: ${period}
+Gross Income: €${€(ctx.grossIncome)}
+Total Expenses: €${€(ctx.totalExpenses)}
+Taxable Profit: €${€(ctx.taxableProfit)}
+ZZP Deductions: €${€(ctx.zzpDeductions)}
+MKB Exemption: €${€(ctx.mkbVrijstelling)}
+Final Taxable Income: €${€(ctx.finalTaxable)}
+Income Tax: €${€(ctx.incomeTax)}
+ZVW (5.32%): €${€(ctx.zvwAmount)}
+BTW Amount: €${€(ctx.btwAmount)}
+Total Estimated Tax: €${€(ctx.totalTax)}
+${notes ? `\nReporting Notes: ${notes}` : ''}`;
+
+    // кладемо у localStorage і відкриваємо чат
+    localStorage.setItem('smartwerk_chat_context', JSON.stringify(ctx));
+    window.open('ai-assistant.html', '_blank');
+  }
+
     // ---------- PDF export ----------
     function exportPDF(){
       const doc = new jsPDF();
