@@ -221,8 +221,8 @@
     }
 
     // ---------- Main calculation ----------
-  function calculateTax(){
-  // авто-підстановка доходу
+function calculateTax(){
+  // 0) авто-підстановка доходу (години × ставка)
   autoCalcIncome();
 
   // ----- Вхідні -----
@@ -241,34 +241,27 @@
 
   // ----- Базова математика -----
   const totalExpenses = vehicle + office + internet + marketing + other + extraBenefits;
-  const profit = income - totalExpenses;
+  const profit        = income - totalExpenses;                 // прибуток до податків
 
-  // ----- ZZP deductions (модель) -----
-  const zelfstandigenaftrek = 5030;
-  const startersaftrek      = (kvk && zzp) ? 2123 : 0;
-  const zzpDeductionsRaw    = (kvk && zzp) ? (zelfstandigenaftrek + startersaftrek) : 0;
+  // ----- ZZP deductions -----
+  const ZELFSTANDIGEN = 5030;                                   // jouw модель
+  const STARTERS      = (kvk && zzp) ? 2123 : 0;
+  const zzpDeductionsRaw = (kvk && zzp) ? (ZELFSTANDIGEN + STARTERS) : 0;
 
-  // ----- MKB 12.7% після ZZP -----
- // ----- MKB 12.7% (тільки якщо ZZP eligible) -----
-let taxableBeforeMKBRaw = 0;
-let mkbVrijstellingRaw  = 0;
-if (kvk && zzp) {
-  taxableBeforeMKBRaw = clamp0(profit - zzpDeductionsRaw);
-  mkbVrijstellingRaw = round2(taxableBeforeMKBRaw * 0.127); // ✅ без const
-}
-  // ----- Tariff cap 37.48% (застосовуємо м’яко) -----
+  // ----- MKB 12.7% тільки якщо ZZP eligible -----
+  const taxableBeforeMKBRaw = clamp0(profit - zzpDeductionsRaw);
+  const mkbVrijstellingRaw  = (kvk && zzp) ? round2(taxableBeforeMKBRaw * 0.127) : 0;
+
+  // ----- Обмеження 37.48% від прибутку -----
   const maxDeductibleValue  = round2(Math.max(0, profit) * 0.3748);
   const cappedZZP           = Math.min(zzpDeductionsRaw, maxDeductibleValue);
   const cappedMKB           = Math.min(mkbVrijstellingRaw, clamp0(maxDeductibleValue - cappedZZP));
 
-  // теоретично-заявлені (raw) vs застосовані (capped)
-  const theoreticalSaved    = zzpDeductionsRaw + mkbVrijstellingRaw;
-  const appliedSaved        = round2(cappedZZP + cappedMKB);
+  // Скільки "застосовано" пільг та остаточний оподатковуваний
+  const appliedSaved  = round2(cappedZZP + cappedMKB);
+  const finalTaxable  = clamp0(profit - appliedSaved);
 
-  // Остаточно оподатковуваний дохід
-  const finalTaxable = clamp0(profit - appliedSaved);
-
-  // ----- Податки -----
+  // ----- Податки (твоя модель ставок) -----
   let incomeTax = 0;
   if (finalTaxable > 200000){
     incomeTax = round2(200000 * 0.19 + (finalTaxable - 200000) * 0.258);
@@ -279,7 +272,7 @@ if (kvk && zzp) {
   const btwAmount = kor ? 0 : round2(profit * (btwRate / 100));
   const totalTax  = round2(incomeTax + zvwAmount + btwAmount);
 
-  // ----- Вивід у DOM (показуємо застосовані суми!) -----
+  // ----- Вивід у DOM -----
   Safe.text("grossIncome",     income.toFixed(2));
   Safe.text("totalExpenses",   totalExpenses.toFixed(2));
   Safe.text("taxableProfit",   profit.toFixed(2));
@@ -290,26 +283,27 @@ if (kvk && zzp) {
   Safe.text("zvwAmount",       zvwAmount.toFixed(2));
   Safe.text("btwAmount",       btwAmount.toFixed(2));
   Safe.text("totalTax",        totalTax.toFixed(2));
-  Safe.text("totalSavings", appliedSaved.toFixed(2));
- // Net after tax: віднімаємо BTW лише якщо KOR не застосовано
-const netIncomeAfterTax = kor
-  ? round2(income - totalExpenses - incomeTax - zvwAmount)                       // KOR=Yes → BTW і так 0, не віднімаємо
-  : round2(income - totalExpenses - incomeTax - zvwAmount - btwAmount);          // KOR=No  → віднімаємо BTW
-Safe.text("netIncome", netIncomeAfterTax.toFixed(2));
 
-  // ----- Дружнє попередження про ліміт (жовте), без паніки -----
-  // авто-створимо блок, якщо його ще немає
+  // Saved (для рядка “You saved”)
+  Safe.text("totalSavings",    appliedSaved.toFixed(2));
+
+  // Net after tax: віднімаємо BTW тільки якщо KOR = No
+  const netIncomeAfterTax = kor
+    ? round2(income - totalExpenses - incomeTax - zvwAmount)          // KOR=Yes → BTW вже 0
+    : round2(income - totalExpenses - incomeTax - zvwAmount - btwAmount);
+  Safe.text("netIncome", netIncomeAfterTax.toFixed(2));
+
+  // ----- Жовте попередження, якщо теоретично перевищили ліміт -----
   let capEl = $("capWarning");
   if (!capEl){
     capEl = document.createElement("div");
     capEl.id = "capWarning";
     capEl.style.cssText = "margin-top:8px;padding:8px;border-radius:6px;background:#fff3cd;color:#856404;display:none;";
     const result = $("result");
-    // вставляємо перед блоком нотаток, якщо він є
     const beforeNode = $("reportingNotesWrapper") || null;
     if (result) result.insertBefore(capEl, beforeNode);
   }
-  // логіка попередження: якщо “теоретичні” відрахування > ліміту
+  const theoreticalSaved = zzpDeductionsRaw + mkbVrijstellingRaw;
   if (theoreticalSaved > maxDeductibleValue + 0.01) {
     capEl.textContent = `⚠️ ZZP + MKB exceed the legal cap (37.48% of profit). We automatically applied the maximum allowed: €${maxDeductibleValue.toFixed(2)}.`;
     capEl.style.display = "block";
@@ -318,10 +312,10 @@ Safe.text("netIncome", netIncomeAfterTax.toFixed(2));
     capEl.style.display = "none";
   }
 
-  // ----- Notes show/hide -----
+  // ----- Notes -----
   const notes = Safe.val("reportingNotes");
-  const wrap = $("reportingNotesWrapper");
-  const out  = $("reportingNotesOutput");
+  const wrap  = $("reportingNotesWrapper");
+  const out   = $("reportingNotesOutput");
   if (wrap && out){
     if ((notes||"").trim()){
       out.textContent = notes;
