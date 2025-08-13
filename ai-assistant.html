@@ -38,5 +38,12 @@
       width="100%"
     ></iframe>
   </div>
+  <script>
+const ctxRaw = localStorage.getItem('smartwerk_chat_context');
+const ctx = ctxRaw ? JSON.parse(ctxRaw) : null;
+
+// Тут можна додати логіку відправки цього ctx у чат
+console.log("Loaded context:", ctx);
+</script>
 </body>
 </html>
