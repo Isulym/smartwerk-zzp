@@ -403,32 +403,34 @@ if (capNote){
       
       doc.save("smartwerk-tax-report.pdf");
     }
-  function openAIChat() {
-    // 1) Вхідні поля (Step 1–3)
+  function openAIChat(){
+    const v = id => (document.getElementById(id)?.value || '').trim();
+    const t = id => (document.getElementById(id)?.textContent || '').trim();
+
     const payload = {
-      companyName:  (document.getElementById('companyName')?.value || '').trim(),
-      emailPhone:   (document.getElementById('email')?.value || '').trim(),
-      period:       (document.getElementById('period')?.value || '').trim(),
-      hoursWorked:  (document.getElementById('hoursWorked')?.value || '').trim(),
-      hourlyRate:   (document.getElementById('hourlyRate')?.value || '').trim(),
-      income:       (document.getElementById('income')?.value || '').trim(),
-      kvkNumber:    (document.getElementById('kvkNumber')?.value || '').trim(),
-      vatNumber:    (document.getElementById('vatNumber')?.value || '').trim(),
-      iban:         (document.getElementById('iban')?.value || '').trim(),
-      contactPerson:(document.getElementById('contactPerson')?.value || '').trim(),
-      reportingNotes:(document.getElementById('reportingNotes')?.value || '').trim(),
-
-      vehicle:        (document.getElementById('vehicle')?.value || '').trim(),
-      office:         (document.getElementById('office')?.value || '').trim(),
-      internet:       (document.getElementById('internet')?.value || '').trim(),
-      marketing:      (document.getElementById('marketing')?.value || '').trim(),
-      other:          (document.getElementById('other')?.value || '').trim(),
-      extraBenefits:  (document.getElementById('extraBenefits')?.value || '').trim(),
-
-      kvk:    document.getElementById('kvk')?.value || '',
-      zzp:    document.getElementById('zzpHours')?.value || '',
-      kor:    document.getElementById('kor')?.value || '',
-      btwRate:document.getElementById('btwRate')?.value || ''
+      companyName: v('companyName'),
+      emailPhone:  v('email'),
+      period:      v('period'),
+      hoursWorked: v('hoursWorked'),
+      hourlyRate:  v('hourlyRate'),
+      income:      v('income'),
+      kvkNumber:   v('kvkNumber'),
+      vatNumber:   v('vatNumber'),
+      iban:        v('iban'),
+      contactPerson: v('contactPerson'),
+      reportingNotes: v('reportingNotes'),
+      results: {
+        grossIncome: t('grossIncome'),
+        totalExpenses: t('totalExpenses'),
+        taxableProfit: t('taxableProfit'),
+        zzpDeductions: t('zzpDeductions'),
+        mkbVrijstelling: t('mkbVrijstelling'),
+        finalTaxable: t('finalTaxable'),
+        incomeTax: t('incomeTax'),
+        zvwAmount: t('zvwAmount'),
+        btwAmount: t('btwAmount'),
+        totalTax: t('totalTax')
+      }
     };
 
     // 2) Результати (Step 4)
