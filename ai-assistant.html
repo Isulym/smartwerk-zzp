@@ -10,7 +10,6 @@
     html,body { height:100%; margin:0; background:#000; color:var(--white); font-family:system-ui, Arial, sans-serif; }
     .container { height:100vh; display:flex; flex-direction:column; }
     .header { background:#1e1e1e; padding:14px 16px; font-weight:700; text-align:center; }
-
     .ctx { background:#111; border-top:1px solid #222; border-bottom:1px solid #222; }
     .ctx-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; flex-wrap:wrap; }
     .ctx-head strong { font-size:14px; }
@@ -18,16 +17,15 @@
     button { background:var(--btn); color:var(--white); border:0; border-radius:8px; padding:8px 12px; cursor:pointer; }
     button:hover { opacity:.9; }
     .muted { color:var(--muted); font-size:12px; }
-    pre { margin:14px 12px; padding:10px; background:#0d0d0d; border:1px solid #222; border-radius:8px;
-          white-space:pre-wrap; max-height:220px; overflow:auto; }
-    iframe { flex:1; border:0; width:100%; min-height:480px; }
+    pre { margin:14px 12px; padding:10px; background:#0d0d0d; border:1px solid #222; border-radius:8px; white-space:pre-wrap; max-height:220px; overflow:auto; }
+    .spacer { flex:1; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">🤖 SmartWerk AI Assistant</div>
+    <div class="header">🧠 SmartWerk AI Assistant</div>
 
-    <!-- Контекст-панель -->
+    <!-- Панель контексту -->
     <div id="ctx-wrap" class="ctx" style="display:none">
       <div class="ctx-head">
         <div>
@@ -42,46 +40,52 @@
       <pre id="ctx-text"></pre>
     </div>
 
-    <!-- Чат (Chatbase iFrame) -->
-    <iframe
-      id="chatFrame"
-      src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8hKnK8A2Hb3on1s"
-      allow="clipboard-read; clipboard-write">
-    </iframe>
+    <div class="spacer"></div>
   </div>
 
+  <!-- Chatbase embed (плаваюча «бульбашка» чату) -->
   <script>
-    // 1) Зчитуємо контекст, який поклала сторінка калькулятора
+    window.embeddedChatbotConfig = {
+      chatbotId: "uy7T8ni8hKnK8A2Hb3on1s",
+      domain: "www.chatbase.co"
+    };
+  </script>
+  <script src="https://www.chatbase.co/embed.min.js"
+          chatbotId="uy7T8ni8hKnK8A2Hb3on1s"
+          domain="www.chatbase.co"
+          defer></script>
+
+  <script>
+    // 1) Зчитуємо контекст із localStorage (його кладемо з калькулятора)
     const ctxRaw = localStorage.getItem('smartwerk_chat_context');
     let ctx = null;
     try { ctx = ctxRaw ? JSON.parse(ctxRaw) : null; } catch { ctx = null; }
 
-    // 2) Готуємо текст для показу/копіювання
+    // 2) Формуємо коротке резюме, якщо готового тексту немає
     function makeSummaryText(c){
       if (!c) return '';
-      if (c && c.textSummary) return String(c.textSummary).trim();
+      if (c.textSummary) return String(c.textSummary).trim();
 
       const L = [];
-      if (c.companyName) L.push(`Company: ${c.companyName}`);
-      if (c.period)      L.push(`Period: ${c.period}`);
-      if (c.hoursWorked!=null && c.hourlyRate!=null && c.income!=null)
-        L.push(`Hours: ${c.hoursWorked}, Rate: €${c.hourlyRate}, Income: €${c.income}`);
-
-      if (c.results){
-        const t = c.results;
+      const t = c.results || {};
+      if (c.period)   L.push(`Period: ${c.period}`);
+      if (c.hoursWorked!=null || c.hourlyRate!=null || c.income!=null){
+        L.push(`Hours: ${c.hoursWorked ?? ''}, Rate: €${c.hourlyRate ?? ''}, Income: €${c.income ?? ''}`);
+      }
+      if (t){
         L.push(
-          `Gross: €${t.grossIncome}, Expenses: €${t.totalExpenses}, `
-        + `Taxable: €${t.taxableProfit}, ZZP: €${t.zzpDeductions}, `
-        + `MKB: €${t.mkbVrijstelling}, Final Taxable: €${t.finalTaxable}, `
-        + `Income Tax: €${t.incomeTax}, ZVW: €${t.zvwAmount}, BTW: €${t.btwAmount}, `
-        + `Total Tax: €${t.totalTax}`
+          `Gross: €${t.grossIncome ?? '0.00'}, Expenses: €${t.totalExpenses ?? '0.00'}, ` +
+          `Taxable: €${t.taxableProfit ?? '0.00'}, ZZP: €${t.zzpDeductions ?? '0.00'}, ` +
+          `MKB: €${t.mkbVrijstelling ?? '0.00'}, Final Taxable: €${t.finalTaxable ?? '0.00'}, ` +
+          `Income Tax: €${t.incomeTax ?? '0.00'}, ZVW: €${t.zvwAmount ?? '0.00'}, BTW: €${t.btwAmount ?? '0.00'}, ` +
+          `Total Tax: €${t.totalTax ?? '0.00'}`
         );
       }
       if (c.reportingNotes) L.push(`Notes: ${c.reportingNotes}`);
       return L.join('\n');
     }
 
-    // 3) Показуємо панель (або ховаємо, якщо контексту нема)
+    // 3) Показуємо панель (або ховаємо, якщо контексту немає)
     const wrap = document.getElementById('ctx-wrap');
     const pre  = document.getElementById('ctx-text');
     if (ctx) {
@@ -108,16 +112,6 @@
       pre.textContent = '';
       alert('Context cleared.');
     });
-
-    // (Опційно) якщо твій бот уміє читати параметри — прокинути через URL:
-    // try {
-    //   if (ctx) {
-    //     const frame = document.getElementById('chatFrame');
-    //     const u = new URL(frame.src);
-    //     u.searchParams.set('context', encodeURIComponent(JSON.stringify(ctx)));
-    //     frame.src = u.toString();
-    //   }
-    // } catch {}
   </script>
 </body>
 </html>
