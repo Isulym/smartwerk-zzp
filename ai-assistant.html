@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk AI Assistant</title>
   <style>
     :root { --bg:#0e0e0e; --panel:#111; --muted:#bbb; --btn:#2a2a2a; --white:#fff; }
     * { box-sizing: border-box; }
-    html,body { height:100%; margin:0; background:#000; color:var(--white); font-family:system-ui, Arial, sans-serif; }
-    .container { height:100vh; display:flex; flex-direction:column; }
-    .header { background:#1e1e1e; padding:14px 16px; font-weight:700; text-align:center; }
-    .ctx { background:#111; border-top:1px solid #222; border-bottom:1px solid #222; }
-    .ctx-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; flex-wrap:wrap; }
-    .ctx-head strong { font-size:14px; }
-    .ctx-head .actions { display:flex; gap:8px; }
-    button { background:var(--btn); color:var(--white); border:0; border-radius:8px; padding:8px 12px; cursor:pointer; }
-    button:hover { opacity:.9; }
-    .muted { color:var(--muted); font-size:12px; }
-    pre { margin:14px 12px; padding:10px; background:#0d0d0d; border:1px solid #222; border-radius:8px; white-space:pre-wrap; max-height:220px; overflow:auto; }
-    .spacer { flex:1; }
+    html,body{height:100%;margin:0;background:#000;color:var(--white);font-family:system-ui,Arial,sans-serif;}
+    .container{height:100vh;display:flex;flex-direction:column;}
+    .header{background:#1e1e1e;padding:12px 16px;font-weight:700;text-align:center;}
+    .ctx{background:#111;border-top:1px solid #222;border-bottom:1px solid #222;}
+    .ctx-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;flex-wrap:wrap;}
+    .ctx-head strong{font-size:14px}
+    .ctx-head .actions{display:flex;gap:8px;}
+    button{background:var(--btn);color:var(--white);border:0;border-radius:8px;padding:8px 12px;cursor:pointer;}
+    button:hover{opacity:.9;}
+    pre{margin:12px;padding:10px;background:#0d0d0d;border:1px solid #222;border-radius:8px;white-space:pre-wrap;max-height:220px;overflow:auto;}
+    .chatWrap{flex:1;position:relative}
+    .chatWrap .cb-container{position:absolute;inset:0}
   </style>
 </head>
 <body>
@@ -28,10 +28,7 @@
     <!-- Панель контексту -->
     <div id="ctx-wrap" class="ctx" style="display:none">
       <div class="ctx-head">
-        <div>
-          <strong>SmartWerk: loaded latest calculation context</strong>
-          <div class="muted">Цей текст буде корисно вставити як перше повідомлення у чат.</div>
-        </div>
+        <strong>SmartWerk: loaded latest calculation context</strong>
         <div class="actions">
           <button id="copyCtx">Copy</button>
           <button id="clearCtx">Clear</button>
@@ -40,78 +37,77 @@
       <pre id="ctx-text"></pre>
     </div>
 
-    <div class="spacer"></div>
+    <!-- Контейнер під чат -->
+    <div class="chatWrap">
+      <div id="chatbase-container" class="cb-container"></div>
+    </div>
   </div>
 
-  <!-- Chatbase embed (плаваюча «бульбашка» чату) -->
   <script>
+    // 1) читаємо контекст
+    let ctx = null;
+    try {
+      const raw = localStorage.getItem('smartwerk_chat_context');
+      ctx = raw ? JSON.parse(raw) : null;
+    } catch (_) { ctx = null; }
+
+    // 2) робимо коротке резюме
+    function makeSummaryText(c){
+      if (!c) return '';
+      if (c.textSummary) return c.textSummary.trim();
+      const R = c.results || {};
+      const € = n => Number(n||0).toFixed(2);
+      return [
+        (c.period ? `Period: ${c.period}` : ''),
+        (c.hoursWorked || c.hourlyRate || c.income)
+          ? `Hours: ${c.hoursWorked || 0}, Rate: €${c.hourlyRate || 0}, Income: €${€(c.income)}`
+          : '',
+        (R.grossIncome||R.totalExpenses||R.taxableProfit||R.zzpDeductions||R.mkbVrijstelling||R.finalTaxable||R.incomeTax||R.zvwAmount||R.btwAmount||R.totalTax)
+          ? `Gross: €${€(R.grossIncome)}, Expenses: €${€(R.totalExpenses)}, Taxable: €${€(R.taxableProfit)}, ` +
+            `ZZP: €${€(R.zzpDeductions)}, MKB: €${€(R.mkbVrijstelling)}, Final Taxable: €${€(R.finalTaxable)}, ` +
+            `Income Tax: €${€(R.incomeTax)}, ZVW: €${€(R.zvwAmount)}, BTW: €${€(R.btwAmount)}, Total Tax: €${€(R.totalTax)}`
+          : ''
+      ].filter(Boolean).join('\n');
+    }
+
+    // 3) показати/сховати панель
+    (function showPanel(){
+      const wrap = document.getElementById('ctx-wrap');
+      const pre  = document.getElementById('ctx-text');
+      if (ctx){
+        pre.textContent = makeSummaryText(ctx);
+        wrap.style.display = 'block';
+      } else {
+        wrap.style.display = 'none';
+      }
+    })();
+
+    // 4) кнопки Copy / Clear
+    document.getElementById('copyCtx')?.addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText(document.getElementById('ctx-text').textContent || '');
+        alert('Summary copied — paste it into the chat as first message.');
+      } catch { alert('Could not copy. Select text and copy manually.'); }
+    });
+    document.getElementById('clearCtx')?.addEventListener('click', () => {
+      localStorage.removeItem('smartwerk_chat_context');
+      document.getElementById('ctx-wrap').style.display = 'none';
+      document.getElementById('ctx-text').textContent = '';
+      alert('Context cleared.');
+    });
+
+    // 5) ІНІЦІАЛІЗУЄМО CHATBASE (офіційний скрипт)
+    //    ВАЖЛИВО: НІЯКИХ ifrаme-URL типу /chatbot-iframe/... — саме embed.min.js, інакше 404.
     window.embeddedChatbotConfig = {
       chatbotId: "uy7T8ni8hKnK8A2Hb3on1s",
-      domain: "www.chatbase.co"
+      domain: "www.chatbase.co",
+      // опційно можна задати контейнер:
+      // container: document.getElementById('chatbase-container')
     };
   </script>
   <script src="https://www.chatbase.co/embed.min.js"
           chatbotId="uy7T8ni8hKnK8A2Hb3on1s"
           domain="www.chatbase.co"
           defer></script>
-
-  <script>
-    // 1) Зчитуємо контекст із localStorage (його кладемо з калькулятора)
-    const ctxRaw = localStorage.getItem('smartwerk_chat_context');
-    let ctx = null;
-    try { ctx = ctxRaw ? JSON.parse(ctxRaw) : null; } catch { ctx = null; }
-
-    // 2) Формуємо коротке резюме, якщо готового тексту немає
-    function makeSummaryText(c){
-      if (!c) return '';
-      if (c.textSummary) return String(c.textSummary).trim();
-
-      const L = [];
-      const t = c.results || {};
-      if (c.period)   L.push(`Period: ${c.period}`);
-      if (c.hoursWorked!=null || c.hourlyRate!=null || c.income!=null){
-        L.push(`Hours: ${c.hoursWorked ?? ''}, Rate: €${c.hourlyRate ?? ''}, Income: €${c.income ?? ''}`);
-      }
-      if (t){
-        L.push(
-          `Gross: €${t.grossIncome ?? '0.00'}, Expenses: €${t.totalExpenses ?? '0.00'}, ` +
-          `Taxable: €${t.taxableProfit ?? '0.00'}, ZZP: €${t.zzpDeductions ?? '0.00'}, ` +
-          `MKB: €${t.mkbVrijstelling ?? '0.00'}, Final Taxable: €${t.finalTaxable ?? '0.00'}, ` +
-          `Income Tax: €${t.incomeTax ?? '0.00'}, ZVW: €${t.zvwAmount ?? '0.00'}, BTW: €${t.btwAmount ?? '0.00'}, ` +
-          `Total Tax: €${t.totalTax ?? '0.00'}`
-        );
-      }
-      if (c.reportingNotes) L.push(`Notes: ${c.reportingNotes}`);
-      return L.join('\n');
-    }
-
-    // 3) Показуємо панель (або ховаємо, якщо контексту немає)
-    const wrap = document.getElementById('ctx-wrap');
-    const pre  = document.getElementById('ctx-text');
-    if (ctx) {
-      pre.textContent = makeSummaryText(ctx);
-      wrap.style.display = 'block';
-    } else {
-      wrap.style.display = 'none';
-    }
-
-    // 4) Copy
-    document.getElementById('copyCtx').addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(pre.textContent || '');
-        alert('Summary copied — paste it into the chat as first message.');
-      } catch {
-        alert('Could not copy. Select text and copy manually.');
-      }
-    });
-
-    // 5) Clear
-    document.getElementById('clearCtx').addEventListener('click', () => {
-      localStorage.removeItem('smartwerk_chat_context');
-      wrap.style.display = 'none';
-      pre.textContent = '';
-      alert('Context cleared.');
-    });
-  </script>
 </body>
 </html>
