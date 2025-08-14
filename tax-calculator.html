@@ -403,62 +403,64 @@ if (capNote){
       
       doc.save("smartwerk-tax-report.pdf");
     }
-  function openAIChat () {
-  // короткі хелпери
-  const v = id => (document.getElementById(id)?.value || '').trim();
-  const t = id => (document.getElementById(id)?.textContent || '').trim();
-  const € = n  => Number(n || 0).toFixed(2);
 
-  // 1) зберемо введені поля
-  const payload = {
-    companyName:   v('companyName'),
-    emailPhone:    v('email'),
-    period:        v('period'),
-    hoursWorked:   v('hoursWorked'),
-    hourlyRate:    v('hourlyRate'),
-    income:        v('income'),
-    kvkNumber:     v('kvkNumber'),
-    vatNumber:     v('vatNumber'),
-    iban:          v('iban'),
-    contactPerson: v('contactPerson'),
-    reportingNotes:v('reportingNotes'),
-    // 2) та розраховані результати
-    results: {
-      grossIncome:     t('grossIncome'),
-      totalExpenses:   t('totalExpenses'),
-      taxableProfit:   t('taxableProfit'),
-      zzpDeductions:   t('zzpDeductions'),
-      mkbVrijstelling: t('mkbVrijstelling'),
-      finalTaxable:    t('finalTaxable'),
-      incomeTax:       t('incomeTax'),
-      zvwAmount:       t('zvwAmount'),
-      btwAmount:       t('btwAmount'),
-      totalTax:        t('totalTax')
-    }
-  };
+  function openAIChat(){
+    // зчитуємо поля (вхідні)
+    const v = id => (document.getElementById(id)?.value || '').trim();
+    const t = id => (document.getElementById(id)?.textContent || '').trim();
 
-  // 3) зручне резюме, щоб вставити першим повідомленням у чат
-  payload.textSummary =
-`SmartWerk Tax Calculation Summary
+    const payload = {
+      // Step 1–3
+      companyName: v('companyName'),
+      emailPhone:  v('email'),
+      period:      v('period'),
+      hoursWorked: v('hoursWorked'),
+      hourlyRate:  v('hourlyRate'),
+      income:      v('income'),
+      kvkNumber:   v('kvkNumber'),
+      vatNumber:   v('vatNumber'),
+      iban:        v('iban'),
+      contactPerson: v('contactPerson'),
+      reportingNotes: v('reportingNotes'),
+      // Step 4 (результати)
+      totals: {
+        grossIncome:   t('grossIncome'),
+        totalExpenses: t('totalExpenses'),
+        taxableProfit: t('taxableProfit'),
+        zzpDeductions: t('zzpDeductions'),
+        mkbVrijstelling:t('mkbVrijstelling'),
+        finalTaxable:  t('finalTaxable'),
+        incomeTax:     t('incomeTax'),
+        zvwAmount:     t('zvwAmount'),
+        btwAmount:     t('btwAmount'),
+        totalTax:      t('totalTax'),
+        totalSavings:  t('totalSavings'),
+        netIncome:     t('netIncome'),
+      }
+    };
+
+    // коротке резюме, яке зручно вставити першим повідомленням у чат
+    const € = n => (Number(n||0)).toFixed(2);
+    payload.textSummary =
+`SmartWerk Tax Calculation
 Company: ${payload.companyName}
 Period: ${payload.period}
+Gross: €${€(payload.totals.grossIncome)}, Expenses: €${€(payload.totals.totalExpenses)}, Taxable: €${€(payload.totals.taxableProfit)}
+ZZP: €${€(payload.totals.zzpDeductions)}, MKB: €${€(payload.totals.mkbVrijstelling)}, Final Taxable: €${€(payload.totals.finalTaxable)}
+Income Tax: €${€(payload.totals.incomeTax)}, ZVW: €${€(payload.totals.zvwAmount)}, BTW: €${€(payload.totals.btwAmount)}, Total Tax: €${€(payload.totals.totalTax)}
+Saved (ZZP+MKB): €${€(payload.totals.totalSavings)}, Net After Tax: €${€(payload.totals.netIncome)}
+${payload.reportingNotes ? `Notes: ${payload.reportingNotes}` : ''}`;
 
-Gross Income: €${€(payload.results.grossIncome)}
-Total Expenses: €${€(payload.results.totalExpenses)}
-Taxable Profit: €${€(payload.results.taxableProfit)}
-ZZP Deductions: €${€(payload.results.zzpDeductions)}
-MKB Exemption: €${€(payload.results.mkbVrijstelling)}
-Final Taxable Income: €${€(payload.results.finalTaxable)}
-Income Tax: €${€(payload.results.incomeTax)}
-ZVW (5.32%): €${€(payload.results.zvwAmount)}
-BTW Amount: €${€(payload.results.btwAmount)}
-Total Estimated Tax: €${€(payload.results.totalTax)}
-${payload.reportingNotes ? `\nReporting Notes: ${payload.reportingNotes}` : ''}`;
+    // кладемо в localStorage і відкриваємо сторінку асистента у новій вкладці
+    localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
+    window.open('ai-assistant.html', '_blank');
+  }
 
-  // 4) покладемо в localStorage і відкриємо нову вкладку з чатом
-  localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
-  window.open('ai-assistant.html', '_blank');
-}
+  // прив’язуємо кнопку (один раз)
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btn-ai')?.addEventListener('click', openAIChat);
+  });
+
     
   // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
 
