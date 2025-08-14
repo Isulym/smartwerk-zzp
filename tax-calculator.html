@@ -494,6 +494,21 @@ if (capNote){
       [],
       ["Reporting Notes", v("reportingNotes")]
     ];
+      // готовий текст для швидкого копі-пасту (за бажанням)
+    payload.textSummary =
+`SmartWerk Tax Calculation Summary
+Company: ${payload.companyName}
+Period: ${payload.period}
+Gross: €${payload.results.grossIncome}, Expenses: €${payload.results.totalExpenses}
+Taxable: €${payload.results.taxableProfit}, ZZP: €${payload.results.zzpDeductions}, MKB: €${payload.results.mkbVrijstelling}
+Final Taxable: €${payload.results.finalTaxable}, Income Tax: €${payload.results.incomeTax}
+ZVW: €${payload.results.zvwAmount}, BTW: €${payload.results.btwAmount}
+Total Tax: €${payload.results.totalTax}
+${payload.reportingNotes ? '\nNotes: ' + payload.reportingNotes : ''}`;
+
+    localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
+    window.open('ai-assistant.html', '_blank');
+  }
 
     // 2) Формуємо аркуш і книгу
     const ws = XLSX.utils.aoa_to_sheet(data);
