@@ -516,13 +516,13 @@ if (capNote){
 */
 
 (function wireEverything(){
-  function exposeGlobals(){
-    // якщо функції оголошені вище — зробимо доступними як window.*
-    if (typeof calculateTax === "function")  window.calculateTax = calculateTax;
-    if (typeof exportPDF    === "function")  window.exportPDF    = exportPDF;
-    if (typeof validateState=== "function")  window.validateState= validateState;
-    if (typeof autoCalcIncome=== "function") window.autoCalcIncome= autoCalcIncome;
-  }
+ function exposeGlobals(){
+  if (typeof calculateTax === "function")  window.calculateTax = calculateTax;
+  if (typeof exportPDF    === "function")  window.exportPDF    = exportPDF;
+  if (typeof validateState=== "function")  window.validateState= validateState;
+  if (typeof autoCalcIncome=== "function") window.autoCalcIncome= autoCalcIncome;
+  if (typeof openAIChat   === "function")  window.openAIChat   = openAIChat;   // 👈 додали
+}
 function validateState() {
   const issues = [];
 
@@ -661,6 +661,18 @@ window.validateState = validateState; // залишаємо це
     if (btnPdf) btnPdf.addEventListener("click", function(){
       if (typeof window.exportPDF === "function") window.exportPDF();
     });
+    // 3.1) Кнопка Export Excel
+    var btnXlsx = document.getElementById("btn-xlsx");
+    if (btnXlsx) btnXlsx.addEventListener("click", function(){
+    if (typeof window.exportExcel === "function") window.exportExcel();
+    });
+
+    // 3.2) Кнопка AI Chat
+    var btnAI = document.getElementById("btn-ai");
+    if (btnAI) btnAI.addEventListener("click", function(){
+    if (typeof window.openAIChat === "function") window.openAIChat();
+    });
+    
 
     // 4) Кнопка Run validation
     var btnVal = document.getElementById("btn-validate");
