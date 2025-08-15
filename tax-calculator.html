@@ -440,15 +440,15 @@ if (capNote){
     };
 
     // коротке резюме, яке зручно вставити першим повідомленням у чат
-    const € = n => (Number(n||0)).toFixed(2);
+    const euro = n => Number(n || 0).toFixed(2);
     payload.textSummary =
 `SmartWerk Tax Calculation
 Company: ${payload.companyName}
 Period: ${payload.period}
-Gross: €${€(payload.totals.grossIncome)}, Expenses: €${€(payload.totals.totalExpenses)}, Taxable: €${€(payload.totals.taxableProfit)}
-ZZP: €${€(payload.totals.zzpDeductions)}, MKB: €${€(payload.totals.mkbVrijstelling)}, Final Taxable: €${€(payload.totals.finalTaxable)}
-Income Tax: €${€(payload.totals.incomeTax)}, ZVW: €${€(payload.totals.zvwAmount)}, BTW: €${€(payload.totals.btwAmount)}, Total Tax: €${€(payload.totals.totalTax)}
-Saved (ZZP+MKB): €${€(payload.totals.totalSavings)}, Net After Tax: €${€(payload.totals.netIncome)}
+Gross: €${euro(payload.totals.grossIncome)}, Expenses: €${euro(payload.totals.totalExpenses)}, Taxable: €${euro(payload.totals.taxableProfit)}
+ZZP: €${euro(payload.totals.zzpDeductions)}, MKB: €${euro(payload.totals.mkbVrijstelling)}, Final Taxable: €${euro(payload.totals.finalTaxable)}
+Income Tax: €${euro(payload.totals.incomeTax)}, ZVW: €${euro(payload.totals.zvwAmount)}, BTW: €${euro(payload.totals.btwAmount)}, Total Tax: €${euro(payload.totals.totalTax)}
+Saved (ZZP+MKB): €${euro(payload.totals.totalSavings)}, Net After Tax: €${euro(payload.totals.netIncome)}
 ${payload.reportingNotes ? `Notes: ${payload.reportingNotes}` : ''}`;
 
     // кладемо в localStorage і відкриваємо сторінку асистента у новій вкладці
