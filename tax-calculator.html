@@ -405,56 +405,61 @@ if (capNote){
     }
 
 // ---------- AI: зібрати контекст і відкрити чат ----------
-function openAIChat(){
-  const v = id => (document.getElementById(id)?.value || '').trim();
-  const t = id => (document.getElementById(id)?.textContent || '').trim();
-  const euro = n => Number(n || 0).toFixed(2);
+<!-- ensure latest numbers are saved, then open new tab -->
+  function openAIChat(){
+    // 1) перерахунок на всякий випадок
+    try { if (typeof calculateTax === 'function') calculateTax(); } catch(e){}
 
-  const payload = {
-    companyName:  v('companyName'),
-    emailPhone:   v('email'),
-    period:       v('period'),
-    hoursWorked:  v('hoursWorked'),
-    hourlyRate:   v('hourlyRate'),
-    income:       v('income'),
-    kvkNumber:    v('kvkNumber'),
-    vatNumber:    v('vatNumber'),
-    iban:         v('iban'),
-    contactPerson:v('contactPerson'),
-    reportingNotes: v('reportingNotes'),
+    // 2) зручні гетери
+    const v = id => (document.getElementById(id)?.value || '').trim();
+    const t = id => (document.getElementById(id)?.textContent || '').trim();
+    const euro = n => Number(n||0).toFixed(2);
 
-    // Результати зі Step 4:
-    totals: {
-      grossIncome:   t('grossIncome'),
-      totalExpenses: t('totalExpenses'),
-      taxableProfit: t('taxableProfit'),
-      zzpDeductions: t('zzpDeductions'),
-      mkbVrijstelling:t('mkbVrijstelling'),
-      finalTaxable:  t('finalTaxable'),
-      incomeTax:     t('incomeTax'),
-      zvwAmount:     t('zvwAmount'),
-      btwAmount:     t('btwAmount'),
-      totalTax:      t('totalTax'),
-      totalSavings:  t('totalSavings'),
-      netIncome:     t('netIncome')
-    }
-  };
+    // 3) формуємо payload
+    const payload = {
+      companyName:  v('companyName'),
+      emailPhone:   v('email'),
+      period:       v('period'),
+      hoursWorked:  v('hoursWorked'),
+      hourlyRate:   v('hourlyRate'),
+      income:       v('income'),
+      kvkNumber:    v('kvkNumber'),
+      vatNumber:    v('vatNumber'),
+      iban:         v('iban'),
+      contactPerson:v('contactPerson'),
+      reportingNotes: v('reportingNotes'),
+      totals: {
+        grossIncome:    euro(t('grossIncome')),
+        totalExpenses:  euro(t('totalExpenses')),
+        taxableProfit:  euro(t('taxableProfit')),
+        zzpDeductions:  euro(t('zzpDeductions')),
+        mkbVrijstelling:euro(t('mkbVrijstelling')),
+        finalTaxable:   euro(t('finalTaxable')),
+        incomeTax:      euro(t('incomeTax')),
+        zvwAmount:      euro(t('zvwAmount')),
+        btwAmount:      euro(t('btwAmount')),
+        totalTax:       euro(t('totalTax')),
+        totalSavings:   euro(t('totalSavings')),
+        netIncome:      euro(t('netIncome')),
+      }
+    };
 
-  // Текст, який зручно вставити першим повідомленням у чат
-  payload.textSummary =
+    // 4) короткий текст для першого повідомлення
+    payload.textSummary =
 `SmartWerk Tax Calculation
 Company: ${payload.companyName}
 Period: ${payload.period}
-Gross: €${euro(payload.totals.grossIncome)}, Expenses: €${euro(payload.totals.totalExpenses)}, Taxable: €${euro(payload.totals.taxableProfit)}
-ZZP: €${euro(payload.totals.zzpDeductions)}, MKB: €${euro(payload.totals.mkbVrijstelling)}, Final Taxable: €${euro(payload.totals.finalTaxable)}
-Income Tax: €${euro(payload.totals.incomeTax)}, ZVW: €${euro(payload.totals.zvwAmount)}, BTW: €${euro(payload.totals.btwAmount)}, Total Tax: €${euro(payload.totals.totalTax)}
-Saved (ZZP+MKB): €${euro(payload.totals.totalSavings)}, Net After Tax: €${euro(payload.totals.netIncome)}
-${payload.reportingNotes ? '\nNotes: ' + payload.reportingNotes : ''}`;
+Gross: €${payload.totals.grossIncome}, Expenses: €${payload.totals.totalExpenses}, Taxable: €${payload.totals.taxableProfit}, ZZP: €${payload.totals.zzpDeductions}, MKB: €${payload.totals.mkbVrijstelling}, Final Taxable: €${payload.totals.finalTaxable}, Income Tax: €${payload.totals.incomeTax}, ZVW: €${payload.totals.zvwAmount}, BTW: €${payload.totals.btwAmount}, Total Tax: €${payload.totals.totalTax}
+Saved (ZZP+MKB): €${payload.totals.totalSavings}, Net After Tax: €${payload.totals.netIncome}
+${payload.reportingNotes ? `Notes: ${payload.reportingNotes}` : ''}`;
 
-  // зберігаємо контекст і відкриваємо окрему сторінку з чатом
-  localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
-  window.open('ai-assistant.html', '_blank');
-}
+    // 5) кладемо в localStorage і відкриваємо чат
+    localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
+    window.open('./ai-assistant.html','_blank');
+  }
+
+  // вішаємо на кнопку (id="btn-ai")
+  document.getElementById('btn-ai')?.addEventListener('click', openAIChat);
 
     
   // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
