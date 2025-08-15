@@ -1,0 +1,93 @@
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f172a;
+  color: #f8fafc;
+}
+.hero {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: #111827;
+}
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.hero p {
+  font-size: 1.1rem;
+  color: #cbd5e1;
+}
+.hero-buttons {
+  margin-top: 2rem;
+}
+.btn-primary, .btn-secondary {
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: bold;
+}
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+.btn-secondary {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+.tools-section {
+  padding: 4rem 2rem;
+  background: #1e293b;
+}
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.tool {
+  background: #0f172a;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+.tool h3 {
+  margin-top: 0;
+}
+.btn-small {
+  display: inline-block;
+  margin-top: 1rem;
+  background: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.locked {
+  display: inline-block;
+  margin-top: 1rem;
+  background: #64748b;
+  color: white;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.85rem;
+}
+.how-it-works {
+  padding: 4rem 2rem;
+  background: #111827;
+}
+.how-it-works h2 {
+  margin-bottom: 1rem;
+}
+.how-it-works ol {
+  padding-left: 1.5rem;
+}
+.footer {
+  text-align: center;
+  padding: 2rem;
+  background: #0f172a;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}

@@ -2,28 +2,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SmartWerk</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    nav { background: #111827; padding: 1rem; }
-    nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; }
-    nav li { margin-right: 1rem; }
-    nav a { color: white; text-decoration: none; font-weight: bold; }
-    h1 { padding: 2rem; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Your Future Assistant</title>
+  <link rel="stylesheet" href="wow_v2.css" />
 </head>
 <body>
-  <nav>
-    <ul>
-      <li><a href="/index.html">Home</a></li>
-      <li><a href="/kvk.html">KvK</a></li>
-      <li><a href="/aftrekposten.html">Aftrekposten</a></li>
-      <li><a href="/faq.html">FAQ</a></li>
-    </ul>
-  </nav>
-  <h1>Welcome to SmartWerk</h1>
-  <p style="padding: 0 2rem;">Your smart assistant for freelancers in the Netherlands.</p>
+  <div class="hero">
+    <h1>🚀 The fastest way to understand money as a freelancer</h1>
+    <p>Your assistant for taxes, invoices, benefits and clarity — no account needed.</p>
+    <div class="hero-buttons">
+      <a href="#tools" class="btn-primary">Start Free</a>
+      <a href="#how" class="btn-secondary">How it works</a>
+    </div>
+  </div>
+
+  <section class="tools-section" id="tools">
+    <h2>🧰 Tools Dashboard</h2>
+    <div class="tool-grid">
+      <div class="tool free">
+        <h3>✅ KvK Registration Guide</h3>
+        <p>Step-by-step guide to start your ZZP</p>
+        <a href="/kvk.html" class="btn-small">Open</a>
+      </div>
+      <div class="tool free">
+        <h3>✅ Business Deductions</h3>
+        <p>Startersaftrek, MKB-vrijstelling and more</p>
+        <a href="/aftrekposten.html" class="btn-small">View</a>
+      </div>
+      <div class="tool pro">
+        <h3>🔒 Tax Calculator</h3>
+        <p>Full AI-powered calculator with export</p>
+        <span class="locked">PRO Access</span>
+      </div>
+      <div class="tool pro">
+        <h3>🔒 ROI Estimator</h3>
+        <p>How much time and money you save</p>
+        <span class="locked">PRO Access</span>
+      </div>
+      <div class="tool pro">
+        <h3>🔒 SmartWerk AI Chat</h3>
+        <p>Ask any ZZP question and get guidance</p>
+        <span class="locked">PRO Access</span>
+      </div>
+      <div class="tool free">
+        <h3>✅ FAQ & ZZP Help</h3>
+        <p>Clear answers to real questions</p>
+        <a href="/faq.html" class="btn-small">Open</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works" id="how">
+    <h2>🧠 How It Works</h2>
+    <ol>
+      <li>Pick a tool — we explain everything clearly</li>
+      <li>Follow the guide or preview the calculator</li>
+      <li>Upgrade anytime to unlock full features</li>
+    </ol>
+  </section>
+
+  <footer class="footer">
+    <p>Made with 💡 for Dutch freelancers • © SmartWerk 2025</p>
+  </footer>
 </body>
 </html>
