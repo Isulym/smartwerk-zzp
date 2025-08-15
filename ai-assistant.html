@@ -42,19 +42,21 @@
     </div>
 
     <!-- Власне чат (Chatbase iFrame) -->
-    <iframe
-      id="chatFrame"
-      src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls?embedded=true"
-      allow="clipboard-read; clipboard-write">
-    </iframe>
+   <iframe
+  id="chatFrame"
+  src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3on1s"  <!-- <-- заміни на НОВИЙ chatbotId -->
+  style="width:100%; height:100%; min-height:700px;"
+  frameborder="0"
+  allow="clipboard-read; clipboard-write">
+</iframe>
   </div>
 
   <script>
-    // 1) Зчитуємо контекст, який поклала сторінка калькулятора
-    const raw = localStorage.getItem('smartwerk_chat_context');
-    let ctx = null;
-    try { ctx = raw ? JSON.parse(raw) : null; } catch { ctx = null; }
-
+   // 1) читаємо контекст, який поклав калькулятор
+  const raw = localStorage.getItem('smartwerk_chat_context');
+  let ctx = null;
+  try { ctx = raw ? JSON.parse(raw) : null; } catch { ctx = null; }
+    
     // 2) Формуємо короткий текст
     function euro(n){ return Number(n || 0).toFixed(2); }
 
@@ -74,15 +76,20 @@
       return L.join('\n');
     }
 
-    // 3) Показуємо панель, якщо є контекст
-    const wrap = document.getElementById('ctx-wrap');
-    const pre  = document.getElementById('ctx-text');
-    if (ctx){
-      pre.textContent = makeSummaryText(ctx);
-      wrap.style.display = 'block';
-    } else {
-      wrap.style.display = 'none';
-    }
+    показуємо коротке резюме у panel (у тебе ця логіка вже є, лишаю базовий приклад)
+  const pre = document.getElementById('ctx-text');
+  const wrap = document.getElementById('ctx-wrap');
+  if (ctx && pre && wrap){
+    const e = n => Number(n||0).toFixed(2);
+    pre.textContent =
+`Company: ${ctx.companyName}
+Period: ${ctx.period}
+Gross: €${e(ctx.totals?.grossIncome)},  Expenses: €${e(ctx.totals?.totalExpenses)},  Taxable: €${e(ctx.totals?.taxableProfit)},  ZZP: €${e(ctx.totals?.zzpDeductions)},  MKB: €${e(ctx.totals?.mkbVrijstelling)},  Final Taxable: €${e(ctx.totals?.finalTaxable)},  Income Tax: €${e(ctx.totals?.incomeTax)},  ZVW: €${e(ctx.totals?.zvwAmount)},  BTW: €${e(ctx.totals?.btwAmount)},  Total Tax: €${e(ctx.totals?.totalTax)}
+Notes: ${ctx.reportingNotes || ''}`;
+    wrap.style.display = 'block';
+  } else if (wrap) {
+    wrap.style.display = 'none';
+  }
 
     // 4) Copy / Clear
     document.getElementById('copyCtx').addEventListener('click', async () => {
