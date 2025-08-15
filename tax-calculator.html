@@ -404,25 +404,27 @@ if (capNote){
       doc.save("smartwerk-tax-report.pdf");
     }
 
- function openAIChat(){
-  // короткі хелпери
+// ---------- AI: зібрати контекст і відкрити чат ----------
+function openAIChat(){
   const v = id => (document.getElementById(id)?.value || '').trim();
   const t = id => (document.getElementById(id)?.textContent || '').trim();
+  const euro = n => Number(n || 0).toFixed(2);
 
-  // 1) Збираємо все потрібне
   const payload = {
-    companyName:   v('companyName'),
-    emailPhone:    v('email'),
-    period:        v('period'),
-    hoursWorked:   v('hoursWorked'),
-    hourlyRate:    v('hourlyRate'),
-    income:        v('income'),
-    kvkNumber:     v('kvkNumber'),
-    vatNumber:     v('vatNumber'),
-    iban:          v('iban'),
-    contactPerson: v('contactPerson'),
-    reportingNotes:v('reportingNotes'),
-    results: {
+    companyName:  v('companyName'),
+    emailPhone:   v('email'),
+    period:       v('period'),
+    hoursWorked:  v('hoursWorked'),
+    hourlyRate:   v('hourlyRate'),
+    income:       v('income'),
+    kvkNumber:    v('kvkNumber'),
+    vatNumber:    v('vatNumber'),
+    iban:         v('iban'),
+    contactPerson:v('contactPerson'),
+    reportingNotes: v('reportingNotes'),
+
+    // Результати зі Step 4:
+    totals: {
       grossIncome:   t('grossIncome'),
       totalExpenses: t('totalExpenses'),
       taxableProfit: t('taxableProfit'),
@@ -438,95 +440,71 @@ if (capNote){
     }
   };
 
-  // 2) Форматер грошей (замість «€(…)»)
-  const toNumber = n => Number(String(n).replace(',', '.')) || 0;
-  const euro = n => toNumber(n).toFixed(2);
-
-  // 3) Короткий текст для першого повідомлення в чат
+  // Текст, який зручно вставити першим повідомленням у чат
   payload.textSummary =
 `SmartWerk Tax Calculation
 Company: ${payload.companyName}
 Period: ${payload.period}
+Gross: €${euro(payload.totals.grossIncome)}, Expenses: €${euro(payload.totals.totalExpenses)}, Taxable: €${euro(payload.totals.taxableProfit)}
+ZZP: €${euro(payload.totals.zzpDeductions)}, MKB: €${euro(payload.totals.mkbVrijstelling)}, Final Taxable: €${euro(payload.totals.finalTaxable)}
+Income Tax: €${euro(payload.totals.incomeTax)}, ZVW: €${euro(payload.totals.zvwAmount)}, BTW: €${euro(payload.totals.btwAmount)}, Total Tax: €${euro(payload.totals.totalTax)}
+Saved (ZZP+MKB): €${euro(payload.totals.totalSavings)}, Net After Tax: €${euro(payload.totals.netIncome)}
+${payload.reportingNotes ? '\nNotes: ' + payload.reportingNotes : ''}`;
 
-Gross: €${euro(payload.results.grossIncome)}, Expenses: €${euro(payload.results.totalExpenses)}, Taxable: €${euro(payload.results.taxableProfit)}
-ZZP: €${euro(payload.results.zzpDeductions)}, MKB: €${euro(payload.results.mkbVrijstelling)}, Final Taxable: €${euro(payload.results.finalTaxable)}
-Income Tax: €${euro(payload.results.incomeTax)}, ZVW: €${euro(payload.results.zvwAmount)}, BTW: €${euro(payload.results.btwAmount)}, Total Tax: €${euro(payload.results.totalTax)}
-Saved (ZZP+MKB): €${euro(payload.results.totalSavings)}, Net After Tax: €${euro(payload.results.netIncome)}
-${payload.reportingNotes ? `Notes: ${payload.reportingNotes}` : ''}`;
-
-  // 4) Зберігаємо і відкриваємо AI-сторінку
+  // зберігаємо контекст і відкриваємо окрему сторінку з чатом
   localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
   window.open('ai-assistant.html', '_blank');
 }
 
-// Прив’язка кнопки (раз)
-document.getElementById('btn-ai')?.addEventListener('click', openAIChat);
-
     
   // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
 
-  function exportExcel() {
-    // гарантуємо, що підсумки пораховані
-    try { calculateTax(); } catch(e) {}
+// ---------- XLSX export ----------
+function exportExcel() {
+  // на всякий випадок — порахувати підсумки перед експортом
+  try { if (typeof calculateTax === 'function') calculateTax(); } catch(e){}
 
-    // 1) Забираємо всі потрібні дані з форми та з підсумкового блоку
-    const v = id => (document.getElementById(id)?.value ?? "").toString().trim();
-    const t = id => (document.getElementById(id)?.textContent ?? "").toString().trim();
+  const v = id => (document.getElementById(id)?.value ?? "").toString().trim();
+  const t = id => (document.getElementById(id)?.textContent ?? "").toString().trim();
 
-    const data = [
-      ["SmartWerk Tax Report"],
-      [],
-      ["Company", v("companyName")],
-      ["Email / Phone", v("email")],
-      ["Period", v("period")],
-      ["Hours Worked", v("hoursWorked")],
-      ["Hourly Rate (€)", v("hourlyRate")],
-      ["Total Income (€)", v("income")],
-      ["KvK Number", v("kvkNumber")],
-      ["VAT Number", v("vatNumber")],
-      ["IBAN", v("iban")],
-      ["Contact Person", v("contactPerson")],
-      [],
-      ["Gross Income (€)", t("grossIncome")],
-      ["Total Expenses (€)", t("totalExpenses")],
-      ["Taxable Profit (€)", t("taxableProfit")],
-      ["ZZP Deductions (€)", t("zzpDeductions")],
-      ["MKB Exemption (€)", t("mkbVrijstelling")],
-      ["Final Taxable Income (€)", t("finalTaxable")],
-      ["Income Tax (€)", t("incomeTax")],
-      ["ZVW (5.32%) (€)", t("zvwAmount")],
-      ["BTW Amount (€)", t("btwAmount")],
-      ["Total Estimated Tax (€)", t("totalTax")],
-      [],
-      ["Reporting Notes", v("reportingNotes")]
-    ];
-      // готовий текст для швидкого копі-пасту (за бажанням)
-    payload.textSummary =
-`SmartWerk Tax Calculation Summary
-Company: ${payload.companyName}
-Period: ${payload.period}
-Gross: €${payload.results.grossIncome}, Expenses: €${payload.results.totalExpenses}
-Taxable: €${payload.results.taxableProfit}, ZZP: €${payload.results.zzpDeductions}, MKB: €${payload.results.mkbVrijstelling}
-Final Taxable: €${payload.results.finalTaxable}, Income Tax: €${payload.results.incomeTax}
-ZVW: €${payload.results.zvwAmount}, BTW: €${payload.results.btwAmount}
-Total Tax: €${payload.results.totalTax}
-${payload.reportingNotes ? '\nNotes: ' + payload.reportingNotes : ''}`;
+  // 1) Формуємо дані ДЛЯ ЕКСПОРТУ (ЦЕЙ масив і є "data")
+  const data = [
+    ["SmartWerk Tax Report"], [],
+    ["Company", v("companyName")],
+    ["Email / Phone", v("email")],
+    ["Period", v("period")],
+    ["Hours Worked", v("hoursWorked")],
+    ["Hourly Rate (€)", v("hourlyRate")],
+    ["Total Income (€)", v("income")],
+    ["KvK Number", v("kvkNumber")],
+    ["VAT Number", v("vatNumber")],
+    ["IBAN", v("iban")],
+    ["Contact Person", v("contactPerson")],
+    [],
+    ["Gross Income (€)", t("grossIncome")],
+    ["Total Expenses (€)", t("totalExpenses")],
+    ["Taxable Profit (€)", t("taxableProfit")],
+    ["ZZP Deductions (€)", t("zzpDeductions")],
+    ["MKB Exemption (€)", t("mkbVrijstelling")],
+    ["Final Taxable Income (€)", t("finalTaxable")],
+    ["Income Tax (€)", t("incomeTax")],
+    ["ZVW (5.32%) (€)", t("zvwAmount")],
+    ["BTW Amount (€)", t("btwAmount")],
+    ["Total Estimated Tax (€)", t("totalTax")],
+    [],
+    ["Reporting Notes", v("reportingNotes")]
+  ];
 
-    localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
-    window.open('ai-assistant.html', '_blank');
-  }
+  // 2) Аркуш і книга
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws["!cols"] = [{wch:26},{wch:28}];
 
-    // 2) Формуємо аркуш і книгу
-    const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Tax Report");
 
-    // опціонально — зробимо трохи ширші колонки
-    ws["!cols"] = [{wch:26},{wch:28}];
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Tax Report");
-
-    // 3) Зберігаємо .xlsx
-    XLSX.writeFile(wb, "SmartWerk_Tax_Report.xlsx");
+  // 3) Зберегти файл
+  XLSX.writeFile(wb, "SmartWerk_Tax_Report.xlsx");
+}
   
 
 
