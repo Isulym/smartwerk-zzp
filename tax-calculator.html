@@ -689,6 +689,12 @@ window.validateState = validateState; // залишаємо це
     if (typeof window.calculateTax   === "function") window.calculateTax();
     runValidationUI();
   });
+document.getElementById('btn-ai').addEventListener('click', function(){
+    // формуємо payload (у тебе вже є функція openAIChat – можна її викликати)
+    // Або просто відкриваємо сторінку, якщо payload вже збережений:
+    window.open('./ai-assistant.html','_blank');
+  });
+  
 
   // На випадок, якщо скрипти вище завантажаться пізніше — зробимо кілька спроб
   var tries = 0;
