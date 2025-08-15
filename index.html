@@ -1,46 +1,53 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk: Start Here</title>
+  <title>SmartWerk — Home</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f5f5;
       margin: 0;
-      padding: 40px;
+      padding: 2rem;
+      background: #f5f7fa;
+      color: #111;
       text-align: center;
     }
     h1 {
-      color: #333;
+      font-size: 2.5rem;
     }
-    .btn {
-      display: inline-block;
-      margin: 15px;
-      padding: 15px 30px;
-      background-color: #0077cc;
-      color: #fff;
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    a {
       text-decoration: none;
-      border-radius: 8px;
-      font-size: 18px;
+      background: #111827;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      transition: background 0.3s;
     }
-    .btn:hover {
-      background-color: #005faa;
+    a:hover {
+      background: #4b5563;
     }
   </style>
 </head>
 <body>
-
-  <h1>👋 Welcome to SmartWerk Tools</h1>
-  <p>Select a tool to get started:</p>
-
-  <a class="btn" href="tax-calculator.html">📊 Tax Calculator</a>
-  <a href="ai-assistant.html">Ask SmartWerk AI</a>
-  <a class="btn" href="csv-guide.html">📁 CSV Guide</a>
-  <a class="btn" href="faqchat.html">❓ FAQ</a>
-
-  <p style="margin-top: 50px;">SmartWerk ZZP Toolkit © 2025</p>
-
+  <h1>Welcome to SmartWerk</h1>
+  <p>Your AI-powered assistant for Dutch freelancers</p>
+  <div class="nav">
+    <a href="upgrade.html">Upgrade to PRO</a>
+    <a href="tax-calculator.html">Open Tax Calculator</a>
+    <a href="pro_chat.html">SmartWerk AI Assistant</a>
+  </div>
 </body>
 </html>
