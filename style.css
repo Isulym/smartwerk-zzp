@@ -1,8 +1,26 @@
 
-body { font-family: sans-serif; margin: 0; padding: 0; background: #f4f4f4; color: #333; }
-header, footer { background: #222; color: #fff; padding: 1rem; text-align: center; }
-nav a { margin: 0 10px; color: #fff; text-decoration: none; }
-.hero { text-align: center; padding: 2rem; }
-.btn { display: inline-block; margin: 1rem; padding: 1rem 2rem; text-decoration: none; }
-.primary { background: #007bff; color: white; }
-.secondary { background: #ccc; color: black; }
+body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #222; }
+.navbar { display: flex; justify-content: space-between; align-items: center; background: #1e1e2f; color: white; padding: 1rem 2rem; }
+.logo { font-weight: bold; font-size: 1.5rem; }
+.nav-links { list-style: none; display: flex; gap: 1rem; align-items: center; margin: 0; padding: 0; }
+.nav-links li a { color: white; text-decoration: none; padding: 0.5rem; border-radius: 5px; }
+.nav-links li a:hover { background: rgba(255,255,255,0.1); }
+.dropdown { position: relative; }
+.dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: white; color: #222; list-style: none; padding: 0.5rem; border-radius: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.dropdown-menu li a { color: #222; display: block; padding: 0.5rem; text-decoration: none; }
+.dropdown:hover .dropdown-menu { display: block; }
+
+.hero { text-align: center; padding: 4rem 2rem; background: linear-gradient(to right, #2c3e50, #3498db); color: white; }
+.hero h1 { font-size: 2.5rem; }
+.hero p { font-size: 1.2rem; margin-top: 0.5rem; }
+.cta-buttons { margin-top: 2rem; }
+.btn { padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 5px; margin-right: 1rem; font-weight: bold; }
+.btn.primary { background: #ffc107; color: #222; }
+.btn:hover { opacity: 0.9; }
+
+.features { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 2rem; }
+.feature { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); width: 300px; }
+.feature h2 { margin-top: 0; }
+.feature ul { padding-left: 1.2rem; }
+
+footer { text-align: center; padding: 1.5rem; background: #1e1e2f; color: white; margin-top: 2rem; }
