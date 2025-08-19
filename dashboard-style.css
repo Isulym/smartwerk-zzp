@@ -1,0 +1,12 @@
+
+body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; color: #333; }
+header { background: #222; color: #fff; padding: 1rem; text-align: center; }
+header input { margin-top: 10px; padding: 0.5rem; width: 80%; max-width: 400px; }
+.tool-grid { display: flex; flex-wrap: wrap; justify-content: center; padding: 2rem; gap: 1rem; }
+.tool-card { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 280px; }
+.tool-card h3 { margin-top: 0; }
+.tag { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 5px; font-size: 0.8rem; }
+.tag.free { background: #d4edda; color: #155724; }
+.tag.pro { background: #ffeeba; color: #856404; }
+.actions .btn { display: inline-block; padding: 0.5rem 1rem; background: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-top: 0.5rem; }
+footer { text-align: center; padding: 1rem; background: #222; color: #fff; }
