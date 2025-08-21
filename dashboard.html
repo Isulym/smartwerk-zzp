@@ -2,58 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk Dashboard</title>
-    <link rel="stylesheet" href="style-dashboard.css" />
+  <link rel="stylesheet" href="style-dashboard.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
-<body class="dashboard-body">
-  <aside class="sidebar">
-    <div class="sidebar-logo">SmartWerk</div>
-    <nav class="sidebar-nav">
-      <ul>
-        <li><a href="#summary">📊 Summary</a></li>
-        <li><a href="#invoices">🧾 Invoices</a></li>
-        <li><a href="#calculator">📉 Tax Calculator</a></li>
-        <li><a href="#templates">📁 Templates</a></li>
-        <li><a href="#accountant">👨‍💼 My Bookkeeper</a></li>
-        <li><a href="#settings">⚙️ Settings</a></li>
-      </ul>
-    </nav>
-    <footer class="sidebar-footer">
-      <a href="index.html">← Back to Home</a>
-    </footer>
-  </aside>
+<body>
 
-  <main class="dashboard-main">
-    <section id="summary" class="dashboard-section">
-      <h2>Smart Summary</h2>
+  <div class="sidebar">
+    <h2 style="text-align:center; margin-bottom:30px;">SmartWerk</h2>
+    <a href="#" class="active">📊 Summary</a>
+    <a href="#">🧾 Invoices</a>
+    <a href="#">🧮 Tax Calculator</a>
+    <a href="#">📂 Templates</a>
+    <a href="#">👨‍💼 My Bookkeeper</a>
+    <a href="#">⚙️ Settings</a>
+    <a href="index.html" style="margin-top:40px;">← Back to Home</a>
+  </div>
+
+  <div class="main-content">
+
+    <div class="section-block">
+      <h3>Smart Summary</h3>
       <p>Your income, expenses, tax overview and more – in one glance.</p>
-    </section>
+    </div>
 
-    <section id="invoices" class="dashboard-section">
-      <h2>Invoices & Documents</h2>
+    <div class="section-block">
+      <h3>Invoices & Documents</h3>
       <p>Manage your invoices, KvK, IBAN and tax forms.</p>
-    </section>
+    </div>
 
-    <section id="calculator" class="dashboard-section">
-      <h2>Tax Calculator</h2>
+    <div class="section-block">
+      <h3>Tax Calculator</h3>
       <p>Get real-time tax estimates with AI assistance.</p>
-    </section>
+    </div>
 
-    <section id="templates" class="dashboard-section">
-      <h2>Smart Templates</h2>
+    <div class="section-block">
+      <h3>Smart Templates</h3>
       <p>Access invoices, reports, and benefit request templates.</p>
-    </section>
+    </div>
 
-    <section id="accountant" class="dashboard-section">
-      <h2>My Bookkeeper</h2>
+    <div class="section-block">
+      <h3>My Bookkeeper</h3>
       <p>View your documents, send to accountant, or get help.</p>
-    </section>
+    </div>
 
-    <section id="settings" class="dashboard-section">
-      <h2>Settings</h2>
+    <div class="section-block">
+      <h3>Settings</h3>
       <p>Update your name, KvK, IBAN, email, language and currency.</p>
-    </section>
-  </main>
+    </div>
+
+  </div>
+
 </body>
 </html>
