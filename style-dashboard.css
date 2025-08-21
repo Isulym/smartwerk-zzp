@@ -144,3 +144,16 @@ body {
   font-size: 14px;
   color: #4b5563;
 }
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.card-link:hover .card {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.15);
+  cursor: pointer;
+}
