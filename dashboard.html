@@ -1,57 +1,59 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk Tools Dashboard</title>
-  <link rel="stylesheet" href="dashboard-style.css" />
+  <title>SmartWerk Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <header>
-    <h1>SmartWerk Tools</h1>
-    <input type="text" placeholder="Search tools..." id="searchBox" />
-  </header>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo">SmartWerk</div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="#summary">📊 Summary</a></li>
+        <li><a href="#invoices">🧾 Invoices</a></li>
+        <li><a href="#calculator">📉 Tax Calculator</a></li>
+        <li><a href="#templates">📁 Templates</a></li>
+        <li><a href="#accountant">👨‍💼 My Bookkeeper</a></li>
+        <li><a href="#settings">⚙️ Settings</a></li>
+      </ul>
+    </nav>
+    <footer class="sidebar-footer">
+      <a href="index.html">← Back to Home</a>
+    </footer>
+  </aside>
 
-  <main>
-    <section class="tool-grid">
-      <div class="tool-card free">
-        <h3>Invoice Generator</h3>
-        <p>Category: Invoices & Finance</p>
-        <span class="tag free">Free</span>
-        <div class="actions">
-          <a href="invoice.html" class="btn">Open</a>
-        </div>
-      </div>
-      <div class="tool-card pro">
-        <h3>Tax Calculator</h3>
-        <p>Category: Finance</p>
-        <span class="tag pro">PRO</span>
-        <div class="actions">
-          <a href="tax-calculator.html" class="btn">Open</a>
-        </div>
-      </div>
-      <div class="tool-card free">
-        <h3>CSV Categorizer</h3>
-        <p>Category: CSV & Expenses</p>
-        <span class="tag free">Free</span>
-        <div class="actions">
-          <a href="csv-tool.html" class="btn">Open</a>
-        </div>
-      </div>
-      <div class="tool-card pro">
-        <h3>SmartWerk AI Assistant</h3>
-        <p>Category: AI Assistant</p>
-        <span class="tag pro">PRO</span>
-        <div class="actions">
-          <a href="ai-assistant.html" class="btn">Open</a>
-        </div>
-      </div>
+  <main class="dashboard-main">
+    <section id="summary" class="dashboard-section">
+      <h2>Smart Summary</h2>
+      <p>Your income, expenses, tax overview and more – in one glance.</p>
+    </section>
+
+    <section id="invoices" class="dashboard-section">
+      <h2>Invoices & Documents</h2>
+      <p>Manage your invoices, KvK, IBAN and tax forms.</p>
+    </section>
+
+    <section id="calculator" class="dashboard-section">
+      <h2>Tax Calculator</h2>
+      <p>Get real-time tax estimates with AI assistance.</p>
+    </section>
+
+    <section id="templates" class="dashboard-section">
+      <h2>Smart Templates</h2>
+      <p>Access invoices, reports, and benefit request templates.</p>
+    </section>
+
+    <section id="accountant" class="dashboard-section">
+      <h2>My Bookkeeper</h2>
+      <p>View your documents, send to accountant, or get help.</p>
+    </section>
+
+    <section id="settings" class="dashboard-section">
+      <h2>Settings</h2>
+      <p>Update your name, KvK, IBAN, email, language and currency.</p>
     </section>
   </main>
-
-  <footer>
-    <p>SmartWerk © 2025</p>
-  </footer>
 </body>
 </html>
