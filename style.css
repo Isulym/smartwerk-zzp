@@ -1,120 +1,214 @@
-/* === SMARTWERK WOW CSS === */
-
-body {
+/* Reset */
+* {
   margin: 0;
   padding: 0;
-  font-family: "Inter", "Segoe UI", sans-serif;
-  background: #f4f7fb;
-  color: #1e1e2f;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Global */
+body {
+  background: linear-gradient(to bottom right, #f7f9fc, #e0ecff);
+  color: #1a1a1a;
   line-height: 1.6;
 }
 
-header {
-  background: #131a36;
-  color: white;
-  padding: 20px 40px;
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+h1, h2, h3 {
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+p {
+  margin-bottom: 16px;
+}
+
+/* Navbar */
+.navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 40px;
+  background-color: #ffffffcc;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #ccc;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-header h1 {
+.logo {
   font-size: 24px;
-  margin: 0;
+  font-weight: 800;
+  color: #003d99;
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.navbar li a {
+  color: #003d99;
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
-nav a {
-  color: #ffffffcc;
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
+.navbar li a:hover {
+  color: #0066cc;
 }
 
-nav a:hover {
-  color: #ffffff;
-}
-
+/* Hero */
 .hero {
-  background: linear-gradient(to right, #2563eb, #6366f1);
-  color: white;
   text-align: center;
-  padding: 80px 20px 60px;
+  padding: 80px 20px;
+  background: linear-gradient(145deg, #e6f0ff, #ffffff);
+  color: #003366;
 }
 
-.hero h2 {
-  font-size: 36px;
-  margin-bottom: 10px;
-}
-
-.hero p {
-  font-size: 18px;
+.hero h1 {
+  font-size: 48px;
   margin-bottom: 20px;
 }
 
-.hero .cta-buttons {
+.hero p {
+  font-size: 20px;
+  margin-bottom: 30px;
+}
+
+.cta-buttons {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
 }
 
-.cta-buttons a {
-  background: #fff;
-  color: #2563eb;
-  padding: 12px 24px;
-  border-radius: 8px;
-  text-decoration: none;
+.btn-primary, .btn-secondary {
+  padding: 14px 28px;
+  font-size: 16px;
   font-weight: 600;
-  transition: all 0.3s;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
-.cta-buttons a:hover {
-  background: #e0e7ff;
-  transform: scale(1.05);
+.btn-primary {
+  background-color: #0066cc;
+  color: #fff;
 }
 
-.features {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  padding: 60px 20px;
-  background: #ffffff;
+.btn-primary:hover {
+  background-color: #0052a3;
 }
 
-.feature-box {
-  background: #f9f9fc;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  padding: 30px;
-  margin: 20px;
-  width: 280px;
-  transition: transform 0.3s ease;
+.btn-secondary {
+  background-color: #fff;
+  color: #0066cc;
+  border: 2px solid #0066cc;
 }
 
-.feature-box:hover {
-  transform: translateY(-5px);
+.btn-secondary:hover {
+  background-color: #e6f0ff;
 }
 
-.feature-box h3 {
-  font-size: 20px;
-  margin-bottom: 12px;
-  color: #1e1e2f;
+/* Features, Why PRO, Testimonials */
+.features, .why-pro, .testimonials {
+  padding: 60px 40px;
+  background-color: #fff;
 }
 
-.feature-box p {
-  font-size: 15px;
-  color: #444;
-}
-
-footer {
+.features h2, .why-pro h2, .testimonials h2 {
   text-align: center;
-  padding: 40px 20px;
-  background: #131a36;
-  color: #aaa;
+  font-size: 32px;
+  margin-bottom: 40px;
+  color: #003366;
 }
 
-footer a {
-  color: #ddd;
-  text-decoration: underline;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+}
+
+.card {
+  background: linear-gradient(to top left, #f4f9ff, #ffffff);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* How It Works */
+.how-it-works {
+  padding: 60px 40px;
+  background-color: #f0f8ff;
+}
+
+.how-it-works h2 {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #003366;
+}
+
+.how-it-works ol {
+  max-width: 700px;
+  margin: auto;
+  padding-left: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+/* Footer */
+footer {
+  background-color: #003366;
+  color: #fff;
+  padding: 60px 20px 20px;
+  text-align: center;
+}
+
+.footer-cta h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.footer-cta input {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+  margin-right: 8px;
+  width: 240px;
+  max-width: 80%;
+}
+
+.footer-cta button {
+  padding: 12px 24px;
+  background-color: #0066cc;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.footer-cta button:hover {
+  background-color: #004d99;
+}
+
+footer p {
+  margin-top: 40px;
+  font-size: 14px;
+  opacity: 0.7;
 }
