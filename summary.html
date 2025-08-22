@@ -2,115 +2,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Summary – SmartWerk</title>
-  <link rel="stylesheet" href="style-summary.css">
+  <link rel="stylesheet" href="style-summary.css" />
 </head>
 <body>
-<div class="breadcrumbs">
-  <a href="dashboard.html"><span>🏠</span> Dashboard</a>
-  <span>/</span>
-  <a href="summary.html" class="active"><span>📊</span> Smart Summary</a>
-  <span>/</span>
-  <a href="my-bookkeeper.html"><span>👨‍💼</span> My Bookkeeper</a>
-  <span>/</span>
-  <a href="tax-calculator.html"><span>💰</span> Tax Calculator</a>
-  <span>/</span>
-  <a href="invoices.html"><span>📄</span> Invoices</a>
-  <span>/</span>
-  <a href="templates.html"><span>📂</span> Templates</a>
-</div>
-
-    <main class="main-panel">
-      <header class="page-header">
-        <h1>Smart Summary</h1>
-        <p>Live overview of your ZZP performance, tax & finances</p>
-      </header>
-
-         <p><strong>💼 Gross Income</strong><br><span data-summary="gross-income">€0.00</span></p>
-<p><strong>🧾 Expenses</strong><br><span data-summary="expenses">€0.00</span></p>
-<p><strong>📊 Tax Estimation</strong><br><span data-summary="tax-estimation">€0.00</span></p>
-<p><strong>💡 Net Income</strong><br><span data-summary="net-income">€0.00</span></p>
-<p><strong>📁 KvK</strong><br><span data-summary="kvk">–</span></p>
-<p><strong>🏦 IBAN</strong><br><span data-summary="iban">–</span></p>
-      
-     <section class="summary-actions">
-  <div class="left">
-  <button id="refreshBtn">🔄 Refresh Summary</button>
-<button id="exportBtn">🧾 Export as PDF</button>
+  <div class="breadcrumbs">
+    <a href="dashboard.html"><span>🏠</span> Dashboard</a><span>/</span>
+    <a href="summary.html" class="active"><span>📊</span> Smart Summary</a><span>/</span>
+    <a href="my-bookkeeper.html"><span>👨‍💼</span> My Bookkeeper</a><span>/</span>
+    <a href="tax-calculator.html"><span>💰</span> Tax Calculator</a><span>/</span>
+    <a href="invoices.html"><span>📄</span> Invoices</a><span>/</span>
+    <a href="templates.html"><span>📂</span> Templates</a>
   </div>
-  <div class="right">
-    <p class="tip">Tip: This overview is auto-updated from your tools, invoices & tax calculator. No manual input needed!</p>
-    <label for="upload" class="upload-label">📤 Upload your receipts or documents</label>
-    <input type="file" id="upload" />
-  </div>
-</section>
 
-      
-</section>
-    </main>
-  </div>
-  <!-- PDF script -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <main class="main-panel summary-cards">
+    <header class="page-header">
+      <h1>Smart Summary</h1>
+      <p>Live overview of your ZZP performance, tax & finances</p>
+    </header>
+
+    <p><strong>💼 Gross Income</strong><br><span data-summary="gross-income">€0.00</span></p>
+    <p><strong>🧾 Expenses</strong><br><span data-summary="expenses">€0.00</span></p>
+    <p><strong>📊 Tax Estimation</strong><br><span data-summary="tax-estimation">€0.00</span></p>
+    <p><strong>💡 Net Income</strong><br><span data-summary="net-income">€0.00</span></p>
+    <p><strong>📁 KvK</strong><br><span data-summary="kvk">–</span></p>
+    <p><strong>🏦 IBAN</strong><br><span data-summary="iban">–</span></p>
+
+    <section class="summary-actions">
+      <div class="left">
+        <button id="refreshBtn">🔄 Refresh Summary</button>
+        <button id="exportBtn">🧾 Export as PDF</button>
+      </div>
+      <div class="right">
+        <p class="tip">
+          Tip: This overview is auto-updated from your tools, invoices & tax calculator. No manual input needed!
+        </p>
+        <label for="upload" class="upload-label">📤 Upload your receipts or documents</label>
+        <input type="file" id="upload" />
+      </div>
+    </section>
+  </main>
+
+  <!-- PDF Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
-  // Refresh Summary
-  document.getElementById('refreshBtn').addEventListener('click', function () {
-    location.reload(); // тимчасово — просто перезавантаження
-  });
+    // Refresh Summary
+    document.getElementById('refreshBtn')?.addEventListener('click', () => {
+      location.reload();
+    });
 
-  // Export as PDF
-  document.getElementById('exportBtn').addEventListener('click', function () {
-    const summaryElement = document.querySelector('.summary-cards');
+    // Export as PDF
+    document.getElementById('exportBtn')?.addEventListener('click', () => {
+      const summaryElement = document.querySelector('.summary-cards');
+      const opt = {
+        margin: 0.5,
+        filename: 'SmartWerk_Summary.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(summaryElement).save();
+    });
 
-    const opt = {
-      margin:       0.5,
-      filename:     'SmartWerk_Summary.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(summaryElement).save();
-  });
-
-<!-- PDF-бібліотека -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-<script>
-// Кнопка "Refresh Summary"
-document.getElementById('refreshBtn')?.addEventListener('click', () => {
-  location.reload();
-});
-
-// Кнопка "Export as PDF"
-document.getElementById('exportBtn')?.addEventListener('click', () => {
-  const summaryElement = document.querySelector('.main-panel');
-  const opt = {
-    margin: 0.5,
-    filename: 'SmartWerk_Summary.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(summaryElement).save();
-});
-
-// При завантаженні сторінки — підставляємо збережені дані
-document.addEventListener('DOMContentLoaded', function () {
-  const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
-  if (savedData) {
-    document.querySelector('[data-summary="gross-income"]').innerText = '€' + savedData.grossIncome;
-    document.querySelector('[data-summary="expenses"]').innerText = '€' + savedData.expenses;
-    document.querySelector('[data-summary="tax-estimation"]').innerText = '€' + savedData.taxEstimation;
-    document.querySelector('[data-summary="net-income"]').innerText = '€' + savedData.netIncome;
-    document.querySelector('[data-summary="kvk"]').innerText = savedData.kvk;
-    document.querySelector('[data-summary="iban"]').innerText = savedData.iban;
-  }
-});
-</script>
-
-    
-</script>
+    // Load saved data from tax-calculator
+    document.addEventListener('DOMContentLoaded', function () {
+      const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
+      if (savedData) {
+        document.querySelector('[data-summary="gross-income"]').innerText = '€' + savedData.grossIncome;
+        document.querySelector('[data-summary="expenses"]').innerText = '€' + savedData.expenses;
+        document.querySelector('[data-summary="tax-estimation"]').innerText = '€' + savedData.taxEstimation;
+        document.querySelector('[data-summary="net-income"]').innerText = '€' + savedData.netIncome;
+        document.querySelector('[data-summary="kvk"]').innerText = savedData.kvk;
+        document.querySelector('[data-summary="iban"]').innerText = savedData.iban;
+      }
+    });
+  </script>
 </body>
 </html>
