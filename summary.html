@@ -76,5 +76,28 @@
 </section>
     </main>
   </div>
+  <!-- PDF script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+  // Refresh Summary
+  document.getElementById('refreshBtn').addEventListener('click', function () {
+    location.reload(); // тимчасово — просто перезавантаження
+  });
+
+  // Export as PDF
+  document.getElementById('exportBtn').addEventListener('click', function () {
+    const summaryElement = document.querySelector('.summary-cards');
+
+    const opt = {
+      margin:       0.5,
+      filename:     'SmartWerk_Summary.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(summaryElement).save();
+  });
+</script>
 </body>
 </html>
