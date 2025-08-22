@@ -713,23 +713,23 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
-// Автоматичне збереження результатів в localStorage після кожного обрахунку
+// Автоматичне збереження результатів до localStorage
 function autoSaveSummary() {
   const summaryData = {
-    grossIncome: document.getElementById('gross-income').value || '',
-    expenses: document.getElementById('expenses').value || '',
-    taxEstimation: document.getElementById('tax-estimate').innerText || '',
-    netIncome: document.getElementById('net-income').innerText || '',
-    kvk: document.getElementById('kvk-number').value || '',
-    iban: document.getElementById('iban').value || ''
+    grossIncome: document.getElementById('gross-income')?.value || '',
+    expenses: document.getElementById('expenses')?.value || '',
+    taxEstimation: document.getElementById('tax-estimate')?.innerText || '',
+    netIncome: document.getElementById('net-income')?.innerText || '',
+    kvk: document.getElementById('kvk-number')?.value || '',
+    iban: document.getElementById('iban')?.value || ''
   };
   localStorage.setItem('smartwerk_summary_data', JSON.stringify(summaryData));
 }
 
-// Виклик після розрахунку
-const observer = new MutationObserver(autoSaveSummary);
-observer.observe(document.getElementById('tax-estimate'), { childList: true });
-observer.observe(document.getElementById('net-income'), { childList: true });
+// Відстеження змін після обрахунку — MutationObserver
+const observe = new MutationObserver(autoSaveSummary);
+observe.observe(document.getElementById('tax-estimate'), { childList: true });
+observe.observe(document.getElementById('net-income'), { childList: true });
   
 })();
 </script>
