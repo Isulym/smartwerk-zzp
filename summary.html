@@ -28,38 +28,12 @@
         <p>Live overview of your ZZP performance, tax & finances</p>
       </header>
 
-           <section class="summary-cards">
-  <div class="summary-card">
-    <p><span class="icon">📈</span><strong> Gross Income</strong></p>
-    <p>€12,450.00</p>
-  </div>
-        
-  <div class="summary-card">
-    <p><span class="icon">💸</span><strong> Expenses</strong></p>
-    <p>€3,100.00</p>
-  </div>
-        
-        <div class="summary-card">
-    <p><span class="icon">📊</span><strong> Tax Estimation</strong></p>
-    <p>€1,784.35</p>
-  </div>
-
-        <div class="summary-card">
-    <p><span class="icon">💡</span><strong> Net Income</strong></p>
-    <p>€7,565.65</p>
-  </div>
-
-        <div class="summary-card">
-    <p><span class="icon">🏷️</span><strong> KvK</strong></p>
-    <p>01234567</p>
-  </div>
-
-          <div class="summary-card">
-    <p><span class="icon">🏦 </span><strong> IBAN</strong></p>
-    <p>NL12BANK3456789012</p>
-  </div>
-  <!-- І далі інші -->
-
+         <p><strong>💼 Gross Income</strong><br><span data-summary="gross-income">€0.00</span></p>
+<p><strong>🧾 Expenses</strong><br><span data-summary="expenses">€0.00</span></p>
+<p><strong>📊 Tax Estimation</strong><br><span data-summary="tax-estimation">€0.00</span></p>
+<p><strong>💡 Net Income</strong><br><span data-summary="net-income">€0.00</span></p>
+<p><strong>📁 KvK</strong><br><span data-summary="kvk">–</span></p>
+<p><strong>🏦 IBAN</strong><br><span data-summary="iban">–</span></p>
      <section class="summary-actions">
   <div class="left">
   <button id="refreshBtn">🔄 Refresh Summary</button>
@@ -98,6 +72,20 @@
 
     html2pdf().set(opt).from(summaryElement).save();
   });
+// При завантаженні сторінки — витягуємо збережені дані
+window.addEventListener('DOMContentLoaded', () => {
+  const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
+
+  if (savedData) {
+    document.querySelector('[data-summary="gross-income"]').innerText = '€' + savedData.grossIncome;
+    document.querySelector('[data-summary="expenses"]').innerText = '€' + savedData.expenses;
+    document.querySelector('[data-summary="tax-estimation"]').innerText = '€' + savedData.taxEstimation;
+    document.querySelector('[data-summary="net-income"]').innerText = '€' + savedData.netIncome;
+    document.querySelector('[data-summary="kvk"]').innerText = savedData.kvk;
+    document.querySelector('[data-summary="iban"]').innerText = savedData.iban;
+  }
+});
+    
 </script>
 </body>
 </html>
