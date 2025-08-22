@@ -173,7 +173,7 @@
     </div>
 
     <div class="button-group">
-      <button id="calculateBtn" class="button-primary">🔁 Calculate Tax</button>
+      <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
       <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
       <button id="btn-xlsx" type="button">📊 Export as Excel</button>
       <button type="button" id="btn-ai">💬 Open AI Assistant</button>
@@ -735,7 +735,7 @@ function saveToLocalSummary() {
 }
 
 // Викликаємо одразу після обчислення
-document.getElementById("calculateBtn")?.addEventListener("click", function () {
+document.getElementById("btn-calc")?.addEventListener("click", function () {
   calculate();
   saveToLocalSummary();
 });
