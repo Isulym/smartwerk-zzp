@@ -289,3 +289,9 @@ button {
   color: #444;
   cursor: pointer;
 }
+@media print {
+  .summary-cards {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
