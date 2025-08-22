@@ -714,9 +714,9 @@ document.getElementById('btn-ai').addEventListener('click', function(){
   }, 500);
 
  function saveToLocalSummary() {
-  const grossIncome = parseFloat(document.getElementById("gross-income")?.innerText) || 0;
+  const grossIncome = parseFloat(document.getElementById("grossIncome")?.innerText) || 0;
   const expenses = parseFloat(document.getElementById("totalExpenses")?.innerText) || 0;
-  const taxEstimation = parseFloat(document.getElementById("taxAmount")?.innerText) || 0;
+  const taxEstimation = parseFloat(document.getElementById("totalTax")?.innerText) || 0;
   const netIncome = parseFloat(document.getElementById("netIncome")?.innerText) || 0;
   const kvk = document.getElementById("kvk-number")?.innerText || "--";
   const iban = document.getElementById("iban-number")?.innerText || "--";
