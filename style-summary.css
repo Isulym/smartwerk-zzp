@@ -114,26 +114,35 @@ button {
   to   { opacity: 1; transform: translateY(0); }
 }
 .breadcrumbs {
+  margin: 20px 0 30px;
+  padding: 10px 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
   font-size: 14px;
-  margin: 20px 0 10px 0;
-  color: #666;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .breadcrumbs a {
-  color: #0066cc;
+  color: #007bff;
   text-decoration: none;
-  transition: color 0.3s;
+  transition: color 0.3s ease;
+  font-weight: 500;
 }
 
 .breadcrumbs a:hover {
-  color: #004499;
   text-decoration: underline;
+  color: #0056b3;
 }
 
 .breadcrumbs a.active {
-  font-weight: bold;
   color: #000;
+  font-weight: bold;
+}
+
+.breadcrumbs span {
+  color: #aaa;
 }
