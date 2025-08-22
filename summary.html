@@ -74,8 +74,10 @@
     html2pdf().set(opt).from(summaryElement).save();
   });
 
+<!-- PDF-бібліотека -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+<script>
 // Кнопка "Refresh Summary"
 document.getElementById('refreshBtn')?.addEventListener('click', () => {
   location.reload();
@@ -106,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('[data-summary="iban"]').innerText = savedData.iban;
   }
 });
+</script>
 
     
 </script>
