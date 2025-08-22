@@ -113,3 +113,27 @@ button {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.breadcrumbs {
+  font-size: 14px;
+  margin: 20px 0 10px 0;
+  color: #666;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.breadcrumbs a {
+  color: #0066cc;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.breadcrumbs a:hover {
+  color: #004499;
+  text-decoration: underline;
+}
+
+.breadcrumbs a.active {
+  font-weight: bold;
+  color: #000;
+}
