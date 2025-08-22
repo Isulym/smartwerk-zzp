@@ -713,19 +713,27 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
-// При натисканні кнопки "Finish" (або будь-якої події завершення), зберігаємо дані у localStorage
+// Зберігаємо ключові дані з калькулятора до localStorage
 function saveSummaryDataToLocal() {
   const summaryData = {
-    grossIncome: document.getElementById('gross-income').value || '',
-    expenses: document.getElementById('expenses').value || '',
-    taxEstimation: document.getElementById('tax-estimate').innerText || '',
-    netIncome: document.getElementById('net-income').innerText || '',
-    kvk: document.getElementById('kvk-number').value || '',
-    iban: document.getElementById('iban').value || ''
+    grossIncome: document.getElementById('gross-income')?.value || '',
+    expenses: document.getElementById('expenses')?.value || '',
+    taxEstimation: document.getElementById('tax-estimate')?.innerText || '',
+    netIncome: document.getElementById('net-income')?.innerText || '',
+    kvk: document.getElementById('kvk-number')?.value || '',
+    iban: document.getElementById('iban')?.value || ''
   };
+
   localStorage.setItem('smartwerk_summary_data', JSON.stringify(summaryData));
 }
-document.getElementById('finish-button').addEventListener('click', saveSummaryDataToLocal);
+
+// Прив’язка до кнопки завершення (Finish)
+document.addEventListener('DOMContentLoaded', function () {
+  const calculateTax = document.getElementById('calculateTax-button');
+  if (calculateTax) {
+    finishBtn.addEventListener('click', saveSummaryDataToLocal);
+  }
+});
   
 })();
 </script>
