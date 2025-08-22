@@ -1,4 +1,3 @@
-<!-- summary.html - Smart Summary Overview -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,18 +7,19 @@
   <link rel="stylesheet" href="style-summary.css" />
 </head>
 <body>
+
   <div class="breadcrumbs">
-    <a href="dashboard.html"><span>🏠</span> Dashboard</a>
+    <a href="dashboard.html">🏠 Dashboard</a>
     <span>/</span>
-    <a href="summary.html" class="active"><span>📊</span> Smart Summary</a>
+    <a href="summary.html" class="active">📊 Smart Summary</a>
     <span>/</span>
-    <a href="my-bookkeeper.html"><span>👨‍💼</span> My Bookkeeper</a>
+    <a href="my-bookkeeper.html">👨‍💼 My Bookkeeper</a>
     <span>/</span>
-    <a href="tax-calculator.html"><span>💰</span> Tax Calculator</a>
+    <a href="tax-calculator.html">💰 Tax Calculator</a>
     <span>/</span>
-    <a href="invoices.html"><span>📄</span> Invoices</a>
+    <a href="invoices.html">📄 Invoices</a>
     <span>/</span>
-    <a href="templates.html"><span>📂</span> Templates</a>
+    <a href="templates.html">📂 Templates</a>
   </div>
 
   <main class="main-panel">
@@ -28,14 +28,14 @@
       <p>Live overview of your ZZP performance, tax & finances</p>
     </header>
 
-    <section id="summary-cards">
-      <p><strong>💼 Gross Income</strong><br><span data-summary="gross-income">€0.00</span></p>
-      <p><strong>🧾 Expenses</strong><br><span data-summary="expenses">€0.00</span></p>
-      <p><strong>📊 Tax Estimation</strong><br><span data-summary="tax-estimation">€0.00</span></p>
-      <p><strong>💡 Net Income</strong><br><span data-summary="net-income">€0.00</span></p>
-      <p><strong>📁 KvK</strong><br><span data-summary="kvk">–</span></p>
-      <p><strong>🏦 IBAN</strong><br><span data-summary="iban">–</span></p>
-    </section>
+    <div class="summary-cards">
+      <p><strong>💼 Gross Income:</strong> <span data-summary="gross-income">€0.00</span></p>
+      <p><strong>🧾 Expenses:</strong> <span data-summary="expenses">€0.00</span></p>
+      <p><strong>📊 Tax Estimation:</strong> <span data-summary="tax-estimation">€0.00</span></p>
+      <p><strong>💡 Net Income:</strong> <span data-summary="net-income">€0.00</span></p>
+      <p><strong>📁 KvK:</strong> <span data-summary="kvk">–</span></p>
+      <p><strong>🏦 IBAN:</strong> <span data-summary="iban">–</span></p>
+    </div>
 
     <section class="summary-actions">
       <div class="left">
@@ -43,18 +43,18 @@
         <button id="exportBtn">🧾 Export as PDF</button>
       </div>
       <div class="right">
-        <p class="tip">Tip: This overview is auto-updated from your tools, invoices & tax calculator. No manual input needed!</p>
+        <p class="tip">Tip: This overview auto-updates from your tools, invoices & tax calculator. No manual input needed!</p>
         <label for="upload" class="upload-label">📤 Upload your receipts or documents</label>
         <input type="file" id="upload" />
       </div>
     </section>
   </main>
 
-  <!-- PDF export library -->
+  <!-- PDF export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
-    // Load summary data from localStorage
+    // Load saved data from localStorage
     document.addEventListener('DOMContentLoaded', function () {
       const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
       if (savedData) {
@@ -67,14 +67,14 @@
       }
     });
 
-    // Refresh Button
-    document.getElementById('refreshBtn').addEventListener('click', function () {
+    // Refresh Summary button
+    document.getElementById('refreshBtn')?.addEventListener('click', () => {
       location.reload();
     });
 
-    // Export as PDF
-    document.getElementById('exportBtn').addEventListener('click', function () {
-      const element = document.querySelector('.main-panel');
+    // Export as PDF button
+    document.getElementById('exportBtn')?.addEventListener('click', () => {
+      const summaryElement = document.querySelector('.main-panel');
       const opt = {
         margin: 0.5,
         filename: 'SmartWerk_Summary.pdf',
@@ -82,8 +82,9 @@
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
-      html2pdf().set(opt).from(element).save();
+      html2pdf().set(opt).from(summaryElement).save();
     });
   </script>
+
 </body>
 </html>
