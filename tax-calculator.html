@@ -713,24 +713,33 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
-// Автоматичне збереження результатів до localStorage
-function autoSaveSummary() {
+function saveToLocalSummary() {
+  const grossIncome = parseFloat(document.getElementById("gross-income").value || 0);
+  const expenses = parseFloat(document.getElementById("total-expenses").value || 0);
+  const taxEstimation = parseFloat(document.getElementById("tax-amount").value || 0);
+  const netIncome = parseFloat(document.getElementById("net-income").value || 0);
+  const kvk = document.getElementById("kvk-number").value || "-";
+  const iban = document.getElementById("iban-number").value || "-";
+
   const summaryData = {
-    grossIncome: document.getElementById('gross-income')?.value || '',
-    expenses: document.getElementById('expenses')?.value || '',
-    taxEstimation: document.getElementById('tax-estimate')?.innerText || '',
-    netIncome: document.getElementById('net-income')?.innerText || '',
-    kvk: document.getElementById('kvk-number')?.value || '',
-    iban: document.getElementById('iban')?.value || ''
+    grossIncome: grossIncome.toFixed(2),
+    expenses: expenses.toFixed(2),
+    taxEstimation: taxEstimation.toFixed(2),
+    netIncome: netIncome.toFixed(2),
+    kvk: kvk,
+    iban: iban
   };
+
   localStorage.setItem('smartwerk_summary_data', JSON.stringify(summaryData));
+  console.log("Summary data saved to localStorage:", summaryData);
 }
 
-// Відстеження змін після обрахунку — MutationObserver
-const observe = new MutationObserver(autoSaveSummary);
-observe.observe(document.getElementById('tax-estimate'), { childList: true });
-observe.observe(document.getElementById('net-income'), { childList: true });
-  
+// Викликаємо одразу після обчислення
+document.getElementById("calculateBtn")?.addEventListener("click", function () {
+  calculate();
+  saveToLocalSummary();
+});
+    
 })();
 </script>
 </body>
