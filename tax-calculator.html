@@ -713,31 +713,35 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
-function saveToLocalSummary() {
-  const grossIncome = parseFloat(document.getElementById("gross-income").innerText.replace('€','') || 0);
-const expenses = parseFloat(document.getElementById("total-expenses").innerText.replace('€','') || 0);
-const taxEstimation = parseFloat(document.getElementById("tax-amount").innerText.replace('€','') || 0);
-const netIncome = parseFloat(document.getElementById("net-income").innerText.replace('€','') || 0);
-const kvk = document.getElementById("kvk-number").innerText || "--";
-const iban = document.getElementById("iban-number").innerText || "--";
+  function saveToLocalSummary() {
+    const getValue = (id) => {
+      const el = document.getElementById(id);
+      return el ? el.innerText.trim() : "–";
+    };
 
-const summaryData = {
-    grossIncome: grossIncome.toFixed(2),
-    expenses: expenses.toFixed(2),
-    taxEstimation: taxEstimation.toFixed(2),
-    netIncome: netIncome.toFixed(2),
-    kvk: kvk,
-    iban: iban
-  };
+    const grossIncome = parseFloat(getValue('gross-income')) || 0;
+    const expenses = parseFloat(getValue('total-expenses')) || 0;
+    const taxEstimation = parseFloat(getValue('tax-amount')) || 0;
+    const netIncome = parseFloat(getValue('net-income')) || 0;
+    const kvk = getValue('kvk-number');
+    const iban = getValue('iban-number');
 
-  localStorage.setItem('smartwerk_summary_data', JSON.stringify(summaryData));
-  console.log("Summary data saved to localStorage:", summaryData);
-}
+    const summaryData = {
+      grossIncome: grossIncome.toFixed(2),
+      expenses: expenses.toFixed(2),
+      taxEstimation: taxEstimation.toFixed(2),
+      netIncome: netIncome.toFixed(2),
+      kvk: kvk,
+      iban: iban
+    };
 
-// Викликаємо одразу після обчислення
-document.getElementById("btn-calc")?.addEventListener("click", function () {
-  saveToLocalSummary();
-});
+    localStorage.setItem('smartwerk_summary_data', JSON.stringify(summaryData));
+    console.log("✅ Summary saved:", summaryData);
+  }
+
+  document.getElementById('btn-calc')?.addEventListener('click', () => {
+    saveToLocalSummary();
+  });
     
 })();
 </script>
