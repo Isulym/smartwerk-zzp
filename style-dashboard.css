@@ -55,6 +55,26 @@ body {
   background-color: #007bff;
   color: #fff;
 }
+.sidebar .nav-link {
+  display: block;
+  padding: 12px 20px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  margin: 5px 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+  background-color: #1f3f66;
+  transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+  background-color: #1a73e8;
+  font-weight: bold;
+  box-shadow: inset 2px 0 0 #fff;
+}
 
 /* === Main Content === */
 .main-content {
