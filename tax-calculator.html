@@ -713,27 +713,26 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
-  // Функція збереження результату зі span-елементів
-  function saveToLocalSummary() {
-    const grossIncome = parseFloat(document.getElementById("gross-income")?.innerText) || 0;
-    const expenses = parseFloat(document.getElementById("total-expenses")?.innerText) || 0;
-    const taxEstimation = parseFloat(document.getElementById("tax-amount")?.innerText) || 0;
-    const netIncome = parseFloat(document.getElementById("net-income")?.innerText) || 0;
-    const kvk = document.getElementById("kvk-number")?.innerText || "-";
-    const iban = document.getElementById("iban-number")?.innerText || "-";
+ function saveToLocalSummary() {
+  const grossIncome = parseFloat(document.getElementById("gross-income")?.innerText) || 0;
+  const expenses = parseFloat(document.getElementById("totalExpenses")?.innerText) || 0;
+  const taxEstimation = parseFloat(document.getElementById("taxAmount")?.innerText) || 0;
+  const netIncome = parseFloat(document.getElementById("netIncome")?.innerText) || 0;
+  const kvk = document.getElementById("kvk-number")?.innerText || "--";
+  const iban = document.getElementById("iban-number")?.innerText || "--";
 
-    const summaryData = {
-      grossIncome: grossIncome.toFixed(2),
-      expenses: expenses.toFixed(2),
-      taxEstimation: taxEstimation.toFixed(2),
-      netIncome: netIncome.toFixed(2),
-      kvk: kvk,
-      iban: iban
-    };
+  const summaryData = {
+    grossIncome: grossIncome.toFixed(2),
+    expenses: expenses.toFixed(2),
+    taxEstimation: taxEstimation.toFixed(2),
+    netIncome: netIncome.toFixed(2),
+    kvk: kvk,
+    iban: iban,
+  };
 
-    localStorage.setItem('smartwerk_summary_data', JSON.stringify(summaryData));
-    console.log("✅ Summary saved:", summaryData);
-  }
+  localStorage.setItem("smartwerk_summary_data", JSON.stringify(summaryData));
+  console.log("✅ Summary saved:", summaryData);
+}
 
   // Прив’язуємо до кнопки
   document.getElementById("btn-calc")?.addEventListener("click", () => {
