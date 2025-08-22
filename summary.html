@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Summary – SmartWerk</title>
-  <link rel="stylesheet" href="style-summary.css">
+  <link rel="stylesheet" href="style-summary.css" />
 </head>
 <body>
+
   <div class="breadcrumbs">
     <a href="dashboard.html"><span>🏠</span> Dashboard</a>
     <span>/</span>
@@ -27,12 +28,14 @@
       <p>Live overview of your ZZP performance, tax & finances</p>
     </header>
 
-    <p><strong>💼 Gross Income</strong><br><span data-summary="gross-income">€0.00</span></p>
-    <p><strong>🧾 Expenses</strong><br><span data-summary="expenses">€0.00</span></p>
-    <p><strong>📊 Tax Estimation</strong><br><span data-summary="tax-estimation">€0.00</span></p>
-    <p><strong>💡 Net Income</strong><br><span data-summary="net-income">€0.00</span></p>
-    <p><strong>📁 KvK</strong><br><span data-summary="kvk">–</span></p>
-    <p><strong>🏦 IBAN</strong><br><span data-summary="iban">–</span></p>
+    <section class="summary-cards">
+      <p><strong>💼 Gross Income</strong><br><span id="grossIncome">€0.00</span></p>
+      <p><strong>🧾 Expenses</strong><br><span id="expenses">€0.00</span></p>
+      <p><strong>📊 Tax Estimation</strong><br><span id="taxEstimation">€0.00</span></p>
+      <p><strong>💡 Net Income</strong><br><span id="netIncome">€0.00</span></p>
+      <p><strong>📁 KvK</strong><br><span id="kvk">–</span></p>
+      <p><strong>🏦 IBAN</strong><br><span id="iban">–</span></p>
+    </section>
 
     <section class="summary-actions">
       <div class="left">
@@ -47,29 +50,29 @@
     </section>
   </main>
 
-  <!-- PDF library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
   <script>
-    // Load saved data
-    document.addEventListener('DOMContentLoaded', function () {
-      const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
-      if (savedData) {
-        document.querySelector('[data-summary="gross-income"]').innerText = '€' + savedData.grossIncome;
-        document.querySelector('[data-summary="expenses"]').innerText = '€' + savedData.expenses;
-        document.querySelector('[data-summary="tax-estimation"]').innerText = '€' + savedData.taxEstimation;
-        document.querySelector('[data-summary="net-income"]').innerText = '€' + savedData.netIncome;
-        document.querySelector('[data-summary="kvk"]').innerText = savedData.kvk;
-        document.querySelector('[data-summary="iban"]').innerText = savedData.iban;
+    // Підставлення даних із localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const data = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
+      if (data) {
+        document.getElementById('grossIncome').textContent = '€' + (data.grossIncome || '0.00');
+        document.getElementById('expenses').textContent = '€' + (data.expenses || '0.00');
+        document.getElementById('taxEstimation').textContent = '€' + (data.taxEstimation || '0.00');
+        document.getElementById('netIncome').textContent = '€' + (data.netIncome || '0.00');
+        document.getElementById('kvk').textContent = data.kvk || '–';
+        document.getElementById('iban').textContent = data.iban || '–';
       }
     });
 
     // Refresh button
-    document.getElementById('refreshBtn').addEventListener('click', () => location.reload());
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      location.reload();
+    });
 
     // Export PDF
     document.getElementById('exportBtn').addEventListener('click', () => {
-      const summary = document.querySelector('.main-panel');
+      const summaryElement = document.querySelector('.summary-cards');
       const opt = {
         margin: 0.5,
         filename: 'SmartWerk_Summary.pdf',
@@ -77,8 +80,9 @@
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
-      html2pdf().set(opt).from(summary).save();
+      html2pdf().set(opt).from(summaryElement).save();
     });
   </script>
+
 </body>
 </html>
