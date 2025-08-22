@@ -713,18 +713,14 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
+  // Функція збереження результату зі span-елементів
   function saveToLocalSummary() {
-    const getValue = (id) => {
-      const el = document.getElementById(id);
-      return el ? el.innerText.trim() : "–";
-    };
-
-    const grossIncome = parseFloat(getValue('gross-income')) || 0;
-    const expenses = parseFloat(getValue('total-expenses')) || 0;
-    const taxEstimation = parseFloat(getValue('tax-amount')) || 0;
-    const netIncome = parseFloat(getValue('net-income')) || 0;
-    const kvk = getValue('kvk-number');
-    const iban = getValue('iban-number');
+    const grossIncome = parseFloat(document.getElementById("gross-income")?.innerText) || 0;
+    const expenses = parseFloat(document.getElementById("total-expenses")?.innerText) || 0;
+    const taxEstimation = parseFloat(document.getElementById("tax-amount")?.innerText) || 0;
+    const netIncome = parseFloat(document.getElementById("net-income")?.innerText) || 0;
+    const kvk = document.getElementById("kvk-number")?.innerText || "-";
+    const iban = document.getElementById("iban-number")?.innerText || "-";
 
     const summaryData = {
       grossIncome: grossIncome.toFixed(2),
@@ -739,7 +735,8 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     console.log("✅ Summary saved:", summaryData);
   }
 
-  document.getElementById('btn-calc')?.addEventListener('click', () => {
+  // Прив’язуємо до кнопки
+  document.getElementById("btn-calc")?.addEventListener("click", () => {
     saveToLocalSummary();
   });
     
