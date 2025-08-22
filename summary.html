@@ -34,6 +34,7 @@
 <p><strong>💡 Net Income</strong><br><span data-summary="net-income">€0.00</span></p>
 <p><strong>📁 KvK</strong><br><span data-summary="kvk">–</span></p>
 <p><strong>🏦 IBAN</strong><br><span data-summary="iban">–</span></p>
+      
      <section class="summary-actions">
   <div class="left">
   <button id="refreshBtn">🔄 Refresh Summary</button>
@@ -72,10 +73,30 @@
 
     html2pdf().set(opt).from(summaryElement).save();
   });
-// При завантаженні сторінки — витягуємо збережені дані
-window.addEventListener('DOMContentLoaded', () => {
-  const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+// Кнопка "Refresh Summary"
+document.getElementById('refreshBtn')?.addEventListener('click', () => {
+  location.reload();
+});
+
+// Кнопка "Export as PDF"
+document.getElementById('exportBtn')?.addEventListener('click', () => {
+  const summaryElement = document.querySelector('.main-panel');
+  const opt = {
+    margin: 0.5,
+    filename: 'SmartWerk_Summary.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(summaryElement).save();
+});
+
+// При завантаженні сторінки — підставляємо збережені дані
+document.addEventListener('DOMContentLoaded', function () {
+  const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
   if (savedData) {
     document.querySelector('[data-summary="gross-income"]').innerText = '€' + savedData.grossIncome;
     document.querySelector('[data-summary="expenses"]').innerText = '€' + savedData.expenses;
@@ -85,6 +106,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('[data-summary="iban"]').innerText = savedData.iban;
   }
 });
+
     
 </script>
 </body>
