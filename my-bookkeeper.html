@@ -848,7 +848,7 @@ function renderListItem(li) {
     <button onclick="setStatus(this, 'rejected')">❌</button>
     <button onclick="setStatus(this, 'uploaded')">🔁</button>
     <button onclick="deleteFile(this)">🗑️</button>
-    <a href="#" onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</a>
+   <a href="#" onclick="downloadFile('${filename}'); return false;" class="download-btn">⬇️ Download</a>
     <br><span class="comment-label">💬 Note:</span>
     <input type="text" class="comment-input" placeholder="Add comment..." value="${comment || ''}" oninput="saveComment(this)">
   `;
