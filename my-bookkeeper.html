@@ -193,17 +193,31 @@
     <p id="ai-response" style="white-space: pre-wrap;"></p>
   </div>
 </section>
-    <section class="ai-question-box">
-  <h2>🧠 Ask SmartWerk AI</h2>
-  <label for="ai-question">Have a question about your documents?</label>
-  <textarea id="ai-question" placeholder="e.g. Can you explain my Q3 invoice or tax form?"></textarea>
-  <button id="askAiBtn">🤖 Ask AI</button>
+  <!-- AI Document Assistant -->
+<section class="ai-doc-assistant">
+  <h2>📂 Ask SmartWerk AI – Documents</h2>
 
-  <div id="ai-response" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; background: #f9f9f9;">
+  <label for="docAiQuestion">Have a question about your documents?</label>
+  <textarea id="docAiQuestion" placeholder="e.g. Can you explain my Q3 invoice or tax form?"></textarea>
+  <button id="docAiBtn">🤖 Ask AI</button>
+
+  <div id="docAiResponseBox" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; display: none;">
     <strong>AI Response:</strong>
-    <p id="aiAnswerText">–</p>
+    <p id="docAiAnswerText" style="white-space: pre-wrap;"></p>
   </div>
-</section
+</section>
+    <section class="ai-doc-frame">
+  <h2>🤖 Ask SmartWerk AI – Documents</h2>
+  <p>You can ask your accountant assistant about uploaded invoices, KvK, taxes and more.</p>
+
+  <iframe
+    src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls"
+    width="100%"
+    height="500"
+    frameborder="0"
+    style="border:1px solid #ccc; border-radius: 8px;">
+  </iframe>
+</section>
     
   </main>
 
@@ -643,26 +657,33 @@ function updateDate(index, newDate) {
 }
 </script>
 
-    <script>
+  <script>
+  document.getElementById('docAiBtn').addEventListener('click', function () {
+    const question = document.getElementById('docAiQuestion').value.trim();
+    const responseBox = document.getElementById('docAiResponseBox');
+    const responseText = document.getElementById('docAiAnswerText');
 
-  document.getElementById('askAiBtn').addEventListener('click', function () {
-  const question = document.getElementById('ai-question').value.trim();
-  const answerBox = document.getElementById('aiAnswerText');
+    if (!question) {
+      alert("Please enter your question.");
+      return;
+    }
 
-  if (!question) {
-    answerBox.textContent = 'Please enter your question first.';
-    return;
-  }
+    // Отримуємо поточну дату для відповіді
+    const today = new Date().toLocaleDateString('en-GB');
 
-  // Імітація відповіді AI (реальне API буде пізніше)
-  answerBox.textContent = 'Analyzing your document...';
+    // Заглушка відповіді – тут можна замінити на реальний AI fetch
+    let fakeResponse = `
+This document seems to relate to your Q3 income.
+Make sure the invoice date matches the tax reporting period.
+If it's related to VAT, double-check whether KOR is active.
 
-  setTimeout(() => {
-    // Тестова відповідь — у майбутньому тут буде інтеграція з ChatGPT/Chatbase
-    answerBox.textContent = `This document seems to relate to your Q3 income. Make sure the invoice date matches the tax reporting period. If it's related to VAT, double-check whether KOR is active.`;
-  }, 1500);
-});
-  </script>
+🗓️ Checked on: ${today}
+    `.trim();
+
+    responseText.innerText = fakeResponse;
+    responseBox.style.display = 'block';
+  });
+</script>
 
   
 </body>
