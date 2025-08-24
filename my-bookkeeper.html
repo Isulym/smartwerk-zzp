@@ -58,18 +58,20 @@
   </select>
 
   <!-- Таблиця -->
-  <table class="status-table">
-    <thead>
-      <tr>
-        <th>📄 Document</th>
-        <th>📅 Date</th>
-        <th>✅ Status</th>
-        <th>💬 Notes</th>
-        <th>⚙️ Actions</th>
-      </tr>
-    </thead>
-    <tbody id="documentStatusBody"></tbody>
-  </table>
+<table id="documentStatusTable">
+  <thead>
+    <tr>
+      <th>Document</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Note</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="documentStatusBody">
+    <!-- Рядки генеруються динамічно -->
+  </tbody>
+</table>
 </section>
 
     <!-- Tasks and Reminders -->
@@ -552,32 +554,39 @@ function clearAllData() {
     { name: "KvK Update", date: "2025-06-25", status: "❌ Missing", note: "Please upload document" }
   ];
 
-  function renderDocuments(filter = "all") {
-    const body = document.getElementById('documentStatusBody');
-    body.innerHTML = "";
+ function renderDocumentStatusList() {
+  const list = JSON.parse(localStorage.getItem('document_status_list')) || [];
+  const body = document.getElementById('documentStatusBody');
+  body.innerHTML = '';
 
-    docs.forEach((doc, index) => {
-      if (filter === "all" || doc.status === filter) {
-        const row = document.createElement('tr');
-        row.className = doc.status.includes("✅") ? "status-ok"
-                    : doc.status.includes("🔄") ? "status-review"
-                    : "status-missing";
+  list.forEach((doc, index) => {
+    const row = document.createElement('tr');
+    row.className = doc.status.toLowerCase(); // кольорова підсвітка
 
-        row.innerHTML = `
-          <td>${doc.name}</td>
-          <td>${doc.date}</td>
-          <td>${doc.status}</td>
-          <td contenteditable="true" onblur="updateNote(${index}, this.innerText)">${doc.note}</td>
-          <td>
-            <button onclick="markAsDone(${index})">✅ Done</button>
-            <button onclick="triggerUpload(${index})">📤 Upload</button>
-            <input type="file" style="display:none;" id="upload-${index}" onchange="handleUpload(${index}, this)" />
-          </td>
-        `;
-        body.appendChild(row);
-      }
-    });
-  }
+    row.innerHTML = `
+      <td>${doc.name}</td>
+      <td>${doc.status}</td>
+      <td>
+        <span>${doc.date}</span><br>
+        <input type="date" value="${doc.date}" onchange="updateDate(${index}, this.value)" />
+      </td>
+      <td>${doc.note || ''}</td>
+      <td>
+        <button onclick="markAsDone(${index})">✅ Done</button>
+        <button onclick="editNote(${index})">✏️ Note</button>
+        <button onclick="deleteStatus(${index})">🗑️ Delete</button>
+      </td>
+    `;
+    body.appendChild(row);
+  });
+}
+
+function updateDate(index, newDate) {
+  const list = JSON.parse(localStorage.getItem('document_status_list')) || [];
+  list[index].date = newDate;
+  localStorage.setItem('document_status_list', JSON.stringify(list));
+  renderDocumentStatusList();
+}
 
   function markAsDone(index) {
     docs[index].status = "✅ Uploaded";
@@ -606,6 +615,21 @@ function clearAllData() {
     });
     renderDocuments();
   });
+    function addDocumentStatus() {
+  const docName = prompt("Enter document name:");
+  if (!docName) return;
+
+  const list = JSON.parse(localStorage.getItem('document_status_list')) || [];
+  list.push({
+    name: docName,
+    status: 'Pending',
+    note: '',
+    date: new Date().toISOString().slice(0, 10) // формат YYYY-MM-DD
+  });
+
+  localStorage.setItem('document_status_list', JSON.stringify(list));
+  renderDocumentStatusList();
+}
 </script>
 
   
