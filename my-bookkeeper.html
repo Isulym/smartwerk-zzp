@@ -814,60 +814,46 @@ function askSmartWerkAI() {
 </script>
 
   <script>
-  let archive = JSON.parse(localStorage.getItem('documentArchive')) || [];
+function handleUpload() {
+  const files = document.getElementById('uploadField').files;
+  if (!files.length) return;
 
-  function handleUpload() {
-    const files = document.getElementById('uploadField').files;
-    if (!files.length) return;
-
-    for (let file of files) {
-      archive.push({
-        name: file.name,
-        status: 'uploaded',
-        date: new Date().toLocaleString()
-      });
-    }
-    saveArchive();
-    renderDocuments();
-  }
-
-  function renderDocuments(filter = 'all') {
-    const list = document.getElementById('documentList');
-    list.innerHTML = '';
-
-    archive.forEach((doc, index) => {
-      if (filter !== 'all' && doc.status !== filter) return;
-
-      const li = document.createElement('li');
-      li.className = `doc-row status-${doc.status}`;
-      li.innerHTML = `
-        <strong>${doc.name}</strong>
-        <span>(${doc.status})</span> – <em>${doc.date}</em>
-        <button onclick="setStatus(${index}, 'verified')">✅</button>
-        <button onclick="setStatus(${index}, 'rejected')">❌</button>
-        <button onclick="setStatus(${index}, 'uploaded')">🔄</button>
-      `;
-      list.appendChild(li);
+  for (let file of files) {
+    archive.push({
+      name: file.name,
+      status: 'uploaded',
+      uploadedAt: new Date().toLocaleString()
     });
   }
+  saveArchive();
+  renderDocuments();
+}
 
-  function setStatus(index, status) {
-    archive[index].status = status;
-    archive[index].date = new Date().toLocaleString();
-    saveArchive();
-    renderDocuments();
-  }
+function renderDocuments(filter = 'all') {
+  const list = document.getElementById('documentList');
+  list.innerHTML = '';
 
-  function filterDocuments(status) {
-    renderDocuments(status);
-  }
+  archive.forEach((doc, index) => {
+    if (filter !== 'all' && doc.status !== filter) return;
 
-  function saveArchive() {
-    localStorage.setItem('documentArchive', JSON.stringify(archive));
-  }
+    const li = document.createElement('li');
+    li.className = `doc-row status-${doc.status}`;
+    li.innerHTML = `
+      • <strong>${doc.name}</strong> (${doc.status}) – <em>${doc.uploadedAt}</em>
+      <button onclick="setStatus(${index}, 'verified')">✅</button>
+      <button onclick="setStatus(${index}, 'rejected')">❌</button>
+      <button onclick="setStatus(${index}, 'uploaded')">🔄</button>
+    `;
+    list.appendChild(li);
+  });
+}
 
-  // Ініціалізація
-  document.addEventListener('DOMContentLoaded', () => renderDocuments());
+function setStatus(index, status) {
+  archive[index].status = status;
+  // ✅ Ми більше НЕ оновлюємо дату:
+  saveArchive();
+  renderDocuments();
+}
 </script>
   
 </body>
