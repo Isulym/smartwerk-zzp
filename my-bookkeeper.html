@@ -87,6 +87,16 @@
   <canvas id="financeChart" style="max-width: 100%; height: 300px; margin-top: 2rem;"></canvas>
 </section>
 
+  <section class="kpi-dashboard">
+  <h2>📊 Business KPIs</h2>
+  <div class="kpi-cards">
+    <div class="kpi"><strong>🧮 Profit Margin:</strong> <span id="kpi-margin">--</span></div>
+    <div class="kpi"><strong>📈 Tax Ratio:</strong> <span id="kpi-tax-ratio">--</span></div>
+    <div class="kpi"><strong>📅 Avg Monthly Income:</strong> <span id="kpi-monthly-income">--</span></div>
+    <div class="kpi"><strong>💹 Growth Trend:</strong> <span id="kpi-growth">--</span></div>
+  </div>
+</section>
+
  <section id="document-comments">
   <h2>📝 Comments on Documents</h2>
 
@@ -369,6 +379,34 @@ SmartWerk AI suggests reviewing Q2 invoices and comparing it with expenses from 
   document.getElementById('ai-response-box').style.display = 'block';
 });
 </script>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', function () {
+  const data = JSON.parse(localStorage.getItem('smartwerk_summary_data')) || {};
+  const income = parseFloat(data.grossIncome) || 0;
+  const expenses = parseFloat(data.expenses) || 0;
+  const tax = parseFloat(data.taxEstimation) || 0;
+
+  // KPI Calculations
+  const profit = income - expenses - tax;
+  const margin = income > 0 ? ((profit / income) * 100).toFixed(1) + '%' : '--';
+  const taxRatio = income > 0 ? ((tax / income) * 100).toFixed(1) + '%' : '--';
+  const monthlyIncome = income > 0 ? '€' + (income / 12).toFixed(2) : '--';
+
+  // Growth Trend (dummy: just shows "Positive", "Flat", or "Declining")
+  let growth = '--';
+  if (income > 8000) growth = '📈 Positive';
+  else if (income > 3000) growth = '➖ Flat';
+  else if (income > 0) growth = '📉 Declining';
+
+  // Set to DOM
+  document.getElementById('kpi-margin').textContent = margin;
+  document.getElementById('kpi-tax-ratio').textContent = taxRatio;
+  document.getElementById('kpi-monthly-income').textContent = monthlyIncome;
+  document.getElementById('kpi-growth').textContent = growth;
+});
+  </script>
+
   
 </body>
 </html>
