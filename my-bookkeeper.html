@@ -284,15 +284,19 @@
     <button onclick="filterDocuments('uploaded')">🟡 Uploaded</button>
     <button onclick="filterDocuments('verified')">✅ Verified</button>
     <button onclick="filterDocuments('rejected')">❌ Rejected</button>
+    <button onclick="exportToPDF()">🧾 Export Archive as PDF</button>
   </div>
 
-  <!-- Поле завантаження -->
+  <!-- Завантаження -->
   <input type="file" id="uploadField" multiple />
   <button onclick="handleUpload()">📤 Upload</button>
-  <button onclick="exportToPDF()">🧾 Export Archive as PDF</button>
 
+  <!-- Список -->
   <ul id="documentList" class="document-list"></ul>
 </section>
+
+<!-- PDF-бібліотека -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
   </main>
 
@@ -821,36 +825,36 @@ function handleUpload() {
   const documentList = document.getElementById("documentList");
 
   for (let file of files) {
-    const reader = new FileReader();
+    const li = document.createElement("li");
+    li.dataset.filename = file.name;
+    li.dataset.status = "uploaded";
+    li.dataset.comment = "";
+    li.dataset.time = new Date().toLocaleString();
 
+    // Зберігаємо файл як base64
+    const reader = new FileReader();
     reader.onload = function () {
       const base64 = reader.result;
       localStorage.setItem(`file-${file.name}`, base64);
-
-      const li = document.createElement("li");
-      li.dataset.filename = file.name;
-      li.dataset.status = "uploaded";
-      li.dataset.comment = "";
-      li.dataset.time = new Date().toLocaleString();
-
-      renderListItem(li);
-      documentList.appendChild(li);
-      saveDocuments();
     };
+    reader.readAsDataURL(file);
 
-    reader.readAsDataURL(file); // ✅ обробка кожного файлу
+    renderListItem(li);
+    documentList.appendChild(li);
   }
+
+  saveDocuments();
 }
 
 function renderListItem(li) {
   const { filename, status, comment, time } = li.dataset;
   li.innerHTML = `
-  <strong>${filename}</strong> (${status}) – ${time || new Date().toLocaleString()}
+    <strong>${filename}</strong> (${status}) – ${time}
     <button onclick="setStatus(this, 'verified')">✅</button>
     <button onclick="setStatus(this, 'rejected')">❌</button>
     <button onclick="setStatus(this, 'uploaded')">🔁</button>
     <button onclick="deleteFile(this)">🗑️</button>
-    <button onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</button>
+    <a href="#" onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</a>
     <br><span class="comment-label">💬 Note:</span>
     <input type="text" class="comment-input" placeholder="Add comment..." value="${comment || ''}" oninput="saveComment(this)">
   `;
@@ -889,8 +893,8 @@ function saveDocuments() {
     data.push({
       filename: li.dataset.filename,
       status: li.dataset.status,
-      comment: li.dataset.comment,
-      time: li.dataset.time
+      comment: li.querySelector("input.comment-input")?.value || "",
+      time: li.dataset.time,
     });
   });
   localStorage.setItem("documentArchive", JSON.stringify(data));
@@ -900,7 +904,6 @@ function loadDocuments() {
   const saved = JSON.parse(localStorage.getItem("documentArchive") || "[]");
   const documentList = document.getElementById("documentList");
   documentList.innerHTML = "";
-
   saved.forEach((doc) => {
     const li = document.createElement("li");
     li.dataset.filename = doc.filename;
@@ -931,10 +934,10 @@ function exportToPDF() {
   const element = document.getElementById("documentList");
   const opt = {
     margin: 0.5,
-    filename: 'Document_Archive_SmartWerk.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
+    filename: "SmartWerk_Archive.pdf",
+    image: { type: "jpeg", quality: 0.98 },
     html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
   };
   html2pdf().set(opt).from(element).save();
 }
