@@ -275,7 +275,7 @@
   </iframe>
 </section>
 
-<!-- 📁 Upload Archive with Status Filters -->
+<!-- 📁 Upload Archive with Status Filters and Download -->
 <section class="upload-archive">
   <h2>📁 Upload Archive</h2>
 
@@ -285,9 +285,10 @@
     <button onclick="filterDocuments('uploaded')">🟡 Uploaded</button>
     <button onclick="filterDocuments('verified')">✅ Verified</button>
     <button onclick="filterDocuments('rejected')">❌ Rejected</button>
+    <button onclick="exportArchivePDF()">📤 Export Archive as PDF</button>
   </div>
 
-  <!-- Поле для завантаження -->
+  <!-- Завантаження -->
   <input type="file" id="uploadField" multiple />
   <button onclick="handleUpload()">📤 Upload</button>
 
@@ -813,6 +814,9 @@ function askSmartWerkAI() {
 }
 </script>
 
+<!-- PDF library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <script>
 function handleUpload() {
   const files = document.getElementById("uploadField").files;
@@ -821,12 +825,17 @@ function handleUpload() {
     const li = document.createElement("li");
     li.dataset.filename = file.name;
     li.dataset.status = "uploaded";
+    const timestamp = new Date().toLocaleString();
+    li.dataset.timestamp = timestamp;
+    li.dataset.comment = "";
+
     li.innerHTML = `
-      <strong>${file.name}</strong> (uploaded) – ${new Date().toLocaleString()}
+      <strong>${file.name}</strong> (uploaded) – ${timestamp}
       <button onclick="setStatus(this, 'verified')">✅</button>
       <button onclick="setStatus(this, 'rejected')">❌</button>
       <button onclick="resetStatus(this)">🔁</button>
       <button onclick="deleteFile(this)">🗑️</button>
+      <button onclick="downloadFile('${file.name}')">⬇️ Download</button>
       <br><span class="comment-label">💬 Note:</span>
       <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
     `;
@@ -873,8 +882,10 @@ function filterDocuments(status) {
 }
 
 function updateTimestamp(li) {
-  const textNode = li.childNodes[1];
-  textNode.textContent = ` (${li.dataset.status}) – ${new Date().toLocaleString()} `;
+  const timestamp = new Date().toLocaleString();
+  li.dataset.timestamp = timestamp;
+  const textNode = li.querySelector("strong").nextSibling;
+  textNode.textContent = ` (${li.dataset.status}) – ${timestamp} `;
 }
 
 function saveDocuments() {
@@ -884,7 +895,7 @@ function saveDocuments() {
       filename: li.dataset.filename,
       status: li.dataset.status,
       comment: li.querySelector("input.comment-input")?.value || "",
-      time: new Date().toLocaleString(),
+      timestamp: li.dataset.timestamp || new Date().toLocaleString(),
     });
   });
   localStorage.setItem("documentArchive", JSON.stringify(data));
@@ -897,17 +908,53 @@ function loadDocuments() {
     const li = document.createElement("li");
     li.dataset.filename = doc.filename;
     li.dataset.status = doc.status;
+    li.dataset.timestamp = doc.timestamp;
+    li.dataset.comment = doc.comment;
+
     li.innerHTML = `
-      <strong>${doc.filename}</strong> (${doc.status}) – ${doc.time}
+      <strong>${doc.filename}</strong> (${doc.status}) – ${doc.timestamp}
       <button onclick="setStatus(this, 'verified')">✅</button>
       <button onclick="setStatus(this, 'rejected')">❌</button>
       <button onclick="resetStatus(this)">🔁</button>
       <button onclick="deleteFile(this)">🗑️</button>
+      <button onclick="downloadFile('${doc.filename}')">⬇️ Download</button>
       <br><span class="comment-label">💬 Note:</span>
-      <input type="text" class="comment-input" placeholder="Add comment..." value="${doc.comment}" oninput="saveComment(this)">
+      <input type="text" class="comment-input" value="${doc.comment}" oninput="saveComment(this)">
     `;
     documentList.appendChild(li);
   });
+}
+
+function downloadFile(filename) {
+  alert("🧪 This is a simulated download: " + filename);
+  // У реальному випадку тут можна вказати посилання: window.open('/uploads/' + filename);
+}
+
+function exportArchivePDF() {
+  const archive = JSON.parse(localStorage.getItem("documentArchive") || "[]");
+
+  let html = `<h1>📁 SmartWerk Document Archive</h1><hr>`;
+  archive.forEach((doc, index) => {
+    html += `
+      <p><strong>📄 ${doc.filename}</strong><br>
+      ⏱️ ${doc.timestamp}<br>
+      🔖 Status: ${doc.status}<br>
+      💬 Comment: ${doc.comment || '—'}</p><hr>
+    `;
+  });
+
+  const element = document.createElement("div");
+  element.innerHTML = html;
+
+  const opt = {
+    margin: 0.5,
+    filename: 'SmartWerk_Archive.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save();
 }
 
 document.addEventListener("DOMContentLoaded", loadDocuments);
