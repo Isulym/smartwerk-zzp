@@ -1,126 +1,118 @@
+/* === GLOBAL RESET === */
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f9fafb;
+  background: linear-gradient(180deg, #f9fafb 0%, #eef2f7 100%);
   color: #1f2937;
   margin: 0;
   padding: 2rem;
   line-height: 1.6;
 }
-
+section {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease-in-out;
+}
+section:hover {
+  box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+}
 h1, h2, h3 {
   color: #111827;
-  margin-top: 2rem;
+  margin-top: 0;
 }
-
 h1 {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+h2 {
+  font-size: 1.6rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+.profile-status ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.profile-status li {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  padding: 0.5rem 0;
+}
+.profile-status li::before {
+  content: 'рџџў';
+  margin-right: 0.6rem;
+  font-size: 1.2rem;
+}
+.financial-summary p {
+  margin: 0.4rem 0;
+  font-size: 1.1rem;
+}
+.financial-summary span {
+  font-weight: bold;
+  color: #1e40af;
+}
+.tasks li {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 0.4rem;
 }
-
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0.25rem;
+.tasks li::before {
+  content: 'рџ“ќ';
 }
-
-a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-section {
-  margin-bottom: 2.5rem;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.profile-status ul,
-.tasks ul,
-.documents ul,
-.analytics-cards {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.profile-status li {
-  padding: 0.4rem 0;
-  font-weight: 500;
-}
-
-.profile-status li::before {
-  content: '✅';
-  margin-right: 0.5rem;
+.tasks li.done {
   color: #10b981;
+  font-weight: 600;
 }
-
-.financial-summary p {
-  font-size: 1.1rem;
-  margin: 0.5rem 0;
+.tasks li.pending {
+  color: #f59e0b;
+  font-weight: 600;
 }
-
-.financial-summary span {
-  font-weight: bold;
-  color: #111827;
-}
-
 .status-green {
-  background-color: #ecfdf5;
+  background-color: #d1fae5;
   color: #065f46;
-  padding: 0.25rem 0.75rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 0.5rem;
   font-weight: 500;
 }
-
-.status-yellow {
-  background-color: #fef9c3;
-  color: #92400e;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-}
-
 .status-red {
   background-color: #fee2e2;
   color: #991b1b;
-  padding: 0.25rem 0.75rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 0.5rem;
   font-weight: 500;
 }
-
-/* === BUTTONS === */
+.status-yellow {
+  background-color: #fef9c3;
+  color: #92400e;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
 button,
-input[type="submit"],
 .upload-btn,
 .export-btn {
   background-color: #2563eb;
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.2rem;
   font-weight: 600;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.6rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  margin-top: 0.5rem;
 }
-
 button:hover,
 .upload-btn:hover,
 .export-btn:hover {
   background-color: #1e40af;
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
-
-/* Inline buttons (Done, Upload, etc.) */
 .actions button,
 .actions a {
   background-color: #f3f4f6;
@@ -130,289 +122,80 @@ button:hover,
   font-size: 0.85rem;
   border-radius: 0.4rem;
   margin-right: 0.4rem;
-  transition: all 0.2s;
 }
-
 .actions button:hover,
 .actions a:hover {
   background-color: #e5e7eb;
   color: #111827;
 }
-
-/* === TO-DO / TASKS === */
-.tasks li {
-  margin: 0.4rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.tasks li::before {
-  content: '📝';
-  margin-right: 0.4rem;
-}
-
-/* Done + Pending styles */
-.tasks li.done {
-  color: #10b981;
-  font-weight: 600;
-}
-.tasks li.pending {
-  color: #f59e0b;
-  font-weight: 600;
-}
-
-/* === MESSAGES === */
 textarea {
   width: 100%;
-  min-height: 3rem;
-  padding: 0.5rem;
+  padding: 0.6rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
+  font-family: inherit;
   margin-top: 0.5rem;
   resize: vertical;
-  font-family: inherit;
 }
-
-.messages button {
-  margin-top: 0.5rem;
-}
-
-/* === ANALYTICS CARDS === */
 .analytics-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
 }
-
 .analytics-cards .card {
-  background: #f9fafb;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  padding: 1rem;
+  border-radius: 1rem;
+  padding: 1.2rem;
   text-align: center;
   font-weight: 600;
   color: #1f2937;
+  transition: 0.3s;
 }
-
-/* === KPI BAR === */
+.analytics-cards .card:hover {
+  background: #f0f9ff;
+  transform: scale(1.03);
+}
 .kpi-bar {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #065f46;
-  font-weight: 600;
-}
-
-/* === CHART CANVAS === */
-canvas {
-  margin-top: 1rem;
-  border-radius: 1rem;
-  background: #f9fafb;
-  padding: 1rem;
-}
-
-/* === SMART TIP === */
-.smart-tip {
-  margin-top: 2rem;
   background: #ecfdf5;
-  border-left: 4px solid #10b981;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  color: #065f46;
-  font-style: italic;
-}
-
-/* === AI Assistant Block === */
-.ai-block {
-  background-color: #f3f4f6;
-  padding: 1rem;
-  margin-top: 2rem;
+  border-left: 5px solid #10b981;
+  padding: 1.2rem;
   border-radius: 0.75rem;
-  border-left: 4px solid #3b82f6;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: #065f46;
 }
-
+canvas {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.smart-tip {
+  background: #fefce8;
+  border-left: 4px solid #facc15;
+  padding: 1rem;
+  border-radius: 0.6rem;
+  font-style: italic;
+  color: #92400e;
+  margin-top: 2rem;
+}
+.ai-block {
+  background: #eff6ff;
+  border-left: 5px solid #3b82f6;
+  padding: 1.2rem;
+  border-radius: 1rem;
+  margin-top: 2rem;
+}
 .ai-block h3 {
   margin-top: 0;
   color: #1e40af;
 }
-
 .ai-block input[type="text"] {
   width: 100%;
   padding: 0.6rem;
-  margin-top: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-}
-
-/* === BASE === */
-body {
-  font-family: 'Segoe UI', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f9fafb;
-  color: #1f2937;
-}
-
-h2, h3 {
-  color: #111827;
-  margin-bottom: 0.5rem;
-}
-
-section {
-  padding: 2rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-/* === BUTTONS === */
-button,
-input[type="submit"],
-.upload-btn,
-.export-btn {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  margin-top: 0.5rem;
-}
-
-button:hover,
-.upload-btn:hover,
-.export-btn:hover {
-  background-color: #1e40af;
-  transform: scale(1.02);
-}
-
-.actions button,
-.actions a {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.85rem;
-  border-radius: 0.4rem;
-  margin-right: 0.4rem;
-  transition: all 0.2s;
-}
-
-.actions button:hover,
-.actions a:hover {
-  background-color: #e5e7eb;
-  color: #111827;
-}
-
-/* === TO-DO / TASKS === */
-.tasks li {
-  margin: 0.4rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.tasks li::before {
-  content: '📝';
-  margin-right: 0.4rem;
-}
-
-.tasks li.done {
-  color: #10b981;
-  font-weight: 600;
-}
-
-.tasks li.pending {
-  color: #f59e0b;
-  font-weight: 600;
-}
-
-/* === MESSAGES === */
-textarea {
-  width: 100%;
-  min-height: 3rem;
-  padding: 0.5rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   margin-top: 0.5rem;
-  resize: vertical;
-  font-family: inherit;
-}
-
-.messages button {
-  margin-top: 0.5rem;
-}
-
-/* === ANALYTICS CARDS === */
-.analytics-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.analytics-cards .card {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  text-align: center;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-/* === KPI BAR === */
-.kpi-bar {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #065f46;
-  font-weight: 600;
-}
-
-/* === CHART CANVAS === */
-canvas {
-  margin-top: 1rem;
-  border-radius: 1rem;
-  background: #f9fafb;
-  padding: 1rem;
-}
-
-/* === SMART TIP === */
-.smart-tip {
-  margin-top: 2rem;
-  background: #ecfdf5;
-  border-left: 4px solid #10b981;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  color: #065f46;
-  font-style: italic;
-}
-
-/* === AI Assistant Block === */
-.ai-block {
-  background-color: #f3f4f6;
-  padding: 1rem;
-  margin-top: 2rem;
-  border-radius: 0.75rem;
-  border-left: 4px solid #3b82f6;
-}
-
-.ai-block h3 {
-  margin-top: 0;
-  color: #1e40af;
-}
-
-.ai-block input[type="text"] {
-  width: 100%;
-  padding: 0.6rem;
-  margin-top: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
 }
