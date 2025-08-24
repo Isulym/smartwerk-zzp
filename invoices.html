@@ -221,5 +221,81 @@ function filterInvoices(status) {
 // INIT
 loadInvoices();
   </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+function exportInvoiceAsPDF(invoiceData) {
+  const {
+    senderName,
+    senderKvK,
+    senderIBAN,
+    senderEmail,
+    receiverName,
+    receiverEmail,
+    invoiceNumber,
+    invoiceDate,
+    serviceDescription,
+    amount,
+    status,
+  } = invoiceData;
+
+  const vat = Math.round(amount * 0.21 * 100) / 100;
+  const total = Math.round((amount + vat) * 100) / 100;
+
+  const content = `
+    <div style="font-family:Arial, sans-serif; padding:30px; max-width:700px; margin:auto;">
+      <h1 style="text-align:center;">SmartWerk Invoice</h1>
+      <p><strong>From:</strong><br>
+        ${senderName}<br>
+        KvK: ${senderKvK}<br>
+        IBAN: ${senderIBAN}<br>
+        Email: ${senderEmail}</p>
+
+      <p><strong>To:</strong><br>
+        ${receiverName}<br>
+        Email: ${receiverEmail}</p>
+
+      <p><strong>Invoice Number:</strong> ${invoiceNumber}<br>
+         <strong>Date:</strong> ${invoiceDate}<br>
+         <strong>Status:</strong> ${status}</p>
+
+      <hr style="margin:20px 0;">
+
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f0f0f0;">
+            <th style="text-align:left; padding:10px; border-bottom:1px solid #ccc;">Description</th>
+            <th style="text-align:right; padding:10px; border-bottom:1px solid #ccc;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px;">${serviceDescription}</td>
+            <td style="text-align:right; padding:10px;">€${amount.toFixed(2)}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="padding:10px; text-align:right;"><strong>Subtotal:</strong></td>
+            <td style="padding:10px; text-align:right;">€${amount.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; text-align:right;"><strong>VAT (21%):</strong></td>
+            <td style="padding:10px; text-align:right;">€${vat.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; text-align:right;"><strong>Total:</strong></td>
+            <td style="padding:10px; text-align:right;"><strong>€${total.toFixed(2)}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p style="margin-top:40px;">Thank you for your business.</p>
+    </div>
+  `;
+
+  html2pdf().from(content).save(`invoice_${invoiceNumber}.pdf`);
+}
+</script>
 </body>
 </html>
