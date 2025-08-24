@@ -882,10 +882,20 @@ function filterDocuments(status) {
 }
 
 function updateTimestamp(li) {
-  const timestamp = new Date().toLocaleString();
-  li.dataset.timestamp = timestamp;
-  const textNode = li.querySelector("strong").nextSibling;
-  textNode.textContent = ` (${li.dataset.status}) – ${timestamp} `;
+  const filename = li.dataset.filename || "Unnamed file";
+  const status = li.dataset.status || "unknown";
+  const now = new Date().toLocaleString();
+
+  // Оновлюємо весь innerHTML заново
+  li.innerHTML = `
+    <strong>${filename}</strong> (${status}) – ${now}
+    <button onclick="setStatus(this, 'verified')">✅</button>
+    <button onclick="setStatus(this, 'rejected')">❌</button>
+    <button onclick="resetStatus(this)">🔁</button>
+    <button onclick="deleteFile(this)">🗑️</button>
+    <br><span class="comment-label">💬 Note:</span>
+    <input type="text" class="comment-input" placeholder="Add comment..." value="${li.dataset.comment || ''}" oninput="saveComment(this)">
+  `;
 }
 
 function saveDocuments() {
