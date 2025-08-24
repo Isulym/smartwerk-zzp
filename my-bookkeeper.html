@@ -179,18 +179,16 @@
   <button id="exportAnalyticsBtn">🧾 Export Analytics as PDF</button>
 </section>
 
-    <!-- Ask SmartWerk AI -->
-<section class="ai-assistant">
-  <h2>🤖 Ask SmartWerk AI</h2>
-  <p>You can ask anything about your taxes, income, or business finances:</p>
+  <!-- 🧾 Ask SmartWerk AI – Documents -->
+<section class="ai-doc-assistant">
+  <h2>🗂️ Ask SmartWerk AI – Documents</h2>
+  <label for="docAiQuestion">Have a question about your documents?</label>
+  <textarea id="docAiQuestion" placeholder="e.g. Can you explain my Q3 invoice or tax form?"></textarea>
+  <button id="docAiBtn">🧠 Ask AI</button>
 
-  <textarea id="ai-question" placeholder="e.g. How much tax will I pay this quarter?"></textarea>
-  <br>
-  <button id="askAiBtn">📤 Ask SmartWerk AI</button>
-
-  <div id="ai-response-box" style="display:none; margin-top:1rem;">
-    <strong>💬 Response:</strong>
-    <p id="ai-response" style="white-space: pre-wrap;"></p>
+  <div id="docAiResponseBox" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; display: none;">
+    <strong>AI Response:</strong>
+    <p id="docAiAnswerText" style="white-space: pre-wrap;"></p>
   </div>
 </section>
   <!-- AI Document Assistant -->
@@ -658,31 +656,45 @@ function updateDate(index, newDate) {
 </script>
 
   <script>
-  document.getElementById('docAiBtn').addEventListener('click', function () {
-    const question = document.getElementById('docAiQuestion').value.trim();
-    const responseBox = document.getElementById('docAiResponseBox');
-    const responseText = document.getElementById('docAiAnswerText');
+document.getElementById("docAiBtn").addEventListener("click", function () {
+  const question = document.getElementById("docAiQuestion").value.toLowerCase();
+  const responseBox = document.getElementById("docAiResponseBox");
+  const answerText = document.getElementById("docAiAnswerText");
 
-    if (!question) {
-      alert("Please enter your question.");
-      return;
-    }
+  let answer = "";
+  let limited = false;
 
-    // Отримуємо поточну дату для відповіді
-    const today = new Date().toLocaleDateString('en-GB');
+  if (question.includes("gross")) {
+    answer = `💶 <b>Gross Income</b> is your total earnings before taxes and deductions.`;
+    limited = true;
+  } else if (question.includes("kvk")) {
+    answer = `🏛️ <b>KvK</b> is your registration with the Dutch Chamber of Commerce. Required for all freelancers in NL.`;
+    limited = true;
+  } else if (question.includes("btw") || question.includes("vat")) {
+    answer = `🧾 <b>BTW (VAT)</b> is the tax you add to your invoices. If KOR is active, you might be exempt.`;
+    limited = true;
+  } else {
+    answer = `🤖 This document seems to relate to your business finances.<br>Please check if it matches the tax period or upload date.`;
+  }
 
-    // Заглушка відповіді – тут можна замінити на реальний AI fetch
-    let fakeResponse = `
-This document seems to relate to your Q3 income.
-Make sure the invoice date matches the tax reporting period.
-If it's related to VAT, double-check whether KOR is active.
+  // If it's a limited (free) topic
+  if (limited) {
+    answer += `<br><br>🔒 <i>This is a <b>limited SmartWerk AI preview</b>.</i><br>
+    Unlock full access to:
+    <ul>
+      <li>💼 Detailed freelance tax guidance</li>
+      <li>📄 Smart invoice checks</li>
+      <li>📊 KOR/BTW optimization tips</li>
+      <li>💬 Unlimited AI questions</li>
+    </ul>
+    👉 <b>Upgrade to PRO</b> in your dashboard to unlock all features.`;
+  }
 
-🗓️ Checked on: ${today}
-    `.trim();
+  answer += `<br><br>🗓️ <i>Checked on: ${new Date().toLocaleDateString()}</i>`;
 
-    responseText.innerText = fakeResponse;
-    responseBox.style.display = 'block';
-  });
+  answerText.innerHTML = answer;
+  responseBox.style.display = "block";
+});
 </script>
 
   
