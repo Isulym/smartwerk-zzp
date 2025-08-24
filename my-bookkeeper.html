@@ -275,25 +275,24 @@
   </iframe>
 </section>
 
-<section id="upload-archive">
+<!-- 📁 Upload Archive with Status Filters -->
+<section class="upload-archive">
   <h2>📁 Upload Archive</h2>
 
-  <input type="file" id="archiveUpload" multiple />
-  <p class="tip">You can upload multiple files (PDF, JPG, DOCX etc.)</p>
+  <!-- Фільтрація -->
+  <div class="filter-controls">
+    <button onclick="filterDocuments('all')">📋 All</button>
+    <button onclick="filterDocuments('uploaded')">🟡 Uploaded</button>
+    <button onclick="filterDocuments('verified')">✅ Verified</button>
+    <button onclick="filterDocuments('rejected')">❌ Rejected</button>
+  </div>
 
-  <table id="archiveTable">
-    <thead>
-      <tr>
-        <th>📄 File</th>
-        <th>📂 Type</th>
-        <th>📅 Date</th>
-        <th>📝 Note</th>
-        <th>🔖 Status</th>
-        <th>⚙️ Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <!-- Поле для завантаження -->
+  <input type="file" id="uploadField" multiple />
+  <button onclick="handleUpload()">📤 Upload</button>
+
+  <!-- Список документів -->
+  <ul id="documentList" class="document-list"></ul>
 </section>
     
   </main>
@@ -814,78 +813,62 @@ function askSmartWerkAI() {
 }
 </script>
 
-  <script>
-let uploadedFiles = JSON.parse(localStorage.getItem('upload_archive')) || [];
+ script>
+  let archive = JSON.parse(localStorage.getItem('documentArchive')) || [];
 
-function renderArchive() {
-  const table = document.querySelector('#archiveTable tbody');
-  table.innerHTML = '';
+  function handleUpload() {
+    const files = document.getElementById('uploadField').files;
+    if (!files.length) return;
 
-  uploadedFiles.forEach((file, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${file.name}</td>
-      <td>${file.type}</td>
-      <td>${file.date}</td>
-      <td><input type="text" value="${file.note || ''}" onchange="updateNote(${index}, this.value)" placeholder="Add note..."/></td>
-      <td>${file.status}</td>
-      <td>
-        <button onclick="downloadFile(${index})">⬇️</button>
-        <button onclick="deleteFile(${index})">🗑️</button>
-      </td>
-    `;
-    table.appendChild(row);
-  });
-}
-
-function updateNote(index, note) {
-  uploadedFiles[index].note = note;
-  localStorage.setItem('upload_archive', JSON.stringify(uploadedFiles));
-}
-
-function deleteFile(index) {
-  if (confirm('Are you sure?')) {
-    uploadedFiles.splice(index, 1);
-    localStorage.setItem('upload_archive', JSON.stringify(uploadedFiles));
-    renderArchive();
-  }
-}
-
-function downloadFile(index) {
-  const file = uploadedFiles[index];
-  const link = document.createElement('a');
-  link.href = file.data;
-  link.download = file.name;
-  link.click();
-}
-
-document.getElementById('archiveUpload').addEventListener('change', function (event) {
-  const files = Array.from(event.target.files);
-  const now = new Date().toLocaleString();
-
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      uploadedFiles.push({
+    for (let file of files) {
+      archive.push({
         name: file.name,
-        type: file.type || 'unknown',
-        date: now,
-        status: 'Uploaded',
-        data: e.target.result,
-        note: ''
+        status: 'uploaded',
+        date: new Date().toLocaleString()
       });
-      localStorage.setItem('upload_archive', JSON.stringify(uploadedFiles));
-      renderArchive();
-    };
-    reader.readAsDataURL(file);
-  });
+    }
+    saveArchive();
+    renderDocuments();
+  }
 
-  event.target.value = ''; // Reset
-});
+  function renderDocuments(filter = 'all') {
+    const list = document.getElementById('documentList');
+    list.innerHTML = '';
 
-document.addEventListener('DOMContentLoaded', renderArchive);
+    archive.forEach((doc, index) => {
+      if (filter !== 'all' && doc.status !== filter) return;
+
+      const li = document.createElement('li');
+      li.className = `doc-row status-${doc.status}`;
+      li.innerHTML = `
+        <strong>${doc.name}</strong>
+        <span>(${doc.status})</span> – <em>${doc.date}</em>
+        <button onclick="setStatus(${index}, 'verified')">✅</button>
+        <button onclick="setStatus(${index}, 'rejected')">❌</button>
+        <button onclick="setStatus(${index}, 'uploaded')">🔄</button>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  function setStatus(index, status) {
+    archive[index].status = status;
+    archive[index].date = new Date().toLocaleString();
+    saveArchive();
+    renderDocuments();
+  }
+
+  function filterDocuments(status) {
+    renderDocuments(status);
+  }
+
+  function saveArchive() {
+    localStorage.setItem('documentArchive', JSON.stringify(archive));
+  }
+
+  // Ініціалізація
+  document.addEventListener('DOMContentLoaded', () => renderDocuments());
 </script>
-
   
 </body>
 </html>
