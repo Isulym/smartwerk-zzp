@@ -1,4 +1,4 @@
-<html lang="en">
+  <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -850,7 +850,7 @@ function renderListItem(li) {
     <button onclick="setStatus(this, 'rejected')">❌</button>
     <button onclick="setStatus(this, 'uploaded')">🔁</button>
     <button onclick="deleteFile(this)">🗑️</button>
-    <a href="#" onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</a>
+   <a href="#" onclick="downloadFile(event, '${filename}')" class="download-btn">⬇️ Download</a>
     <br><span class="comment-label">💬 Note:</span>
     <input type="text" class="comment-input" placeholder="Add comment..." value="${comment || ''}" oninput="saveComment(this)">
   `;
@@ -885,12 +885,15 @@ function filterDocuments(status) {
   });
 }
 
-function downloadFile(name) {
+function downloadFile(event, name) {
+  event.preventDefault(); // <– Це головне, що блокує scroll
+
   const dataUrl = localStorage.getItem(`file-${name}`);
   if (!dataUrl) {
     alert("This file is not available for download.");
     return;
   }
+
   const a = document.createElement("a");
   a.href = dataUrl;
   a.download = name;
@@ -898,7 +901,7 @@ function downloadFile(name) {
   a.click();
   document.body.removeChild(a);
 }
-
+  
 function exportToPDF() {
   const element = document.getElementById("documentList");
   const opt = {
