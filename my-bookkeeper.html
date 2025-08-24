@@ -274,6 +274,27 @@
     style="border:1px solid #ccc; border-radius: 8px;">
   </iframe>
 </section>
+
+<section id="upload-archive">
+  <h2>📁 Upload Archive</h2>
+
+  <input type="file" id="archiveUpload" multiple />
+  <p class="tip">You can upload multiple files (PDF, JPG, DOCX etc.)</p>
+
+  <table id="archiveTable">
+    <thead>
+      <tr>
+        <th>📄 File</th>
+        <th>📂 Type</th>
+        <th>📅 Date</th>
+        <th>📝 Note</th>
+        <th>🔖 Status</th>
+        <th>⚙️ Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
     
   </main>
 
@@ -791,6 +812,78 @@ function askSmartWerkAI() {
   localStorage.setItem('ai_used', used + 1);
   window.open('https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls', '_blank');
 }
+</script>
+
+  <script>
+let uploadedFiles = JSON.parse(localStorage.getItem('upload_archive')) || [];
+
+function renderArchive() {
+  const table = document.querySelector('#archiveTable tbody');
+  table.innerHTML = '';
+
+  uploadedFiles.forEach((file, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${file.name}</td>
+      <td>${file.type}</td>
+      <td>${file.date}</td>
+      <td><input type="text" value="${file.note || ''}" onchange="updateNote(${index}, this.value)" placeholder="Add note..."/></td>
+      <td>${file.status}</td>
+      <td>
+        <button onclick="downloadFile(${index})">⬇️</button>
+        <button onclick="deleteFile(${index})">🗑️</button>
+      </td>
+    `;
+    table.appendChild(row);
+  });
+}
+
+function updateNote(index, note) {
+  uploadedFiles[index].note = note;
+  localStorage.setItem('upload_archive', JSON.stringify(uploadedFiles));
+}
+
+function deleteFile(index) {
+  if (confirm('Are you sure?')) {
+    uploadedFiles.splice(index, 1);
+    localStorage.setItem('upload_archive', JSON.stringify(uploadedFiles));
+    renderArchive();
+  }
+}
+
+function downloadFile(index) {
+  const file = uploadedFiles[index];
+  const link = document.createElement('a');
+  link.href = file.data;
+  link.download = file.name;
+  link.click();
+}
+
+document.getElementById('archiveUpload').addEventListener('change', function (event) {
+  const files = Array.from(event.target.files);
+  const now = new Date().toLocaleString();
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      uploadedFiles.push({
+        name: file.name,
+        type: file.type || 'unknown',
+        date: now,
+        status: 'Uploaded',
+        data: e.target.result,
+        note: ''
+      });
+      localStorage.setItem('upload_archive', JSON.stringify(uploadedFiles));
+      renderArchive();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  event.target.value = ''; // Reset
+});
+
+document.addEventListener('DOMContentLoaded', renderArchive);
 </script>
 
   
