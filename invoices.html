@@ -3,31 +3,125 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Invoices – SmartWerk</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoices & Documents | SmartWerk</title>
+  <link rel="stylesheet" href="style-invoices.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>📄 Create and understand invoices as a ZZP</h1>
-    <p>Everything you need to create, send, and understand invoices in the Netherlands.</p>
+  <main>
+    <h1>🧾 Invoices & Documents</h1>
 
-    <div class="buttons">
-      <a href="#" class="button">📄 Download Example PDF Invoice</a>
-      <a href="#" class="button">✏️ Create your invoice (Beta)</a>
-      <a href="#" class="button">🤖 Ask SmartWerk AI about invoices</a>
-    </div>
+    <!-- ➕ Add New Invoice Form -->
+    <section class="add-invoice">
+      <h2>➕ Add Invoice</h2>
+      <form id="invoiceForm">
+        <input type="text" id="client" placeholder="Client Name" required />
+        <input type="text" id="description" placeholder="Description" required />
+        <input type="number" id="amount" placeholder="Amount (EUR)" required />
+        <input type="date" id="dueDate" required />
+        <select id="status">
+          <option value="draft">📝 Draft</option>
+          <option value="sent">📤 Sent</option>
+          <option value="paid">✅ Paid</option>
+        </select>
+        <button type="submit">Add Invoice</button>
+      </form>
+    </section>
 
-    <hr>
+    <!-- 🔍 Filters -->
+    <section class="filter-controls">
+      <h2>🔍 Filter by Status</h2>
+      <button onclick="filterInvoices('all')">📋 All</button>
+      <button onclick="filterInvoices('draft')">📝 Draft</button>
+      <button onclick="filterInvoices('sent')">📤 Sent</button>
+      <button onclick="filterInvoices('paid')">✅ Paid</button>
+      <button onclick="filterInvoices('overdue')">⏰ Overdue</button>
+      <button onclick="filterInvoices('canceled')">❌ Canceled</button>
+    </section>
 
-    <h2>📚 Useful Guides</h2>
-    <ul>
-      <li><strong>What must be on an invoice?</strong> – Required fields like KvK, BTW, IBAN</li>
-      <li><strong>How to send invoices as a ZZP</strong> – Email, PDF, with tips</li>
-      <li><strong>KvK, BTW, IBAN</strong> – Short and clear explanation</li>
-      <li><strong>When to send your invoice?</strong> – Timing and payment terms</li>
-      <li><strong>Can you invoice without KvK?</strong> – Explained with examples</li>
-    </ul>
-  </div>
+    <!-- 📑 Invoice List -->
+    <section>
+      <h2>📑 Your Invoices</h2>
+      <ul id="invoiceList"></ul>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("invoiceForm");
+    const invoiceList = document.getElementById("invoiceList");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const invoice = {
+        id: Date.now(),
+        client: form.client.value,
+        description: form.description.value,
+        amount: form.amount.value,
+        dueDate: form.dueDate.value,
+        status: form.status.value,
+      };
+      saveInvoice(invoice);
+      form.reset();
+    });
+
+    function saveInvoice(invoice) {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      invoices.push(invoice);
+      localStorage.setItem("invoices", JSON.stringify(invoices));
+      renderInvoices();
+    }
+
+    function renderInvoices(filter = "all") {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      invoiceList.innerHTML = "";
+      invoices.forEach((invoice) => {
+        if (filter === "all" || invoice.status === filter) {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${invoice.client}</strong> – €${invoice.amount} <br>
+            ${invoice.description} | Due: ${invoice.dueDate} | <span>${invoice.status}</span><br>
+            <button onclick="markAsPaid(${invoice.id})">✅</button>
+            <button onclick="editInvoice(${invoice.id})">✏️</button>
+            <button onclick="deleteInvoice(${invoice.id})">🗑️</button>
+          `;
+          invoiceList.appendChild(li);
+        }
+      });
+    }
+
+    function deleteInvoice(id) {
+      let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      invoices = invoices.filter((inv) => inv.id !== id);
+      localStorage.setItem("invoices", JSON.stringify(invoices));
+      renderInvoices();
+    }
+
+    function markAsPaid(id) {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      const updated = invoices.map((inv) => {
+        if (inv.id === id) inv.status = "paid";
+        return inv;
+      });
+      localStorage.setItem("invoices", JSON.stringify(updated));
+      renderInvoices();
+    }
+
+    function editInvoice(id) {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      const invoice = invoices.find((inv) => inv.id === id);
+      form.client.value = invoice.client;
+      form.description.value = invoice.description;
+      form.amount.value = invoice.amount;
+      form.dueDate.value = invoice.dueDate;
+      form.status.value = invoice.status;
+      deleteInvoice(id);
+    }
+
+    function filterInvoices(status) {
+      renderInvoices(status);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => renderInvoices());
+  </script>
 </body>
 </html>
