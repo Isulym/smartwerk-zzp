@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,6 +19,7 @@
       <p>Manage your business documents, communication, and accounting tasks in one place.</p>
     </header>
 
+    <!-- Profile Status -->
     <section class="profile-status">
       <h2>📋 Profile Status</h2>
       <ul>
@@ -29,6 +29,7 @@
       </ul>
     </section>
 
+    <!-- Financial Overview -->
     <section class="financial-overview">
       <h2>📊 Financial Summary</h2>
       <p><strong>Gross Income:</strong> <span id="bk-gross">€0.00</span></p>
@@ -37,12 +38,14 @@
       <p><strong>Net Income:</strong> <span id="bk-net">€0.00</span></p>
     </section>
 
+    <!-- Document Upload Area -->
     <section class="documents">
       <h2>📁 Documents</h2>
       <p>Upload your receipts, invoices, and contracts below:</p>
       <input type="file" id="upload-docs" multiple />
     </section>
 
+    <!-- Tasks and Reminders -->
     <section class="tasks">
       <h2>📌 To‑Do / Tasks</h2>
       <ul>
@@ -52,17 +55,20 @@
       </ul>
     </section>
 
+    <!-- Messages -->
     <section class="messages">
       <h2>💬 Messages</h2>
       <textarea placeholder="Type your message to your bookkeeper..."></textarea>
       <button>📩 Send</button>
     </section>
 
+    <!-- Invoices Section -->
     <section class="invoices">
       <h2>📄 Invoices</h2>
       <p><a href="invoices.html">Go to invoice center</a></p>
     </section>
 
+    <!-- Export & Settings -->
     <section class="export">
       <h2>⚙️ Settings & Export</h2>
       <button>🧾 Export My Report (PDF)</button>
@@ -70,50 +76,258 @@
     </section>
 
     <section class="analytics-section">
-      <h2>📊 Analytics Overview</h2>
-      <div class="analytics-cards">
-        <div class="card"><strong>💼 Total Income</strong><p id="analytics-income">€0.00</p></div>
-        <div class="card"><strong>🧾 Total Expenses</strong><p id="analytics-expenses">€0.00</p></div>
-        <div class="card"><strong>💸 Estimated Tax</strong><p id="analytics-tax">€0.00</p></div>
-        <div class="card"><strong>💰 Net Profit</strong><p id="analytics-profit">€0.00</p></div>
-      </div>
-      <canvas id="financeChart" style="max-width: 100%; height: 300px; margin-top: 2rem;"></canvas>
-    </section>
+  <h2>📊 Analytics Overview</h2>
+  <div class="analytics-cards">
+    <div class="card"><strong>💼 Total Income</strong><p id="analytics-income">€0.00</p></div>
+    <div class="card"><strong>🧾 Total Expenses</strong><p id="analytics-expenses">€0.00</p></div>
+    <div class="card"><strong>💸 Estimated Tax</strong><p id="analytics-tax">€0.00</p></div>
+    <div class="card"><strong>💰 Net Profit</strong><p id="analytics-profit">€0.00</p></div>
+  </div>
 
-    <section id="document-comments">
-      <h2>📝 Comments on Documents</h2>
-      <label for="documentName">Document name:</label>
-      <input type="text" id="documentName" placeholder="e.g. Invoice Q3" />
-      <label for="commentText">Your comment:</label>
-      <textarea id="commentText" placeholder="Add your comment..."></textarea>
-      <button id="saveCommentBtn">💾 Save Comment</button>
-      <button id="updateCommentBtn" style="display:none;">✅ Update Comment</button>
-      <h3>📂 Saved Comments</h3>
-      <ul id="commentsList"></ul>
-    </section>
+  <canvas id="financeChart" style="max-width: 100%; height: 300px; margin-top: 2rem;"></canvas>
+</section>
 
-    <section class="financial-analytics">
-      <h2>📈 Financial Analytics</h2>
-      <label for="analyticsPeriod">Select period:</label>
-      <select id="analyticsPeriod">
-        <option value="6m">Last 6 months</option>
-        <option value="q1">Q1 (Jan–Mar)</option>
-        <option value="q2">Q2 (Apr–Jun)</option>
-        <option value="q3">Q3 (Jul–Sep)</option>
-        <option value="q4">Q4 (Oct–Dec)</option>
-        <option value="year">Full Year</option>
-      </select>
-      <canvas id="netIncomeChart" height="200"></canvas>
-      <div class="ai-insight-box">
-        <strong>💡 Smart Tip:</strong>
-        <p id="aiTipText">Your business is stable. Keep tracking expenses to improve margin.</p>
-      </div>
-      <button id="exportAnalyticsBtn">🧾 Export Analytics as PDF</button>
-    </section>
+ <section id="document-comments">
+  <h2>📝 Comments on Documents</h2>
+
+  <label for="documentName">Document name:</label>
+  <input type="text" id="documentName" placeholder="e.g. Invoice Q3">
+
+  <label for="commentText">Your comment:</label>
+  <textarea id="commentText" placeholder="Add your comment..."></textarea>
+
+  <button id="saveCommentBtn" onclick="saveComment()">💾 Save Comment</button>
+  <button id="updateCommentBtn" onclick="updateComment()" style="display:none;">✅ Update Comment</button>
+
+  <h3>📂 Saved Comments</h3>
+  <ul id="commentsList"></ul>
+</section>
+
+  <section class="financial-analytics">
+  <h2>📈 Financial Analytics</h2>
+
+  <!-- Період -->
+  <label for="analyticsPeriod">Select period:</label>
+  <select id="analyticsPeriod">
+    <option value="6m">Last 6 months</option>
+    <option value="q1">Q1 (Jan–Mar)</option>
+    <option value="q2">Q2 (Apr–Jun)</option>
+    <option value="q3">Q3 (Jul–Sep)</option>
+    <option value="q4">Q4 (Oct–Dec)</option>
+    <option value="year">Full Year</option>
+  </select>
+
+  <!-- Графік -->
+  <canvas id="netIncomeChart" height="200"></canvas>
+
+  <!-- AI-порада -->
+  <div class="ai-insight-box">
+    <strong>💡 Smart Tip:</strong>
+    <p id="aiTipText">Your business is stable. Keep tracking expenses to improve margin.</p>
+  </div>
+
+  <!-- Кнопка експорту -->
+  <button id="exportAnalyticsBtn">🧾 Export Analytics as PDF</button>
+</section>
+    
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="js/bookkeeper.js"></script>
+  
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
+
+    if (savedData) {
+      const income = parseFloat(savedData.grossIncome) || 0;
+      const expenses = parseFloat(savedData.expenses) || 0;
+      const tax = parseFloat(savedData.taxEstimation) || 0;
+      const profit = income - expenses - tax;
+
+      document.getElementById('analytics-income').textContent = '€' + income.toFixed(2);
+      document.getElementById('analytics-expenses').textContent = '€' + expenses.toFixed(2);
+      document.getElementById('analytics-tax').textContent = '€' + tax.toFixed(2);
+      document.getElementById('analytics-profit').textContent = '€' + profit.toFixed(2);
+    } else {
+      document.getElementById('analytics-income').textContent = 'No data';
+      document.getElementById('analytics-expenses').textContent = 'No data';
+      document.getElementById('analytics-tax').textContent = 'No data';
+      document.getElementById('analytics-profit').textContent = 'No data';
+    }
+  });
+  </script>
+
+  <script>
+  let editingIndex = null;
+
+  document.addEventListener('DOMContentLoaded', loadComments);
+
+  function saveComment() {
+    const name = document.getElementById('documentName').value.trim();
+    const comment = document.getElementById('commentText').value.trim();
+
+    if (!name || !comment) {
+      alert("Please fill in both fields");
+      return;
+    }
+
+    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
+    comments.push({ name, comment, date: new Date().toLocaleString() });
+    localStorage.setItem('document_comments', JSON.stringify(comments));
+
+    clearForm();
+    loadComments();
+  }
+
+  function loadComments() {
+    const list = document.getElementById('commentsList');
+    list.innerHTML = '';
+
+    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
+    comments.forEach(({ name, comment, date }, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${name}</strong> – ${comment} <em>(${date})</em>
+        <button onclick="editComment(${index})">✏️ Edit</button>
+        <button onclick="deleteComment(${index})">🗑️ Delete</button>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  function deleteComment(index) {
+    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
+    comments.splice(index, 1);
+    localStorage.setItem('document_comments', JSON.stringify(comments));
+    loadComments();
+    clearForm();
+  }
+
+  function editComment(index) {
+    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
+    const { name, comment } = comments[index];
+    document.getElementById('documentName').value = name;
+    document.getElementById('commentText').value = comment;
+
+    editingIndex = index;
+    document.getElementById('saveCommentBtn').style.display = 'none';
+    document.getElementById('updateCommentBtn').style.display = 'inline-block';
+  }
+
+  function updateComment() {
+    const name = document.getElementById('documentName').value.trim();
+    const comment = document.getElementById('commentText').value.trim();
+
+    if (!name || !comment) {
+      alert("Please fill in both fields");
+      return;
+    }
+
+    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
+    comments[editingIndex] = { name, comment, date: new Date().toLocaleString() };
+    localStorage.setItem('document_comments', JSON.stringify(comments));
+
+    editingIndex = null;
+    clearForm();
+    loadComments();
+  }
+
+  function clearForm() {
+    document.getElementById('documentName').value = '';
+    document.getElementById('commentText').value = '';
+    document.getElementById('saveCommentBtn').style.display = 'inline-block';
+    document.getElementById('updateCommentBtn').style.display = 'none';
+  }
+</script>
+  
+ <!-- Підключення бібліотек -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+<script>
+const chartCtx = document.getElementById('netIncomeChart').getContext('2d');
+let chart;
+
+function renderChart(data, labels) {
+  if (chart) chart.destroy();
+  chart = new Chart(chartCtx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Net Income',
+        data: data,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: 'Net Income Trend' } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: value => '€' + value
+          }
+        }
+      }
+    }
+  });
+}
+
+// Фіктивні дані
+const periods = {
+  '6m': {
+    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+    data: [1200, 1600, 1800, 2400, 2100, 2700],
+    tip: 'Strong growth over the last 6 months. Great work!'
+  },
+  'q1': {
+    labels: ['Jan', 'Feb', 'Mar'],
+    data: [1000, 1200, 1500],
+    tip: 'Q1 was consistent. Try to reduce operational costs.'
+  },
+  'q2': {
+    labels: ['Apr', 'May', 'Jun'],
+    data: [1600, 1800, 2400],
+    tip: 'Solid performance in Q2. Revenue increased steadily.'
+  },
+  'year': {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+    data: [1000, 1100, 1400, 1600, 1800, 2000, 2200, 2500],
+    tip: 'Your income trend is positive. Keep tracking expenses closely.'
+  }
+};
+
+// Початкове завантаження
+renderChart(periods['6m'].data, periods['6m'].labels);
+document.getElementById('aiTipText').innerText = periods['6m'].tip;
+
+// Зміна періоду
+document.getElementById('analyticsPeriod').addEventListener('change', function () {
+  const selected = this.value;
+  const periodData = periods[selected];
+  renderChart(periodData.data, periodData.labels);
+  document.getElementById('aiTipText').innerText = periodData.tip;
+});
+
+// Експорт у PDF
+document.getElementById('exportAnalyticsBtn').addEventListener('click', function () {
+  const element = document.querySelector('.financial-analytics');
+  const opt = {
+    margin: 0.5,
+    filename: 'Financial_Analytics_SmartWerk.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+});
+
+</script>
+  
 </body>
 </html>
