@@ -821,24 +821,26 @@ function handleUpload() {
   const files = document.getElementById("uploadField").files;
   const documentList = document.getElementById("documentList");
 
- 
   for (let file of files) {
-      const reader = new FileReader();
-reader.onload = function () {
-  const base64 = reader.result;
-  localStorage.setItem(`file-${file.name}`, base64);
-};
-reader.readAsDataURL(file);
-    const li = document.createElement("li");
-    li.dataset.filename = file.name;
-    li.dataset.status = "uploaded";
-    li.dataset.comment = "";
-    li.dataset.time = new Date().toLocaleString();
+    const reader = new FileReader();
 
-    renderListItem(li);
-    documentList.appendChild(li);
+    reader.onload = function () {
+      const base64 = reader.result;
+      localStorage.setItem(`file-${file.name}`, base64);
+
+      const li = document.createElement("li");
+      li.dataset.filename = file.name;
+      li.dataset.status = "uploaded";
+      li.dataset.comment = "";
+      li.dataset.time = new Date().toLocaleString();
+
+      renderListItem(li);
+      documentList.appendChild(li);
+      saveDocuments();
+    };
+
+    reader.readAsDataURL(file); // ✅ обробка кожного файлу
   }
-  saveDocuments();
 }
 
 function renderListItem(li) {
