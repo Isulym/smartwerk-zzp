@@ -122,6 +122,104 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => renderInvoices());
+
+    
+  // ✅ Step 2: JavaScript logic for invoices.html
+
+// Get elements
+const invoiceList = document.getElementById("invoiceList");
+const invoiceFilterButtons = document.querySelectorAll(".invoice-controls button");
+
+// Load from localStorage
+function loadInvoices() {
+  const data = JSON.parse(localStorage.getItem("smartwerkInvoices") || "[]");
+  invoiceList.innerHTML = "";
+  data.forEach(createInvoiceElement);
+}
+
+// Save to localStorage
+function saveInvoices() {
+  const data = [];
+  document.querySelectorAll("#invoiceList li").forEach((li) => {
+    data.push({
+      name: li.dataset.name,
+      status: li.dataset.status,
+      date: li.dataset.date,
+      amount: li.dataset.amount,
+    });
+  });
+  localStorage.setItem("smartwerkInvoices", JSON.stringify(data));
+}
+
+// Create visual invoice block
+function createInvoiceElement(data) {
+  const li = document.createElement("li");
+  li.dataset.name = data.name;
+  li.dataset.status = data.status;
+  li.dataset.date = data.date;
+  li.dataset.amount = data.amount;
+  li.dataset.status = data.status;
+  li.innerHTML = `
+    <div class="invoice-header">
+      <span class="invoice-name">${data.name}</span>
+      <span class="invoice-status-tag">${data.status}</span>
+    </div>
+    <div class="invoice-details">
+      Date: ${data.date} • Amount: €${data.amount}
+    </div>
+    <div class="invoice-actions">
+      <button onclick="editInvoice(this)">✏️ Edit</button>
+      <button onclick="deleteInvoice(this)">🗑️ Delete</button>
+    </div>
+  `;
+  li.setAttribute("data-status", data.status);
+  invoiceList.appendChild(li);
+}
+
+// Create dummy invoice (for now)
+function createDummyInvoice() {
+  const invoice = {
+    name: `Invoice ${Date.now().toString().slice(-4)}`,
+    status: "pending",
+    date: new Date().toLocaleDateString(),
+    amount: (Math.random() * 500 + 50).toFixed(2),
+  };
+  createInvoiceElement(invoice);
+  saveInvoices();
+}
+
+// Delete
+function deleteInvoice(btn) {
+  const li = btn.closest("li");
+  li.remove();
+  saveInvoices();
+}
+
+// Edit
+function editInvoice(btn) {
+  const li = btn.closest("li");
+  const newStatus = prompt("New status (paid / pending / overdue):", li.dataset.status);
+  if (!newStatus) return;
+  const valid = ["paid", "pending", "overdue"];
+  if (!valid.includes(newStatus)) return alert("Invalid status");
+  li.dataset.status = newStatus;
+  li.querySelector(".invoice-status-tag").innerText = newStatus;
+  li.querySelector(".invoice-status-tag").className = "invoice-status-tag"; // reset style
+  saveInvoices();
+  loadInvoices();
+}
+
+// Filter
+function filterInvoices(status) {
+  document.querySelectorAll("#invoiceList li").forEach((li) => {
+    li.style.display = (status === "all" || li.dataset.status === status) ? "block" : "none";
+  });
+  invoiceFilterButtons.forEach((btn) => btn.classList.remove("active"));
+  document.querySelector(`[onclick*="${status}"]`).classList.add("active");
+}
+
+// INIT
+loadInvoices();
   </script>
 </body>
 </html>
