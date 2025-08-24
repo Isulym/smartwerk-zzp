@@ -140,6 +140,16 @@
     </div>
   </div>
 </section>
+    <section class="quick-actions">
+  <h2>⚡ Quick Actions</h2>
+  <div class="action-buttons">
+    <button onclick="window.location.href='invoices.html#new'">➕ New Invoice</button>
+    <button onclick="alert('Exporting all documents...')">🧾 Export All Documents</button>
+    <button onclick="window.location.href='tax-calculator.html'">🔁 Sync with Tax Tool</button>
+    <button onclick="addManualNote()">✍️ Add Manual Note</button>
+    <button onclick="askSmartWerkAI()">🧠 Ask SmartWerk AI</button>
+  </div>
+</section>
 
   <section class="kpi-dashboard">
   <h2>📊 Business KPIs</h2>
@@ -757,6 +767,30 @@ document.getElementById("docAiBtn").addEventListener("click", function () {
       document.getElementById('kpi-ai-usage').textContent = '2 / 3 free';
     }
   });
+</script>
+
+  <script>
+function addManualNote() {
+  const name = prompt("Document name:");
+  const comment = prompt("Your note:");
+  if (!name || !comment) return;
+
+  const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
+  comments.push({ name, comment, date: new Date().toLocaleString() });
+  localStorage.setItem('document_comments', JSON.stringify(comments));
+  alert("Note saved.");
+}
+
+function askSmartWerkAI() {
+  const used = parseInt(localStorage.getItem('ai_used') || '0');
+  if (used >= 3) {
+    alert("You've reached your free AI limit. Upgrade to PRO for unlimited access.");
+    return;
+  }
+
+  localStorage.setItem('ai_used', used + 1);
+  window.open('https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls', '_blank');
+}
 </script>
 
   
