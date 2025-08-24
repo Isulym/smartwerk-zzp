@@ -813,47 +813,68 @@ function askSmartWerkAI() {
 }
 </script>
 
-  <script>
-function handleUpload() {
-  const files = document.getElementById('uploadField').files;
-  if (!files.length) return;
+<script>
+  let archive = JSON.parse(localStorage.getItem('uploadArchive')) || [];
 
-  for (let file of files) {
-    archive.push({
-      name: file.name,
-      status: 'uploaded',
-      uploadedAt: new Date().toLocaleString()
+  function saveArchive() {
+    localStorage.setItem('uploadArchive', JSON.stringify(archive));
+  }
+
+  function handleUpload() {
+    const input = document.getElementById('uploadField');
+    const files = input.files;
+    if (!files.length) return;
+
+    for (let file of files) {
+      archive.push({
+        name: file.name,
+        status: 'uploaded',
+        uploadedAt: new Date().toLocaleString()
+      });
+    }
+
+    saveArchive();
+    renderDocuments();
+    input.value = ''; // очистити після завантаження
+  }
+
+  function renderDocuments(filter = 'all') {
+    const list = document.getElementById('documentList');
+    list.innerHTML = '';
+
+    archive.forEach((doc, index) => {
+      if (filter !== 'all' && doc.status !== filter) return;
+
+      const li = document.createElement('li');
+      li.className = `doc-row status-${doc.status}`;
+      li.innerHTML = `
+        • <strong>${doc.name}</strong> (${doc.status}) – <em>${doc.uploadedAt}</em>
+        <button onclick="setStatus(${index}, 'verified')">✅</button>
+        <button onclick="setStatus(${index}, 'rejected')">❌</button>
+        <button onclick="setStatus(${index}, 'uploaded')">🔄</button>
+      `;
+      list.appendChild(li);
     });
   }
-  saveArchive();
-  renderDocuments();
-}
 
-function renderDocuments(filter = 'all') {
-  const list = document.getElementById('documentList');
-  list.innerHTML = '';
+  function setStatus(index, newStatus) {
+    archive[index].status = newStatus;
+    // дата завантаження НЕ змінюється
+    saveArchive();
+    renderDocuments();
+  }
 
-  archive.forEach((doc, index) => {
-    if (filter !== 'all' && doc.status !== filter) return;
+  function filterStatus(value) {
+    renderDocuments(value);
+  }
 
-    const li = document.createElement('li');
-    li.className = `doc-row status-${doc.status}`;
-    li.innerHTML = `
-      • <strong>${doc.name}</strong> (${doc.status}) – <em>${doc.uploadedAt}</em>
-      <button onclick="setStatus(${index}, 'verified')">✅</button>
-      <button onclick="setStatus(${index}, 'rejected')">❌</button>
-      <button onclick="setStatus(${index}, 'uploaded')">🔄</button>
-    `;
-    list.appendChild(li);
+  document.addEventListener('DOMContentLoaded', function () {
+    renderDocuments();
+    document.getElementById('uploadBtn').addEventListener('click', handleUpload);
+    document.getElementById('statusFilter').addEventListener('change', function () {
+      filterStatus(this.value);
+    });
   });
-}
-
-function setStatus(index, status) {
-  archive[index].status = status;
-  // ✅ Ми більше НЕ оновлюємо дату:
-  saveArchive();
-  renderDocuments();
-}
 </script>
   
 </body>
