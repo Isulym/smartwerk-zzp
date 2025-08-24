@@ -293,6 +293,13 @@
 
   <!-- Список документів -->
   <ul id="documentList" class="document-list"></ul>
+
+  <li data-filename="index.html">
+  • index.html (uploaded) — 24.08.2025, 16:09:28
+  <button>✅</button><button>❌</button><button>🔁</button>
+  <span class="comment-label">💬 Note:</span>
+  <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
+</li>
 </section>
     
   </main>
@@ -875,6 +882,22 @@ function askSmartWerkAI() {
       filterStatus(this.value);
     });
   });
+function saveComment(input) {
+  const fileName = input.closest("li").dataset.filename;
+  const comment = input.value;
+  localStorage.setItem("comment_" + fileName, comment);
+}
+
+function loadComments() {
+  document.querySelectorAll(".comment-input").forEach(input => {
+    const fileName = input.closest("li").dataset.filename;
+    const saved = localStorage.getItem("comment_" + fileName);
+    if (saved) input.value = saved;
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadComments);
+  
 </script>
   
 </body>
