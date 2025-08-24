@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -851,7 +850,7 @@ function renderListItem(li) {
     <button onclick="setStatus(this, 'rejected')">❌</button>
     <button onclick="setStatus(this, 'uploaded')">🔁</button>
     <button onclick="deleteFile(this)">🗑️</button>
-    <a href="#" onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</a>
+    <button onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</button>
     <br><span class="comment-label">💬 Note:</span>
     <input type="text" class="comment-input" placeholder="Add comment..." value="${comment || ''}" oninput="saveComment(this)">
   `;
