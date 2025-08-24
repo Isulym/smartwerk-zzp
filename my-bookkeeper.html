@@ -285,14 +285,13 @@
     <button onclick="filterDocuments('uploaded')">🟡 Uploaded</button>
     <button onclick="filterDocuments('verified')">✅ Verified</button>
     <button onclick="filterDocuments('rejected')">❌ Rejected</button>
-   <button onclick="exportToPDF()">📄 Export Archive as PDF</button>
   </div>
 
-  <!-- Завантаження -->
+  <!-- Поле завантаження -->
   <input type="file" id="uploadField" multiple />
   <button onclick="handleUpload()">📤 Upload</button>
+  <button onclick="exportToPDF()">🧾 Export Archive as PDF</button>
 
-  <!-- Список документів -->
   <ul id="documentList" class="document-list"></ul>
 </section>
     
@@ -821,40 +820,39 @@ function askSmartWerkAI() {
 function handleUpload() {
   const files = document.getElementById("uploadField").files;
   const documentList = document.getElementById("documentList");
+
   for (let file of files) {
     const li = document.createElement("li");
     li.dataset.filename = file.name;
     li.dataset.status = "uploaded";
-    const timestamp = new Date().toLocaleString();
-    li.dataset.timestamp = timestamp;
     li.dataset.comment = "";
+    li.dataset.time = new Date().toLocaleString();
 
-    li.innerHTML = `
-      <strong>${file.name}</strong> (uploaded) – ${timestamp}
-      <button onclick="setStatus(this, 'verified')">✅</button>
-      <button onclick="setStatus(this, 'rejected')">❌</button>
-      <button onclick="resetStatus(this)">🔁</button>
-      <button onclick="deleteFile(this)">🗑️</button>
-      <button onclick="downloadFile('${file.name}')">⬇️ Download</button>
-      <br><span class="comment-label">💬 Note:</span>
-      <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
-    `;
+    renderListItem(li);
     documentList.appendChild(li);
   }
   saveDocuments();
 }
 
-function setStatus(button, status) {
-  const li = button.closest("li");
-  li.dataset.status = status;
-  updateTimestamp(li);
-  saveDocuments();
+function renderListItem(li) {
+  const { filename, status, comment, time } = li.dataset;
+  li.innerHTML = `
+    <strong>${filename}</strong> (${status}) – ${time}
+    <button onclick="setStatus(this, 'verified')">✅</button>
+    <button onclick="setStatus(this, 'rejected')">❌</button>
+    <button onclick="setStatus(this, 'uploaded')">🔁</button>
+    <button onclick="deleteFile(this)">🗑️</button>
+    <a href="#" onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</a>
+    <br><span class="comment-label">💬 Note:</span>
+    <input type="text" class="comment-input" placeholder="Add comment..." value="${comment || ''}" oninput="saveComment(this)">
+  `;
 }
 
-function resetStatus(button) {
+function setStatus(button, newStatus) {
   const li = button.closest("li");
-  li.dataset.status = "uploaded";
-  updateTimestamp(li);
+  li.dataset.status = newStatus;
+  li.dataset.time = new Date().toLocaleString();
+  renderListItem(li);
   saveDocuments();
 }
 
@@ -873,29 +871,8 @@ function saveComment(input) {
 function filterDocuments(status) {
   const items = document.querySelectorAll("#documentList li");
   items.forEach((item) => {
-    if (status === "all" || item.dataset.status === status) {
-      item.style.display = "";
-    } else {
-      item.style.display = "none";
-    }
+    item.style.display = (status === "all" || item.dataset.status === status) ? "" : "none";
   });
-}
-
-function updateTimestamp(li) {
-  const filename = li.dataset.filename || "Unnamed file";
-  const status = li.dataset.status || "unknown";
-  const now = new Date().toLocaleString();
-
-  // Оновлюємо весь innerHTML заново
-  li.innerHTML = `
-    <strong>${filename}</strong> (${status}) – ${now}
-    <button onclick="setStatus(this, 'verified')">✅</button>
-    <button onclick="setStatus(this, 'rejected')">❌</button>
-    <button onclick="resetStatus(this)">🔁</button>
-    <button onclick="deleteFile(this)">🗑️</button>
-    <br><span class="comment-label">💬 Note:</span>
-    <input type="text" class="comment-input" placeholder="Add comment..." value="${li.dataset.comment || ''}" oninput="saveComment(this)">
-  `;
 }
 
 function saveDocuments() {
@@ -904,99 +881,43 @@ function saveDocuments() {
     data.push({
       filename: li.dataset.filename,
       status: li.dataset.status,
-      comment: li.querySelector("input.comment-input")?.value || "",
-      timestamp: li.dataset.timestamp || new Date().toLocaleString(),
+      comment: li.dataset.comment,
+      time: li.dataset.time
     });
   });
   localStorage.setItem("documentArchive", JSON.stringify(data));
 }
 
-async function exportToPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(14);
-  doc.text("SmartWerk – Upload Archive", 15, 20);
-  doc.setFontSize(10);
-  doc.text(`Exported on: ${new Date().toLocaleString()}`, 15, 27);
-
-  const saved = JSON.parse(localStorage.getItem("documentArchive") || "[]");
-
-  let y = 35;
-  saved.forEach((item, index) => {
-    doc.setFontSize(11);
-    doc.text(`• ${item.filename}`, 15, y);
-    y += 6;
-    doc.setFontSize(10);
-    doc.text(`Status: ${item.status}`, 20, y);
-    y += 5;
-    doc.text(`Note: ${item.comment || "-"}`, 20, y);
-    y += 5;
-    doc.text(`Date: ${item.time}`, 20, y);
-    y += 10;
-
-    if (y > 270) {
-      doc.addPage();
-      y = 20;
-    }
-  });
-
-  doc.save("SmartWerk_Upload_Archive.pdf");
-}
-
 function loadDocuments() {
   const saved = JSON.parse(localStorage.getItem("documentArchive") || "[]");
   const documentList = document.getElementById("documentList");
+  documentList.innerHTML = "";
+
   saved.forEach((doc) => {
     const li = document.createElement("li");
     li.dataset.filename = doc.filename;
     li.dataset.status = doc.status;
-    li.dataset.timestamp = doc.timestamp;
     li.dataset.comment = doc.comment;
-
-    li.innerHTML = `
-      <strong>${doc.filename}</strong> (${doc.status}) – ${doc.timestamp}
-      <button onclick="setStatus(this, 'verified')">✅</button>
-      <button onclick="setStatus(this, 'rejected')">❌</button>
-      <button onclick="resetStatus(this)">🔁</button>
-      <button onclick="deleteFile(this)">🗑️</button>
-      <button onclick="downloadFile('${doc.filename}')">⬇️ Download</button>
-      <br><span class="comment-label">💬 Note:</span>
-      <input type="text" class="comment-input" value="${doc.comment}" oninput="saveComment(this)">
-    `;
+    li.dataset.time = doc.time;
+    renderListItem(li);
     documentList.appendChild(li);
   });
 }
 
 function downloadFile(filename) {
-  alert("🧪 This is a simulated download: " + filename);
-  // У реальному випадку тут можна вказати посилання: window.open('/uploads/' + filename);
+  alert(`This is a demo. File "${filename}" would be downloaded here.`);
+  // У майбутньому — реалізуємо реальне збереження
 }
 
-function exportArchivePDF() {
-  const archive = JSON.parse(localStorage.getItem("documentArchive") || "[]");
-
-  let html = `<h1>📁 SmartWerk Document Archive</h1><hr>`;
-  archive.forEach((doc, index) => {
-    html += `
-      <p><strong>📄 ${doc.filename}</strong><br>
-      ⏱️ ${doc.timestamp}<br>
-      🔖 Status: ${doc.status}<br>
-      💬 Comment: ${doc.comment || '—'}</p><hr>
-    `;
-  });
-
-  const element = document.createElement("div");
-  element.innerHTML = html;
-
+function exportToPDF() {
+  const element = document.getElementById("documentList");
   const opt = {
     margin: 0.5,
-    filename: 'SmartWerk_Archive.pdf',
+    filename: 'Document_Archive_SmartWerk.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2 },
     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
   };
-
   html2pdf().set(opt).from(element).save();
 }
 
