@@ -115,6 +115,31 @@
 
   <canvas id="financeChart" style="max-width: 100%; height: 300px; margin-top: 2rem;"></canvas>
 </section>
+    <section class="kpi-dashboard">
+  <h2>📊 KPI Dashboard – Business Insights</h2>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <strong>🔢 Invoices Sent</strong>
+      <p id="kpi-invoices">12</p>
+    </div>
+    <div class="kpi-card">
+      <strong>🧾 Avg. Invoice Value</strong>
+      <p id="kpi-average-invoice">€435.00</p>
+    </div>
+    <div class="kpi-card">
+      <strong>⏱️ Time Saved</strong>
+      <p id="kpi-time-saved">8 hours/month</p>
+    </div>
+    <div class="kpi-card">
+      <strong>💸 VAT Collected</strong>
+      <p id="kpi-vat-collected">€720.00</p>
+    </div>
+    <div class="kpi-card">
+      <strong>🧠 AI Usage</strong>
+      <p id="kpi-ai-usage">2 / 3 free</p>
+    </div>
+  </div>
+</section>
 
   <section class="kpi-dashboard">
   <h2>📊 Business KPIs</h2>
@@ -718,6 +743,20 @@ document.getElementById("docAiBtn").addEventListener("click", function () {
   answerText.innerHTML = answer;
   responseBox.style.display = "block";
 });
+</script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const summary = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
+    if (summary) {
+      // Фіктивно або розрахунково
+      document.getElementById('kpi-invoices').textContent = '12';
+      document.getElementById('kpi-average-invoice').textContent = '€435.00';
+      document.getElementById('kpi-time-saved').textContent = '8 hours/month';
+      document.getElementById('kpi-vat-collected').textContent = '€' + (parseFloat(summary.btwAmount || 720)).toFixed(2);
+      document.getElementById('kpi-ai-usage').textContent = '2 / 3 free';
+    }
+  });
 </script>
 
   
