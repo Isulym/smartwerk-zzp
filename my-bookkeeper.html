@@ -291,10 +291,9 @@
   <input type="file" id="uploadField" multiple />
   <button onclick="handleUpload()">📤 Upload</button>
 
-  <!-- Список -->
+  <!-- Список документів -->
   <ul id="documentList" class="document-list"></ul>
 </section>
-
     
   </main>
 
@@ -814,14 +813,13 @@ function askSmartWerkAI() {
 }
 </script>
 
-<!-- PDF library -->
+<!-- PDF export бібліотека -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
 function handleUpload() {
   const files = document.getElementById("uploadField").files;
   const documentList = document.getElementById("documentList");
-
   for (let file of files) {
     const reader = new FileReader();
     reader.onload = function () {
@@ -845,12 +843,12 @@ function handleUpload() {
 function renderListItem(li) {
   const { filename, status, comment, time } = li.dataset;
   li.innerHTML = `
-    <strong>${filename}</strong> (${status}) – ${time || new Date().toLocaleString()}
+    <strong>${filename}</strong> (${status}) – ${time}
     <button onclick="setStatus(this, 'verified')">✅</button>
     <button onclick="setStatus(this, 'rejected')">❌</button>
     <button onclick="setStatus(this, 'uploaded')">🔁</button>
     <button onclick="deleteFile(this)">🗑️</button>
-   <a href="#" onclick="downloadFile(event, '${filename}')" class="download-btn">⬇️ Download</a>
+    <a href="#" onclick="downloadFile('${filename}')" class="download-btn">⬇️ Download</a>
     <br><span class="comment-label">💬 Note:</span>
     <input type="text" class="comment-input" placeholder="Add comment..." value="${comment || ''}" oninput="saveComment(this)">
   `;
@@ -881,36 +879,12 @@ function saveComment(input) {
 function filterDocuments(status) {
   const items = document.querySelectorAll("#documentList li");
   items.forEach((item) => {
-    item.style.display = (status === "all" || item.dataset.status === status) ? "" : "none";
+    if (status === "all" || item.dataset.status === status) {
+      item.style.display = "";
+    } else {
+      item.style.display = "none";
+    }
   });
-}
-
-function downloadFile(name) {
-  const dataUrl = localStorage.getItem(`file-${name}`);
-  if (!dataUrl) {
-    alert("This file is not available for download.");
-    return;
-  }
-
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.download = name;
-  a.style.display = "none"; // не вставляємо в DOM
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-  
-function exportToPDF() {
-  const element = document.getElementById("documentList");
-  const opt = {
-    margin: 0.5,
-    filename: 'SmartWerk_Upload_Archive.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().from(element).set(opt).save();
 }
 
 function saveDocuments() {
@@ -919,8 +893,8 @@ function saveDocuments() {
     data.push({
       filename: li.dataset.filename,
       status: li.dataset.status,
-      comment: li.querySelector("input.comment-input")?.value || "",
-      time: li.dataset.time,
+      comment: li.dataset.comment || '',
+      time: li.dataset.time
     });
   });
   localStorage.setItem("documentArchive", JSON.stringify(data));
@@ -929,6 +903,7 @@ function saveDocuments() {
 function loadDocuments() {
   const saved = JSON.parse(localStorage.getItem("documentArchive") || "[]");
   const documentList = document.getElementById("documentList");
+  documentList.innerHTML = "";
   saved.forEach((doc) => {
     const li = document.createElement("li");
     li.dataset.filename = doc.filename;
@@ -938,6 +913,32 @@ function loadDocuments() {
     renderListItem(li);
     documentList.appendChild(li);
   });
+}
+
+function downloadFile(name) {
+  const dataUrl = localStorage.getItem(`file-${name}`);
+  if (!dataUrl) {
+    alert("This file is not available for download.");
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function exportToPDF() {
+  const element = document.getElementById("documentList");
+  const opt = {
+    margin: 0.5,
+    filename: "Upload_Archive_Report.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+  };
+  html2pdf().from(element).set(opt).save();
 }
 
 document.addEventListener("DOMContentLoaded", loadDocuments);
