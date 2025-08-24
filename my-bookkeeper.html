@@ -71,6 +71,32 @@
     <tbody id="documentStatusBody"></tbody>
   </table>
 </section>
+    <section class="document-status-tracker">
+  <h2>📂 Document Status Tracker</h2>
+
+  <!-- Фільтр -->
+  <label for="statusFilter">Filter by status:</label>
+  <select id="statusFilter">
+    <option value="all">Show All</option>
+    <option value="✅ Uploaded">✅ Uploaded</option>
+    <option value="🔄 In Review">🔄 In Review</option>
+    <option value="❌ Missing">❌ Missing</option>
+  </select>
+
+  <!-- Таблиця -->
+  <table class="status-table">
+    <thead>
+      <tr>
+        <th>📄 Document</th>
+        <th>📅 Date</th>
+        <th>✅ Status</th>
+        <th>💬 Notes</th>
+        <th>⚙️ Actions</th>
+      </tr>
+    </thead>
+    <tbody id="documentStatusBody"></tbody>
+  </table>
+</section>
 
     <!-- Tasks and Reminders -->
     <section class="tasks">
@@ -538,6 +564,68 @@ function clearAllData() {
   }
 
   // Фільтр
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('statusFilter').addEventListener('change', function () {
+      renderDocuments(this.value);
+    });
+    renderDocuments();
+  });
+</script>
+  <script>
+  let docs = [
+    { name: "Invoice Q3", date: "2025-08-01", status: "✅ Uploaded", note: "Ready for tax declaration" },
+    { name: "Tax Form Q2", date: "2025-07-10", status: "🔄 In Review", note: "Waiting for approval" },
+    { name: "KvK Update", date: "2025-06-25", status: "❌ Missing", note: "Please upload document" }
+  ];
+
+  function renderDocuments(filter = "all") {
+    const body = document.getElementById('documentStatusBody');
+    body.innerHTML = "";
+
+    docs.forEach((doc, index) => {
+      if (filter === "all" || doc.status === filter) {
+        const row = document.createElement('tr');
+        row.className = doc.status.includes("✅") ? "status-ok"
+                    : doc.status.includes("🔄") ? "status-review"
+                    : "status-missing";
+
+        row.innerHTML = `
+          <td>${doc.name}</td>
+          <td>${doc.date}</td>
+          <td>${doc.status}</td>
+          <td contenteditable="true" onblur="updateNote(${index}, this.innerText)">${doc.note}</td>
+          <td>
+            <button onclick="markAsDone(${index})">✅ Done</button>
+            <button onclick="triggerUpload(${index})">📤 Upload</button>
+            <input type="file" style="display:none;" id="upload-${index}" onchange="handleUpload(${index}, this)" />
+          </td>
+        `;
+        body.appendChild(row);
+      }
+    });
+  }
+
+  function markAsDone(index) {
+    docs[index].status = "✅ Uploaded";
+    renderDocuments(document.getElementById('statusFilter').value);
+  }
+
+  function triggerUpload(index) {
+    document.getElementById(`upload-${index}`).click();
+  }
+
+  function handleUpload(index, input) {
+    if (input.files.length > 0) {
+      docs[index].status = "✅ Uploaded";
+      docs[index].note = "File uploaded on " + new Date().toLocaleDateString();
+      renderDocuments(document.getElementById('statusFilter').value);
+    }
+  }
+
+  function updateNote(index, newText) {
+    docs[index].note = newText;
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('statusFilter').addEventListener('change', function () {
       renderDocuments(this.value);
