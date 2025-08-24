@@ -97,6 +97,16 @@
   </div>
 </section>
 
+    <section class="quick-actions">
+  <h2>⚡ Quick Actions</h2>
+  <div class="action-buttons">
+    <button onclick="refreshSummary()">🔄 Refresh Summary</button>
+    <button onclick="downloadPDF()">📄 Export Report</button>
+    <button onclick="downloadAnalytics()">📊 Export Analytics</button>
+    <button onclick="clearAllData()">🗑️ Clear All Data</button>
+  </div>
+</section>
+
  <section id="document-comments">
   <h2>📝 Comments on Documents</h2>
 
@@ -405,6 +415,44 @@ SmartWerk AI suggests reviewing Q2 invoices and comparing it with expenses from 
   document.getElementById('kpi-monthly-income').textContent = monthlyIncome;
   document.getElementById('kpi-growth').textContent = growth;
 });
+  </script>
+
+      <script>
+
+  function refreshSummary() {
+  location.reload();
+}
+
+function downloadPDF() {
+  const element = document.body;
+  const opt = {
+    margin: 0.5,
+    filename: 'SmartWerk_Report.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+
+function downloadAnalytics() {
+  const element = document.querySelector('.financial-analytics');
+  const opt = {
+    margin: 0.5,
+    filename: 'SmartWerk_Analytics.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+
+function clearAllData() {
+  if (confirm("Are you sure you want to clear all local data?")) {
+    localStorage.clear();
+    location.reload();
+  }
+}
   </script>
 
   
