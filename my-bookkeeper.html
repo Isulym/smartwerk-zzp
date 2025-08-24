@@ -129,6 +129,21 @@
   <!-- Кнопка експорту -->
   <button id="exportAnalyticsBtn">🧾 Export Analytics as PDF</button>
 </section>
+
+    <!-- Ask SmartWerk AI -->
+<section class="ai-assistant">
+  <h2>🤖 Ask SmartWerk AI</h2>
+  <p>You can ask anything about your taxes, income, or business finances:</p>
+
+  <textarea id="ai-question" placeholder="e.g. How much tax will I pay this quarter?"></textarea>
+  <br>
+  <button id="askAiBtn">📤 Ask SmartWerk AI</button>
+
+  <div id="ai-response-box" style="display:none; margin-top:1rem;">
+    <strong>💬 Response:</strong>
+    <p id="ai-response" style="white-space: pre-wrap;"></p>
+  </div>
+</section>
     
   </main>
 
@@ -326,7 +341,33 @@ document.getElementById('exportAnalyticsBtn').addEventListener('click', function
   };
   html2pdf().set(opt).from(element).save();
 });
+</script>
 
+  <script>
+document.getElementById('askAiBtn').addEventListener('click', function () {
+  const question = document.getElementById('ai-question').value.trim();
+  if (!question) {
+    alert("Please enter a question.");
+    return;
+  }
+
+  // Dummy logic for now
+  const saved = JSON.parse(localStorage.getItem('smartwerk_summary_data')) || {};
+  const income = saved.grossIncome || 0;
+  const expenses = saved.expenses || 0;
+  const tax = saved.taxEstimation || 0;
+
+  const response = `Based on your saved data:
+- 💼 Gross Income: €${income}
+- 💸 Expenses: €${expenses}
+- 🧾 Estimated Tax: €${tax}
+
+Your question was: "${question}"
+SmartWerk AI suggests reviewing Q2 invoices and comparing it with expenses from July.`;
+
+  document.getElementById('ai-response').textContent = response;
+  document.getElementById('ai-response-box').style.display = 'block';
+});
 </script>
   
 </body>
