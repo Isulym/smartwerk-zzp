@@ -45,6 +45,23 @@
       <input type="file" id="upload-docs" multiple />
     </section>
 
+    <section class="document-status-tracker">
+  <h2>📂 Document Status Tracker</h2>
+  <table class="status-table">
+    <thead>
+      <tr>
+        <th>📄 Document</th>
+        <th>📅 Date</th>
+        <th>✅ Status</th>
+        <th>💬 Notes</th>
+      </tr>
+    </thead>
+    <tbody id="documentStatusBody">
+      <!-- Автоматично заповнюється -->
+    </tbody>
+  </table>
+</section>
+
     <!-- Tasks and Reminders -->
     <section class="tasks">
       <h2>📌 To‑Do / Tasks</h2>
@@ -454,6 +471,29 @@ function clearAllData() {
   }
 }
   </script>
+
+  <script>
+
+  document.addEventListener('DOMContentLoaded', () => {
+  const docs = [
+    { name: "Invoice Q3", date: "2025-08-01", status: "✅ Uploaded", note: "Ready for tax declaration" },
+    { name: "Tax Form Q2", date: "2025-07-10", status: "🔄 In Review", note: "Waiting for approval" },
+    { name: "KvK Update", date: "2025-06-25", status: "❌ Missing", note: "Please upload document" }
+  ];
+
+  const body = document.getElementById('documentStatusBody');
+  docs.forEach(doc => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${doc.name}</td>
+      <td>${doc.date}</td>
+      <td>${doc.status}</td>
+      <td>${doc.note}</td>
+    `;
+    body.appendChild(row);
+  });
+});
+    </script>
 
   
 </body>
