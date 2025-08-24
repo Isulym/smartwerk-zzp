@@ -295,8 +295,6 @@
   <ul id="documentList" class="document-list"></ul>
 </section>
 
-<!-- PDF-бібліотека -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
   </main>
 
@@ -825,31 +823,29 @@ function handleUpload() {
   const documentList = document.getElementById("documentList");
 
   for (let file of files) {
-    const li = document.createElement("li");
-    li.dataset.filename = file.name;
-    li.dataset.status = "uploaded";
-    li.dataset.comment = "";
-    li.dataset.time = new Date().toLocaleString();
-
-    // Зберігаємо файл як base64
     const reader = new FileReader();
     reader.onload = function () {
       const base64 = reader.result;
       localStorage.setItem(`file-${file.name}`, base64);
+
+      const li = document.createElement("li");
+      li.dataset.filename = file.name;
+      li.dataset.status = "uploaded";
+      li.dataset.comment = "";
+      li.dataset.time = new Date().toLocaleString();
+
+      renderListItem(li);
+      documentList.appendChild(li);
+      saveDocuments();
     };
     reader.readAsDataURL(file);
-
-    renderListItem(li);
-    documentList.appendChild(li);
   }
-
-  saveDocuments();
 }
 
 function renderListItem(li) {
   const { filename, status, comment, time } = li.dataset;
   li.innerHTML = `
-    <strong>${filename}</strong> (${status}) – ${time}
+    <strong>${filename}</strong> (${status}) – ${time || new Date().toLocaleString()}
     <button onclick="setStatus(this, 'verified')">✅</button>
     <button onclick="setStatus(this, 'rejected')">❌</button>
     <button onclick="setStatus(this, 'uploaded')">🔁</button>
@@ -870,7 +866,9 @@ function setStatus(button, newStatus) {
 
 function deleteFile(button) {
   const li = button.closest("li");
+  const filename = li.dataset.filename;
   li.remove();
+  localStorage.removeItem(`file-${filename}`);
   saveDocuments();
 }
 
@@ -885,6 +883,32 @@ function filterDocuments(status) {
   items.forEach((item) => {
     item.style.display = (status === "all" || item.dataset.status === status) ? "" : "none";
   });
+}
+
+function downloadFile(name) {
+  const dataUrl = localStorage.getItem(`file-${name}`);
+  if (!dataUrl) {
+    alert("This file is not available for download.");
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function exportToPDF() {
+  const element = document.getElementById("documentList");
+  const opt = {
+    margin: 0.5,
+    filename: 'SmartWerk_Upload_Archive.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().from(element).set(opt).save();
 }
 
 function saveDocuments() {
@@ -903,7 +927,6 @@ function saveDocuments() {
 function loadDocuments() {
   const saved = JSON.parse(localStorage.getItem("documentArchive") || "[]");
   const documentList = document.getElementById("documentList");
-  documentList.innerHTML = "";
   saved.forEach((doc) => {
     const li = document.createElement("li");
     li.dataset.filename = doc.filename;
@@ -913,33 +936,6 @@ function loadDocuments() {
     renderListItem(li);
     documentList.appendChild(li);
   });
-}
-
-function downloadFile(name) {
-  const dataUrl = localStorage.getItem(`file-${name}`);
-  if (!dataUrl) {
-    alert("This file is not available for download.");
-    return;
-  }
-
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-function exportToPDF() {
-  const element = document.getElementById("documentList");
-  const opt = {
-    margin: 0.5,
-    filename: "SmartWerk_Archive.pdf",
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-  };
-  html2pdf().set(opt).from(element).save();
 }
 
 document.addEventListener("DOMContentLoaded", loadDocuments);
