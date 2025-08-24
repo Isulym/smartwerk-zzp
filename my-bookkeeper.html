@@ -921,9 +921,16 @@ function downloadFile(name) {
     alert("This file is not available for download.");
     return;
   }
+
+  // Створити посилання на файл
   const a = document.createElement("a");
   a.href = dataUrl;
   a.download = name;
+
+  // Заборонити відкриття у вкладці
+  a.target = "_self";
+
+  // Примусово клікнути
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
