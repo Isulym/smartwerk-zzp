@@ -293,12 +293,6 @@
 
   <!-- Список документів -->
   <ul id="documentList" class="document-list"></ul>
-
-  <li data-filename="index.html">
-  <button>✅</button><button>❌</button><button>🔁</button>
-  <span class="comment-label">💬 Note:</span>
-  <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
-</li>
 </section>
     
   </main>
@@ -820,83 +814,102 @@ function askSmartWerkAI() {
 </script>
 
 <script>
-  let archive = JSON.parse(localStorage.getItem('uploadArchive')) || [];
-
-  function saveArchive() {
-    localStorage.setItem('uploadArchive', JSON.stringify(archive));
-  }
+  const documentList = document.getElementById('documentList');
 
   function handleUpload() {
-    const input = document.getElementById('uploadField');
-    const files = input.files;
-    if (!files.length) return;
-
+    const files = document.getElementById('uploadField').files;
     for (let file of files) {
-      archive.push({
-        name: file.name,
-        status: 'uploaded',
-        uploadedAt: new Date().toLocaleString()
-      });
-    }
-
-    saveArchive();
-    renderDocuments();
-    input.value = ''; // очистити після завантаження
-  }
-
-  function renderDocuments(filter = 'all') {
-    const list = document.getElementById('documentList');
-    list.innerHTML = '';
-
-    archive.forEach((doc, index) => {
-      if (filter !== 'all' && doc.status !== filter) return;
-
       const li = document.createElement('li');
-      li.className = `doc-row status-${doc.status}`;
+      li.setAttribute('data-filename', file.name);
+      li.setAttribute('data-status', 'uploaded');
       li.innerHTML = `
-        • <strong>${doc.name}</strong> (${doc.status}) – <em>${doc.uploadedAt}</em>
-        <button onclick="setStatus(${index}, 'verified')">✅</button>
-        <button onclick="setStatus(${index}, 'rejected')">❌</button>
-        <button onclick="setStatus(${index}, 'uploaded')">🔄</button>
+        • <strong>${file.name}</strong> 
+        <span class="status-label">(uploaded)</span> – ${new Date().toLocaleString()}
+        <button onclick="setStatus(this, 'verified')">✅</button>
+        <button onclick="setStatus(this, 'rejected')">❌</button>
+        <button onclick="resetStatus(this)">🔁</button>
+        <span class="comment-label">💬 Note:</span>
+        <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
       `;
-      list.appendChild(li);
+      documentList.appendChild(li);
+    }
+    saveToStorage(); // збереження після upload
+    loadComments();  // автоматично показує збережені коментарі
+  }
+
+  function setStatus(button, status) {
+    const li = button.closest('li');
+    li.setAttribute('data-status', status);
+    const label = li.querySelector('.status-label');
+    if (label) label.textContent = `(${status})`;
+    saveToStorage();
+  }
+
+  function resetStatus(button) {
+    setStatus(button, 'uploaded');
+  }
+
+  function saveComment(input) {
+    const li = input.closest('li');
+    const filename = li.getAttribute('data-filename');
+    const comment = input.value;
+    localStorage.setItem(`comment_${filename}`, comment);
+  }
+
+  function loadComments() {
+    const items = document.querySelectorAll('li[data-filename]');
+    items.forEach(li => {
+      const filename = li.getAttribute('data-filename');
+      const input = li.querySelector('.comment-input');
+      const saved = localStorage.getItem(`comment_${filename}`);
+      if (input && saved) input.value = saved;
     });
   }
 
-  function setStatus(index, newStatus) {
-    archive[index].status = newStatus;
-    // дата завантаження НЕ змінюється
-    saveArchive();
-    renderDocuments();
-  }
-
-  function filterStatus(value) {
-    renderDocuments(value);
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    renderDocuments();
-    document.getElementById('uploadBtn').addEventListener('click', handleUpload);
-    document.getElementById('statusFilter').addEventListener('change', function () {
-      filterStatus(this.value);
+  function filterDocuments(status) {
+    const items = document.querySelectorAll('li[data-filename]');
+    items.forEach(item => {
+      const itemStatus = item.getAttribute('data-status');
+      if (status === 'all' || itemStatus === status) {
+        item.style.display = 'list-item';
+      } else {
+        item.style.display = 'none';
+      }
     });
-  });
-function saveComment(input) {
-  const fileName = input.closest("li").dataset.filename;
-  const comment = input.value;
-  localStorage.setItem("comment_" + fileName, comment);
-}
+  }
 
-function loadComments() {
-  document.querySelectorAll(".comment-input").forEach(input => {
-    const fileName = input.closest("li").dataset.filename;
-    const saved = localStorage.getItem("comment_" + fileName);
-    if (saved) input.value = saved;
-  });
-}
+  function saveToStorage() {
+    const allItems = [];
+    document.querySelectorAll('li[data-filename]').forEach(li => {
+      const filename = li.getAttribute('data-filename');
+      const status = li.getAttribute('data-status');
+      allItems.push({ filename, status });
+    });
+    localStorage.setItem('uploadedDocs', JSON.stringify(allItems));
+  }
 
-document.addEventListener("DOMContentLoaded", loadComments);
-  
+  function loadFromStorage() {
+    const data = JSON.parse(localStorage.getItem('uploadedDocs') || '[]');
+    for (let doc of data) {
+      const li = document.createElement('li');
+      li.setAttribute('data-filename', doc.filename);
+      li.setAttribute('data-status', doc.status);
+      li.innerHTML = `
+        • <strong>${doc.filename}</strong> 
+        <span class="status-label">(${doc.status})</span> – ${new Date().toLocaleString()}
+        <button onclick="setStatus(this, 'verified')">✅</button>
+        <button onclick="setStatus(this, 'rejected')">❌</button>
+        <button onclick="resetStatus(this)">🔁</button>
+        <span class="comment-label">💬 Note:</span>
+        <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
+      `;
+      documentList.appendChild(li);
+    }
+    loadComments();
+  }
+
+  // 🚀 Завантажити збережені документи при відкритті
+  document.addEventListener('DOMContentLoaded', loadFromStorage);
 </script>
   
 </body>
