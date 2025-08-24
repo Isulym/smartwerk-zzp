@@ -179,31 +179,54 @@
   <button id="exportAnalyticsBtn">🧾 Export Analytics as PDF</button>
 </section>
 
-  <!-- 🧾 Ask SmartWerk AI – Documents -->
+ <!-- ✅ Ask SmartWerk AI – Documents (with free limit) -->
 <section class="ai-doc-assistant">
-  <h2>🗂️ Ask SmartWerk AI – Documents</h2>
-  <label for="docAiQuestion">Have a question about your documents?</label>
+  <h2>📜 Ask SmartWerk AI – Documents</h2>
+  <label for="docAiQuestion">Have a question about your documents?</label><br>
   <textarea id="docAiQuestion" placeholder="e.g. Can you explain my Q3 invoice or tax form?"></textarea>
   <button id="docAiBtn">🧠 Ask AI</button>
 
   <div id="docAiResponseBox" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; display: none;">
     <strong>AI Response:</strong>
     <p id="docAiAnswerText" style="white-space: pre-wrap;"></p>
+    <p id="aiFooter" style="margin-top: 1rem; color: #555; font-size: 0.9rem;"></p>
   </div>
 </section>
-  <!-- AI Document Assistant -->
-<section class="ai-doc-assistant">
-  <h2>📂 Ask SmartWerk AI – Documents</h2>
 
-  <label for="docAiQuestion">Have a question about your documents?</label>
-  <textarea id="docAiQuestion" placeholder="e.g. Can you explain my Q3 invoice or tax form?"></textarea>
-  <button id="docAiBtn">🤖 Ask AI</button>
+<script>
+  let freeAiCounter = 0;
+  const aiLimit = 3;
 
-  <div id="docAiResponseBox" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; display: none;">
-    <strong>AI Response:</strong>
-    <p id="docAiAnswerText" style="white-space: pre-wrap;"></p>
-  </div>
-</section>
+  document.getElementById("docAiBtn").addEventListener("click", () => {
+    const question = document.getElementById("docAiQuestion").value.trim();
+    const responseBox = document.getElementById("docAiResponseBox");
+    const answerText = document.getElementById("docAiAnswerText");
+    const footer = document.getElementById("aiFooter");
+
+    if (!question) {
+      answerText.innerText = "Please enter a valid question.";
+      responseBox.style.display = "block";
+      footer.innerText = "";
+      return;
+    }
+
+    if (freeAiCounter < aiLimit) {
+      // Simulate a sample AI answer (replace with real API in future)
+      let demoAnswer = "This is a sample AI response for: \"" + question + "\"\n";
+      demoAnswer += "(e.g. Make sure the invoice date matches the tax reporting period.)";
+
+      answerText.innerText = demoAnswer;
+      footer.innerHTML = `✅ You have ${aiLimit - freeAiCounter - 1} free questions left. <br><br><em>This is a SmartWerk AI preview. Upgrade to PRO to unlock full access.</em>`;
+      responseBox.style.display = "block";
+      freeAiCounter++;
+    } else {
+      answerText.innerText = "❌ You’ve reached the limit of free AI questions.";
+      footer.innerHTML = `Upgrade to <strong>PRO</strong> in your dashboard to continue using SmartWerk AI.`;
+      responseBox.style.display = "block";
+    }
+  });
+</script>
+
     <section class="ai-doc-frame">
   <h2>🤖 Ask SmartWerk AI – Documents</h2>
   <p>You can ask your accountant assistant about uploaded invoices, KvK, taxes and more.</p>
