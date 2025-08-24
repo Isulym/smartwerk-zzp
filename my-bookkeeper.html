@@ -814,102 +814,103 @@ function askSmartWerkAI() {
 </script>
 
 <script>
-  const documentList = document.getElementById('documentList');
+function handleUpload() {
+  const files = document.getElementById("uploadField").files;
+  const documentList = document.getElementById("documentList");
+  for (let file of files) {
+    const li = document.createElement("li");
+    li.dataset.filename = file.name;
+    li.dataset.status = "uploaded";
+    li.innerHTML = `
+      <strong>${file.name}</strong> (uploaded) – ${new Date().toLocaleString()}
+      <button onclick="setStatus(this, 'verified')">✅</button>
+      <button onclick="setStatus(this, 'rejected')">❌</button>
+      <button onclick="resetStatus(this)">🔁</button>
+      <button onclick="deleteFile(this)">🗑️</button>
+      <br><span class="comment-label">💬 Note:</span>
+      <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
+    `;
+    documentList.appendChild(li);
+  }
+  saveDocuments();
+}
 
-  function handleUpload() {
-    const files = document.getElementById('uploadField').files;
-    for (let file of files) {
-      const li = document.createElement('li');
-      li.setAttribute('data-filename', file.name);
-      li.setAttribute('data-status', 'uploaded');
-      li.innerHTML = `
-        • <strong>${file.name}</strong> 
-        <span class="status-label">(uploaded)</span> – ${new Date().toLocaleString()}
-        <button onclick="setStatus(this, 'verified')">✅</button>
-        <button onclick="setStatus(this, 'rejected')">❌</button>
-        <button onclick="resetStatus(this)">🔁</button>
-        <span class="comment-label">💬 Note:</span>
-        <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
-      `;
-      documentList.appendChild(li);
+function setStatus(button, status) {
+  const li = button.closest("li");
+  li.dataset.status = status;
+  updateTimestamp(li);
+  saveDocuments();
+}
+
+function resetStatus(button) {
+  const li = button.closest("li");
+  li.dataset.status = "uploaded";
+  updateTimestamp(li);
+  saveDocuments();
+}
+
+function deleteFile(button) {
+  const li = button.closest("li");
+  li.remove();
+  saveDocuments();
+}
+
+function saveComment(input) {
+  const li = input.closest("li");
+  li.dataset.comment = input.value;
+  saveDocuments();
+}
+
+function filterDocuments(status) {
+  const items = document.querySelectorAll("#documentList li");
+  items.forEach((item) => {
+    if (status === "all" || item.dataset.status === status) {
+      item.style.display = "";
+    } else {
+      item.style.display = "none";
     }
-    saveToStorage(); // збереження після upload
-    loadComments();  // автоматично показує збережені коментарі
-  }
+  });
+}
 
-  function setStatus(button, status) {
-    const li = button.closest('li');
-    li.setAttribute('data-status', status);
-    const label = li.querySelector('.status-label');
-    if (label) label.textContent = `(${status})`;
-    saveToStorage();
-  }
+function updateTimestamp(li) {
+  const textNode = li.childNodes[1];
+  textNode.textContent = ` (${li.dataset.status}) – ${new Date().toLocaleString()} `;
+}
 
-  function resetStatus(button) {
-    setStatus(button, 'uploaded');
-  }
-
-  function saveComment(input) {
-    const li = input.closest('li');
-    const filename = li.getAttribute('data-filename');
-    const comment = input.value;
-    localStorage.setItem(`comment_${filename}`, comment);
-  }
-
-  function loadComments() {
-    const items = document.querySelectorAll('li[data-filename]');
-    items.forEach(li => {
-      const filename = li.getAttribute('data-filename');
-      const input = li.querySelector('.comment-input');
-      const saved = localStorage.getItem(`comment_${filename}`);
-      if (input && saved) input.value = saved;
+function saveDocuments() {
+  const data = [];
+  document.querySelectorAll("#documentList li").forEach((li) => {
+    data.push({
+      filename: li.dataset.filename,
+      status: li.dataset.status,
+      comment: li.querySelector("input.comment-input")?.value || "",
+      time: new Date().toLocaleString(),
     });
-  }
+  });
+  localStorage.setItem("documentArchive", JSON.stringify(data));
+}
 
-  function filterDocuments(status) {
-    const items = document.querySelectorAll('li[data-filename]');
-    items.forEach(item => {
-      const itemStatus = item.getAttribute('data-status');
-      if (status === 'all' || itemStatus === status) {
-        item.style.display = 'list-item';
-      } else {
-        item.style.display = 'none';
-      }
-    });
-  }
+function loadDocuments() {
+  const saved = JSON.parse(localStorage.getItem("documentArchive") || "[]");
+  const documentList = document.getElementById("documentList");
+  saved.forEach((doc) => {
+    const li = document.createElement("li");
+    li.dataset.filename = doc.filename;
+    li.dataset.status = doc.status;
+    li.innerHTML = `
+      <strong>${doc.filename}</strong> (${doc.status}) – ${doc.time}
+      <button onclick="setStatus(this, 'verified')">✅</button>
+      <button onclick="setStatus(this, 'rejected')">❌</button>
+      <button onclick="resetStatus(this)">🔁</button>
+      <button onclick="deleteFile(this)">🗑️</button>
+      <br><span class="comment-label">💬 Note:</span>
+      <input type="text" class="comment-input" placeholder="Add comment..." value="${doc.comment}" oninput="saveComment(this)">
+    `;
+    documentList.appendChild(li);
+  });
+}
 
-  function saveToStorage() {
-    const allItems = [];
-    document.querySelectorAll('li[data-filename]').forEach(li => {
-      const filename = li.getAttribute('data-filename');
-      const status = li.getAttribute('data-status');
-      allItems.push({ filename, status });
-    });
-    localStorage.setItem('uploadedDocs', JSON.stringify(allItems));
-  }
-
-  function loadFromStorage() {
-    const data = JSON.parse(localStorage.getItem('uploadedDocs') || '[]');
-    for (let doc of data) {
-      const li = document.createElement('li');
-      li.setAttribute('data-filename', doc.filename);
-      li.setAttribute('data-status', doc.status);
-      li.innerHTML = `
-        • <strong>${doc.filename}</strong> 
-        <span class="status-label">(${doc.status})</span> – ${new Date().toLocaleString()}
-        <button onclick="setStatus(this, 'verified')">✅</button>
-        <button onclick="setStatus(this, 'rejected')">❌</button>
-        <button onclick="resetStatus(this)">🔁</button>
-        <span class="comment-label">💬 Note:</span>
-        <input type="text" class="comment-input" placeholder="Add comment..." oninput="saveComment(this)">
-      `;
-      documentList.appendChild(li);
-    }
-    loadComments();
-  }
-
-  // 🚀 Завантажити збережені документи при відкритті
-  document.addEventListener('DOMContentLoaded', loadFromStorage);
+document.addEventListener("DOMContentLoaded", loadDocuments);
 </script>
   
 </body>
