@@ -821,7 +821,14 @@ function handleUpload() {
   const files = document.getElementById("uploadField").files;
   const documentList = document.getElementById("documentList");
 
+ 
   for (let file of files) {
+      const reader = new FileReader();
+reader.onload = function () {
+  const base64 = reader.result;
+  localStorage.setItem(`file-${file.name}`, base64);
+};
+reader.readAsDataURL(file);
     const li = document.createElement("li");
     li.dataset.filename = file.name;
     li.dataset.status = "uploaded";
@@ -837,7 +844,7 @@ function handleUpload() {
 function renderListItem(li) {
   const { filename, status, comment, time } = li.dataset;
   li.innerHTML = `
-    <strong>${filename}</strong> (${status}) – ${time}
+  <strong>${filename}</strong> (${status}) – ${time || new Date().toLocaleString()}
     <button onclick="setStatus(this, 'verified')">✅</button>
     <button onclick="setStatus(this, 'rejected')">❌</button>
     <button onclick="setStatus(this, 'uploaded')">🔁</button>
@@ -904,9 +911,19 @@ function loadDocuments() {
   });
 }
 
-function downloadFile(filename) {
-  alert(`This is a demo. File "${filename}" would be downloaded here.`);
-  // У майбутньому — реалізуємо реальне збереження
+function downloadFile(name) {
+  const dataUrl = localStorage.getItem(`file-${name}`);
+  if (!dataUrl) {
+    alert("This file is not available for download.");
+    return;
+  }
+
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function exportToPDF() {
