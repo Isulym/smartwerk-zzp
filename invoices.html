@@ -187,8 +187,8 @@ function createInvoiceElement(data) {
       Date: ${data.date} • Amount: €${data.amount}
     </div>
   <div class="invoice-actions">
-  <button onclick="editInvoice(event)">✏️</button>
-  <button onclick="deleteInvoice(event)">🗑️</button>
+ <button onclick="editInvoice(this)">✏️</button>
+<button onclick="deleteInvoice(this)">🗑️</button>
 </div>
   `;
   li.setAttribute("data-status", data.status);
@@ -207,15 +207,15 @@ function createDummyInvoice() {
   saveInvoices();
 }
 
-function deleteInvoice(event) {
-  const li = event.target.closest("li");
+function deleteInvoice(btn) {
+  const li = btn.closest("li");
   if (!li) return;
   li.remove();
   saveInvoices();
 }
 
-function editInvoice(event) {
-  const li = event.target.closest("li");
+function editInvoice(btn) {
+  const li = btn.closest("li");
   if (!li) return;
 
   const newStatus = prompt("New status (paid / pending / overdue):", li.dataset.status);
@@ -226,8 +226,7 @@ function editInvoice(event) {
 
   li.dataset.status = newStatus;
   li.querySelector(".invoice-status-tag").innerText = newStatus;
-  li.querySelector(".invoice-status-tag").className = "invoice-status-tag " + newStatus;
-
+  li.querySelector(".invoice-status-tag").className = `invoice-status-tag ${newStatus}`;
   saveInvoices();
 }
 
