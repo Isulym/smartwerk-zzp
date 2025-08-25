@@ -44,6 +44,13 @@
       <h2>📑 Your Invoices</h2>
       <ul id="invoiceList"></ul>
     </section>
+    <section id="senderInfo">
+  <h3>📇 Your Business Info</h3>
+  <input type="text" id="senderName" placeholder="Your Name / Company">
+  <input type="text" id="senderKvK" placeholder="KvK Number">
+  <input type="text" id="senderIBAN" placeholder="IBAN">
+  <input type="email" id="senderEmail" placeholder="Your Email">
+</section>
   </main>
 
   <script>
@@ -224,39 +231,46 @@ loadInvoices();
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
 function exportInvoiceAsPDF(invoiceData) {
+  const senderName = document.getElementById("senderName").value;
+  const senderKvK = document.getElementById("senderKvK").value;
+  const senderIBAN = document.getElementById("senderIBAN").value;
+  const senderEmail = document.getElementById("senderEmail").value;
+
   const {
-    senderName,
-    senderKvK,
-    senderIBAN,
-    senderEmail,
-    receiverName,
-    receiverEmail,
-    invoiceNumber,
-    invoiceDate,
-    serviceDescription,
+    client: receiverName,
+    description: serviceDescription,
     amount,
-    status,
+    dueDate: invoiceDate,
+    status
   } = invoiceData;
+
+  const invoiceNumber = invoiceData.id;
 
   const vat = Math.round(amount * 0.21 * 100) / 100;
   const total = Math.round((amount + vat) * 100) / 100;
 
   const content = `
-    <div style="font-family:Arial, sans-serif; padding:30px; max-width:700px; margin:auto;">
+    <div style="font-family:Arial,sans-serif;padding:30px;max-width:700px;margin:auto;">
       <h1 style="text-align:center;">SmartWerk Invoice</h1>
       <p><strong>From:</strong><br>
         ${senderName}<br>
         KvK: ${senderKvK}<br>
         IBAN: ${senderIBAN}<br>
-        Email: ${senderEmail}</p>
-
+        Email: ${senderEmail}
+      </p>
       <p><strong>To:</strong><br>
         ${receiverName}<br>
-        Email: ${receiverEmail}</p>
-
+        Email: —
+      </p>
       <p><strong>Invoice Number:</strong> ${invoiceNumber}<br>
          <strong>Date:</strong> ${invoiceDate}<br>
-         <strong>Status:</strong> ${status}</p>
+         <strong>Status:</strong> ${status}
+      </p>
+      <p><strong>Service:</strong> ${serviceDescription}<br>
+         <strong>Amount:</strong> €${amount}<br>
+         <strong>VAT (21%):</strong> €${vat}<br>
+         <strong>Total:</strong> €${total}
+      </p>
     </div>
   `;
 
