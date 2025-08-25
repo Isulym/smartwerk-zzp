@@ -142,19 +142,23 @@
       const vat = parseFloat(document.getElementById("vat").value || "21");
       const vatAmount = (amount * vat / 100).toFixed(2);
       const total = (amount + parseFloat(vatAmount)).toFixed(2);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
-      doc.text("INVOICE", 20, 20);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text(\`Business: \${businessName}\`, 20, 30);
-      doc.text(\`KvK: \${kvk}\`, 20, 36);
-      doc.text(\`IBAN: \${iban}\`, 20, 42);
-      doc.text(\`Email: \${email}\`, 20, 48);
-      doc.text(\`Invoice #: \${invoiceNumber}\`, 140, 30);
-      doc.text(\`Date: \${invoiceDate}\`, 140, 36);
-      doc.text(\`Due: \${dueDate}\`, 140, 42);
-      doc.line(20, 52, 190, 52);
+    doc.setFont("helvetica", "bold");
+doc.setFontSize(16);
+doc.text("INVOICE", 20, 20);
+
+doc.setFont("helvetica", "normal");
+doc.setFontSize(10);
+
+doc.text(`Business: ${businessName}`, 20, 30);
+doc.text(`KvK: ${kvk}`, 20, 36);
+doc.text(`IBAN: ${iban}`, 20, 42);
+doc.text(`Email: ${email}`, 20, 48);
+
+doc.text(`Invoice #: ${invoiceNumber}`, 140, 30);
+doc.text(`Date: ${invoiceDate}`, 140, 36);
+doc.text(`Due: ${dueDate}`, 140, 42);
+
+doc.line(20, 52, 190, 52);
       doc.setFontSize(12);
       doc.text(\`Bill To: \${clientName}\`, 20, 60);
       doc.setFontSize(11);
