@@ -47,10 +47,9 @@
 <ul id="invoiceList"></ul>
   <br><br>
   <button onclick="generatePreview()">🔍 Preview</button>
-  <button onclick="saveInvoice()">✅ Save Invoice</button>
-  <button onclick="exportPDF()">⬇️ Export PDF</button>
+  <button id="btn-save">💾 Save Invoice</button>
   <button id="btn-export">📤 Export PDF</button>
-<button id="btn-email">📧 Send to Email</button>
+  <button id="btn-email">📧 Send to Email</button>
 </div>
 
 <hr>
@@ -170,30 +169,37 @@ Notes: ${notes}
   document.getElementById("invoicePreview").innerText = preview;
 }
 
-function saveInvoiceToLocalStorage() {
+ function saveInvoice() {
     const invoice = {
       businessName: document.getElementById('businessName').value,
-      kvk: document.getElementById('kvkNumber').value,
+      kvk: document.getElementById('kvk').value,
       iban: document.getElementById('iban').value,
       email: document.getElementById('email').value,
-      clientName: document.getElementById('clientName').value,
+      client: document.getElementById('client').value,
       description: document.getElementById('description').value,
-      amount: parseFloat(document.getElementById('amount').value || 0),
-      vat: parseFloat(document.getElementById('vat').value || 0),
+      amount: parseFloat(document.getElementById('amount').value),
+      vat: parseFloat(document.getElementById('vat').value),
       notes: document.getElementById('notes').value,
-      date: new Date().toISOString().split('T')[0], // поточна дата
-      id: Date.now() // унікальний ID
     };
 
     let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
     invoices.push(invoice);
     localStorage.setItem('invoices', JSON.stringify(invoices));
+    alert('Invoice saved!');
   }
 
-  // Підключаємо збереження до кнопки PDF або Email
-  document.getElementById('btn-export').addEventListener('click', saveInvoiceToLocalStorage);
-  document.getElementById('btn-email').addEventListener('click', saveInvoiceToLocalStorage);
-    
+  function exportPDF() {
+    // Твоя логіка PDF (приклад базового)
+    const doc = new jsPDF();
+    doc.text("SmartWerk Invoice", 20, 20);
+    doc.text(`Client: ${document.getElementById('client').value}`, 20, 30);
+    doc.text(`Amount: €${document.getElementById('amount').value}`, 20, 40);
+    doc.save('invoice_smartwerk.pdf');
+  }
+
+  // Підключаємо кнопки
+  document.getElementById('btn-save').addEventListener('click', saveInvoice);
+  document.getElementById('btn-export').addEventListener('click', exportPDF);
   </script>
 </body>
 </html>
