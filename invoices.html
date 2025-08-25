@@ -16,9 +16,8 @@
 </head>
 <body>
 
-  <h1>📤 Step 3: Preview & Export</h1>
-<div id="step3" class="step">
-  <h2>📄 Step 3: Review & Export</h2>
+  <h1>📤 SmartWerk Invoice</h1>
+<div id="step3" class="step">   
 
   <label>Business Name: <input id="businessName" /></label>
   <label>KvK Number: <input id="kvkNumber" /></label>
@@ -44,6 +43,8 @@
 
   <label>Notes: <textarea id="notes"></textarea></label>
 
+  <h3>🧾 Saved Invoices</h3>
+<ul id="invoiceList"></ul>
   <br><br>
   <button onclick="generatePreview()">🔍 Preview</button>
   <button onclick="saveInvoice()">✅ Save Invoice</button>
@@ -166,6 +167,30 @@ Notes: ${notes}
   `;
   document.getElementById("invoicePreview").innerText = preview;
 }
+
+function saveInvoiceToLocalStorage() {
+    const invoice = {
+      businessName: document.getElementById('businessName').value,
+      kvk: document.getElementById('kvkNumber').value,
+      iban: document.getElementById('iban').value,
+      email: document.getElementById('email').value,
+      clientName: document.getElementById('clientName').value,
+      description: document.getElementById('description').value,
+      amount: parseFloat(document.getElementById('amount').value || 0),
+      vat: parseFloat(document.getElementById('vat').value || 0),
+      notes: document.getElementById('notes').value,
+      date: new Date().toISOString().split('T')[0], // поточна дата
+      id: Date.now() // унікальний ID
+    };
+
+    let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+    invoices.push(invoice);
+    localStorage.setItem('invoices', JSON.stringify(invoices));
+  }
+
+  // Підключаємо збереження до кнопки PDF або Email
+  document.getElementById('btn-export').addEventListener('click', saveInvoiceToLocalStorage);
+  document.getElementById('btn-email').addEventListener('click', saveInvoiceToLocalStorage);
     
   </script>
 </body>
