@@ -136,31 +136,27 @@ function editInvoice(id) {
       renderInvoices(status);
     }
     document.addEventListener("DOMContentLoaded", () => renderInvoices());
-   async function exportInvoiceAsPDF() {
-  const { jsPDF } = window.jspdf;
+   function exportInvoiceAsPDF() {
   const doc = new jsPDF();
+  
+  // СЮДИ ВСТАВ:
+  const businessName = document.getElementById("businessName").value;
+  const kvk = document.getElementById("kvkNumber").value;
+  const iban = document.getElementById("iban").value;
+  const email = document.getElementById("email").value;
+  const invoiceNumber = document.getElementById("invoiceNumber").value;
+  const invoiceDate = document.getElementById("invoiceDate").value;
+  const dueDate = document.getElementById("dueDate").value;
+  const clientName = document.getElementById("clientName").value;
+  const description = document.getElementById("description").value;
+  const amount = parseFloat(document.getElementById("amount").value) || 0;
+  const vat = parseFloat(document.getElementById("vat").value) || 0;
 
-  // Дані
-  const businessName = document.getElementById("businessName").value || "Your Company";
-  const kvk = document.getElementById("kvk").value || "-";
-  const iban = document.getElementById("iban").value || "-";
-  const email = document.getElementById("email").value || "-";
-  const invoiceNumber = document.getElementById("invoiceNumber").value || "001";
-  const invoiceDate = document.getElementById("invoiceDate").value || new Date().toLocaleDateString();
-  const dueDate = document.getElementById("dueDate").value || "-";
-  const clientName = document.getElementById("clientName").value || "-";
-  const description = document.getElementById("description").value || "Service description";
-  const amount = parseFloat(document.getElementById("amount").value || "0");
-  const vat = parseFloat(document.getElementById("vat").value || "21");
-
-  const vatAmount = (amount * vat / 100).toFixed(2);
-  const total = (amount + parseFloat(vatAmount)).toFixed(2);
-
-  // Створення PDF
+  // А потім іде вже генерація PDF:
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.text("INVOICE", 20, 20);
-
+  
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.text(`Business: ${businessName}`, 20, 30);
@@ -173,7 +169,6 @@ function editInvoice(id) {
   doc.text(`Due: ${dueDate}`, 140, 42);
 
   doc.line(20, 52, 190, 52);
-
   doc.setFontSize(12);
   doc.text(`Bill To: ${clientName}`, 20, 60);
 
@@ -181,20 +176,14 @@ function editInvoice(id) {
   doc.text("Description", 20, 72);
   doc.text("Amount (€)", 160, 72);
   doc.line(20, 74, 190, 74);
-
-  doc.text(`${description}`, 20, 82);
+  doc.text(description, 20, 82);
   doc.text(`${amount.toFixed(2)}`, 160, 82);
-
+  const vatAmount = (amount * vat / 100).toFixed(2);
+  const total = (amount + parseFloat(vatAmount)).toFixed(2);
   doc.text(`VAT (${vat}%)`, 20, 94);
   doc.text(`${vatAmount}`, 160, 94);
-
-  doc.setFontSize(13);
-  doc.text(`Total: € ${total}`, 20, 110);
-
-  // Footer
-  doc.setFontSize(9);
-  doc.setTextColor(150);
-  doc.text("SmartWerk — Freelance Invoicing Tool", 20, 280);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total: €${total}`, 20, 106);
 
   doc.save(`invoice_smartwerk_${invoiceNumber}.pdf`);
 }
