@@ -214,32 +214,40 @@ function deleteInvoice(event) {
   saveInvoices();
 }
 
+// ✅ Видалити інвойс
+function deleteInvoice(event) {
+  const li = event.target.closest("li");
+  if (!li) return;
+  li.remove();
+  saveInvoices(); // оновлює localStorage
+}
+
+// ✅ Редагувати статус інвойсу
 function editInvoice(event) {
   const li = event.target.closest("li");
   if (!li) return;
-  const newStatus = prompt("New status (paid / pending / overdue):", li.dataset.status);
+
+  const currentStatus = li.dataset.status || "draft";
+  const newStatus = prompt("New status (paid / pending / overdue):", currentStatus);
   if (!newStatus) return;
+
   const valid = ["paid", "pending", "overdue"];
-  if (!valid.includes(newStatus)) return alert("Invalid status");
+  if (!valid.includes(newStatus)) {
+    alert("❌ Invalid status. Please enter: paid / pending / overdue");
+    return;
+  }
 
+  // оновити статус у <li>
   li.dataset.status = newStatus;
-  li.querySelector(".invoice-status-tag").innerText = newStatus;
-  li.querySelector(".invoice-status-tag").className = `invoice-status-tag ${newStatus}`;
-  saveInvoices();
-}
-    
-// Filter
-function filterInvoices(status) {
-  document.querySelectorAll("#invoiceList li").forEach((li) => {
-    li.style.display = (status === "all" || li.dataset.status === status) ? "block" : "none";
-  });
-  invoiceFilterButtons.forEach((btn) => btn.classList.remove("active"));
-  document.querySelector(`[onclick*="${status}"]`).classList.add("active");
-}
 
-// INIT
-loadInvoices();
-  </script>
+  const tag = li.querySelector(".invoice-status-tag");
+  if (tag) {
+    tag.innerText = newStatus;
+    tag.className = `invoice-status-tag ${newStatus}`;
+  }
+
+  saveInvoices(); // зберегти оновлений статус
+}
 
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
