@@ -86,13 +86,13 @@
       invoices.forEach((invoice) => {
         if (filter === "all" || invoice.status === filter) {
           const li = document.createElement("li");
-          li.innerHTML = \`
-            <strong>\${invoice.client}</strong> – €\${invoice.amount} <br>
-            \${invoice.description} | Due: \${invoice.dueDate} | <span>\${invoice.status}</span><br>
-            <button onclick="markAsPaid(\${invoice.id})">✅</button>
-            <button onclick="editInvoice(\${invoice.id})">✏️</button>
-            <button onclick="deleteInvoice(\${invoice.id})">🗑️</button>
-          \`;
+         li.innerHTML = `
+  <strong>${invoice.client}</strong> – €${invoice.amount} <br>
+  ${invoice.description} | Due: ${invoice.dueDate} | <span>${invoice.status}</span><br>
+  <button onclick="markAsPaid(${invoice.id})">✅</button>
+  <button onclick="editInvoice(${invoice.id})">✏️</button>
+  <button onclick="deleteInvoice(${invoice.id})">🗑️</button>
+`;
           invoiceList.appendChild(li);
         }
       });
