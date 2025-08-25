@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoices & Documents | SmartWerk</title>
+  <link rel="stylesheet" href="style-invoices.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <main>
+    <h1>🧾 Invoices & Documents</h1>
+    <!-- ➕ Add New Invoice Form -->
+    <section class="add-invoice">
+      <h2>➕ Add Invoice</h2>
+      <form id="invoiceForm">
+        <input type="text" id="client" placeholder="Client Name" required />
+        <input type="text" id="description" placeholder="Description" required />
+        <input type="number" id="amount" placeholder="Amount (EUR)" required />
+        <input type="date" id="dueDate" required />
+        <select id="status">
+          <option value="draft">📝 Draft</option>
+          <option value="sent">📤 Sent</option>
+          <option value="paid">✅ Paid</option>
+        </select>
+        <button type="submit">Add Invoice</button>
+      </form>
+    </section>
+    <!-- 🔍 Filters -->
+    <section class="filter-controls">
+      <h2>🔍 Filter by Status</h2>
+      <button onclick="filterInvoices('all')">📋 All</button>
+      <button onclick="filterInvoices('draft')">📝 Draft</button>
+      <button onclick="filterInvoices('sent')">📤 Sent</button>
+      <button onclick="filterInvoices('paid')">✅ Paid</button>
+      <button onclick="filterInvoices('overdue')">⏰ Overdue</button>
+      <button onclick="filterInvoices('canceled')">❌ Canceled</button>
+      <button class="export-btn" onclick="exportInvoiceAsPDF()">📤 Export Invoice as PDF</button>
+    </section>
+    <!-- 📑 Invoice List -->
+    <section>
+      <h2>📑 Your Invoices</h2>
+      <ul id="invoiceList"></ul>
+    </section>
+    <!-- Step 3: Review & Export -->
+    <section class="step-3">
+      <h2>📤 Step 3: Review & Export</h2>
+      <label>Business Name: <input id="businessName" placeholder="SmartWerk B.V."></label><br>
+      <label>KvK Number: <input id="kvk" placeholder="12345678"></label><br>
+      <label>IBAN: <input id="iban" placeholder="NL00BANK0123456789"></label><br>
+      <label>Email: <input id="email" placeholder="info@smartwerk.nl"></label><br>
+      <label>Invoice Number: <input id="invoiceNumber" placeholder="2025-001"></label><br>
+      <label>Invoice Date: <input id="invoiceDate" type="date"></label><br>
+      <label>Due Date: <input id="dueDate" type="date"></label><br>
+      <label>Client Name: <input id="clientName" placeholder="Client Company B.V."></label><br>
+      <label>Service Description: <input id="description" placeholder="Consulting Services"></label><br>
+      <label>Amount (EUR): <input id="amount" type="number" step="0.01" placeholder="1000.00"></label><br>
+      <label>VAT (%): <input id="vat" type="number" step="0.01" placeholder="21"></label><br>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById("invoiceForm");
+    const invoiceList = document.getElementById("invoiceList");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const invoice = {
+        id: Date.now(),
+        client: form.client.value,
+        description: form.description.value,
+        amount: form.amount.value,
+        dueDate: form.dueDate.value,
+        status: form.status.value,
+      };
+      saveInvoice(invoice);
+      form.reset();
+    });
+    function saveInvoice(invoice) {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      invoices.push(invoice);
+      localStorage.setItem("invoices", JSON.stringify(invoices));
+      renderInvoices();
+    }
+    function renderInvoices(filter = "all") {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      invoiceList.innerHTML = "";
+      invoices.forEach((invoice) => {
+        if (filter === "all" || invoice.status === filter) {
+          const li = document.createElement("li");
+          li.innerHTML = \`
+            <strong>\${invoice.client}</strong> – €\${invoice.amount} <br>
+            \${invoice.description} | Due: \${invoice.dueDate} | <span>\${invoice.status}</span><br>
+            <button onclick="markAsPaid(\${invoice.id})">✅</button>
+            <button onclick="editInvoice(\${invoice.id})">✏️</button>
+            <button onclick="deleteInvoice(\${invoice.id})">🗑️</button>
+          \`;
+          invoiceList.appendChild(li);
+        }
+      });
+    }
+    function deleteInvoice(id) {
+      let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      invoices = invoices.filter((inv) => inv.id !== id);
+      localStorage.setItem("invoices", JSON.stringify(invoices));
+      renderInvoices();
+    }
+    function markAsPaid(id) {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      const updated = invoices.map((inv) => {
+        if (inv.id === id) inv.status = "paid";
+        return inv;
+      });
+      localStorage.setItem("invoices", JSON.stringify(updated));
+      renderInvoices();
+    }
+    function editInvoice(id) {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      const invoice = invoices.find((inv) => inv.id === id);
+      form.client.value = invoice.client;
+      form.description.value = invoice.description;
+      form.amount.value = invoice.amount;
+      form.dueDate.value = invoice.dueDate;
+      form.status.value = invoice.status;
+      deleteInvoice(id);
+    }
+    function filterInvoices(status) {
+      renderInvoices(status);
+    }
+    document.addEventListener("DOMContentLoaded", () => renderInvoices());
+    function exportInvoiceAsPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const businessName = document.getElementById("businessName").value || "Your Company";
+      const kvk = document.getElementById("kvk").value || "-";
+      const iban = document.getElementById("iban").value || "-";
+      const email = document.getElementById("email").value || "-";
+      const invoiceNumber = document.getElementById("invoiceNumber").value || "001";
+      const invoiceDate = document.getElementById("invoiceDate").value || new Date().toLocaleDateString();
+      const dueDate = document.getElementById("dueDate").value || "-";
+      const clientName = document.getElementById("clientName").value || "-";
+      const description = document.getElementById("description").value || "Service description";
+      const amount = parseFloat(document.getElementById("amount").value || "0");
+      const vat = parseFloat(document.getElementById("vat").value || "21");
+      const vatAmount = (amount * vat / 100).toFixed(2);
+      const total = (amount + parseFloat(vatAmount)).toFixed(2);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("INVOICE", 20, 20);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(\`Business: \${businessName}\`, 20, 30);
+      doc.text(\`KvK: \${kvk}\`, 20, 36);
+      doc.text(\`IBAN: \${iban}\`, 20, 42);
+      doc.text(\`Email: \${email}\`, 20, 48);
+      doc.text(\`Invoice #: \${invoiceNumber}\`, 140, 30);
+      doc.text(\`Date: \${invoiceDate}\`, 140, 36);
+      doc.text(\`Due: \${dueDate}\`, 140, 42);
+      doc.line(20, 52, 190, 52);
+      doc.setFontSize(12);
+      doc.text(\`Bill To: \${clientName}\`, 20, 60);
+      doc.setFontSize(11);
+      doc.text("Description", 20, 72);
+      doc.text("Amount (€)", 160, 72);
+      doc.line(20, 74, 190, 74);
+      doc.text(description, 20, 82);
+      doc.text(\`\${amount.toFixed(2)}\`, 160, 82);
+      doc.text(\`VAT (\${vat}%)\`, 20, 94);
+      doc.text(\`\${vatAmount}\`, 160, 94);
+      doc.setFontSize(13);
+      doc.text(\`Total: € \${total}\`, 20, 110);
+      doc.setFontSize(9);
+      doc.setTextColor(150);
+      doc.text("SmartWerk — Freelance Invoicing Tool", 20, 280);
+      doc.save(\`invoice_smartwerk_\${invoiceNumber}.pdf\`);
+    }
+  </script>
+</body>
+</html>
