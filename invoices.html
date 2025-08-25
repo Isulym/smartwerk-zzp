@@ -17,38 +17,46 @@
 <body>
 
   <h1>📤 Step 3: Preview & Export</h1>
+<div id="step3" class="step">
+  <h2>📄 Step 3: Review & Export</h2>
 
-  <label>Business Name: <input id="businessName"></label>
-  <label>KvK Number: <input id="kvk"></label>
-  <label>IBAN: <input id="iban"></label>
-  <label>Email: <input id="email"></label>
-  <label>Client Name: <input id="clientName"></label>
-  <label>Service Description: <input id="serviceDescription"></label>
-  <label>Amount (EUR): <input id="amount" type="number"></label>
-  <label>VAT (%): <input id="vatRate" type="number"></label>
-  <label>Notes: <textarea id="invoiceNotes"></textarea></label>
+  <label>Business Name: <input id="businessName" /></label>
+  <label>KvK Number: <input id="kvkNumber" /></label>
+  <label>IBAN: <input id="iban" /></label>
+  <label>Email: <input id="email" /></label>
 
-  <div class="preview-box">
-    <h2>Preview:</h2>
-    <p><strong>Business:</strong> <span id="previewBusinessName">–</span></p>
-    <p><strong>KvK:</strong> <span id="previewKvK">–</span></p>
-    <p><strong>IBAN:</strong> <span id="previewIBAN">–</span></p>
-    <p><strong>Email:</strong> <span id="previewEmail">–</span></p>
-    <hr>
-    <p><strong>Client:</strong> <span id="previewClient">–</span></p>
-    <p><strong>Description:</strong> <span id="previewService">–</span></p>
-    <p><strong>Amount:</strong> €<span id="previewAmount">–</span></p>
-    <p><strong>VAT:</strong> <span id="previewVAT">–</span>%</p>
-    <p><strong>Notes:</strong> <span id="previewNotes">–</span></p>
-    <hr>
-    <p><strong>Total (incl. VAT):</strong> €<span id="previewTotal">–</span></p>
-  </div>
+  <label>Client Name: <input id="clientName" /></label>
+  <label>Service Description: <input id="description" /></label>
+  <label>Amount (EUR): <input type="number" id="amount" /></label>
+  <label>VAT (%): <input type="number" id="vat" value="21" /></label>
 
-  <div class="export-buttons">
-    <button onclick="generatePDF()">📄 Export PDF</button>
-    <button onclick="sendInvoice()">📬 Send to Email</button>
-  </div>
+  <label>Invoice Date: <input type="date" id="invoiceDate" /></label>
+  <label>Due Date: <input type="date" id="dueDate" /></label>
 
+  <label>Status:
+    <select id="status">
+      <option>Draft</option>
+      <option>Sent</option>
+      <option>Paid</option>
+      <option>Cancelled</option>
+    </select>
+  </label>
+
+  <label>Notes: <textarea id="notes"></textarea></label>
+
+  <br><br>
+  <button onclick="generatePreview()">🔍 Preview</button>
+  <button onclick="saveInvoice()">✅ Save Invoice</button>
+  <button onclick="exportPDF()">⬇️ Export PDF</button>
+</div>
+
+<hr>
+
+<div id="previewBox" style="border: 1px solid #ccc; padding: 15px; margin-top: 15px; background: #f9f9f9;">
+  <h3>Preview:</h3>
+  <pre id="invoicePreview">Fill in the form and click "Preview"</pre>
+</div>
+  
   <script>
     function updatePreview() {
       const business = document.getElementById("businessName").value;
@@ -120,6 +128,45 @@
     function sendInvoice() {
       alert("📬 This feature will allow email sending in PRO version.");
     }
+function generatePreview() {
+  const businessName = document.getElementById("businessName").value;
+  const kvk = document.getElementById("kvkNumber").value;
+  const iban = document.getElementById("iban").value;
+  const email = document.getElementById("email").value;
+
+  const client = document.getElementById("clientName").value;
+  const description = document.getElementById("description").value;
+  const amount = parseFloat(document.getElementById("amount").value) || 0;
+  const vat = parseFloat(document.getElementById("vat").value) || 0;
+
+  const invoiceDate = document.getElementById("invoiceDate").value;
+  const dueDate = document.getElementById("dueDate").value;
+  const status = document.getElementById("status").value;
+  const notes = document.getElementById("notes").value;
+
+  const vatAmount = (amount * vat) / 100;
+  const total = amount + vatAmount;
+
+  const preview = `
+Business: ${businessName}
+KvK: ${kvk}
+IBAN: ${iban}
+Email: ${email}
+
+Client: ${client}
+Description: ${description}
+Amount: €${amount.toFixed(2)}
+VAT (${vat}%): €${vatAmount.toFixed(2)}
+Total (incl. VAT): €${total.toFixed(2)}
+
+Invoice Date: ${invoiceDate}
+Due Date: ${dueDate}
+Status: ${status}
+Notes: ${notes}
+  `;
+  document.getElementById("invoicePreview").innerText = preview;
+}
+    
   </script>
 </body>
 </html>
