@@ -112,16 +112,26 @@
       localStorage.setItem("invoices", JSON.stringify(updated));
       renderInvoices();
     }
-    function editInvoice(id) {
-      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-      const invoice = invoices.find((inv) => inv.id === id);
-      form.client.value = invoice.client;
-      form.description.value = invoice.description;
-      form.amount.value = invoice.amount;
-      form.dueDate.value = invoice.dueDate;
-      form.status.value = invoice.status;
-      deleteInvoice(id);
-    }
+function editInvoice(id) {
+  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
+  const invoice = invoices.find(inv => inv.id === id);
+  if (!invoice) return;
+
+  // Автоматично заповнюємо поля у Step 3
+  document.getElementById("businessName").value = "smartwerk";
+  document.getElementById("kvk").value = "32326";
+  document.getElementById("iban").value = "rabo327627";
+  document.getElementById("email").value = "smartwerk.team@gmail.com";
+  document.getElementById("invoiceNumber").value = invoice.invoiceNumber || "001";
+  document.getElementById("invoiceDate").value = invoice.invoiceDate || new Date().toISOString().split("T")[0];
+  document.getElementById("dueDate").value = invoice.dueDate || "";
+  document.getElementById("clientName").value = invoice.client || "";
+  document.getElementById("description").value = invoice.description || "";
+  document.getElementById("amount").value = invoice.amount || 0;
+  document.getElementById("vat").value = invoice.vat || 21;
+
+  alert("Step 3 updated ✅ You can now export to PDF!");
+}
     function filterInvoices(status) {
       renderInvoices(status);
     }
