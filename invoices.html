@@ -594,6 +594,33 @@ document.addEventListener("DOMContentLoaded", function () {
     console.error("❌ Form with id 'invoiceInfoForm' not found.");
   }
 });
+  document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("invoiceInfoForm");
+
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const newInvoice = {
+        clientName: document.getElementById("clientName").value,
+        description: document.getElementById("description").value,
+        amount: parseFloat(document.getElementById("amount").value),
+        dueDate: document.getElementById("dueDate").value,
+        status: document.getElementById("status").value
+      };
+
+      // 🔄 Збереження в localStorage
+      const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
+      invoices.push(newInvoice);
+      localStorage.setItem("invoices", JSON.stringify(invoices));
+
+      // ✅ Оновити список інвойсів
+      updateInvoiceList();
+    });
+  } else {
+    console.error("❌ Form with id 'invoiceInfoForm' not found.");
+  }
+});
 </script>
 </body>
 </html>
