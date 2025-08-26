@@ -572,9 +572,27 @@ document.addEventListener("DOMContentLoaded", function () {
     alert("🧾 PDF export will be implemented next!");
   };
 });
-</script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("invoiceInfoForm");
 
-  };
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const newInvoice = {
+        clientName: document.getElementById("clientName").value,
+        description: document.getElementById("description").value,
+        amount: parseFloat(document.getElementById("amount").value),
+        dueDate: document.getElementById("dueDate").value,
+        status: document.getElementById("status").value,
+      };
+
+      // Додай логіку збереження тут...
+      console.log("New invoice:", newInvoice);
+    });
+  } else {
+    console.error("❌ Form with id 'invoiceInfoForm' not found.");
+  }
 });
 </script>
 </body>
