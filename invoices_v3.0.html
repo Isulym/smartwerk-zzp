@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk Invoice Manager</title>
+  <link rel="stylesheet" href="style-invoices.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <main>
+    <h1>📊 Invoice Manager</h1>
+
+    <!-- Step 1: Business & Client Info -->
+    <section class="step">
+      <h2>🏢 Step 1: Business Info</h2>
+      <input id="businessName" placeholder="Business Name" />
+      <input id="kvk" placeholder="KvK Number" />
+      <input id="iban" placeholder="IBAN" />
+      <input id="email" placeholder="Email" />
+    </section>
+
+    <section class="step">
+      <h2>👤 Step 2: Client Info</h2>
+      <input id="clientName" placeholder="Client Name" />
+      <input id="invoiceNumber" placeholder="Invoice Number" />
+      <input id="invoiceDate" type="date" />
+      <input id="dueDate" type="date" />
+    </section>
+
+    <!-- Step 3: Invoice Items -->
+    <section class="step">
+      <h2>📝 Step 3: Invoice Items</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>VAT (%)</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+      <button onclick="addItem()">➕ Add Item</button>
+    </section>
+
+    <!-- Summary -->
+    <section class="step">
+      <h2>📦 Summary</h2>
+      <textarea id="note" placeholder="Invoice note (optional)..."></textarea><br/>
+      <p><strong>Subtotal:</strong> <span id="subtotal">€0.00</span></p>
+      <p><strong>Total VAT:</strong> <span id="totalVat">€0.00</span></p>
+      <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
+    </section>
+
+    <!-- Controls -->
+    <section class="step">
+      <h2>⚙️ Actions</h2>
+      <button onclick="saveInvoice()">💾 Save Invoice</button>
+      <input type="text" id="searchInput" placeholder="Search client..."/>
+      <button onclick="searchInvoices()">🔍 Search</button>
+      <button onclick="renderInvoices()">📋 Show All</button>
+    </section>
+
+    <!-- Saved Invoices -->
+    <section class="step">
+      <h2>📁 Saved Invoices</h2>
+      <ul id="invoiceList"></ul>
+    </section>
+  </main>
+
+<script>
+  function addItem() {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input class="desc" placeholder="Service..." /></td>
+      <td><input class="qty" type="number" value="1" min="1" onchange="updateTotals()" /></td>
+      <td><input class="price" type="number" value="0" step="0.01" onchange="updateTotals()" /></td>
+      <td><input class="vat" type="number" value="21" step="1" onchange="updateTotals()" /></td>
+      <td class="item-total">€0.00</td>
+      <td><button onclick="this.parentElement.parentElement.remove(); updateTotals();">❌</button></td>`;
+    document.getElementById('itemsBody').appendChild(row);
+    updateTotals();
+  }
+
+  function updateTotals() {
+    let subtotal = 0, totalVat = 0;
+    document.querySelectorAll('#itemsBody tr').forEach(row => {
+      const qty = parseFloat(row.querySelector('.qty').value) || 0;
+      const price = parseFloat(row.querySelector('.price').value) || 0;
+      const vat = parseFloat(row.querySelector('.vat').value) || 0;
+      const itemTotal = qty * price;
+      const itemVat = itemTotal * vat / 100;
+      row.querySelector('.item-total').innerText = `€${(itemTotal + itemVat).toFixed(2)}`;
+      subtotal += itemTotal;
+      totalVat += itemVat;
+    });
+    document.getElementById('subtotal').innerText = `€${subtotal.toFixed(2)}`;
+    document.getElementById('totalVat').innerText = `€${totalVat.toFixed(2)}`;
+    document.getElementById('grandTotal').innerText = `€${(subtotal + totalVat).toFixed(2)}`;
+  }
+
+  function saveInvoice() {
+    const data = {
+      businessName: document.getElementById("businessName").value,
+      kvk: document.getElementById("kvk").value,
+      iban: document.getElementById("iban").value,
+      email: document.getElementById("email").value,
+      clientName: document.getElementById("clientName").value,
+      invoiceNumber: document.getElementById("invoiceNumber").value || `INV-${Date.now()}`,
+      invoiceDate: document.getElementById("invoiceDate").value,
+      dueDate: document.getElementById("dueDate").value,
+      note: document.getElementById("note").value,
+      items: [],
+    };
+    document.querySelectorAll("#itemsBody tr").forEach(row => {
+      data.items.push({
+        desc: row.querySelector('.desc').value,
+        qty: row.querySelector('.qty').value,
+        price: row.querySelector('.price').value,
+        vat: row.querySelector('.vat').value
+      });
+    });
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+    invoices.push(data);
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    renderInvoices();
+  }
+
+  function renderInvoices() {
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+    const ul = document.getElementById("invoiceList");
+    ul.innerHTML = "";
+    invoices.forEach((inv, i) => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <strong>${inv.clientName}</strong> – ${inv.invoiceNumber}
+        <button onclick="downloadPDF(${i})">📄 PDF</button>
+        <button onclick="deleteInvoice(${i})">🗑️ Delete</button>`;
+      ul.appendChild(li);
+    });
+  }
+
+  function deleteInvoice(index) {
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+    invoices.splice(index, 1);
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    renderInvoices();
+  }
+
+  function downloadPDF(index) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const inv = JSON.parse(localStorage.getItem("invoices"))[index];
+    doc.setFontSize(12);
+    doc.text(`Invoice #: ${inv.invoiceNumber}`, 20, 20);
+    doc.text(`Date: ${inv.invoiceDate} | Due: ${inv.dueDate}`, 20, 26);
+    doc.text(`Business: ${inv.businessName} | KvK: ${inv.kvk}`, 20, 32);
+    doc.text(`Client: ${inv.clientName}`, 20, 38);
+    doc.text(`IBAN: ${inv.iban} | Email: ${inv.email}`, 20, 44);
+    let y = 54;
+    inv.items.forEach(item => {
+      doc.text(`${item.qty} x ${item.desc} @ €${item.price} + VAT ${item.vat}%`, 20, y);
+      y += 6;
+    });
+    doc.text(`Note: ${inv.note}`, 20, y + 6);
+    doc.save(`${inv.invoiceNumber}.pdf`);
+  }
+
+  function searchInvoices() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+    const filtered = invoices.filter(inv => inv.clientName.toLowerCase().includes(search));
+    const ul = document.getElementById("invoiceList");
+    ul.innerHTML = "";
+    filtered.forEach((inv, i) => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <strong>${inv.clientName}</strong> – ${inv.invoiceNumber}
+        <button onclick="downloadPDF(${i})">📄 PDF</button>
+        <button onclick="deleteInvoice(${i})">🗑️ Delete</button>`;
+      ul.appendChild(li);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", renderInvoices);
+</script>
+</body>
+</html>
