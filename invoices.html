@@ -8,9 +8,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-<!-- ✅ Step 1: Business & Client Info (об'єднаний блок) -->
+<!-- Step 1: Info -->
 <section class="step" id="step-1">
-  <h2>🧾 Step 1: Business & Client Info</h2>
+  <h2>Step 1: Business & Client Info</h2>
   <form id="invoiceInfoForm">
     <label>Business Name:
       <input type="text" id="businessName" required>
@@ -43,12 +43,13 @@
         <option value="Paid">Paid</option>
       </select>
     </label><br><br>
-    <button type="button" onclick="saveInvoiceInfo()">💾 Save Info</button>
+    <button type="button" id="saveInfo" class="btn">💾 Save Info</button>
   </form>
 </section>
 
-  <!-- Step 2: Add Line Items -->
+ <!-- Step 2: Line Items -->
 <section class="step" id="step-2">
+  <h2>Step 2: Add Line Items</h2>
   <table>
     <thead>
       <tr>
@@ -71,25 +72,26 @@
       </tr>
     </tbody>
   </table>
-  <button onclick="addItemRow()">➕ Add Item</button>
+  <br>
+  <button class="btn" onclick="addItemRow()">➕ Add Item</button>
 </section>
 
   <h3>📄 Saved Invoices</h3>
 <ul id="invoiceList"></ul>
 <!-- Step 3: Summary & Export -->
 <section class="step" id="step-3">
-  <h2>📄 Step 3: Summary & Export</h2>
+  <h2>Step 3: Summary & Export</h2>
   <div class="summary-box">
-    <p>🏢 Business: <span id="summaryBusinessName"></span></p>
-    <p>🏦 IBAN: <span id="summaryIBAN"></span> | KvK: <span id="summaryKvK"></span></p>
-    <p>📧 Email: <span id="summaryEmail"></span></p>
-    <p>🧾 Invoice #: <span id="summaryInvoiceNumber"></span> | 📅 Date: <span id="summaryInvoiceDate"></span> | 🕑 Due: <span id="summaryDueDate"></span></p>
-    <p>👤 Client: <span id="summaryClient"></span></p>
-    <p><strong>Total Amount:</strong> <span id="invoiceTotalAmount">0.00</span> €</p>
+    <p>🏢 Business: <span id="summaryBusinessName">-</span> | KvK: <span id="summaryKvK">-</span></p>
+    <p>💳 IBAN: <span id="summaryIBAN">-</span> | 📧 Email: <span id="summaryEmail">-</span></p>
+    <p>📄 Invoice #: <span id="summaryInvoiceNumber">-</span> | 🗓️ Date: <span id="summaryInvoiceDate">-</span> | ⏳ Due: <span id="summaryDueDate">-</span></p>
+    <p>👤 Client: <span id="summaryClient">-</span> | 📌 Status: <span id="summaryStatus">-</span></p>
+    <p><strong>Total Amount (incl. VAT):</strong> <span id="invoiceTotalAmount">€0.00</span></p>
   </div>
-
-  <button onclick="generatePDF()">🖨️ Export PDF</button>
+  <br>
+  <button class="btn" onclick="generatePDF()">🧾 Export PDF</button>
 </section>
+  
   <!-- Step 5: Invoice Items Table -->
 <h3>📊 Invoice Items</h3>
 <table id="itemsTable" border="1" cellpadding="8" style="width: 100%; border-collapse: collapse">
@@ -501,5 +503,87 @@ window.onload = () => {
 };
     
   </script>
+  
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("saveInfo")?.addEventListener("click", saveInvoiceInfo);
+
+  function addItemRow() {
+    const tableBody = document.getElementById("itemsBody");
+    if (!tableBody) return;
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><input type="text" class="desc" placeholder="Service Description"></td>
+      <td><input type="number" class="qty" value="1" min="1"></td>
+      <td><input type="number" class="price" value="0" step="0.01"></td>
+      <td><input type="number" class="vat" value="21" step="1"></td>
+      <td class="item-total">€0.00</td>
+      <td><button onclick="this.parentElement.parentElement.remove(); updateTotals();">❌</button></td>
+    `;
+    tableBody.appendChild(row);
+    updateTotals();
+  }
+  window.addItemRow = addItemRow;
+
+  function updateTotals() {
+    const rows = document.querySelectorAll("#itemsBody tr");
+    let totalAmount = 0;
+
+    rows.forEach(row => {
+      const qty = parseFloat(row.querySelector(".qty")?.value || 0);
+      const price = parseFloat(row.querySelector(".price")?.value || 0);
+      const vat = parseFloat(row.querySelector(".vat")?.value || 0);
+
+      const total = qty * price * (1 + vat / 100);
+      totalAmount += total;
+
+      const totalCell = row.querySelector(".item-total");
+      if (totalCell) totalCell.innerText = `€${total.toFixed(2)}`;
+    });
+
+    const summaryTotal = document.getElementById("invoiceTotalAmount");
+    if (summaryTotal) summaryTotal.innerText = `€${totalAmount.toFixed(2)}`;
+  }
+  window.updateTotals = updateTotals;
+
+  window.saveInvoiceInfo = function () {
+    const data = {
+      businessName: document.getElementById("businessName")?.value || "",
+      kvk: document.getElementById("kvk")?.value || "",
+      iban: document.getElementById("iban")?.value || "",
+      email: document.getElementById("email")?.value || "",
+      clientName: document.getElementById("clientName")?.value || "",
+      invoiceNumber: document.getElementById("invoiceNumber")?.value || "",
+      invoiceDate: document.getElementById("invoiceDate")?.value || "",
+      dueDate: document.getElementById("dueDate")?.value || "",
+      status: document.getElementById("status")?.value || ""
+    };
+
+    localStorage.setItem("currentInvoiceInfo", JSON.stringify(data));
+
+    document.getElementById("summaryBusinessName")?.innerText = data.businessName;
+    document.getElementById("summaryKvK")?.innerText = data.kvk;
+    document.getElementById("summaryIBAN")?.innerText = data.iban;
+    document.getElementById("summaryEmail")?.innerText = data.email;
+    document.getElementById("summaryInvoiceNumber")?.innerText = data.invoiceNumber;
+    document.getElementById("summaryInvoiceDate")?.innerText = data.invoiceDate;
+    document.getElementById("summaryDueDate")?.innerText = data.dueDate;
+    document.getElementById("summaryClient")?.innerText = data.clientName;
+    document.getElementById("summaryStatus")?.innerText = data.status;
+
+    updateTotals();
+  };
+
+  // Поки без реалізації PDF (в наступному кроці)
+  window.generatePDF = function () {
+    alert("🧾 PDF export will be implemented next!");
+  };
+});
+</script>
+
+  };
+});
+</script>
 </body>
 </html>
