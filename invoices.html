@@ -383,6 +383,122 @@ document.addEventListener("DOMContentLoaded", showSavedInvoices);
     const inputs = row.querySelectorAll('input');
     inputs.forEach(input => input.addEventListener('input', updateTotals));
   }
+    // === SmartWerk Invoice Logic v3.0 ===
+
+// Array to store invoices
+let invoices = [];
+
+// Function to save invoice
+function saveInvoice() {
+  const businessName = document.getElementById("businessName").value;
+  const kvk = document.getElementById("kvk").value;
+  const iban = document.getElementById("iban").value;
+  const email = document.getElementById("email").value;
+  const clientName = document.getElementById("clientName").value;
+  const invoiceNumber = document.getElementById("invoiceNumber").value;
+  const invoiceDate = document.getElementById("invoiceDate").value;
+  const dueDate = document.getElementById("dueDate").value;
+  const status = document.getElementById("status").value;
+  
+  const rows = document.querySelectorAll("#itemsBody tr");
+  const items = [];
+
+  rows.forEach(row => {
+    const desc = row.querySelector(".desc").value;
+    const qty = parseFloat(row.querySelector(".qty").value) || 0;
+    const price = parseFloat(row.querySelector(".price").value) || 0;
+    const vat = parseFloat(row.querySelector(".vat").value) || 0;
+    const total = (qty * price) + ((qty * price) * (vat / 100));
+
+    items.push({ desc, qty, price, vat, total });
+  });
+
+  const invoice = {
+    businessName, kvk, iban, email, clientName,
+    invoiceNumber, invoiceDate, dueDate, status, items
+  };
+
+  // Save to localStorage
+  invoices.push(invoice);
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+  updateInvoiceList();
+  updateSummary(invoice);
+}
+
+// Update summary block
+function updateSummary(invoice) {
+  document.getElementById("summaryBusinessName").innerText = invoice.businessName;
+  document.getElementById("summaryKVK").innerText = invoice.kvk;
+  document.getElementById("summaryIBAN").innerText = invoice.iban;
+  document.getElementById("summaryEmail").innerText = invoice.email;
+  document.getElementById("summaryClient").innerText = invoice.clientName;
+  document.getElementById("summaryInvoiceNumber").innerText = invoice.invoiceNumber;
+  document.getElementById("summaryInvoiceDate").innerText = invoice.invoiceDate;
+  document.getElementById("summaryDueDate").innerText = invoice.dueDate;
+  document.getElementById("summaryStatus").innerText = invoice.status;
+
+  // Total
+  const total = invoice.items.reduce((sum, item) => sum + item.total, 0);
+  document.getElementById("invoiceTotalAmount").innerText = total.toFixed(2);
+}
+
+// Load saved invoices
+function updateInvoiceList() {
+  const list = document.getElementById("invoiceList");
+  list.innerHTML = "";
+  invoices.forEach((inv, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${inv.invoiceNumber}</strong> - ${inv.clientName} 
+      <button onclick="editInvoice(${index})">✏️</button> 
+      <button onclick="deleteInvoice(${index})">❌</button>`;
+    list.appendChild(li);
+  });
+}
+
+// Edit invoice
+function editInvoice(index) {
+  const inv = invoices[index];
+  document.getElementById("businessName").value = inv.businessName;
+  document.getElementById("kvk").value = inv.kvk;
+  document.getElementById("iban").value = inv.iban;
+  document.getElementById("email").value = inv.email;
+  document.getElementById("clientName").value = inv.clientName;
+  document.getElementById("invoiceNumber").value = inv.invoiceNumber;
+  document.getElementById("invoiceDate").value = inv.invoiceDate;
+  document.getElementById("dueDate").value = inv.dueDate;
+  document.getElementById("status").value = inv.status;
+
+  // Clear and re-populate rows
+  const tbody = document.getElementById("itemsBody");
+  tbody.innerHTML = "";
+  inv.items.forEach(item => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><input type="text" class="desc" value="${item.desc}"></td>
+      <td><input type="number" class="qty" value="${item.qty}" min="1"></td>
+      <td><input type="number" class="price" value="${item.price}" step="0.01"></td>
+      <td><input type="number" class="vat" value="${item.vat}" step="1"></td>
+      <td class="item-total">${item.total.toFixed(2)}</td>
+      <td><button onclick="this.parentElement.parentElement.remove(); updateTotals();">❌</button></td>
+    `;
+    tbody.appendChild(row);
+  });
+  updateSummary(inv);
+}
+
+// Delete invoice
+function deleteInvoice(index) {
+  invoices.splice(index, 1);
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+  updateInvoiceList();
+}
+
+// Load from localStorage on page load
+window.onload = () => {
+  const saved = JSON.parse(localStorage.getItem("invoices")) || [];
+  invoices = saved;
+  updateInvoiceList();
+};
     
   </script>
 </body>
