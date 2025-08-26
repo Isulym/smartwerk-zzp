@@ -151,49 +151,72 @@
     renderInvoices();
   }
 
-  function downloadPDF(index) {
+ function downloadPDF(index) {
   const jsPDF = window.jspdf;
   const doc = new jsPDF();
-  const inv = JSON.parse(localStorage.getItem("invoices"))[index];
 
-  const paddedNum = String(inv.invoiceNumber).padStart(3, '0');
-  const formattedInvoiceNumber = `INV-${new Date().getFullYear()}-${paddedNum}`;
-  const statusColor = inv.status === 'Paid' ? 'green' :
-                      inv.status === 'Sent' ? 'blue' : 'red';
+  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
+  const inv = invoices[index];
+  if (!inv) return;
 
   doc.setFontSize(12);
-  doc.text(`Invoice #: ${formattedInvoiceNumber}`, 20, 20);
-  doc.setTextColor(statusColor);
-  doc.text(`Status: ${inv.status}`, 150, 20);
-  doc.setTextColor(0, 0, 0); // назад до чорного
 
-  doc.text(`Date: ${inv.invoiceDate} | Due: ${inv.dueDate}`, 20, 26);
-  doc.text(`Business: ${inv.businessName} | KvK: ${inv.kvk}`, 20, 32);
-  doc.text(`Client: ${inv.clientName}`, 20, 38);
-  doc.text(`IBAN: ${inv.iban} | Email: ${inv.email}`, 20, 44);
+  // Статус вгорі (із кольором)
+  doc.setTextColor(100);
+  doc.setFontSize(16);
+  doc.text(`Status: ${inv.status || 'Draft'}`, 20, 16);
+  doc.setFontSize(12);
+  doc.setTextColor(0);
 
-  let y = 54;
-  inv.items.forEach((item) => {
-    doc.text(`${item.qty} x ${item.desc} @ €${item.price} + VAT ${item.vat}%`, 20, y);
+  // Номер інвойсу
+  const paddedNumber = String(inv.invoiceNumber).padStart(3, "0");
+  const invoiceCode = `INV-2025-${paddedNumber}`;
+
+  doc.text(`Invoice #: ${invoiceCode}`, 20, 28);
+  doc.text(`Date: ${inv.invoiceDate} | Due: ${inv.dueDate}`, 20, 36);
+  doc.text(`Business: ${inv.businessName} | KvK: ${inv.kvk}`, 20, 44);
+  doc.text(`Client: ${inv.clientName}`, 20, 52);
+  doc.text(`IBAN: ${inv.iban} | Email: ${inv.email}`, 20, 60);
+
+  let y = 72;
+  let subtotal = 0;
+  let totalVAT = 0;
+  let total = 0;
+
+  if (Array.isArray(inv.items)) {
+    inv.items.forEach((item) => {
+      const lineTotal = item.qty * item.price;
+      const vatAmount = lineTotal * (item.vat / 100);
+      const lineText = `${item.qty} x ${item.desc} @ €${item.price} + VAT ${item.vat}%`;
+      doc.text(lineText, 20, y);
+      y += 6;
+
+      subtotal += lineTotal;
+      totalVAT += vatAmount;
+    });
+    total = subtotal + totalVAT;
+  } else {
+    doc.text("No invoice items found.", 20, y);
     y += 6;
-  });
+  }
 
-  y += 6;
-  doc.text(`Note: ${inv.note}`, 20, y);
+  // Примітка
+  if (inv.note) {
+    doc.text(`Note: ${inv.note}`, 20, y);
+    y += 8;
+  }
 
-  // Додати фінансовий підсумок
-  const subtotal = inv.items.reduce((sum, item) => sum + item.qty * item.price, 0);
-  const totalVAT = inv.items.reduce((sum, item) => sum + (item.qty * item.price * item.vat / 100), 0);
-  const total = subtotal + totalVAT;
-
-  y += 12;
+  // Підсумки
+  y += 8;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
   doc.text(`Subtotal: €${subtotal.toFixed(2)}`, 20, y);
   y += 6;
   doc.text(`Total VAT: €${totalVAT.toFixed(2)}`, 20, y);
   y += 6;
   doc.text(`Total: €${total.toFixed(2)}`, 20, y);
 
-  doc.save(`${formattedInvoiceNumber}.pdf`);
+  doc.save(`${invoiceCode}.pdf`);
 }
 
   function searchInvoices() {
