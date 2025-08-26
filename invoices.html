@@ -8,51 +8,43 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <h1>🧾 Invoices & Documents</h1>
-
-  <section class="add-invoice">
-    <h2>➕ Add Invoice</h2>
-    <form id="invoiceForm">
-      <input type="text" id="clientName" placeholder="Client Name" required />
-      <input type="text" id="description" placeholder="Description" required />
-      <input type="number" id="amount" placeholder="Amount (EUR)" required />
-      <input type="date" id="dueDate" required />
+<!-- ✅ Step 1: Business & Client Info (об'єднаний блок) -->
+<section class="step" id="step-1">
+  <h2>🧾 Step 1: Business & Client Info</h2>
+  <form id="invoiceInfoForm">
+    <label>Business Name:
+      <input type="text" id="businessName" required>
+    </label><br>
+    <label>KvK Number:
+      <input type="text" id="kvk" required>
+    </label><br>
+    <label>IBAN:
+      <input type="text" id="iban" required>
+    </label><br>
+    <label>Email:
+      <input type="email" id="email" required>
+    </label><br>
+    <label>Client Name:
+      <input type="text" id="clientName" required>
+    </label><br>
+    <label>Invoice Number:
+      <input type="text" id="invoiceNumber" placeholder="INV-2025-001">
+    </label><br>
+    <label>Invoice Date:
+      <input type="date" id="invoiceDate">
+    </label><br>
+    <label>Due Date:
+      <input type="date" id="dueDate">
+    </label><br>
+    <label>Status:
       <select id="status">
         <option value="Draft">Draft</option>
         <option value="Sent">Sent</option>
         <option value="Paid">Paid</option>
-        <option value="Overdue">Overdue</option>
-        <option value="Canceled">Canceled</option>
       </select>
-      <button type="submit">Add Invoice</button>
-    </form>
-  </section>
-
-  <section class="invoice-list">
-    <h2>📋 Your Invoices</h2>
-    <table id="invoiceTable">
-      <thead>
-        <tr>
-          <th>Client</th>
-          <th>Description</th>
-          <th>Amount (€)</th>
-          <th>Due Date</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="invoiceBody"></tbody>
-    </table>
-  </section>
-
-  <!-- Step 1: Business & Client Info -->
-<section class="step" id="step-1">
-  <h2>🏢 Step 1: Business & Client Info</h2>
-  <label>Business Name: <input type="text" id="businessName"></label><br>
-  <label>KvK Number: <input type="text" id="kvk"></label><br>
-  <label>IBAN: <input type="text" id="iban"></label><br>
-  <label>Email: <input type="email" id="email"></label><br>
-  <label>Client Name: <input type="text" id="clientName"></label><br>
+    </label><br><br>
+    <button type="button" onclick="saveInvoiceInfo()">💾 Save Info</button>
+  </form>
 </section>
 
   <!-- Step 2: Add Line Items -->
@@ -87,14 +79,13 @@
   <!-- Step 3: Summary & Export -->
 <section class="step" id="step-3">
   <h2>📤 Step 3: Summary & Export</h2>
-
   <div class="summary-box">
-    <p>💼 Business: <span id="summaryBusinessName">-</span></p>
-    <p>🏦 IBAN: <span id="summaryIBAN">-</span> | KvK: <span id="summaryKvK">-</span></p>
-    <p>📧 Email: <span id="summaryEmail">-</span></p>
-    <p>🧾 Invoice #: <span id="summaryInvoiceNumber">-</span> | 📅 Date: <span id="summaryInvoiceDate">-</span> | ⏰ Due: <span id="summaryDueDate">-</span></p>
-    <p>👤 Client: <span id="summaryClient">-</span></p>
-    <p>💶 Total Amount: <strong>€ <span id="invoiceTotalAmount">0.00</span></strong></p>
+    <p>🏢 Business: <span id="summaryBusinessName"></span></p>
+    <p>💳 IBAN: <span id="summaryIBAN"></span> | KvK: <span id="summaryKVK"></span></p>
+    <p>📧 Email: <span id="summaryEmail"></span></p>
+    <p>📄 Invoice #: <span id="summaryInvoiceNumber"></span> | 🗓 Date: <span id="summaryInvoiceDate"></span> | 📅 Due: <span id="summaryDueDate"></span></p>
+    <p>👤 Client: <span id="summaryClient"></span></p>
+    <p>🧾 Status: <span id="summaryStatus"></span></p>
   </div>
 
   <button onclick="generatePDF()">📄 Export PDF</button>
@@ -216,6 +207,36 @@ document.getElementById("summaryInvoiceDate").innerText = document.getElementByI
 document.getElementById("summaryDueDate").innerText = document.getElementById("dueDate").value;
 document.getElementById("summaryClient").innerText = document.getElementById("clientName").value;
 }
+  function saveInvoiceInfo() {
+    const data = {
+      businessName: document.getElementById("businessName").value,
+      kvk: document.getElementById("kvk").value,
+      iban: document.getElementById("iban").value,
+      email: document.getElementById("email").value,
+      clientName: document.getElementById("clientName").value,
+      invoiceNumber: document.getElementById("invoiceNumber").value || "INV-" + new Date().getFullYear() + "-001",
+      invoiceDate: document.getElementById("invoiceDate").value || new Date().toISOString().split("T")[0],
+      dueDate: document.getElementById("dueDate").value || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      status: document.getElementById("status").value
+    };
+
+    // Save to localStorage
+    localStorage.setItem("currentInvoiceInfo", JSON.stringify(data));
+
+    // Update summary block (Step 3)
+    document.getElementById("summaryBusinessName").innerText = data.businessName;
+    document.getElementById("summaryKVK").innerText = data.kvk;
+    document.getElementById("summaryIBAN").innerText = data.iban;
+    document.getElementById("summaryEmail").innerText = data.email;
+    document.getElementById("summaryClient").innerText = data.clientName;
+    document.getElementById("summaryInvoiceNumber").innerText = data.invoiceNumber;
+    document.getElementById("summaryInvoiceDate").innerText = data.invoiceDate;
+    document.getElementById("summaryDueDate").innerText = data.dueDate;
+    document.getElementById("summaryStatus").innerText = data.status;
+
+    alert("✅ Invoice info saved!");
+  }
+    
     async function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
