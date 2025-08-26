@@ -562,15 +562,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     localStorage.setItem("currentInvoiceInfo", JSON.stringify(data));
 
-    document.getElementById("summaryBusinessName")?.innerText = data.businessName;
-    document.getElementById("summaryKvK")?.innerText = data.kvk;
-    document.getElementById("summaryIBAN")?.innerText = data.iban;
-    document.getElementById("summaryEmail")?.innerText = data.email;
-    document.getElementById("summaryInvoiceNumber")?.innerText = data.invoiceNumber;
-    document.getElementById("summaryInvoiceDate")?.innerText = data.invoiceDate;
-    document.getElementById("summaryDueDate")?.innerText = data.dueDate;
-    document.getElementById("summaryClient")?.innerText = data.clientName;
-    document.getElementById("summaryStatus")?.innerText = data.status;
+ updateSummary(data);
 
     updateTotals();
   };
