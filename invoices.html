@@ -76,19 +76,19 @@
 
   <h3>📄 Saved Invoices</h3>
 <ul id="invoiceList"></ul>
-  <!-- Step 3: Summary & Export -->
+<!-- Step 3: Summary & Export -->
 <section class="step" id="step-3">
-  <h2>📤 Step 3: Summary & Export</h2>
+  <h2>📄 Step 3: Summary & Export</h2>
   <div class="summary-box">
     <p>🏢 Business: <span id="summaryBusinessName"></span></p>
-    <p>💳 IBAN: <span id="summaryIBAN"></span> | KvK: <span id="summaryKVK"></span></p>
+    <p>🏦 IBAN: <span id="summaryIBAN"></span> | KvK: <span id="summaryKvK"></span></p>
     <p>📧 Email: <span id="summaryEmail"></span></p>
-    <p>📄 Invoice #: <span id="summaryInvoiceNumber"></span> | 🗓 Date: <span id="summaryInvoiceDate"></span> | 📅 Due: <span id="summaryDueDate"></span></p>
+    <p>🧾 Invoice #: <span id="summaryInvoiceNumber"></span> | 📅 Date: <span id="summaryInvoiceDate"></span> | 🕑 Due: <span id="summaryDueDate"></span></p>
     <p>👤 Client: <span id="summaryClient"></span></p>
-    <p>🧾 Status: <span id="summaryStatus"></span></p>
+    <p><strong>Total Amount:</strong> <span id="invoiceTotalAmount">0.00</span> €</p>
   </div>
 
-  <button onclick="generatePDF()">📄 Export PDF</button>
+  <button onclick="generatePDF()">🖨️ Export PDF</button>
 </section>
   <!-- Step 5: Invoice Items Table -->
 <h3>📊 Invoice Items</h3>
