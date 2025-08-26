@@ -56,6 +56,12 @@
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
+    <select id="invoiceStatus">
+  <option value="Draft">Draft</option>
+  <option value="Sent">Sent</option>
+  <option value="Paid">Paid</option>
+</select>
+
     <!-- Controls -->
     <section class="step">
       <h2>⚙️ Actions</h2>
@@ -70,6 +76,7 @@
       <h2>📁 Saved Invoices</h2>
       <ul id="invoiceList"></ul>
     </section>
+    
   </main>
 
 <script>
@@ -151,8 +158,8 @@
     renderInvoices();
   }
 
- function downloadPDF(index) {
-  const jsPDF = window.jspdf;
+ async function downloadPDF(index) {
+  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
