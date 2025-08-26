@@ -152,23 +152,49 @@
   }
 
   function downloadPDF(index) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const inv = JSON.parse(localStorage.getItem("invoices"))[index];
-    doc.setFontSize(12);
-    doc.text(`Invoice #: ${inv.invoiceNumber}`, 20, 20);
-    doc.text(`Date: ${inv.invoiceDate} | Due: ${inv.dueDate}`, 20, 26);
-    doc.text(`Business: ${inv.businessName} | KvK: ${inv.kvk}`, 20, 32);
-    doc.text(`Client: ${inv.clientName}`, 20, 38);
-    doc.text(`IBAN: ${inv.iban} | Email: ${inv.email}`, 20, 44);
-    let y = 54;
-    inv.items.forEach(item => {
-      doc.text(`${item.qty} x ${item.desc} @ €${item.price} + VAT ${item.vat}%`, 20, y);
-      y += 6;
-    });
-    doc.text(`Note: ${inv.note}`, 20, y + 6);
-    doc.save(`${inv.invoiceNumber}.pdf`);
-  }
+  const jsPDF = window.jspdf;
+  const doc = new jsPDF();
+  const inv = JSON.parse(localStorage.getItem("invoices"))[index];
+
+  const paddedNum = String(inv.invoiceNumber).padStart(3, '0');
+  const formattedInvoiceNumber = `INV-${new Date().getFullYear()}-${paddedNum}`;
+  const statusColor = inv.status === 'Paid' ? 'green' :
+                      inv.status === 'Sent' ? 'blue' : 'red';
+
+  doc.setFontSize(12);
+  doc.text(`Invoice #: ${formattedInvoiceNumber}`, 20, 20);
+  doc.setTextColor(statusColor);
+  doc.text(`Status: ${inv.status}`, 150, 20);
+  doc.setTextColor(0, 0, 0); // назад до чорного
+
+  doc.text(`Date: ${inv.invoiceDate} | Due: ${inv.dueDate}`, 20, 26);
+  doc.text(`Business: ${inv.businessName} | KvK: ${inv.kvk}`, 20, 32);
+  doc.text(`Client: ${inv.clientName}`, 20, 38);
+  doc.text(`IBAN: ${inv.iban} | Email: ${inv.email}`, 20, 44);
+
+  let y = 54;
+  inv.items.forEach((item) => {
+    doc.text(`${item.qty} x ${item.desc} @ €${item.price} + VAT ${item.vat}%`, 20, y);
+    y += 6;
+  });
+
+  y += 6;
+  doc.text(`Note: ${inv.note}`, 20, y);
+
+  // Додати фінансовий підсумок
+  const subtotal = inv.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+  const totalVAT = inv.items.reduce((sum, item) => sum + (item.qty * item.price * item.vat / 100), 0);
+  const total = subtotal + totalVAT;
+
+  y += 12;
+  doc.text(`Subtotal: €${subtotal.toFixed(2)}`, 20, y);
+  y += 6;
+  doc.text(`Total VAT: €${totalVAT.toFixed(2)}`, 20, y);
+  y += 6;
+  doc.text(`Total: €${total.toFixed(2)}`, 20, y);
+
+  doc.save(`${formattedInvoiceNumber}.pdf`);
+}
 
   function searchInvoices() {
     const search = document.getElementById("searchInput").value.toLowerCase();
