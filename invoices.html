@@ -71,7 +71,9 @@
       <button onclick="renderInvoices()">📋 Show All</button>
     </section>
 
-        <select id="invoiceStatus">
+       <label for="statusFilter">Filter by Status:</label>
+<select id="statusFilter" onchange="renderInvoices()">
+  <option value="all">All</option>
   <option value="Draft">Draft</option>
   <option value="Sent">Sent</option>
   <option value="Paid">Paid</option>
@@ -153,21 +155,23 @@ let currentFilterStatus = "All";
 function renderInvoices() {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const ul = document.getElementById("invoiceList");
+  const filter = document.getElementById("statusFilter")?.value || "all";
+
   ul.innerHTML = "";
 
   invoices.forEach((inv, i) => {
-    if (currentFilterStatus !== "All" && inv.status !== currentFilterStatus) return;
+    if (filter !== "all" && inv.status !== filter) return;
 
     const li = document.createElement("li");
     li.innerHTML = `
-      <strong>${inv.clientName}</strong> – ${inv.invoiceNumber} 
+      ${inv.clientName} – ${inv.invoiceNumber} – 
       <select onchange="updateStatus(${i}, this.value)">
         <option value="Draft" ${inv.status === "Draft" ? "selected" : ""}>Draft</option>
         <option value="Sent" ${inv.status === "Sent" ? "selected" : ""}>Sent</option>
         <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
       </select>
-      <button onclick="editInvoice(${i})">✏️ Edit</button>
       <button onclick="downloadPDF(${i})">📄 PDF</button>
+      <button onclick="editInvoice(${i})">✏️ Edit</button>
       <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
     `;
     ul.appendChild(li);
