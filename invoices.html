@@ -61,11 +61,6 @@
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
-    <select id="invoiceStatus">
-  <option value="Draft">Draft</option>
-  <option value="Sent">Sent</option>
-  <option value="Paid">Paid</option>
-</select>
 
     <!-- Controls -->
     <section class="step">
@@ -81,6 +76,12 @@
       <h2>📁 Saved Invoices</h2>
       <ul id="invoiceList"></ul>
     </section>
+
+       <select id="invoiceStatus">
+  <option value="Draft">Draft</option>
+  <option value="Sent">Sent</option>
+  <option value="Paid">Paid</option>
+</select>
     
   </main>
 
@@ -144,20 +145,74 @@
     renderInvoices();
   }
 
-  function renderInvoices() {
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-    const ul = document.getElementById("invoiceList");
-    ul.innerHTML = "";
- invoices.forEach((inv, i) => {
-  const li = document.createElement("li");
-  li.innerHTML = `
-    ${inv.clientName} – ${inv.invoiceNumber}
-    <button onclick="downloadPDF(${i})">📄 PDF</button>
-    <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
-  `;
-  ul.appendChild(li);
-});
+  // 1. Змінна для фільтра
+let currentFilterStatus = "All";
+
+// 2. Рендер списку з урахуванням фільтра
+function renderInvoices() {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const ul = document.getElementById("invoiceList");
+  ul.innerHTML = "";
+
+  invoices.forEach((inv, i) => {
+    if (currentFilterStatus !== "All" && inv.status !== currentFilterStatus) return;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${inv.clientName}</strong> – ${inv.invoiceNumber} 
+      <select onchange="updateStatus(${i}, this.value)">
+        <option value="Draft" ${inv.status === "Draft" ? "selected" : ""}>Draft</option>
+        <option value="Sent" ${inv.status === "Sent" ? "selected" : ""}>Sent</option>
+        <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
+      </select>
+      <button onclick="editInvoice(${i})">✏️ Edit</button>
+      <button onclick="downloadPDF(${i})">📄 PDF</button>
+      <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
+    `;
+    ul.appendChild(li);
+  });
+}
+  // 3. Оновлення статусу
+function updateStatus(index, newStatus) {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  if (invoices[index]) {
+    invoices[index].status = newStatus;
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    renderInvoices();
   }
+}
+
+// 4. Фільтр статусу (додай селектор у HTML)
+function filterByStatus(status) {
+  currentFilterStatus = status;
+  renderInvoices();
+}
+
+// 5. ✏️ Повернення інвойсу у форму
+function editInvoice(index) {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  if (!invoices[index]) return;
+  const inv = invoices[index];
+  localStorage.setItem("currentInvoice", JSON.stringify(inv));
+  location.href = "#step1"; // або scroll до форми
+  loadInvoiceToForm(inv);
+}
+
+function loadInvoiceToForm(inv) {
+  // заповнення форми з даними (реалізуй відповідно до свого HTML)
+  document.getElementById("businessName").value = inv.businessName;
+  document.getElementById("kvk").value = inv.kvk;
+  document.getElementById("iban").value = inv.iban;
+  document.getElementById("email").value = inv.email;
+  document.getElementById("btw").value = inv.btw;
+  document.getElementById("clientName").value = inv.clientName;
+  document.getElementById("clientEmail").value = inv.clientEmail;
+  document.getElementById("invoiceDate").value = inv.invoiceDate;
+  document.getElementById("dueDate").value = inv.dueDate;
+  document.getElementById("invoiceNumber").value = inv.invoiceNumber;
+  document.getElementById("status").value = inv.status;
+  // items = inv.items (реалізуй додатково)
+}
 
   function deleteInvoice(index) {
     const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
