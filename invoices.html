@@ -167,7 +167,7 @@
   }
 
  
-  async function downloadPDF(index) {
+ async function downloadPDF(index) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
@@ -181,7 +181,7 @@
   doc.setFontSize(18);
   doc.text("INVOICE", 105, 20, null, null, "center");
 
-  // From / To блок
+  // From / To
   doc.setFontSize(12);
   doc.text("From:", 20, 35);
   doc.text(`${inv.businessName}`, 20, 41);
@@ -190,11 +190,21 @@
   doc.text(`Email: ${inv.email}`, 20, 59);
   if (inv.btw) doc.text(`BTW: ${inv.btw}`, 20, 65);
 
+  const fromY = inv.btw ? 65 : 59;
   doc.text("To:", 140, 35);
   doc.text(`${inv.clientName}`, 140, 41);
   if (inv.clientEmail) doc.text(`${inv.clientEmail}`, 140, 47);
 
-  // Таблиця з позиціями (items)
+  // 🧾 Інфо про інвойс
+  doc.autoTable({
+    startY: fromY + 15,
+    head: [['Invoice Number', 'Date Issued', 'Due Date', 'Status']],
+    body: [[invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status || 'Draft']],
+    styles: { halign: 'left' },
+    headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' }
+  });
+
+  // 🛒 Таблиця з товарами
   const itemRows = inv.items.map(item => [
     item.desc,
     item.qty,
@@ -203,45 +213,36 @@
   ]);
 
   doc.autoTable({
-    startY: 75,
+    startY: doc.lastAutoTable.finalY + 10,
     head: [['Description', 'Quantity', 'Unit Price', 'Total']],
     body: itemRows,
-    styles: { fontSize: 11 },
+    styles: { halign: 'left' },
     columnStyles: {
-      0: { halign: 'left' },   // Description
-      1: { halign: 'left' },   // Quantity
-      2: { halign: 'right' },  // Unit Price
-      3: { halign: 'right' },  // Total
+      0: { halign: 'left' },  // Description
+      1: { halign: 'left' },  // Quantity
+      2: { halign: 'left' },  // Unit Price
+      3: { halign: 'left' },  // Total
     },
-    headStyles: {
-      fillColor: [240, 240, 240],
-      textColor: 0,
-      fontStyle: 'bold',
-    }
+    headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
   });
 
-  // Summary: Subtotal / VAT / Total
-  const subtotal = inv.items.reduce((sum, item) => sum + item.qty * item.price, 0);
-  const vatRate = inv.items[0]?.vat || 21;
-  const totalVAT = subtotal * (vatRate / 100);
+  // 💰 Summary
+  const subtotal = inv.items.reduce((acc, item) => acc + item.qty * item.price, 0);
+  const totalVAT = inv.items.reduce((acc, item) => acc + item.qty * item.price * (item.vat / 100), 0);
   const total = subtotal + totalVAT;
 
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 10,
     body: [
       ['Subtotal:', `€${subtotal.toFixed(2)}`],
-      [`VAT (${vatRate}%):`, `€${totalVAT.toFixed(2)}`],
+      [`VAT (${inv.items[0]?.vat || 21}%):`, `€${totalVAT.toFixed(2)}`],
       ['Total Due:', `€${total.toFixed(2)}`],
     ],
     theme: 'plain',
-    styles: { fontStyle: 'bold', fontSize: 12 },
-    columnStyles: {
-      0: { halign: 'right' },
-      1: { halign: 'right' }
-    }
+    styles: { fontStyle: 'bold' },
+    columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
   });
 
-  // Збереження
   doc.save(`${invoiceNumber}.pdf`);
 }
 
