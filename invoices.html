@@ -188,7 +188,7 @@
   doc.text(`KvK: ${inv.kvk}`, 20, 47);
   doc.text(`IBAN: ${inv.iban}`, 20, 53);
   doc.text(`Email: ${inv.email}`, 20, 59);
-  if (inv.btw) doc.text(`BTW: ${inv.btw}`, 20, 59);
+  if (inv.btw) doc.text(`BTW: ${inv.btw}`, 20, 65);
   const fromY = inv.btw ? 65 : 59;
   doc.text("To:", 140, 35);
   doc.text(`${inv.clientName}`, 140, 41);
