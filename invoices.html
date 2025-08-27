@@ -196,11 +196,49 @@ function filterByStatus(status) {
 // 5. ✏️ Повернення інвойсу у форму
 function editInvoice(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  if (!invoices[index]) return;
   const inv = invoices[index];
-  localStorage.setItem("currentInvoice", JSON.stringify(inv));
-  location.href = "#step1"; // або scroll до форми
-  loadInvoiceToForm(inv);
+  if (!inv) return;
+
+  // Step 1
+  document.getElementById("businessName").value = inv.businessName || "";
+  document.getElementById("kvk").value = inv.kvk || "";
+  document.getElementById("iban").value = inv.iban || "";
+  document.getElementById("email").value = inv.email || "";
+  document.getElementById("btw").value = inv.btw || "";
+
+  // Step 2
+  document.getElementById("clientName").value = inv.clientName || "";
+  document.getElementById("clientEmail").value = inv.clientEmail || "";
+  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
+  document.getElementById("dueDate").value = inv.dueDate || "";
+  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
+  document.getElementById("status").value = inv.status || "Draft";
+
+  // Step 3 – очищаємо попередні items
+  const itemTable = document.getElementById("itemTableBody");
+  itemTable.innerHTML = "";
+
+  inv.items.forEach((item, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><input type="text" class="desc" value="${item.desc}"></td>
+      <td><input type="number" class="qty" value="${item.qty}"></td>
+      <td><input type="number" class="price" value="${item.price}"></td>
+      <td><input type="number" class="vat" value="${item.vat}"></td>
+      <td class="total">€${(item.qty * item.price).toFixed(2)}</td>
+    `;
+    itemTable.appendChild(row);
+  });
+
+  // Summary
+  document.getElementById("notes").value = inv.notes || "";
+
+  // Підтягуємо поточний індекс (щоб оновити, а не створити новий)
+  localStorage.setItem("currentInvoiceIndex", index);
+
+  // Прокрутити до форми (необов’язково)
+  document.getElementById("step1").scrollIntoView({ behavior: "smooth" });
+}
 }
 
 function loadInvoiceToForm(inv) {
