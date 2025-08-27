@@ -1,129 +1,107 @@
 
-/* === Global Styles === */
+/* ===== SmartWerk Invoice WOW CSS ===== */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f7f9fc;
-  color: #333;
+  background: linear-gradient(to right, #f4f4f4, #e9ecf5);
+  color: #2c2c2c;
   margin: 0;
-  padding: 0;
+  padding: 20px;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+}
+
+#logo {
+  width: 180px;
+  margin-bottom: 10px;
 }
 
 .container {
   max-width: 900px;
-  margin: 40px auto;
-  background: #fff;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.8);
   padding: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.step-block, .summary, .actions, .saved-invoices {
+  background-color: #ffffffcc;
+  border: 1px solid #ccc;
   border-radius: 12px;
-  position: relative;
+  padding: 20px;
+  margin-bottom: 25px;
+  transition: all 0.3s ease;
 }
 
-/* === Logo === */
-.logo {
+.step-block:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+label {
   display: block;
-  margin: 0 auto 20px auto;
-  max-width: 180px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
 }
 
-/* === Header === */
-h1, h2, h3 {
-  color: #222;
-  margin-bottom: 0.5em;
-}
-
-.invoice-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-/* === From / To Section === */
-.from-to {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
-}
-
-.from-to div {
-  width: 45%;
-  line-height: 1.6;
-}
-
-/* === Table Styles === */
-table {
+input, select {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  transition: border-color 0.3s ease;
 }
 
-table thead {
-  background-color: #f0f0f0;
+input:focus, select:focus {
+  border-color: #0077ff;
+  outline: none;
 }
 
-table th, table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-table td:last-child,
-table th:last-child {
-  text-align: right;
-}
-
-/* === Summary === */
-.summary {
-  margin-top: 30px;
-  text-align: right;
-}
-
-.summary div {
-  margin-bottom: 8px;
-}
-
-/* === Status Label === */
-.status-label {
-  display: inline-block;
-  padding: 5px 12px;
-  font-size: 0.9em;
+button, .btn {
+  background: #0077ff;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 12px;
   font-weight: bold;
-  border-radius: 20px;
-  background-color: #e0e0e0;
-  color: #555;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 119, 255, 0.3);
+  transition: all 0.3s ease-in-out;
 }
 
-.status-draft {
-  background-color: #ffc107;
-  color: #fff;
-}
-.status-sent {
-  background-color: #007bff;
-  color: #fff;
-}
-.status-paid {
-  background-color: #28a745;
-  color: #fff;
+button:hover, .btn:hover {
+  background: #005ad1;
+  box-shadow: 0 6px 16px rgba(0, 119, 255, 0.4);
+  transform: translateY(-1px);
 }
 
-/* === Footer Note === */
-.footer-note {
-  margin-top: 50px;
-  font-size: 0.85em;
-  color: #777;
-  text-align: center;
+.summary {
+  background: #f7faff;
+  border-left: 5px solid #0077ff;
 }
 
-/* === Print Styles === */
-@media print {
-  body {
-    background: #fff;
-    color: #000;
-  }
-  .container {
-    box-shadow: none;
-    border: none;
-    padding: 0;
-  }
-  .logo {
-    margin-bottom: 10px;
+.total-row {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.saved-invoices {
+  background: #f0f0f0;
+}
+
+.invoice-item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .invoice-item-row {
+    grid-template-columns: 1fr 1fr;
   }
 }
