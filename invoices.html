@@ -170,6 +170,7 @@
 
   doc.setFontSize(12);
 function downloadPDF(index) {
+   console.log("PDF button clicked!", index); // для тесту
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
