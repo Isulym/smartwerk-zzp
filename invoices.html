@@ -142,15 +142,15 @@
     const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
     const ul = document.getElementById("invoiceList");
     ul.innerHTML = "";
-    invoices.forEach((inv, i) => {
-      const li = document.createElement("li");
-     li.innerHTML = `
-  ${inv.clientName} – ${inv.invoiceNumber}
-  <button onclick="downloadPDF(${index})">📄 PDF</button>
-  <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
-`;
-      ul.appendChild(li);
-    });
+ invoices.forEach((inv, i) => {
+  const li = document.createElement("li");
+  li.innerHTML = `
+    ${inv.clientName} – ${inv.invoiceNumber}
+    <button onclick="downloadPDF(${i})">📄 PDF</button>
+    <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
+  `;
+  ul.appendChild(li);
+});
   }
 
   function deleteInvoice(index) {
