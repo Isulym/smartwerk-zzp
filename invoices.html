@@ -239,7 +239,15 @@ function downloadPDF(index) {
     columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
   });
 
-  doc.save(`${invoiceNumber}.pdf`);
+     // Add summary (Subtotal, VAT, Total)
+    y += 10;
+    doc.text(`Subtotal: €${inv.subtotal.toFixed(2)}`, 20, y);
+    y += 6;
+    doc.text(`Total VAT: €${inv.totalVat.toFixed(2)}`, 20, y);
+    y += 6;
+    doc.text(`Total: €${inv.total.toFixed(2)}`, 20, y);
+
+    doc.save(`${inv.invoiceNumber}.pdf`);
 }
 
   function searchInvoices() {
