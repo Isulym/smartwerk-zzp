@@ -217,13 +217,7 @@ const itemRows = inv.items.map(item => [
   headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
 });
 
-  // Таблиця з інвойсами
- itemRows = inv.items.map(item => [
-    item.desc,
-    item.qty,
-    `€${parseFloat(item.price).toFixed(2)}`,
-    `€${(item.qty * item.price).toFixed(2)}`
-  ]);
+
 
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 10,
