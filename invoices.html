@@ -211,41 +211,40 @@ function editInvoice(index) {
   document.getElementById("businessName").value = inv.businessName || "";
   document.getElementById("kvk").value = inv.kvk || "";
   document.getElementById("iban").value = inv.iban || "";
-  document.getElementById("email").value = inv.email || "";
   document.getElementById("btw").value = inv.btw || "";
+  document.getElementById("email").value = inv.email || "";
 
   // Step 2
   document.getElementById("clientName").value = inv.clientName || "";
   document.getElementById("clientEmail").value = inv.clientEmail || "";
+  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
   document.getElementById("invoiceDate").value = inv.invoiceDate || "";
   document.getElementById("dueDate").value = inv.dueDate || "";
-  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
-  document.getElementById("status").value = inv.status || "Draft";
+  document.getElementById("note").value = inv.note || "";
 
-  // Step 3 – очищаємо попередні items
-  const itemTable = document.getElementById("itemTableBody");
-  itemTable.innerHTML = "";
-
-  inv.items.forEach((item, i) => {
+  // Step 3 – Таблиця з товарами
+  const tbody = document.getElementById("itemsBody");
+  tbody.innerHTML = ""; // Очистити попередні
+  inv.items.forEach(item => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><input type="text" class="desc" value="${item.desc}"></td>
-      <td><input type="number" class="qty" value="${item.qty}"></td>
-      <td><input type="number" class="price" value="${item.price}"></td>
-      <td><input type="number" class="vat" value="${item.vat}"></td>
-      <td class="total">€${(item.qty * item.price).toFixed(2)}</td>
+      <td><input type="text" class="desc" value="${item.desc || ""}"></td>
+      <td><input type="number" class="qty" value="${item.qty || 1}" min="1"></td>
+      <td><input type="number" class="price" value="${item.price || 0}" step="0.01"></td>
+      <td><input type="number" class="vat" value="${item.vat || 21}" step="0.01"></td>
+      <td><button type="button" onclick="this.closest('tr').remove()">❌</button></td>
     `;
-    itemTable.appendChild(row);
+    tbody.appendChild(row);
   });
 
-  // Summary
-  document.getElementById("notes").value = inv.notes || "";
+  // Статус (якщо є select#status)
+  const statusSelect = document.getElementById("status");
+  if (statusSelect) {
+    statusSelect.value = inv.status || "Draft";
+  }
 
-  // Підтягуємо поточний індекс (щоб оновити, а не створити новий)
+  // Запам'ятати, що редагуємо
   localStorage.setItem("currentInvoiceIndex", index);
-
-  // Прокрутити до форми (необов’язково)
-  document.getElementById("step1").scrollIntoView({ behavior: "smooth" });
 }
 
 
