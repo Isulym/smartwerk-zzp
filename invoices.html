@@ -161,8 +161,7 @@
   }
 
  
-function downloadPDF(index) {
-   console.log("PDF button clicked!", index); // для тесту
+  async function downloadPDF(index) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
@@ -233,17 +232,8 @@ function downloadPDF(index) {
     columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
   });
 
-     // Add summary (Subtotal, VAT, Total)
-    y += 10;
-    doc.text(`Subtotal: €${inv.subtotal.toFixed(2)}`, 20, y);
-    y += 6;
-    doc.text(`Total VAT: €${inv.totalVat.toFixed(2)}`, 20, y);
-    y += 6;
-    doc.text(`Total: €${inv.total.toFixed(2)}`, 20, y);
-
-    doc.save(`${inv.invoiceNumber}.pdf`);
+  doc.save(`${invoiceNumber}.pdf`);
 }
-
 
   function searchInvoices() {
     const search = document.getElementById("searchInput").value.toLowerCase();
