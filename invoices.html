@@ -160,15 +160,7 @@
     renderInvoices();
   }
 
- async function downloadPDF(index) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
-  const inv = invoices[index];
-  if (!inv) return;
-
-  doc.setFontSize(12);
+ 
 function downloadPDF(index) {
    console.log("PDF button clicked!", index); // для тесту
   const { jsPDF } = window.jspdf;
