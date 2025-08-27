@@ -144,10 +144,11 @@
     ul.innerHTML = "";
     invoices.forEach((inv, i) => {
       const li = document.createElement("li");
-      li.innerHTML = `
-        <strong>${inv.clientName}</strong> – ${inv.invoiceNumber}
-        <button onclick="downloadPDF(${i})">📄 PDF</button>
-        <button onclick="deleteInvoice(${i})">🗑️ Delete</button>`;
+     li.innerHTML = `
+  ${inv.clientName} – ${inv.invoiceNumber}
+  <button onclick="downloadPDF(${index})">📄 PDF</button>
+  <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
+`;
       ul.appendChild(li);
     });
   }
