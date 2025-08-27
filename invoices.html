@@ -120,50 +120,52 @@
   }
 
  function saveInvoice() {
-  try {
-    const data = {
-      businessName: document.getElementById("businessName")?.value || "",
-      kvk: document.getElementById("kvk")?.value || "",
-      iban: document.getElementById("iban")?.value || "",
-      btw: document.getElementById("btw")?.value || "",
-      email: document.getElementById("email")?.value || "",
-      clientName: document.getElementById("clientName")?.value || "",
-      clientEmail: document.getElementById("clientEmail")?.value || "",
-      invoiceNumber: document.getElementById("invoiceNumber")?.value || `INV-${Date.now()}`,
-      invoiceDate: document.getElementById("invoiceDate")?.value || "",
-      dueDate: document.getElementById("dueDate")?.value || "",
-      note: document.getElementById("note")?.value || "",
-      status: document.getElementById("status")?.value || "Draft",
-      items: [],
-    };
+  const debug = [];
 
-    document.querySelectorAll("#itemsBody tr").forEach(row => {
-      data.items.push({
-        desc: row.querySelector('.desc')?.value || "",
-        qty: parseFloat(row.querySelector('.qty')?.value || 0),
-        price: parseFloat(row.querySelector('.price')?.value || 0),
-        vat: parseFloat(row.querySelector('.vat')?.value || 0),
-      });
-    });
+  const data = {
+    businessName: document.getElementById("businessName")?.value || "",
+    kvk: document.getElementById("kvk")?.value || "",
+    iban: document.getElementById("iban")?.value || "",
+    btw: document.getElementById("btw")?.value || "",
+    email: document.getElementById("email")?.value || "",
+    clientName: document.getElementById("clientName")?.value || "",
+    clientEmail: document.getElementById("clientEmail")?.value || "",
+    invoiceNumber: document.getElementById("invoiceNumber")?.value || `INV-${Date.now()}`,
+    invoiceDate: document.getElementById("invoiceDate")?.value || "",
+    dueDate: document.getElementById("dueDate")?.value || "",
+    note: document.getElementById("note")?.value || "",
+    status: document.getElementById("status")?.value || "Draft",
+    items: [],
+  };
+  debug.push("Базові поля зчитано");
 
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-    const currentIndex = localStorage.getItem("currentInvoiceIndex");
+  document.querySelectorAll("#itemsBody tr").forEach((row, i) => {
+    const desc = row.querySelector('.desc')?.value || "";
+    const qty = parseFloat(row.querySelector('.qty')?.value || 0);
+    const price = parseFloat(row.querySelector('.price')?.value || 0);
+    const vat = parseFloat(row.querySelector('.vat')?.value || 0);
 
-    if (currentIndex !== null && invoices[currentIndex]) {
-      invoices[currentIndex] = data;
-      localStorage.removeItem("currentInvoiceIndex");
-    } else {
-      invoices.push(data);
+    if (isNaN(qty) || isNaN(price) || isNaN(vat)) {
+      throw new Error(`Проблема в рядку ${i + 1}: qty=${qty}, price=${price}, vat=${vat}`);
     }
 
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices();
+    data.items.push({ desc, qty, price, vat });
+  });
+  debug.push("Items додано");
 
-    alert("Invoice saved successfully!");
-  } catch (err) {
-    console.error("Error while saving invoice:", err);
-    alert("An error occurred while saving the invoice. Please check your input.");
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const currentIndex = localStorage.getItem("currentInvoiceIndex");
+
+  if (currentIndex !== null && invoices[currentIndex]) {
+    invoices[currentIndex] = data;
+    localStorage.removeItem("currentInvoiceIndex");
+  } else {
+    invoices.push(data);
   }
+
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+  renderInvoices();
+  alert("Invoice saved successfully!");
 }
 
 
