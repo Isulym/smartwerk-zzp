@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk Invoice Manager</title>
   <link rel="stylesheet" href="style-invoices.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <main>
@@ -167,63 +168,78 @@
   if (!inv) return;
 
   doc.setFontSize(12);
+function downloadPDF(index) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-  // Статус вгорі (із кольором)
-  doc.setTextColor(100);
-  doc.setFontSize(16);
-  doc.text(`Status: ${inv.status || 'Draft'}`, 20, 16);
+  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
+  const inv = invoices[index];
+  if (!inv) return;
+
+  const invoiceNumber = inv.invoiceNumber.startsWith('INV') ? inv.invoiceNumber : `INV-2025-${inv.invoiceNumber}`;
+
+  // Заголовок
+  doc.setFontSize(18);
+  doc.text("INVOICE", 105, 20, null, null, "center");
+
+  // From / To
   doc.setFontSize(12);
-  doc.setTextColor(0);
+  doc.text("From:", 20, 35);
+  doc.text(`SmartWerk B.V.`, 20, 41);
+  doc.text(`KvK: ${inv.kvk}`, 20, 47);
+  doc.text(`IBAN: ${inv.iban}`, 20, 53);
+  doc.text(`Email: ${inv.email}`, 20, 59);
 
-  // Номер інвойсу
-  const paddedNumber = String(inv.invoiceNumber).padStart(3, "0");
-  const invoiceCode = `INV-2025-${paddedNumber}`;
+  doc.text("To:", 140, 35);
+  doc.text(`${inv.clientName}`, 140, 41);
 
-  doc.text(`Invoice #: ${invoiceCode}`, 20, 28);
-  doc.text(`Date: ${inv.invoiceDate} | Due: ${inv.dueDate}`, 20, 36);
-  doc.text(`Business: ${inv.businessName} | KvK: ${inv.kvk}`, 20, 44);
-  doc.text(`Client: ${inv.clientName}`, 20, 52);
-  doc.text(`IBAN: ${inv.iban} | Email: ${inv.email}`, 20, 60);
+  // Invoice info
+  doc.autoTable({
+    startY: 70,
+    head: [['Invoice Number', 'Date Issued', 'Due Date', 'Status']],
+    body: [[invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status || 'Draft']],
+    styles: { halign: 'left' },
+    headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+  });
 
-  let y = 72;
-  let subtotal = 0;
-  let totalVAT = 0;
-  let total = 0;
+  // Таблиця з інвойсами
+  const itemRows = inv.items.map(item => [
+    item.desc,
+    item.qty,
+    `€${parseFloat(item.price).toFixed(2)}`,
+    `€${(item.qty * item.price).toFixed(2)}`
+  ]);
 
-  if (Array.isArray(inv.items)) {
-    inv.items.forEach((item) => {
-      const lineTotal = item.qty * item.price;
-      const vatAmount = lineTotal * (item.vat / 100);
-      const lineText = `${item.qty} x ${item.desc} @ €${item.price} + VAT ${item.vat}%`;
-      doc.text(lineText, 20, y);
-      y += 6;
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 10,
+    head: [['Description', 'Quantity', 'Unit Price', 'Total']],
+    body: itemRows,
+    styles: { halign: 'left' },
+    columnStyles: {
+      2: { halign: 'right' },
+      3: { halign: 'right' },
+    },
+    headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+  });
 
-      subtotal += lineTotal;
-      totalVAT += vatAmount;
-    });
-    total = subtotal + totalVAT;
-  } else {
-    doc.text("No invoice items found.", 20, y);
-    y += 6;
-  }
+  // Summary
+  const subtotal = inv.items.reduce((acc, item) => acc + item.qty * item.price, 0);
+  const totalVAT = inv.items.reduce((acc, item) => acc + item.qty * item.price * (item.vat / 100), 0);
+  const total = subtotal + totalVAT;
 
-  // Примітка
-  if (inv.note) {
-    doc.text(`Note: ${inv.note}`, 20, y);
-    y += 8;
-  }
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 10,
+    body: [
+      ['Subtotal:', `€${subtotal.toFixed(2)}`],
+      [`VAT (${inv.items[0]?.vat || 21}%):`, `€${totalVAT.toFixed(2)}`],
+      ['Total Due:', `€${total.toFixed(2)}`],
+    ],
+    theme: 'plain',
+    styles: { fontStyle: 'bold' },
+    columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
+  });
 
-  // Підсумки
-  y += 8;
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text(`Subtotal: €${subtotal.toFixed(2)}`, 20, y);
-  y += 6;
-  doc.text(`Total VAT: €${totalVAT.toFixed(2)}`, 20, y);
-  y += 6;
-  doc.text(`Total: €${total.toFixed(2)}`, 20, y);
-
-  doc.save(`${invoiceCode}.pdf`);
+  doc.save(`${invoiceNumber}.pdf`);
 }
 
   function searchInvoices() {
