@@ -120,36 +120,44 @@
   }
 
   function saveInvoice() {
-    const data = {
-      businessName: document.getElementById("businessName").value,
-      kvk: document.getElementById("kvk").value,
-      iban: document.getElementById("iban").value,
-      btw: document.getElementById("btw").value, // якщо є поле для BTW
-      email: document.getElementById("email").value,
-      clientName: document.getElementById("clientName").value,
-      clientEmail: document.getElementById("clientEmail").value,
-      invoiceNumber: document.getElementById("invoiceNumber").value || `INV-${Date.now()}`,
-      invoiceDate: document.getElementById("invoiceDate").value,
-      dueDate: document.getElementById("dueDate").value,
-      note: document.getElementById("note").value,
-      items: [],
-    };
-    document.querySelectorAll("#itemsBody tr").forEach(row => {
-      data.items.push({
-        desc: row.querySelector('.desc').value,
-        qty: row.querySelector('.qty').value,
-        price: row.querySelector('.price').value,
-        vat: row.querySelector('.vat').value
-      });
+  const data = {
+    businessName: document.getElementById("businessName").value,
+    kvk: document.getElementById("kvk").value,
+    iban: document.getElementById("iban").value,
+    btw: document.getElementById("btw").value,
+    email: document.getElementById("email").value,
+    clientName: document.getElementById("clientName").value,
+    clientEmail: document.getElementById("clientEmail").value,
+    invoiceNumber: document.getElementById("invoiceNumber").value || `INV-${Date.now()}`,
+    invoiceDate: document.getElementById("invoiceDate").value,
+    dueDate: document.getElementById("dueDate").value,
+    note: document.getElementById("note").value,
+    status: document.getElementById("status")?.value || "Draft",
+    items: [],
+  };
+
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    data.items.push({
+      desc: row.querySelector('.desc').value,
+      qty: row.querySelector('.qty').value,
+      price: row.querySelector('.price').value,
+      vat: row.querySelector('.vat').value
     });
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  });
+
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const currentIndex = localStorage.getItem("currentInvoiceIndex");
+
+  if (currentIndex !== null) {
+    invoices[currentIndex] = data;
+    localStorage.removeItem("currentInvoiceIndex");
+  } else {
     invoices.push(data);
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices();
   }
 
-  // 1. Змінна для фільтра
-let currentFilterStatus = "All";
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+  renderInvoices();
+}
 
 // 2. Рендер списку з урахуванням фільтра
 function renderInvoices() {
