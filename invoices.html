@@ -196,13 +196,19 @@
     
 
   // Invoice info
-  doc.autoTable({
-    startY: 70,
-    head: [['Invoice Number', 'Date Issued', 'Due Date', 'Status']],
-    body: [[invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status || 'Draft']],
-    styles: { halign: 'left' },
-    headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
-  });
+ doc.autoTable({
+  startY: doc.lastAutoTable.finalY + 10,
+  head: [['Description', 'Quantity', 'Unit Price', 'Total']],
+  body: itemRows,
+  styles: { halign: 'left' }, // ✅ усі вирівняні по лівому краю
+  columnStyles: {
+    0: { halign: 'left' },   // Description
+    1: { halign: 'left' },   // Quantity
+    2: { halign: 'left' },   // Unit Price
+    3: { halign: 'left' },   // Total
+  },
+  headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+});
 
   // Таблиця з інвойсами
   const itemRows = inv.items.map(item => [
