@@ -170,6 +170,7 @@
  async function downloadPDF(index) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+  doc.setFont("helvetica", "normal"); // підтримка українських символів
 
   const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
   const inv = invoices[index];
@@ -243,6 +244,20 @@
     columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
   });
 
+  // 📝 Notes (якщо є)
+  if (inv.notes) {
+    doc.setFontSize(12);
+    doc.text("Notes:", 20, doc.lastAutoTable.finalY + 10);
+    doc.setFontSize(10);
+    doc.text(inv.notes, 20, doc.lastAutoTable.finalY + 16);
+  }
+
+  // ✍️ Підпис із датою
+  const today = new Date().toLocaleDateString("nl-NL");
+  doc.setFontSize(10);
+  doc.text(`Signed on: ${today}`, 20, doc.lastAutoTable.finalY + 30);
+
+  // ✅ Завершення
   doc.save(`${invoiceNumber}.pdf`);
 }
 
