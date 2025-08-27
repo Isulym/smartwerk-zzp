@@ -1,107 +1,135 @@
-
-/* ===== SmartWerk Invoice WOW CSS ===== */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to right, #f4f4f4, #e9ecf5);
-  color: #2c2c2c;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f3f4f6;
   margin: 0;
   padding: 20px;
+  color: #1f2937;
 }
 
-h1, h2, h3, h4 {
-  font-weight: 600;
-}
-
-#logo {
-  width: 180px;
+h1 {
+  font-size: 26px;
   margin-bottom: 10px;
 }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+h2 {
+  font-size: 20px;
+  margin: 20px 0 10px;
+  color: #111827;
 }
 
-.step-block, .summary, .actions, .saved-invoices {
-  background-color: #ffffffcc;
-  border: 1px solid #ccc;
-  border-radius: 12px;
+section {
+  background: #fff;
   padding: 20px;
-  margin-bottom: 25px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
 }
 
-.step-block:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
 }
 
 label {
   display: block;
+  margin-top: 10px;
   font-weight: 500;
-  margin-bottom: 6px;
-  color: #333;
 }
 
-input, select {
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"] {
   width: 100%;
   padding: 10px 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
+  margin-top: 5px;
+  border: 1px solid #d1d5db;
   border-radius: 10px;
-  transition: border-color 0.3s ease;
+  background-color: #f9fafb;
+  font-size: 14px;
 }
 
-input:focus, select:focus {
-  border-color: #0077ff;
+input:focus {
   outline: none;
+  border-color: #3b82f6;
+  background-color: #fff;
 }
 
-button, .btn {
-  background: #0077ff;
+button,
+.save-btn,
+.add-btn,
+.search-btn {
+  background-color: #3b82f6;
   color: white;
   padding: 10px 18px;
+  margin-top: 15px;
   border: none;
   border-radius: 12px;
-  font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 119, 255, 0.3);
-  transition: all 0.3s ease-in-out;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
-button:hover, .btn:hover {
-  background: #005ad1;
-  box-shadow: 0 6px 16px rgba(0, 119, 255, 0.4);
-  transform: translateY(-1px);
+button:hover,
+.save-btn:hover,
+.add-btn:hover,
+.search-btn:hover {
+  background-color: #2563eb;
 }
 
 .summary {
-  background: #f7faff;
-  border-left: 5px solid #0077ff;
+  font-size: 16px;
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px dashed #d1d5db;
 }
 
-.total-row {
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-.saved-invoices {
-  background: #f0f0f0;
-}
-
-.invoice-item-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-  gap: 10px;
+.saved-invoice {
+  background-color: #f3f4f6;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
 }
 
-@media (max-width: 768px) {
-  .invoice-item-row {
-    grid-template-columns: 1fr 1fr;
-  }
+.saved-invoice .actions button {
+  margin-left: 8px;
+  background-color: #10b981;
+}
+
+.saved-invoice .actions button:hover {
+  background-color: #059669;
+}
+
+/* Стилі заголовків блоків (Step 1, 2, 3) */
+.step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.step-title i {
+  font-size: 18px;
+}
+
+/* Стилі логотипа */
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.logo::before {
+  content: "🚀";
+  margin-right: 10px;
 }
