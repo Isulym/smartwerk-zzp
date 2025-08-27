@@ -218,7 +218,7 @@ const itemRows = inv.items.map(item => [
 });
 
   // Таблиця з інвойсами
-  const itemRows = inv.items.map(item => [
+ itemRows = inv.items.map(item => [
     item.desc,
     item.qty,
     `€${parseFloat(item.price).toFixed(2)}`,
