@@ -133,3 +133,34 @@ button:hover,
   content: "🚀";
   margin-right: 10px;
 }
+
+/* Layout: дві колонки */
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.step-left,
+.step-right {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Step 3 — менший розмір */
+.step-bottom {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+.step-bottom section {
+  padding: 15px;
+}
+
+/* Додатково: зменшення інпутів у Step 3 */
+.step-bottom input[type="text"],
+.step-bottom input[type="number"] {
+  padding: 6px 10px;
+  font-size: 13px;
+}
