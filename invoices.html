@@ -154,131 +154,9 @@ function updateTotals() {
   document.getElementById("grandTotal").innerText = `€${(subtotal + totalVAT).toFixed(2)}`;
   
 
-function updateStatus(index, newStatus) {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  if (invoices[index]) {
-    invoices[index].status = newStatus;
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices();
-  }
-}
 
-function editInvoice(index) {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const inv = invoices[index];
-  if (!inv || inv.status !== "Draft") {
-    alert("Editing is only allowed in 'Draft' status.");
-    return;
-  }
 
-  // Step 1
-  document.getElementById("businessName").value = inv.businessName || "";
-  document.getElementById("kvk").value = inv.kvk || "";
-  document.getElementById("iban").value = inv.iban || "";
-  document.getElementById("btw").value = inv.btw || "";
-  document.getElementById("email").value = inv.email || "";
-  document.getElementById("businessAddress").value = inv.businessAddress || "";
-  document.getElementById("businessPhone").value = inv.businessPhone || "";
-
-  // Step 2
-  document.getElementById("clientName").value = inv.clientName || "";
-  document.getElementById("clientEmail").value = inv.clientEmail || "";
-  document.getElementById("clientAddress").value = inv.clientAddress || "";
-  document.getElementById("clientPhone").value = inv.clientPhone || "";
-  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
-  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
-  document.getElementById("dueDate").value = inv.dueDate || "";
-  document.getElementById("note").value = inv.note || "";
-  document.getElementById("status").value = inv.status || "Draft";
-
-  // Step 3 — Items table
-  const tbody = document.getElementById("itemsBody");
-  tbody.innerHTML = "";
-  inv.items.forEach(item => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td><input type="text" class="desc" value="${item.desc || ""}" onchange="updateTotals()" /></td>
-      <td><input type="number" class="qty" value="${item.qty || 1}" min="1" onchange="updateTotals()" /></td>
-      <td><input type="number" class="price" value="${item.price || 0}" step="0.01" onchange="updateTotals()" /></td>
-      <td><input type="number" class="vat" value="${item.vat || 21}" step="1" onchange="updateTotals()" /></td>
-      <td class="item-total">€0.00</td>
-      <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
-    `;
-    tbody.appendChild(row);
-  });
-
-  // Signatures (if exist)
-  if (inv.signatures) {
-    // Business signature
-    const businessImg = new Image();
-    businessImg.onload = () => {
-      const canvas = document.getElementById("businessSign");
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(businessImg, 0, 0);
-      document.getElementById("businessSignDate").innerText = inv.signatures.businessDate || "";
-    };
-    businessImg.src = inv.signatures.business;
-
-    // Client signature
-    const clientImg = new Image();
-    clientImg.onload = () => {
-      const canvas = document.getElementById("clientSign");
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(clientImg, 0, 0);
-      document.getElementById("clientSignDate").innerText = inv.signatures.clientDate || "";
-    };
-    clientImg.src = inv.signatures.client;
-  }
-
-  updateTotals();
-  localStorage.setItem("currentInvoiceIndex", index);
-}
-
-  function deleteInvoice(index) {
-    if (!confirm("Are you sure you want to delete this invoice?")) return;
-
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-    invoices.splice(index, 1); // видаляємо 1 елемент за індексом
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices(); // перерендеримо список
-    alert("Invoice deleted.");
-  }
-
-  let businessSignDate = "";
-let clientSignDate = "";
-
-function setupSignature(canvasId) {
-  const canvas = document.getElementById(canvasId);
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
-
-  canvas.addEventListener("mousedown", () => {
-    drawing = true;
-    ctx.beginPath();
-  });
-
-  canvas.addEventListener("mouseup", () => {
-    drawing = false;
-    const now = new Date().toLocaleDateString("nl-NL");
-    if (canvasId === "businessSign") {
-      businessSignDate = now;
-      document.getElementById("businessSignDate").innerText = now;
-    } else {
-      clientSignDate = now;
-      document.getElementById("clientSignDate").innerText = now;
-    }
-  });
-
-  canvas.addEventListener("mousemove", (e) => {
-    if (!drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    ctx.stroke();
-  });
-}
-
+  
 function clearSignature(canvasId) {
   const canvas = document.getElementById(canvasId);
   const ctx = canvas.getContext("2d");
@@ -517,6 +395,125 @@ if (inv.signatures?.date) {
   });
 });
 
+function editInvoice(index) {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const inv = invoices[index];
+  if (!inv || inv.status !== "Draft") {
+    alert("Editing is only allowed in 'Draft' status.");
+    return;
+  }
+
+  // Step 1
+  document.getElementById("businessName").value = inv.businessName || "";
+  document.getElementById("kvk").value = inv.kvk || "";
+  document.getElementById("iban").value = inv.iban || "";
+  document.getElementById("btw").value = inv.btw || "";
+  document.getElementById("email").value = inv.email || "";
+  document.getElementById("businessAddress").value = inv.businessAddress || "";
+  document.getElementById("businessPhone").value = inv.businessPhone || "";
+
+  // Step 2
+  document.getElementById("clientName").value = inv.clientName || "";
+  document.getElementById("clientEmail").value = inv.clientEmail || "";
+  document.getElementById("clientAddress").value = inv.clientAddress || "";
+  document.getElementById("clientPhone").value = inv.clientPhone || "";
+  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
+  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
+  document.getElementById("dueDate").value = inv.dueDate || "";
+  document.getElementById("note").value = inv.note || "";
+  document.getElementById("status").value = inv.status || "Draft";
+
+  // Step 3 — Items table
+  const tbody = document.getElementById("itemsBody");
+  tbody.innerHTML = "";
+  inv.items.forEach(item => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><input type="text" class="desc" value="${item.desc || ""}" onchange="updateTotals()" /></td>
+      <td><input type="number" class="qty" value="${item.qty || 1}" min="1" onchange="updateTotals()" /></td>
+      <td><input type="number" class="price" value="${item.price || 0}" step="0.01" onchange="updateTotals()" /></td>
+      <td><input type="number" class="vat" value="${item.vat || 21}" step="1" onchange="updateTotals()" /></td>
+      <td class="item-total">€0.00</td>
+      <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Signatures (if exist)
+  if (inv.signatures) {
+    // Business signature
+    const businessImg = new Image();
+    businessImg.onload = () => {
+      const canvas = document.getElementById("businessSign");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(businessImg, 0, 0);
+      document.getElementById("businessSignDate").innerText = inv.signatures.businessDate || "";
+    };
+    businessImg.src = inv.signatures.business;
+
+    // Client signature
+    const clientImg = new Image();
+    clientImg.onload = () => {
+      const canvas = document.getElementById("clientSign");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(clientImg, 0, 0);
+      document.getElementById("clientSignDate").innerText = inv.signatures.clientDate || "";
+    };
+    clientImg.src = inv.signatures.client;
+  }
+
+  updateTotals();
+  localStorage.setItem("currentInvoiceIndex", index);
+}
+    
+
+function deleteInvoice(index) {
+    if (!confirm("Are you sure you want to delete this invoice?")) return;
+
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+    invoices.splice(index, 1); // видаляємо 1 елемент за індексом
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    renderInvoices(); // перерендеримо список
+    alert("Invoice deleted.");
+  }
+
+  let businessSignDate = "";
+let clientSignDate = "";
+
+function setupSignature(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  canvas.addEventListener("mousedown", () => {
+    drawing = true;
+    ctx.beginPath();
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    drawing = false;
+    const now = new Date().toLocaleDateString("nl-NL");
+    if (canvasId === "businessSign") {
+      businessSignDate = now;
+      document.getElementById("businessSignDate").innerText = now;
+    } else {
+      clientSignDate = now;
+      document.getElementById("clientSignDate").innerText = now;
+    }
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+  });
+}
+
+    
+
     function renderInvoices() {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const container = document.getElementById("invoicesContainer");
@@ -543,6 +540,16 @@ if (inv.signatures?.date) {
     container.appendChild(invoiceDiv);
   });
 }
+
+function updateStatus(index, newStatus) {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  if (invoices[index]) {
+    invoices[index].status = newStatus;
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    renderInvoices();
+  }
+}
+    
 
     function saveInvoice() {
   const invoice = {
