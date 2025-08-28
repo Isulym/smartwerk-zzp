@@ -317,8 +317,6 @@ AAEAAAASAQAABAAgR0RFRrRCsIIAAAToAAAHEdEFUWVhpYAAAAXAAAAiZR1NVQ0XzLgAAAEwA
 
   // Notes
   if (inv.note && inv.note.trim() !== "") {
-    doc.setFontSize(12);
-    doc.text("Notes:", 20, doc.lastAutoTable.finalY + 10);
     doc.setFontSize(10);
     doc.text(inv.note, 20, doc.lastAutoTable.finalY + 16);
   }
