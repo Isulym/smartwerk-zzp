@@ -5,43 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk Invoice Manager</title>
   <link rel="stylesheet" href="style-invoices.css" />
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <main>
-    <h1>📊 Invoice Manager</h1>
-
-    <!-- Step 1: Business & Client Info -->
+    <h1>SmartWerk Invoice Manager</h1>
     <section class="step">
       <h2>🏢 Step 1: Business Info</h2>
       <input id="businessName" placeholder="Business Name" />
       <input id="kvk" placeholder="KvK Number" />
       <input id="iban" placeholder="IBAN" />
       <input id="email" placeholder="Email" />
+      <input id="businessAddress" placeholder="Business Address" />
+      <input id="businessPhone" placeholder="Business Phone" />  
       <label for="btw">BTW:</label>
       <input type="text" id="btw">
-      <label for="businessPhone"><strong>📞 Business Phone:</strong></label>
-      <input type="tel" id="businessPhone" placeholder="+31..." />
-      <label for="businessAddress"><strong>🏢 Business Address:</strong></label>
-      <input type="text" id="businessAddress" placeholder="Street, City, ZIP" />   
     </section>
 
     <section class="step">
       <h2>👤 Step 2: Client Info</h2>
       <input id="clientName" placeholder="Client Name" />
-      <label for="clientEmail">Client Email:</label>
-      <input type="email" id="clientEmail"> 
-      <label for="clientPhone"><strong>📞 Client Phone:</strong></label>
-      <input type="tel" id="clientPhone" placeholder="+31..." />
-      <label for="clientAddress"><strong>📬 Client Address:</strong></label>
-      <input type="text" id="clientAddress" placeholder="Street, City, ZIP" />
-      <input id="invoiceNumber" placeholder="Invoice Number" />
+      <input id="clientEmail" placeholder="Client Email" />
+      <input id="clientPhone" placeholder="Client Phone" />
+      <input id="clientAddress" placeholder="Client Address" />
+      <input id="clientPhone" placeholder="Client Phone" /> 
       <input id="invoiceDate" type="date" />
       <input id="dueDate" type="date" />
     </section>
 
-    <!-- Step 3: Invoice Items -->
     <section class="step">
       <h2>📝 Step 3: Invoice Items</h2>
       <table>
@@ -59,181 +51,170 @@
       </table>
       <button onclick="addItem()">➕ Add Item</button>
     </section>
-    <div style="margin-top: 20px;">
-  <label for="note"><strong>📝 Work Description / Notes:</strong></label><br>
-  <textarea id="note" rows="4" style="width: 100%;" placeholder="Add any additional notes or work description here..."></textarea>
-</div>
 
-    <!-- Summary -->
     <section class="step">
       <h2>📦 Summary</h2>
-      <textarea id="note" placeholder="Invoice note (optional)..."></textarea><br/>
+      <textarea id="note" placeholder="Invoice note (optional)..."></textarea>
       <p><strong>Subtotal:</strong> <span id="subtotal">€0.00</span></p>
       <p><strong>Total VAT:</strong> <span id="totalVat">€0.00</span></p>
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
+   <section class="step">
+  <h2>✍️ Signatures</h2>
 
-    <!-- Controls -->
+  <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+    <div>
+      <p><strong>Business Signature:</strong></p>
+      <canvas id="businessSign" width="200" height="100" style="border:1px solid #ccc;"></canvas><br/>
+      <button onclick="clearSignature('business')">Clear</button>
+    </div>
+
+    <div>
+      <p><strong>Client Signature:</strong></p>
+      <canvas id="clientSign" width="200" height="100" style="border:1px solid #ccc;"></canvas><br/>
+      <button onclick="clearSignature('client')">Clear</button>
+    </div>
+  </div>
+</section>
+
     <section class="step">
       <h2>⚙️ Actions</h2>
-      <h3>✍️ Signatures</h3>
-<div style="display: flex; gap: 30px; flex-wrap: wrap;">
-  <div>
-    <p>Business Signature:</p>
-    <canvas id="businessSign" width="300" height="100" style="border:1px solid #ccc;"></canvas>
-    <button onclick="clearSignature('businessSign')">Clear</button>
-  </div>
-  <div>
-    <p>Client Signature:</p>
-    <canvas id="clientSign" width="300" height="100" style="border:1px solid #ccc;"></canvas>
-    <button onclick="clearSignature('clientSign')">Clear</button>
-  </div>
-</div>
       <button onclick="saveInvoice()">💾 Save Invoice</button>
-      <input type="text" id="searchInput" placeholder="Search client..."/>
+      <input type="text" id="searchInput" placeholder="Search client..." />
       <button onclick="searchInvoices()">🔍 Search</button>
       <button onclick="renderInvoices()">📋 Show All</button>
     </section>
 
-       <label for="statusFilter">Filter by Status:</label>
-<select id="statusFilter" onchange="renderInvoices()">
-  <option value="all">All</option>
-  <option value="Draft">Draft</option>
-  <option value="Sent">Sent</option>
-  <option value="Paid">Paid</option>
-</select>
+    <label for="statusFilter">Filter by Status:</label>
+    <select id="statusFilter" onchange="renderInvoices()">
+      <option value="all">All</option>
+      <option value="Draft">Draft</option>
+      <option value="Sent">Sent</option>
+      <option value="Paid">Paid</option>
+    </select>
 
-    <!-- Saved Invoices -->
     <section class="step">
       <h2>📁 Saved Invoices</h2>
       <ul id="invoiceList"></ul>
     </section>
-<tfoot>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>Subtotal:</strong></td>
-    <td id="subtotal">€0.00</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>VAT:</strong></td>
-    <td id="totalVat">€0.00</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>Total:</strong></td>
-    <td id="grandTotal">€0.00</td>
-  </tr>
-</tfoot>
-    
   </main>
 
-<script>
-  function addItem() {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><input class="desc" placeholder="Service..." /></td>
-      <input class="qty" type="number" value="1" oninput="updateTotals()" />
-      <input class="price" type="number" value="0" step="0.01" oninput="updateTotals()" />
-      <input class="vat" type="number" value="21" step="1" oninput="updateTotals()" />
-      <td class="item-total">€0.00</td>
-      <td><button onclick="this.parentElement.parentElement.remove(); updateTotals();">❌</button></td>`;
-    document.getElementById('itemsBody').appendChild(row);
-    updateTotals();
-  }
+  <script>
 
-  function updateTotals() {
+function generateNextInvoiceNumber() {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+  const numbers = invoices
+    .map(inv => inv.invoiceNumber)
+    .filter(num => /^INV-2025-\d{3}$/.test(num))
+    .map(num => parseInt(num.split("-")[2]))
+    .sort((a, b) => b - a); // за спаданням
+
+  const next = numbers.length ? numbers[0] + 1 : 1;
+  const padded = String(next).padStart(3, "0");
+  return `INV-2025-${padded}`;
+}
+    
+function addItem(desc = "", qty = 1, price = 0, vat = 21) {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td><input class="desc" value="${desc}" oninput="updateTotals()" /></td>
+    <td><input class="qty" type="number" value="${qty}" min="1" onchange="updateTotals()" /></td>
+    <td><input class="price" type="number" value="${price}" step="0.01" onchange="updateTotals()" /></td>
+    <td><input class="vat" type="number" value="${vat}" step="1" onchange="updateTotals()" /></td>
+    <td class="item-total">€0.00</td>
+    <td><button onclick="this.parentElement.parentElement.remove(); updateTotals();">❌</button></td>
+  `;
+  document.getElementById("itemsBody").appendChild(row);
+  updateTotals();
+}
+
+function updateTotals() {
   let subtotal = 0;
-  let totalVat = 0;
+  let totalVAT = 0;
 
   document.querySelectorAll("#itemsBody tr").forEach(row => {
-    const qty = parseFloat(row.querySelector(".qty")?.value || 0);
-    const price = parseFloat(row.querySelector(".price")?.value || 0);
-    const vat = parseFloat(row.querySelector(".vat")?.value || 0);
+    const qty = parseFloat(row.querySelector(".qty").value) || 0;
+    const price = parseFloat(row.querySelector(".price").value) || 0;
+    const vat = parseFloat(row.querySelector(".vat").value) || 0;
 
-    const lineTotal = qty * price;
-    const vatAmount = lineTotal * vat / 100;
+    const itemTotal = qty * price;
+    const itemVAT = itemTotal * vat / 100;
 
-    row.querySelector(".item-total").innerText = `€${(lineTotal + vatAmount).toFixed(2)}`;
+    subtotal += itemTotal;
+    totalVAT += itemVAT;
 
-    subtotal += lineTotal;
-    totalVat += vatAmount;
+    row.querySelector(".item-total").innerText = `€${(itemTotal + itemVAT).toFixed(2)}`;
   });
 
   document.getElementById("subtotal").innerText = `€${subtotal.toFixed(2)}`;
-  document.getElementById("totalVat").innerText = `€${totalVat.toFixed(2)}`;
-  document.getElementById("grandTotal").innerText = `€${(subtotal + totalVat).toFixed(2)}`;
-}
+  document.getElementById("totalVat").innerText = `€${totalVAT.toFixed(2)}`;
+  document.getElementById("grandTotal").innerText = `€${(subtotal + totalVAT).toFixed(2)}`;
 
-  function captureSignature(canvasId) {
-  const canvas = document.getElementById(canvasId);
-  return canvas.toDataURL();
-}
+  function saveInvoice() {
+  const invoice = {
+    businessName: document.getElementById("businessName")?.value || "",
+    kvk: document.getElementById("kvk")?.value || "",
+    iban: document.getElementById("iban")?.value || "",
+    btw: document.getElementById("btw")?.value || "",
+    email: document.getElementById("email")?.value || "",
+    businessAddress: document.getElementById("businessAddress")?.value || "",
+    businessPhone: document.getElementById("businessPhone")?.value || "",
 
-function clearSignature(canvasId) {
-  const canvas = document.getElementById(canvasId);
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
+    clientName: document.getElementById("clientName")?.value || "",
+    clientEmail: document.getElementById("clientEmail")?.value || "",
+    clientAddress: document.getElementById("clientAddress")?.value || "",
+    clientPhone: document.getElementById("clientPhone")?.value || "",
 
- function saveInvoice() {
-  try {
-    const data = {
-      businessName: document.getElementById("businessName")?.value || "",
-      kvk: document.getElementById("kvk")?.value || "",
-      iban: document.getElementById("iban")?.value || "",
-      btw: document.getElementById("btw")?.value || "",
-      email: document.getElementById("email")?.value || "",
-      clientName: document.getElementById("clientName")?.value || "",
-      clientEmail: document.getElementById("clientEmail")?.value || "",
-      invoiceNumber: document.getElementById("invoiceNumber")?.value || `INV-${Date.now()}`,
-      invoiceDate: document.getElementById("invoiceDate")?.value || "",
-      dueDate: document.getElementById("dueDate")?.value || "",
-      note: document.getElementById("note")?.value || "",
-      businessPhone: document.getElementById("businessPhone")?.value || "",
-      clientPhone: document.getElementById("clientPhone")?.value || "",
-      businessAddress: document.getElementById("businessAddress")?.value || "",
-      clientAddress: document.getElementById("clientAddress")?.value || "",
-      status: document.getElementById("status")?.value || "Draft",
-      items: []
-    };
+    invoiceNumber: document.getElementById("invoiceNumber")?.value || generateNextInvoiceNumber(),    invoiceDate: document.getElementById("invoiceDate")?.value || "",
+    dueDate: document.getElementById("dueDate")?.value || "",
+    note: document.getElementById("note")?.value || "",
+    status: document.getElementById("status")?.value || "Draft",
 
-    document.querySelectorAll("#itemsBody tr").forEach((row, i) => {
-      const desc = row.querySelector(".desc")?.value || "";
-      const qty = parseFloat(row.querySelector(".qty")?.value || 0);
-      const price = parseFloat(row.querySelector(".price")?.value || 0);
-      const vat = parseFloat(row.querySelector(".vat")?.value || 0);
+    items: [],
+    signedBusiness: localStorage.getItem("signBusiness") || "",
+    signedClient: localStorage.getItem("signClient") || "",
+    signedDateBusiness: localStorage.getItem("signDateBusiness") || "",
+    signedDateClient: localStorage.getItem("signDateClient") || ""
+  };
 
-      if (isNaN(qty) || isNaN(price) || isNaN(vat)) {
-        throw new Error(`Invalid data at row ${i + 1}`);
-      }
-
-      data.items.push({ desc, qty, price, vat });
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    invoice.items.push({
+      desc: row.querySelector(".desc")?.value || "",
+      qty: parseFloat(row.querySelector(".qty")?.value || 0),
+      price: parseFloat(row.querySelector(".price")?.value || 0),
+      vat: parseFloat(row.querySelector(".vat")?.value || 0)
     });
+  });
 
-    data.businessSign = captureSignature("businessSign");
-    data.clientSign = captureSignature("clientSign");
-    
-    // Отримуємо інвойси
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-    const currentIndex = localStorage.getItem("currentInvoiceIndex");
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const currentIndex = localStorage.getItem("currentInvoiceIndex");
 
-    if (currentIndex !== null && invoices[currentIndex]) {
-      invoices[currentIndex] = data;
-      localStorage.removeItem("currentInvoiceIndex");
-    } else {
-      invoices.push(data);
-    }
-
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices();
-    alert("✅ Invoice saved successfully!");
-  } catch (e) {
-    console.error("Error saving invoice:", e);
-    alert("❌ Error saving invoice: " + e.message);
+  if (currentIndex !== null && invoices[currentIndex]) {
+    invoices[currentIndex] = invoice;
+    localStorage.removeItem("currentInvoiceIndex");
+  } else {
+    invoices.push(invoice);
   }
+
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+  renderInvoices();
+  alert("Invoice saved successfully!");
+    const businessSign = document.getElementById("businessSign").toDataURL();
+const clientSign = document.getElementById("clientSign").toDataURL();
+
+d// Додаємо підписи як dataURL
+data.signatures = {
+  business: businessCanvas.toDataURL("image/png"),
+  client: clientCanvas.toDataURL("image/png")
+  businessDate: businessSignDate,
+  clientDate: clientSignDate,
+};
 }
 
-// 2. Рендер списку з урахуванням фільтра
-function renderInvoices() {
+  
+  function renderInvoices() {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const ul = document.getElementById("invoiceList");
   const filter = document.getElementById("statusFilter")?.value || "all";
@@ -252,26 +233,13 @@ function renderInvoices() {
         <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
       </select>
       <button onclick="downloadPDF(${i})">📄 PDF</button>
-      <button onclick="handleEdit(${i})">✏️ Edit</button>
+      ${inv.status === "Draft" ? `<button onclick="editInvoice(${i})">✏️ Edit</button>` : ""}
       <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
     `;
     ul.appendChild(li);
   });
 }
-function handleEdit(index) {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const inv = invoices[index];
-  if (!inv) return;
 
-  if (inv.status !== "Draft") {
-    alert("You can only edit invoices with Draft status.");
-    return;
-  }
-
-  editInvoice(index);
-}
-  
-  // 3. Оновлення статусу
 function updateStatus(index, newStatus) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   if (invoices[index]) {
@@ -281,17 +249,13 @@ function updateStatus(index, newStatus) {
   }
 }
 
-// 4. Фільтр статусу (додай селектор у HTML)
-function filterByStatus(status) {
-  currentFilterStatus = status;
-  renderInvoices();
-}
-
-// 5. ✏️ Повернення інвойсу у форму
 function editInvoice(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const inv = invoices[index];
-  if (!inv) return;
+  if (!inv || inv.status !== "Draft") {
+    alert("Editing is only allowed in 'Draft' status.");
+    return;
+  }
 
   // Step 1
   document.getElementById("businessName").value = inv.businessName || "";
@@ -299,223 +263,310 @@ function editInvoice(index) {
   document.getElementById("iban").value = inv.iban || "";
   document.getElementById("btw").value = inv.btw || "";
   document.getElementById("email").value = inv.email || "";
-  document.getElementById("note").value = inv.note || "";
-  document.getElementById("status").value = inv.status || "Draft";
-  document.getElementById("phone").value = inv.phone || "";
-  if (inv.businessAddress) doc.text(`Address: ${inv.businessAddress}`, 20, fromY + 12);
   document.getElementById("businessAddress").value = inv.businessAddress || "";
-
-  
+  document.getElementById("businessPhone").value = inv.businessPhone || "";
 
   // Step 2
   document.getElementById("clientName").value = inv.clientName || "";
   document.getElementById("clientEmail").value = inv.clientEmail || "";
+  document.getElementById("clientAddress").value = inv.clientAddress || "";
   document.getElementById("clientPhone").value = inv.clientPhone || "";
-  if (inv.clientAddress) doc.text(`Address: ${inv.clientAddress}`, 140, 59);
   document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
   document.getElementById("invoiceDate").value = inv.invoiceDate || "";
   document.getElementById("dueDate").value = inv.dueDate || "";
   document.getElementById("note").value = inv.note || "";
-  document.getElementById("clientPhone").value = inv.clientPhone || "";
-  document.getElementById("clientAddress").value = inv.clientAddress || "";
-  
+  document.getElementById("status").value = inv.status || "Draft";
 
   // Step 3 – Таблиця з товарами
   const tbody = document.getElementById("itemsBody");
-  tbody.innerHTML = ""; // Очистити попередні
+  tbody.innerHTML = "";
   inv.items.forEach(item => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><input type="text" class="desc" value="${item.desc || ""}"></td>
-      <td><input type="number" class="qty" value="${item.qty || 1}" min="1"></td>
-      <td><input type="number" class="price" value="${item.price || 0}" step="0.01"></td>
-      <td><input type="number" class="vat" value="${item.vat || 21}" step="0.01"></td>
-      <td><button type="button" onclick="this.closest('tr').remove()">❌</button></td>
+      <td><input type="text" class="desc" value="${item.desc || ""}" onchange="updateTotals()" /></td>
+      <td><input type="number" class="qty" value="${item.qty || 1}" min="1" onchange="updateTotals()" /></td>
+      <td><input type="number" class="price" value="${item.price || 0}" step="0.01" onchange="updateTotals()" /></td>
+      <td><input type="number" class="vat" value="${item.vat || 21}" step="1" onchange="updateTotals()" /></td>
+      <td class="item-total">€0.00</td>
+      <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
     `;
     tbody.appendChild(row);
   });
 
-  // Статус (якщо є select#status)
-  const statusSelect = document.getElementById("status");
-  if (statusSelect) {
-    statusSelect.value = inv.status || "Draft";
-  }
-
-  // Запам'ятати, що редагуємо
+  updateTotals();
   localStorage.setItem("currentInvoiceIndex", index);
-  if (inv.businessSign) {
-  const canvas = document.getElementById("businessSign");
+  if (inv.signatures) {
+  const businessImg = new Image();
+  businessImg.onload = () => {
+    const canvas = document.getElementById("businessSign");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(businessImg, 0, 0);
+    businessSignDate = inv.signatures.businessDate || "";
+    document.getElementById("businessSignDate").innerText = businessSignDate;
+  };
+  businessImg.src = inv.signatures.business;
+
+  const clientImg = new Image();
+  clientImg.onload = () => {
+    const canvas = document.getElementById("clientSign");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(clientImg, 0, 0);
+    clientSignDate = inv.signatures.clientDate || "";
+    document.getElementById("clientSignDate").innerText = clientSignDate;
+  };
+  clientImg.src = inv.signatures.client;
+}
+}
+
+  let businessSignDate = "";
+let clientSignDate = "";
+
+function setupSignature(canvasId) {
+  const canvas = document.getElementById(canvasId);
   const ctx = canvas.getContext("2d");
-  const img = new Image();
-  img.onload = () => ctx.drawImage(img, 0, 0);
-  img.src = inv.businessSign;
+  let drawing = false;
+
+  canvas.addEventListener("mousedown", () => {
+    drawing = true;
+    ctx.beginPath();
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    drawing = false;
+    const now = new Date().toLocaleDateString("nl-NL");
+    if (canvasId === "businessSign") {
+      businessSignDate = now;
+      document.getElementById("businessSignDate").innerText = now;
+    } else {
+      clientSignDate = now;
+      document.getElementById("clientSignDate").innerText = now;
+    }
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+  });
 }
 
-if (inv.clientSign) {
-  const canvas = document.getElementById("clientSign");
+function clearSignature(canvasId) {
+  const canvas = document.getElementById(canvasId);
   const ctx = canvas.getContext("2d");
-  const img = new Image();
-  img.onload = () => ctx.drawImage(img, 0, 0);
-  img.src = inv.clientSign;
-}
-}
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-
-function loadInvoiceToForm(inv) {
-  // заповнення форми з даними (реалізуй відповідно до свого HTML)
-  document.getElementById("businessName").value = inv.businessName;
-  document.getElementById("kvk").value = inv.kvk;
-  document.getElementById("iban").value = inv.iban;
-  document.getElementById("email").value = inv.email;
-  document.getElementById("btw").value = inv.btw;
-  document.getElementById("clientName").value = inv.clientName;
-  document.getElementById("clientEmail").value = inv.clientEmail;
-  document.getElementById("invoiceDate").value = inv.invoiceDate;
-  document.getElementById("dueDate").value = inv.dueDate;
-  document.getElementById("invoiceNumber").value = inv.invoiceNumber;
-  document.getElementById("status").value = inv.status;
-  // items = inv.items (реалізуй додатково)
-}
-
-  function deleteInvoice(index) {
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-    invoices.splice(index, 1);
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices();
+  if (canvasId === "businessSign") {
+    businessSignDate = "";
+    document.getElementById("businessSignDate").innerText = "";
+  } else {
+    clientSignDate = "";
+    document.getElementById("clientSignDate").innerText = "";
   }
+}
 
- 
- async function downloadPDF(index) {
+// ініціалізація підписів при завантаженні
+document.addEventListener("DOMContentLoaded", () => {
+// Підписування через canvas
+let businessCanvas, clientCanvas, businessCtx, clientCtx;
+let signing = false;
+
+document.addEventListener("DOMContentLoaded", () => {
+  businessCanvas = document.getElementById("businessSign");
+  clientCanvas = document.getElementById("clientSign");
+
+  if (businessCanvas && clientCanvas) {
+    businessCtx = businessCanvas.getContext("2d");
+    clientCtx = clientCanvas.getContext("2d");
+
+    [businessCanvas, clientCanvas].forEach((canvas, idx) => {
+      const ctx = canvas.getContext("2d");
+      let isDrawing = false;
+
+      canvas.addEventListener("mousedown", () => isDrawing = true);
+      canvas.addEventListener("mouseup", () => isDrawing = false);
+      canvas.addEventListener("mouseout", () => isDrawing = false);
+      canvas.addEventListener("mousemove", (e) => {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "black";
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      });
+    });
+  }
+});
+
+function clearSignature(type) {
+  const canvas = type === "business" ? businessCanvas : clientCanvas;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+  
+  setupSignature("businessSign");
+  setupSignature("clientSign");
+});
+} 
+
+    async function downloadPDF(index) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.setFont("helvetica", "normal"); // підтримка українських символів
 
   const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
   const inv = invoices[index];
   if (!inv) return;
 
-  const invoiceNumber = inv.invoiceNumber.startsWith('INV') ? inv.invoiceNumber : `INV-2025-${inv.invoiceNumber}`;
+  // 🧾 Номер інвойсу
+  const invoiceNumber = inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`;
+
+      // Кодування українського шрифта NotoSans у base64
+// Потрібно вставити лише 1 раз, при ініціалізації jsPDF
+if (typeof jsPDF !== "undefined") {
+  jsPDF.API.events.push(['addFonts', function() {
+    this.addFileToVFS('NotoSans.ttf', notoFontBase64);
+    this.addFont('NotoSans.ttf', 'NotoSans', 'normal');
+  }]);
+}
+
+const notoFontBase64 = `
+AAEAAAASAQAABAAgR0RFRrRCsIIAAAToAAAHEdEFUWVhpYAAAAXAAAAiZR1NVQ0XzLgAAAEwA
+...
+(ЗАВАНТАЖИТИ ТУТ → велика base64 стрічка, я вставлю її повністю нижче як окремий блок)
+...
+`; 
+
+  doc.setFont("NotoSans");
 
   // Заголовок
   doc.setFontSize(18);
   doc.text("INVOICE", 105, 20, null, null, "center");
 
-  // From / To
+  // From (Business)
   doc.setFontSize(12);
   doc.text("From:", 20, 35);
   doc.text(`${inv.businessName}`, 20, 41);
   doc.text(`KvK: ${inv.kvk}`, 20, 47);
   doc.text(`IBAN: ${inv.iban}`, 20, 53);
   doc.text(`Email: ${inv.email}`, 20, 59);
-  doc.text(`Phone: ${inv.businessPhone}`, 20, fromY + 6);
-  if (inv.businessPhone) doc.text(`Phone: ${inv.businessPhone}`, 20, fromY + 6);
+  doc.text(`Address: ${inv.businessAddress}`, 20, 71);
+  doc.text(`Phone: ${inv.businessPhone}`, 20, 77);    
   if (inv.btw) doc.text(`BTW: ${inv.btw}`, 20, 65);
 
-  const fromY = inv.btw ? 65 : 59;
+  // To (Client)
+  const toY = inv.btw ? 65 : 59;
   doc.text("To:", 140, 35);
   doc.text(`${inv.clientName}`, 140, 41);
+  doc.text(`Address: ${inv.clientAddress}`, 140, 53);
+  doc.text(`Phone: ${inv.clientPhone}`, 140, 59);    
   if (inv.clientEmail) doc.text(`${inv.clientEmail}`, 140, 47);
-   doc.text(`Phone: ${inv.clientPhone}`, 140, 53); // зміщення нижче після email
-   if (inv.clientPhone) doc.text(`Phone: ${inv.clientPhone}`, 140, 53);
 
-  // 🧾 Інфо про інвойс
+  // Invoice Info
   doc.autoTable({
-    startY: fromY + 15,
+    startY: toY + 15,
     head: [['Invoice Number', 'Date Issued', 'Due Date', 'Status']],
     body: [[invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status || 'Draft']],
     styles: { halign: 'left' },
-    headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' }
+    headStyles: { fillColor: [240, 240, 240] }
   });
 
-  // 🛒 Таблиця з товарами
+  // Items
   const itemRows = inv.items.map(item => [
     item.desc,
     item.qty,
     `€${parseFloat(item.price).toFixed(2)}`,
-    `€${(item.qty * item.price).toFixed(2)}`
+    `${item.vat}%`,
+    `€${(item.qty * item.price * (1 + item.vat / 100)).toFixed(2)}`
   ]);
 
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 10,
-    head: [['Description', 'Quantity', 'Unit Price', 'Total']],
+    head: [['Description', 'Qty', 'Unit Price', 'VAT', 'Total']],
     body: itemRows,
     styles: { halign: 'left' },
     columnStyles: {
-      0: { halign: 'left' },  // Description
-      1: { halign: 'left' },  // Quantity
-      2: { halign: 'left' },  // Unit Price
-      3: { halign: 'left' },  // Total
+      0: { cellWidth: 60 },
+      1: { halign: 'right' },
+      2: { halign: 'right' },
+      3: { halign: 'right' },
+      4: { halign: 'right' }
     },
-    headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+    headStyles: { fillColor: [240, 240, 240] }
   });
 
-  // 💰 Summary
-  const subtotal = inv.items.reduce((acc, item) => acc + item.qty * item.price, 0);
-  const totalVAT = inv.items.reduce((acc, item) => acc + item.qty * item.price * (item.vat / 100), 0);
-  const total = subtotal + totalVAT;
+  // Summary
+  const subtotal = inv.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+  const vatTotal = inv.items.reduce((sum, item) => sum + item.qty * item.price * (item.vat / 100), 0);
+  const total = subtotal + vatTotal;
 
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 10,
     body: [
       ['Subtotal:', `€${subtotal.toFixed(2)}`],
-      [`VAT (${inv.items[0]?.vat || 21}%):`, `€${totalVAT.toFixed(2)}`],
-      ['Total Due:', `€${total.toFixed(2)}`],
+      ['VAT:', `€${vatTotal.toFixed(2)}`],
+      ['Total Due:', `€${total.toFixed(2)}`]
     ],
     theme: 'plain',
     styles: { fontStyle: 'bold' },
     columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
   });
 
- // 📝 Notes (якщо є)
-if (inv.note) {
-  doc.setFontSize(12);
-  doc.text("Notes:", 20, doc.lastAutoTable.finalY + 10);
-  doc.setFontSize(10);
-  const lines = doc.splitTextToSize(inv.note, 170); // автоматичне перенесення
-  doc.text(lines, 20, doc.lastAutoTable.finalY + 16);
-}
-
-  // ✍️ Підпис із датою
-  const today = new Date().toLocaleDateString("nl-NL");
-  doc.setFontSize(10);
-  doc.text(`Signed on: ${today}`, 20, doc.lastAutoTable.finalY + 30);
-
-  // ✅ Завершення
-   const imageY = doc.lastAutoTable.finalY + 40;
-
-if (inv.businessSign) {
-  doc.setFontSize(10);
-  doc.text("Business Signature:", 20, imageY);
-  doc.addImage(inv.businessSign, 'PNG', 20, imageY + 5, 60, 30);
-  doc.text(`Date: ${inv.invoiceDate}`, 20, imageY + 40);
-}
-
-if (inv.clientSign) {
-  doc.setFontSize(10);
-  doc.text("Client Signature:", 120, imageY);
-  doc.addImage(inv.clientSign, 'PNG', 120, imageY + 5, 60, 30);
-  doc.text(`Date: ${inv.invoiceDate}`, 120, imageY + 40);
-}
-  doc.save(`${invoiceNumber}.pdf`);
-}
-
-  function searchInvoices() {
-    const search = document.getElementById("searchInput").value.toLowerCase();
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-    const filtered = invoices.filter(inv => inv.clientName.toLowerCase().includes(search));
-    const ul = document.getElementById("invoiceList");
-    ul.innerHTML = "";
-    filtered.forEach((inv, i) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <strong>${inv.clientName}</strong> – ${inv.invoiceNumber}
-        <button onclick="downloadPDF(${i})">📄 PDF</button>
-        <button onclick="deleteInvoice(${i})">🗑️ Delete</button>`;
-      ul.appendChild(li);
-    });
+  // Notes
+  if (inv.note && inv.note.trim() !== "") {
+    doc.setFontSize(12);
+    doc.text("Notes:", 20, doc.lastAutoTable.finalY + 10);
+    doc.setFontSize(10);
+    doc.text(inv.note, 20, doc.lastAutoTable.finalY + 16);
   }
 
-  document.addEventListener("DOMContentLoaded", renderInvoices);
-</script>
+  // Підписи
+  const signY = doc.lastAutoTable.finalY + 30;
+  const dateStr = new Date().toLocaleDateString("nl-NL");
+
+  doc.setFontSize(12);
+  doc.text("Business Signature:", 20, signY);
+  doc.text("Client Signature:", 130, signY);
+
+  doc.setFontSize(10);
+  doc.text(`Signed on: ${dateStr}`, 20, signY + 6);
+
+  doc.setLineWidth(0.1);
+  doc.line(20, signY + 12, 70, signY + 12); // business line
+  doc.line(130, signY + 12, 180, signY + 12); // client line
+
+      // Додати підписи (зображення)
+if (inv.signatures?.business) {
+  const img = new Image();
+  img.src = inv.signatures.business;
+  await new Promise(resolve => {
+    img.onload = () => {
+      doc.addImage(img, "PNG", 20, signY + 13, 50, 20);
+      resolve();
+    };
+  });
+}
+if (inv.signatures?.client) {
+  const img = new Image();
+  img.src = inv.signatures.client;
+  await new Promise(resolve => {
+    img.onload = () => {
+      doc.addImage(img, "PNG", 130, signY + 13, 50, 20);
+      resolve();
+    };
+  });
+}
+
+  // Final save
+  doc.save(`${invoiceNumber}.pdf`);
+}
+    
+  </script>
 </body>
 </html>
