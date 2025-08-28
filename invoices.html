@@ -60,21 +60,20 @@
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
-   <section class="step">
+   <!-- Підпис -->
+<section class="step">
   <h2>✍️ Signatures</h2>
 
-  <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-    <div>
-      <p><strong>Business Signature:</strong></p>
-      <canvas id="businessSign" width="200" height="100" style="border:1px solid #ccc;"></canvas><br/>
-      <button onclick="clearSignature('business')">Clear</button>
-    </div>
+  <div>
+    <h3>Business Signature:</h3>
+    <canvas id="signatureBusiness" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
+    <button onclick="clearSignature('signatureBusiness')">Clear</button>
+  </div>
 
-    <div>
-      <p><strong>Client Signature:</strong></p>
-      <canvas id="clientSign" width="200" height="100" style="border:1px solid #ccc;"></canvas><br/>
-      <button onclick="clearSignature('client')">Clear</button>
-    </div>
+  <div>
+    <h3>Client Signature:</h3>
+    <canvas id="signatureClient" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
+    <button onclick="clearSignature('signatureClient')">Clear</button>
   </div>
 </section>
 
@@ -206,10 +205,9 @@ const clientSign = document.getElementById("clientSign").toDataURL();
 
 d// Додаємо підписи як dataURL
 data.signatures = {
-  business: businessCanvas.toDataURL("image/png"),
-  client: clientCanvas.toDataURL("image/png")
-  businessDate: businessSignDate,
-  clientDate: clientSignDate,
+  business: document.getElementById("signatureBusiness").toDataURL(),
+  client: document.getElementById("signatureClient").toDataURL(),
+  date: new Date().toLocaleDateString("nl-NL")
 };
 }
 
@@ -543,29 +541,53 @@ AAEAAAASAQAABAAgR0RFRrRCsIIAAAToAAAHEdEFUWVhpYAAAAXAAAAiZR1NVQ0XzLgAAAEwA
 
       // Додати підписи (зображення)
 if (inv.signatures?.business) {
-  const img = new Image();
-  img.src = inv.signatures.business;
-  await new Promise(resolve => {
-    img.onload = () => {
-      doc.addImage(img, "PNG", 20, signY + 13, 50, 20);
-      resolve();
-    };
-  });
+  doc.text("Business Signature:", 20, doc.lastAutoTable.finalY + 10);
+  doc.addImage(inv.signatures.business, "PNG", 20, doc.lastAutoTable.finalY + 15, 60, 30);
 }
+
 if (inv.signatures?.client) {
-  const img = new Image();
-  img.src = inv.signatures.client;
-  await new Promise(resolve => {
-    img.onload = () => {
-      doc.addImage(img, "PNG", 130, signY + 13, 50, 20);
-      resolve();
-    };
-  });
+  doc.text("Client Signature:", 120, doc.lastAutoTable.finalY + 10);
+  doc.addImage(inv.signatures.client, "PNG", 120, doc.lastAutoTable.finalY + 15, 60, 30);
 }
+
+if (inv.signatures?.date) {
+  doc.setFontSize(10);
+  doc.text(`Signed on: ${inv.signatures.date}`, 20, doc.lastAutoTable.finalY + 50);
+}
+      
 
   // Final save
   doc.save(`${invoiceNumber}.pdf`);
 }
+
+
+    function clearSignature(id) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ініціалізація малювання
+["signatureBusiness", "signatureClient"].forEach(id => {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  canvas.addEventListener("mousedown", () => drawing = true);
+  canvas.addEventListener("mouseup", () => drawing = false);
+  canvas.addEventListener("mouseout", () => drawing = false);
+  canvas.addEventListener("mousemove", e => {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  });
+});
     
   </script>
 </body>
