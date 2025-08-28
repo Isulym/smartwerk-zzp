@@ -29,9 +29,9 @@
       <input id="clientEmail" placeholder="Client Email" />
       <input id="clientPhone" placeholder="Client Phone" />
       <input id="clientAddress" placeholder="Client Address" />
-      <input id="clientPhone" placeholder="Client Phone" /> 
       <input id="invoiceDate" type="date" />
       <input id="dueDate" type="date" />
+      <input id="invoiceNumber" placeholder="Invoice Number" />
     </section>
 
     <section class="step">
@@ -68,12 +68,14 @@
     <h3>Business Signature:</h3>
     <canvas id="signatureBusiness" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
     <button onclick="clearSignature('signatureBusiness')">Clear</button>
+    <p>Date: <span id="businessSignDate"></span></p>
   </div>
 
   <div>
     <h3>Client Signature:</h3>
     <canvas id="signatureClient" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
     <button onclick="clearSignature('signatureClient')">Clear</button>
+    <p>Date: <span id="clientSignDate"></span></p>
   </div>
 </section>
 
@@ -152,6 +154,7 @@ function updateTotals() {
   document.getElementById("subtotal").innerText = `€${subtotal.toFixed(2)}`;
   document.getElementById("totalVat").innerText = `€${totalVAT.toFixed(2)}`;
   document.getElementById("grandTotal").innerText = `€${(subtotal + totalVAT).toFixed(2)}`;
+  }
   
 
 
@@ -209,16 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function clearSignature(type) {
-  const canvas = type === "business" ? businessCanvas : clientCanvas;
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-  
-  setupSignature("businessSign");
-  setupSignature("clientSign");
-});
-} 
 
     async function downloadPDF(index) {
   const { jsPDF } = window.jspdf;
@@ -367,33 +360,7 @@ if (inv.signatures?.date) {
 }
 
 
-    function clearSignature(id) {
-  const canvas = document.getElementById(id);
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 
-// ініціалізація малювання
-["signatureBusiness", "signatureClient"].forEach(id => {
-  const canvas = document.getElementById(id);
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
-
-  canvas.addEventListener("mousedown", () => drawing = true);
-  canvas.addEventListener("mouseup", () => drawing = false);
-  canvas.addEventListener("mouseout", () => drawing = false);
-  canvas.addEventListener("mousemove", e => {
-    if (!drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "black";
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-  });
-});
 
 function editInvoice(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
