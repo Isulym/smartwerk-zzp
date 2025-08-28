@@ -150,72 +150,6 @@ function updateTotals() {
   document.getElementById("subtotal").innerText = `€${subtotal.toFixed(2)}`;
   document.getElementById("totalVat").innerText = `€${totalVAT.toFixed(2)}`;
   document.getElementById("grandTotal").innerText = `€${(subtotal + totalVAT).toFixed(2)}`;
-
-  function saveInvoice() {
-  const invoice = {
-    businessName: document.getElementById("businessName")?.value || "",
-    kvk: document.getElementById("kvk")?.value || "",
-    iban: document.getElementById("iban")?.value || "",
-    btw: document.getElementById("btw")?.value || "",
-    email: document.getElementById("email")?.value || "",
-    businessAddress: document.getElementById("businessAddress")?.value || "",
-    businessPhone: document.getElementById("businessPhone")?.value || "",
-
-    clientName: document.getElementById("clientName")?.value || "",
-    clientEmail: document.getElementById("clientEmail")?.value || "",
-    clientAddress: document.getElementById("clientAddress")?.value || "",
-    clientPhone: document.getElementById("clientPhone")?.value || "",
-
-    invoiceNumber: document.getElementById("invoiceNumber")?.value || generateNextInvoiceNumber(),
-    invoiceDate: document.getElementById("invoiceDate")?.value || "",
-    dueDate: document.getElementById("dueDate")?.value || "",
-    note: document.getElementById("note")?.value || "",
-    status: document.getElementById("status")?.value || "Draft",
-
-    items: [],
-    signatures: {
-      business: "",
-      client: "",
-      date: new Date().toLocaleDateString("nl-NL")
-    }
-  };
-
-  // Збір рядків інвойсу
-  document.querySelectorAll("#itemsBody tr").forEach(row => {
-    invoice.items.push({
-      desc: row.querySelector(".desc")?.value || "",
-      qty: parseFloat(row.querySelector(".qty")?.value || 0),
-      price: parseFloat(row.querySelector(".price")?.value || 0),
-      vat: parseFloat(row.querySelector(".vat")?.value || 0)
-    });
-  });
-
-  // Підписи
-  try {
-    const businessSign = document.getElementById("signatureBusiness")?.toDataURL() || "";
-    const clientSign = document.getElementById("signatureClient")?.toDataURL() || "";
-    invoice.signatures.business = businessSign;
-    invoice.signatures.client = clientSign;
-  } catch (e) {
-    console.warn("Підпис не зчитано:", e.message);
-  }
-
-  // Збереження
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const currentIndex = localStorage.getItem("currentInvoiceIndex");
-
-  if (currentIndex !== null && invoices[currentIndex]) {
-    invoices[currentIndex] = invoice;
-    localStorage.removeItem("currentInvoiceIndex");
-  } else {
-    invoices.push(invoice);
-  }
-
-  localStorage.setItem("invoices", JSON.stringify(invoices));
-  renderInvoices();
-  alert("Invoice saved successfully!");
-}
-
   
   function renderInvoices() {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
@@ -593,6 +527,72 @@ if (inv.signatures?.date) {
     ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
   });
 });
+
+    function saveInvoice() {
+  const invoice = {
+    businessName: document.getElementById("businessName")?.value || "",
+    kvk: document.getElementById("kvk")?.value || "",
+    iban: document.getElementById("iban")?.value || "",
+    btw: document.getElementById("btw")?.value || "",
+    email: document.getElementById("email")?.value || "",
+    businessAddress: document.getElementById("businessAddress")?.value || "",
+    businessPhone: document.getElementById("businessPhone")?.value || "",
+
+    clientName: document.getElementById("clientName")?.value || "",
+    clientEmail: document.getElementById("clientEmail")?.value || "",
+    clientAddress: document.getElementById("clientAddress")?.value || "",
+    clientPhone: document.getElementById("clientPhone")?.value || "",
+
+    invoiceNumber: document.getElementById("invoiceNumber")?.value || generateNextInvoiceNumber(),
+    invoiceDate: document.getElementById("invoiceDate")?.value || "",
+    dueDate: document.getElementById("dueDate")?.value || "",
+    note: document.getElementById("note")?.value || "",
+    status: document.getElementById("status")?.value || "Draft",
+
+    items: [],
+    signatures: {
+      business: "",
+      client: "",
+      date: new Date().toLocaleDateString("nl-NL")
+    }
+  };
+
+  // Збір рядків інвойсу
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    invoice.items.push({
+      desc: row.querySelector(".desc")?.value || "",
+      qty: parseFloat(row.querySelector(".qty")?.value || 0),
+      price: parseFloat(row.querySelector(".price")?.value || 0),
+      vat: parseFloat(row.querySelector(".vat")?.value || 0)
+    });
+  });
+
+  // Підписи
+  try {
+    const businessSign = document.getElementById("signatureBusiness")?.toDataURL() || "";
+    const clientSign = document.getElementById("signatureClient")?.toDataURL() || "";
+    invoice.signatures.business = businessSign;
+    invoice.signatures.client = clientSign;
+  } catch (e) {
+    console.warn("Підпис не зчитано:", e.message);
+  }
+
+  // Збереження
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const currentIndex = localStorage.getItem("currentInvoiceIndex");
+
+  if (currentIndex !== null && invoices[currentIndex]) {
+    invoices[currentIndex] = invoice;
+    localStorage.removeItem("currentInvoiceIndex");
+  } else {
+    invoices.push(invoice);
+  }
+
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+  renderInvoices();
+  alert("Invoice saved successfully!");
+}
+
     
   </script>
 </body>
