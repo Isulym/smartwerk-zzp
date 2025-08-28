@@ -21,6 +21,10 @@
       <input id="email" placeholder="Email" />
       <label for="btw">BTW:</label>
       <input type="text" id="btw">
+      <label for="businessPhone"><strong>📞 Business Phone:</strong></label>
+      <input type="tel" id="businessPhone" placeholder="+31..." />
+      <label for="businessAddress"><strong>🏢 Business Address:</strong></label>
+      <input type="text" id="businessAddress" placeholder="Street, City, ZIP" />   
     </section>
 
     <section class="step">
@@ -28,6 +32,10 @@
       <input id="clientName" placeholder="Client Name" />
       <label for="clientEmail">Client Email:</label>
       <input type="email" id="clientEmail"> 
+      <label for="clientPhone"><strong>📞 Client Phone:</strong></label>
+      <input type="tel" id="clientPhone" placeholder="+31..." />
+      <label for="clientAddress"><strong>📬 Client Address:</strong></label>
+      <input type="text" id="clientAddress" placeholder="Street, City, ZIP" />
       <input id="invoiceNumber" placeholder="Invoice Number" />
       <input id="invoiceDate" type="date" />
       <input id="dueDate" type="date" />
@@ -51,6 +59,10 @@
       </table>
       <button onclick="addItem()">➕ Add Item</button>
     </section>
+    <div style="margin-top: 20px;">
+  <label for="note"><strong>📝 Work Description / Notes:</strong></label><br>
+  <textarea id="note" rows="4" style="width: 100%;" placeholder="Add any additional notes or work description here..."></textarea>
+</div>
 
     <!-- Summary -->
     <section class="step">
@@ -65,6 +77,19 @@
     <!-- Controls -->
     <section class="step">
       <h2>⚙️ Actions</h2>
+      <h3>✍️ Signatures</h3>
+<div style="display: flex; gap: 30px; flex-wrap: wrap;">
+  <div>
+    <p>Business Signature:</p>
+    <canvas id="businessSign" width="300" height="100" style="border:1px solid #ccc;"></canvas>
+    <button onclick="clearSignature('businessSign')">Clear</button>
+  </div>
+  <div>
+    <p>Client Signature:</p>
+    <canvas id="clientSign" width="300" height="100" style="border:1px solid #ccc;"></canvas>
+    <button onclick="clearSignature('clientSign')">Clear</button>
+  </div>
+</div>
       <button onclick="saveInvoice()">💾 Save Invoice</button>
       <input type="text" id="searchInput" placeholder="Search client..."/>
       <button onclick="searchInvoices()">🔍 Search</button>
@@ -84,7 +109,20 @@
       <h2>📁 Saved Invoices</h2>
       <ul id="invoiceList"></ul>
     </section>
-
+<tfoot>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>Subtotal:</strong></td>
+    <td id="subtotal">€0.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>VAT:</strong></td>
+    <td id="totalVat">€0.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>Total:</strong></td>
+    <td id="grandTotal">€0.00</td>
+  </tr>
+</tfoot>
     
   </main>
 
@@ -93,9 +131,9 @@
     const row = document.createElement('tr');
     row.innerHTML = `
       <td><input class="desc" placeholder="Service..." /></td>
-      <td><input class="qty" type="number" value="1" min="1" onchange="updateTotals()" /></td>
-      <td><input class="price" type="number" value="0" step="0.01" onchange="updateTotals()" /></td>
-      <td><input class="vat" type="number" value="21" step="1" onchange="updateTotals()" /></td>
+      <input class="qty" type="number" value="1" oninput="updateTotals()" />
+      <input class="price" type="number" value="0" step="0.01" oninput="updateTotals()" />
+      <input class="vat" type="number" value="21" step="1" oninput="updateTotals()" />
       <td class="item-total">€0.00</td>
       <td><button onclick="this.parentElement.parentElement.remove(); updateTotals();">❌</button></td>`;
     document.getElementById('itemsBody').appendChild(row);
@@ -103,71 +141,96 @@
   }
 
   function updateTotals() {
-    let subtotal = 0, totalVat = 0;
-    document.querySelectorAll('#itemsBody tr').forEach(row => {
-      const qty = parseFloat(row.querySelector('.qty').value) || 0;
-      const price = parseFloat(row.querySelector('.price').value) || 0;
-      const vat = parseFloat(row.querySelector('.vat').value) || 0;
-      const itemTotal = qty * price;
-      const itemVat = itemTotal * vat / 100;
-      row.querySelector('.item-total').innerText = `€${(itemTotal + itemVat).toFixed(2)}`;
-      subtotal += itemTotal;
-      totalVat += itemVat;
-    });
-    document.getElementById('subtotal').innerText = `€${subtotal.toFixed(2)}`;
-    document.getElementById('totalVat').innerText = `€${totalVat.toFixed(2)}`;
-    document.getElementById('grandTotal').innerText = `€${(subtotal + totalVat).toFixed(2)}`;
-  }
+  let subtotal = 0;
+  let totalVat = 0;
 
- function saveInvoice() {
-  const debug = [];
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    const qty = parseFloat(row.querySelector(".qty")?.value || 0);
+    const price = parseFloat(row.querySelector(".price")?.value || 0);
+    const vat = parseFloat(row.querySelector(".vat")?.value || 0);
 
-  const data = {
-    businessName: document.getElementById("businessName")?.value || "",
-    kvk: document.getElementById("kvk")?.value || "",
-    iban: document.getElementById("iban")?.value || "",
-    btw: document.getElementById("btw")?.value || "",
-    email: document.getElementById("email")?.value || "",
-    clientName: document.getElementById("clientName")?.value || "",
-    clientEmail: document.getElementById("clientEmail")?.value || "",
-    invoiceNumber: document.getElementById("invoiceNumber")?.value || `INV-${Date.now()}`,
-    invoiceDate: document.getElementById("invoiceDate")?.value || "",
-    dueDate: document.getElementById("dueDate")?.value || "",
-    note: document.getElementById("note")?.value || "",
-    status: document.getElementById("status")?.value || "Draft",
-    items: [],
-  };
-  debug.push("Базові поля зчитано");
+    const lineTotal = qty * price;
+    const vatAmount = lineTotal * vat / 100;
 
-  document.querySelectorAll("#itemsBody tr").forEach((row, i) => {
-    const desc = row.querySelector('.desc')?.value || "";
-    const qty = parseFloat(row.querySelector('.qty')?.value || 0);
-    const price = parseFloat(row.querySelector('.price')?.value || 0);
-    const vat = parseFloat(row.querySelector('.vat')?.value || 0);
+    row.querySelector(".item-total").innerText = `€${(lineTotal + vatAmount).toFixed(2)}`;
 
-    if (isNaN(qty) || isNaN(price) || isNaN(vat)) {
-      throw new Error(`Проблема в рядку ${i + 1}: qty=${qty}, price=${price}, vat=${vat}`);
-    }
-
-    data.items.push({ desc, qty, price, vat });
+    subtotal += lineTotal;
+    totalVat += vatAmount;
   });
-  debug.push("Items додано");
 
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const currentIndex = localStorage.getItem("currentInvoiceIndex");
-
-  if (currentIndex !== null && invoices[currentIndex]) {
-    invoices[currentIndex] = data;
-    localStorage.removeItem("currentInvoiceIndex");
-  } else {
-    invoices.push(data);
-  }
-
-  localStorage.setItem("invoices", JSON.stringify(invoices));
-  renderInvoices();
-  alert("Invoice saved successfully!");
+  document.getElementById("subtotal").innerText = `€${subtotal.toFixed(2)}`;
+  document.getElementById("totalVat").innerText = `€${totalVat.toFixed(2)}`;
+  document.getElementById("grandTotal").innerText = `€${(subtotal + totalVat).toFixed(2)}`;
 }
 
+  function captureSignature(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  return canvas.toDataURL();
+}
+
+function clearSignature(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+ function saveInvoice() {
+  try {
+    const data = {
+      businessName: document.getElementById("businessName")?.value || "",
+      kvk: document.getElementById("kvk")?.value || "",
+      iban: document.getElementById("iban")?.value || "",
+      btw: document.getElementById("btw")?.value || "",
+      email: document.getElementById("email")?.value || "",
+      clientName: document.getElementById("clientName")?.value || "",
+      clientEmail: document.getElementById("clientEmail")?.value || "",
+      invoiceNumber: document.getElementById("invoiceNumber")?.value || `INV-${Date.now()}`,
+      invoiceDate: document.getElementById("invoiceDate")?.value || "",
+      dueDate: document.getElementById("dueDate")?.value || "",
+      note: document.getElementById("note")?.value || "",
+      businessPhone: document.getElementById("businessPhone")?.value || "",
+      clientPhone: document.getElementById("clientPhone")?.value || "",
+      businessAddress: document.getElementById("businessAddress")?.value || "",
+      clientAddress: document.getElementById("clientAddress")?.value || "",
+      status: document.getElementById("status")?.value || "Draft",
+      items: []
+    };
+
+    document.querySelectorAll("#itemsBody tr").forEach((row, i) => {
+      const desc = row.querySelector(".desc")?.value || "";
+      const qty = parseFloat(row.querySelector(".qty")?.value || 0);
+      const price = parseFloat(row.querySelector(".price")?.value || 0);
+      const vat = parseFloat(row.querySelector(".vat")?.value || 0);
+
+      if (isNaN(qty) || isNaN(price) || isNaN(vat)) {
+        throw new Error(`Invalid data at row ${i + 1}`);
+      }
+
+      data.items.push({ desc, qty, price, vat });
+    });
+
+    data.businessSign = captureSignature("businessSign");
+    data.clientSign = captureSignature("clientSign");
+    
+    // Отримуємо інвойси
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+    const currentIndex = localStorage.getItem("currentInvoiceIndex");
+
+    if (currentIndex !== null && invoices[currentIndex]) {
+      invoices[currentIndex] = data;
+      localStorage.removeItem("currentInvoiceIndex");
+    } else {
+      invoices.push(data);
+    }
+
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    renderInvoices();
+    alert("✅ Invoice saved successfully!");
+  } catch (e) {
+    console.error("Error saving invoice:", e);
+    alert("❌ Error saving invoice: " + e.message);
+  }
+}
 
 // 2. Рендер списку з урахуванням фільтра
 function renderInvoices() {
@@ -189,12 +252,25 @@ function renderInvoices() {
         <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
       </select>
       <button onclick="downloadPDF(${i})">📄 PDF</button>
-      <button onclick="editInvoice(${i})">✏️ Edit</button>
+      <button onclick="handleEdit(${i})">✏️ Edit</button>
       <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
     `;
     ul.appendChild(li);
   });
 }
+function handleEdit(index) {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const inv = invoices[index];
+  if (!inv) return;
+
+  if (inv.status !== "Draft") {
+    alert("You can only edit invoices with Draft status.");
+    return;
+  }
+
+  editInvoice(index);
+}
+  
   // 3. Оновлення статусу
 function updateStatus(index, newStatus) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
@@ -223,14 +299,26 @@ function editInvoice(index) {
   document.getElementById("iban").value = inv.iban || "";
   document.getElementById("btw").value = inv.btw || "";
   document.getElementById("email").value = inv.email || "";
+  document.getElementById("note").value = inv.note || "";
+  document.getElementById("status").value = inv.status || "Draft";
+  document.getElementById("phone").value = inv.phone || "";
+  if (inv.businessAddress) doc.text(`Address: ${inv.businessAddress}`, 20, fromY + 12);
+  document.getElementById("businessAddress").value = inv.businessAddress || "";
+
+  
 
   // Step 2
   document.getElementById("clientName").value = inv.clientName || "";
   document.getElementById("clientEmail").value = inv.clientEmail || "";
+  document.getElementById("clientPhone").value = inv.clientPhone || "";
+  if (inv.clientAddress) doc.text(`Address: ${inv.clientAddress}`, 140, 59);
   document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
   document.getElementById("invoiceDate").value = inv.invoiceDate || "";
   document.getElementById("dueDate").value = inv.dueDate || "";
   document.getElementById("note").value = inv.note || "";
+  document.getElementById("clientPhone").value = inv.clientPhone || "";
+  document.getElementById("clientAddress").value = inv.clientAddress || "";
+  
 
   // Step 3 – Таблиця з товарами
   const tbody = document.getElementById("itemsBody");
@@ -255,6 +343,21 @@ function editInvoice(index) {
 
   // Запам'ятати, що редагуємо
   localStorage.setItem("currentInvoiceIndex", index);
+  if (inv.businessSign) {
+  const canvas = document.getElementById("businessSign");
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  img.onload = () => ctx.drawImage(img, 0, 0);
+  img.src = inv.businessSign;
+}
+
+if (inv.clientSign) {
+  const canvas = document.getElementById("clientSign");
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  img.onload = () => ctx.drawImage(img, 0, 0);
+  img.src = inv.clientSign;
+}
 }
 
 
@@ -304,12 +407,16 @@ function loadInvoiceToForm(inv) {
   doc.text(`KvK: ${inv.kvk}`, 20, 47);
   doc.text(`IBAN: ${inv.iban}`, 20, 53);
   doc.text(`Email: ${inv.email}`, 20, 59);
+  doc.text(`Phone: ${inv.businessPhone}`, 20, fromY + 6);
+  if (inv.businessPhone) doc.text(`Phone: ${inv.businessPhone}`, 20, fromY + 6);
   if (inv.btw) doc.text(`BTW: ${inv.btw}`, 20, 65);
 
   const fromY = inv.btw ? 65 : 59;
   doc.text("To:", 140, 35);
   doc.text(`${inv.clientName}`, 140, 41);
   if (inv.clientEmail) doc.text(`${inv.clientEmail}`, 140, 47);
+   doc.text(`Phone: ${inv.clientPhone}`, 140, 53); // зміщення нижче після email
+   if (inv.clientPhone) doc.text(`Phone: ${inv.clientPhone}`, 140, 53);
 
   // 🧾 Інфо про інвойс
   doc.autoTable({
@@ -359,13 +466,14 @@ function loadInvoiceToForm(inv) {
     columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
   });
 
-  // 📝 Notes (якщо є)
-  if (inv.notes) {
-    doc.setFontSize(12);
-    doc.text("Notes:", 20, doc.lastAutoTable.finalY + 10);
-    doc.setFontSize(10);
-    doc.text(inv.notes, 20, doc.lastAutoTable.finalY + 16);
-  }
+ // 📝 Notes (якщо є)
+if (inv.note) {
+  doc.setFontSize(12);
+  doc.text("Notes:", 20, doc.lastAutoTable.finalY + 10);
+  doc.setFontSize(10);
+  const lines = doc.splitTextToSize(inv.note, 170); // автоматичне перенесення
+  doc.text(lines, 20, doc.lastAutoTable.finalY + 16);
+}
 
   // ✍️ Підпис із датою
   const today = new Date().toLocaleDateString("nl-NL");
@@ -373,6 +481,21 @@ function loadInvoiceToForm(inv) {
   doc.text(`Signed on: ${today}`, 20, doc.lastAutoTable.finalY + 30);
 
   // ✅ Завершення
+   const imageY = doc.lastAutoTable.finalY + 40;
+
+if (inv.businessSign) {
+  doc.setFontSize(10);
+  doc.text("Business Signature:", 20, imageY);
+  doc.addImage(inv.businessSign, 'PNG', 20, imageY + 5, 60, 30);
+  doc.text(`Date: ${inv.invoiceDate}`, 20, imageY + 40);
+}
+
+if (inv.clientSign) {
+  doc.setFontSize(10);
+  doc.text("Client Signature:", 120, imageY);
+  doc.addImage(inv.clientSign, 'PNG', 120, imageY + 5, 60, 30);
+  doc.text(`Date: ${inv.invoiceDate}`, 120, imageY + 40);
+}
   doc.save(`${invoiceNumber}.pdf`);
 }
 
