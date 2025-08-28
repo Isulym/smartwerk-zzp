@@ -153,39 +153,6 @@ function updateTotals() {
   document.getElementById("totalVat").innerText = `€${totalVAT.toFixed(2)}`;
   document.getElementById("grandTotal").innerText = `€${(subtotal + totalVAT).toFixed(2)}`;
   
-  function renderInvoices() {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const container = document.getElementById("invoicesContainer");
-  const filter = document.getElementById("statusFilter")?.value || "All";
-
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  invoices.forEach((inv, i) => {
-    if (filter !== "All" && inv.status !== filter) return;
-
-    const div = document.createElement("div");
-    div.className = "invoice-entry";
-
-    div.innerHTML = `
-      <strong>${inv.clientName || "Unknown client"}</strong> — 
-      <em>${inv.invoiceNumber || `INV-${i + 1}`}</em> — 
-      <select onchange="updateStatus(${i}, this.value)">
-        <option value="Draft" ${inv.status === "Draft" ? "selected" : ""}>Draft</option>
-        <option value="Sent" ${inv.status === "Sent" ? "selected" : ""}>Sent</option>
-        <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
-      </select>
-
-      <button onclick="downloadPDF(${i})">📄 PDF</button>
-
-      ${inv.status === "Draft" ? `<button onclick="editInvoice(${i})">✏️ Edit</button>` : ""}
-      <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
-    `;
-
-    container.appendChild(div);
-  });
-}
 
 function updateStatus(index, newStatus) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
@@ -537,6 +504,33 @@ if (inv.signatures?.date) {
     ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
   });
 });
+
+    function renderInvoices() {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const container = document.getElementById("invoicesContainer");
+  const filter = document.getElementById("statusFilter")?.value || "all";
+
+  container.innerHTML = "";
+
+  invoices.forEach((inv, i) => {
+    if (filter !== "all" && inv.status !== filter) return;
+
+    const invoiceDiv = document.createElement("div");
+    invoiceDiv.classList.add("invoice-entry");
+    invoiceDiv.innerHTML = `
+      <strong>${inv.clientName}</strong> — ${inv.invoiceNumber} — 
+      <select onchange="updateStatus(${i}, this.value)">
+        <option value="Draft" ${inv.status === "Draft" ? "selected" : ""}>Draft</option>
+        <option value="Sent" ${inv.status === "Sent" ? "selected" : ""}>Sent</option>
+        <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
+      </select>
+      <button onclick="downloadPDF(${i})">📄 PDF</button>
+      ${inv.status === "Draft" ? `<button onclick="editInvoice(${i})">✏️ Edit</button>` : ""}
+      <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
+    `;
+    container.appendChild(invoiceDiv);
+  });
+}
 
     function saveInvoice() {
   const invoice = {
