@@ -154,25 +154,33 @@ function updateTotals() {
   function renderInvoices() {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const ul = document.getElementById("invoiceList");
-  const filter = document.getElementById("statusFilter")?.value || "all";
+  const filter = document.getElementById("statusFilter")?.value || "All";
+
+  if (!ul) return;
 
   ul.innerHTML = "";
 
   invoices.forEach((inv, i) => {
-    if (filter !== "all" && inv.status !== filter) return;
+    if (filter !== "All" && inv.status !== filter) return;
 
     const li = document.createElement("li");
+    li.className = "invoice-entry";
+    
     li.innerHTML = `
-      ${inv.clientName} – ${inv.invoiceNumber} – 
+      <strong>${inv.clientName || "Unknown client"}</strong> — 
+      <em>${inv.invoiceNumber || `INV-${i + 1}`}</em> — 
       <select onchange="updateStatus(${i}, this.value)">
         <option value="Draft" ${inv.status === "Draft" ? "selected" : ""}>Draft</option>
         <option value="Sent" ${inv.status === "Sent" ? "selected" : ""}>Sent</option>
         <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
       </select>
+
       <button onclick="downloadPDF(${i})">📄 PDF</button>
+
       ${inv.status === "Draft" ? `<button onclick="editInvoice(${i})">✏️ Edit</button>` : ""}
       <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
     `;
+
     ul.appendChild(li);
   });
 }
