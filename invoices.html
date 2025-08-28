@@ -166,18 +166,21 @@ function updateTotals() {
     clientAddress: document.getElementById("clientAddress")?.value || "",
     clientPhone: document.getElementById("clientPhone")?.value || "",
 
-    invoiceNumber: document.getElementById("invoiceNumber")?.value || generateNextInvoiceNumber(),    invoiceDate: document.getElementById("invoiceDate")?.value || "",
+    invoiceNumber: document.getElementById("invoiceNumber")?.value || generateNextInvoiceNumber(),
+    invoiceDate: document.getElementById("invoiceDate")?.value || "",
     dueDate: document.getElementById("dueDate")?.value || "",
     note: document.getElementById("note")?.value || "",
     status: document.getElementById("status")?.value || "Draft",
 
     items: [],
-    signedBusiness: localStorage.getItem("signBusiness") || "",
-    signedClient: localStorage.getItem("signClient") || "",
-    signedDateBusiness: localStorage.getItem("signDateBusiness") || "",
-    signedDateClient: localStorage.getItem("signDateClient") || ""
+    signatures: {
+      business: "",
+      client: "",
+      date: new Date().toLocaleDateString("nl-NL")
+    }
   };
 
+  // Збір рядків інвойсу
   document.querySelectorAll("#itemsBody tr").forEach(row => {
     invoice.items.push({
       desc: row.querySelector(".desc")?.value || "",
@@ -187,6 +190,17 @@ function updateTotals() {
     });
   });
 
+  // Підписи
+  try {
+    const businessSign = document.getElementById("signatureBusiness")?.toDataURL() || "";
+    const clientSign = document.getElementById("signatureClient")?.toDataURL() || "";
+    invoice.signatures.business = businessSign;
+    invoice.signatures.client = clientSign;
+  } catch (e) {
+    console.warn("Підпис не зчитано:", e.message);
+  }
+
+  // Збереження
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const currentIndex = localStorage.getItem("currentInvoiceIndex");
 
@@ -200,15 +214,6 @@ function updateTotals() {
   localStorage.setItem("invoices", JSON.stringify(invoices));
   renderInvoices();
   alert("Invoice saved successfully!");
-    const businessSign = document.getElementById("businessSign").toDataURL();
-const clientSign = document.getElementById("clientSign").toDataURL();
-
-d// Додаємо підписи як dataURL
-data.signatures = {
-  business: document.getElementById("signatureBusiness").toDataURL(),
-  client: document.getElementById("signatureClient").toDataURL(),
-  date: new Date().toLocaleDateString("nl-NL")
-};
 }
 
   
