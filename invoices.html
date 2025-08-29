@@ -11,6 +11,8 @@
 <body>
   <main>
     <h1>SmartWerk Invoice Manager</h1>
+
+    <!-- Step 1: Business Info -->
     <section class="step">
       <h2>🏢 Step 1: Business Info</h2>
       <input id="businessName" placeholder="Business Name" />
@@ -23,6 +25,7 @@
       <input type="text" id="btw">
     </section>
 
+    <!-- Step 2: Client Info -->
     <section class="step">
       <h2>👤 Step 2: Client Info</h2>
       <input id="clientName" placeholder="Client Name" />
@@ -32,14 +35,16 @@
       <input id="invoiceDate" type="date" />
       <input id="dueDate" type="date" />
       <input id="invoiceNumber" placeholder="Invoice Number" />
+
       <label for="status">Status:</label>
       <select id="status">
-      <option value="Draft">Draft</option>
-      <option value="Sent">Sent</option>
-      <option value="Paid">Paid</option>
-     </select>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
+      </select>
     </section>
 
+    <!-- Step 3: Items -->
     <section class="step">
       <h2>📝 Step 3: Invoice Items</h2>
       <table>
@@ -58,6 +63,7 @@
       <button onclick="addItem()">➕ Add Item</button>
     </section>
 
+    <!-- Step 4: Summary -->
     <section class="step">
       <h2>📦 Summary</h2>
       <textarea id="note" placeholder="Invoice note (optional)..."></textarea><br/>
@@ -66,47 +72,52 @@
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
+    <!-- Step 5: Signatures -->
+    <section class="step">
+      <h2>✍️ Signatures</h2>
 
-   <!-- Підпис -->
-<section class="step">
-  <h2>✍️ Signatures</h2>
+      <div>
+        <h3>Business Signature:</h3>
+        <canvas id="signatureBusiness" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
+        <button onclick="clearSignature('signatureBusiness')">Clear</button>
+        <p>Date: <span id="signatureBusinessDate"></span></p>
+      </div>
 
-  <div>
-    <h3>Business Signature:</h3>
-    <canvas id="signatureBusiness" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
-    <button onclick="clearSignature('signatureBusiness')">Clear</button>
-    <p>Date: <span id="signatureBusinessDate"></span></p>
-  </div>
+      <div>
+        <h3>Client Signature:</h3>
+        <canvas id="signatureClient" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
+        <button onclick="clearSignature('signatureClient')">Clear</button>
+        <p>Date: <span id="signatureClientDate"></span></p>
+      </div>
+    </section>
 
-  <div>
-    <h3>Client Signature:</h3>
-    <canvas id="signatureClient" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
-    <button onclick="clearSignature('signatureClient')">Clear</button>
-    <p>Date: <span id="signatureClientDate"></span></p>
-  </div>
-</section>
-
-
-
-
-
-     <section class="step">
+    <!-- Step 6: Actions -->
+    <section class="step">
       <h2>⚙️ Actions</h2>
       <button onclick="saveInvoice()">💾 Save Invoice</button>
       <input type="text" id="searchInput" placeholder="Search client..." />
       <button onclick="searchInvoices()">🔍 Search</button>
       <button onclick="renderInvoices()">📋 Show All</button>
+
+      <label for="statusFilter">Status Filter:</label>
+      <select id="statusFilter" onchange="renderInvoices()">
+        <option value="all">All</option>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
+      </select>
     </section>
 
-      <section>
-  <h3>📂 Saved Invoices</h3>
-  <div id="savedInvoices"></div>
-        <div id="invoicesContainer" style="margin-top: 20px;"></div>
-</section>
+    <!-- Step 7: Saved Invoices -->
+    <section>
+      <h3>📂 Saved Invoices</h3>
+      <div id="savedInvoices"></div>
+    </section>
 
-    
-    
   </main>
+
+
+
 
   <script>
 
