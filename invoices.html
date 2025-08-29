@@ -8,8 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
-</head>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script></head>
 <body>
   <main>
     <h1>SmartWerk Invoice Manager</h1>
@@ -171,12 +170,11 @@
 </section>
 
 <!-- 🧾 Receipt Upload (OCR Placeholder) -->
-<section class="step">
-  <h2>📤 Upload Receipts (OCR)</h2>
-  <input type="file" id="receiptInput" accept="image/*,application/pdf">
-  <button onclick="processReceipt()">🧠 Recognize Receipt</button>
-  <textarea id="ocrOutput" placeholder="Extracted text will appear here..."></textarea>
-</section>
+<div style="margin-top: 20px;">
+  <label for="receiptInput">📸 Upload Receipt:</label>
+  <input type="file" id="receiptInput" accept="image/*" onchange="processReceipt()" />
+  <div id="receiptText" style="white-space: pre-wrap; margin-top: 10px; font-size: 14px;"></div>
+</div>
 
 <!-- 📥 CSV Import (Placeholder) -->
 <section class="step">
@@ -1117,6 +1115,37 @@ async function downloadPDF(index) {
   months.forEach((m, i) => {
     ctx.fillText(m, 50 + stepX * i, canvas.height - 5);
   });
+}
+
+    function resetFilters() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("statusFilter").value = "all";
+  renderInvoices();
+}
+    function processReceipt() {
+  const input = document.getElementById("receiptInput");
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function () {
+    const imageData = reader.result;
+    document.getElementById("receiptText").innerText = "⏳ Processing OCR...";
+
+    try {
+      const { data: { text } } = await Tesseract.recognize(
+        imageData,
+        'eng', // мовний пакет
+        { logger: m => console.log(m) }
+      );
+
+      document.getElementById("receiptText").innerText = `🧾 Recognized text:\n${text}`;
+    } catch (err) {
+      console.error("OCR error:", err);
+      document.getElementById("receiptText").innerText = "❌ Failed to process receipt.";
+    }
+  };
+  reader.readAsDataURL(file);
 }
     
 </script>
