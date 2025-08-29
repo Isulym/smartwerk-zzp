@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="style-invoices.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
 </head>
 <body>
   <main>
@@ -33,6 +35,10 @@
       <input id="clientPhone" placeholder="Client Phone" />
       <input id="clientAddress" placeholder="Client Address" />
       <input id="invoiceDate" type="date" />
+      <label>
+      <input type="checkbox" id="repeatMonthly" />
+      📅 Repeat Monthly
+      </label>
       <input id="dueDate" type="date" />
       <input id="invoiceNumber" placeholder="Invoice Number" />
 
@@ -72,6 +78,13 @@
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
+    <section class="step">
+  <h2>🧾 Receipt Scanner (OCR)</h2>
+  <input type="file" id="receiptUpload" accept="image/*" />
+  <button onclick="scanReceipt()">📷 Scan Receipt</button>
+  <p id="ocrResult"></p>
+</section>
+
     <!-- Step 5: Signatures -->
     <section class="step">
       <h2>✍️ Signatures</h2>
@@ -92,27 +105,103 @@
     </section>
 
     <!-- Step 6: Actions -->
-    <section class="step">
-      <h2>⚙️ Actions</h2>
-      <button onclick="saveInvoice()">💾 Save Invoice</button>
-      <input type="text" id="searchInput" placeholder="Search client..." />
-      <button onclick="searchInvoices()">🔍 Search</button>
-      <button onclick="renderInvoices()">📋 Show All</button>
+  <section class="step">
+  <h2>⚙️ Actions</h2>
 
-      <label for="statusFilter">Status Filter:</label>
-      <select id="statusFilter" onchange="renderInvoices()">
-        <option value="all">All</option>
-        <option value="Draft">Draft</option>
-        <option value="Sent">Sent</option>
-        <option value="Paid">Paid</option>
-      </select>
-    </section>
+  <button onclick="saveInvoice()">💾 Save Invoice</button>
+
+  <input type="text" id="searchQuery" placeholder="🔍 Search by invoice number or client" oninput="filterAndRenderInvoices()" />
+
+  <label>From: <input type="date" id="filterDateFrom" onchange="filterAndRenderInvoices()"></label>
+  <label>To: <input type="date" id="filterDateTo" onchange="filterAndRenderInvoices()"></label>
+
+  <label for="statusFilter">Status:</label>
+  <select id="statusFilter" onchange="filterAndRenderInvoices()">
+    <option value="all">All</option>
+    <option value="Draft">Draft</option>
+    <option value="Sent">Sent</option>
+    <option value="Paid">Paid</option>
+  </select>
+
+  <label for="sortBy">Sort by:</label>
+  <select id="sortBy" onchange="filterAndRenderInvoices()">
+    <option value="date-desc">Newest Date</option>
+    <option value="date-asc">Oldest Date</option>
+    <option value="amount-desc">Highest Amount</option>
+    <option value="amount-asc">Lowest Amount</option>
+  </select>
+
+  <button onclick="renderInvoices()">📋 Show All</button>
+</section>
+
+    <!-- 🔍 Extended Filters & Search -->
+<section class="step">
+  <h2>📅 Filters & Search</h2>
+  <label for="dateFrom">From:</label>
+  <input type="date" id="dateFrom">
+  <label for="dateTo">To:</label>
+  <input type="date" id="dateTo">
+  
+  <input type="text" id="searchInvoiceNumber" placeholder="Search by invoice number / client name" />
+  <button onclick="renderInvoices()">🔎 Filter</button>
+  <button onclick="resetFilters()">🔄 Reset</button>
+
+  <label for="sortBy">Sort by:</label>
+  <select id="sortBy" onchange="renderInvoices()">
+    <option value="dateDesc">Date (Newest First)</option>
+    <option value="dateAsc">Date (Oldest First)</option>
+    <option value="amountDesc">Amount (High to Low)</option>
+    <option value="amountAsc">Amount (Low to High)</option>
+  </select>
+</section>
+
+<!-- 🔁 Recurring Invoices -->
+<section class="step">
+  <h2>📅 Recurring Invoice</h2>
+  <label>
+    <input type="checkbox" id="recurringMonthly" />
+    Repeat monthly
+  </label>
+</section>
+
+<!-- 📈 Income/Expense Chart -->
+<section class="step">
+  <h2>📊 Income / Expense Chart</h2>
+  <canvas id="chart" height="200"></canvas>
+</section>
+
+<!-- 🧾 Receipt Upload (OCR Placeholder) -->
+<section class="step">
+  <h2>📤 Upload Receipts (OCR)</h2>
+  <input type="file" id="receiptInput" accept="image/*,application/pdf">
+  <button onclick="processReceipt()">🧠 Recognize Receipt</button>
+  <textarea id="ocrOutput" placeholder="Extracted text will appear here..."></textarea>
+</section>
+
+<!-- 📥 CSV Import (Placeholder) -->
+<section class="step">
+  <h2>📥 CSV Import</h2>
+  <input type="file" id="csvImport" accept=".csv" />
+  <button onclick="importCSV()">📄 Import</button>
+</section>
+
+<!-- 🌐 Peppol/e-Delivery Placeholder -->
+<section class="step">
+  <h2>🌐 B2G/B2B Integration (Peppol)</h2>
+  <p>Coming soon: Send via Peppol or e‑Delivery networks.</p>
+</section>
 
     <!-- Step 7: Saved Invoices -->
     <section>
       <h3>📂 Saved Invoices</h3>
       <div id="savedInvoices"></div>
+      <canvas id="chart"></canvas>
     </section>
+
+    <section class="step">
+  <h2>📊 Income & Expense Overview</h2>
+  <canvas id="incomeChart" height="300"></canvas>
+</section>
 
   </main>
 
@@ -121,30 +210,35 @@
 
   <script>
 
+// Генерує наступний унікальний номер інвойсу у форматі INV-2025-XXX
 function generateNextInvoiceNumber() {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
 
   const numbers = invoices
     .map(inv => inv.invoiceNumber)
-    .filter(num => /^INV-2025-\d{3}$/.test(num))
-    .map(num => parseInt(num.split("-")[2]))
-    .sort((a, b) => b - a); // за спаданням
+    .filter(num => /^INV-2025-\d{3}$/.test(num)) // Перевірка правильного формату
+    .map(num => parseInt(num.split("-")[2])) // Отримати числову частину
+    .sort((a, b) => b - a); // Сортувати за спаданням
 
   const next = numbers.length ? numbers[0] + 1 : 1;
   const padded = String(next).padStart(3, "0");
+
   return `INV-2025-${padded}`;
 }
     
+// Додає новий рядок до таблиці інвойсу
 function addItem(desc = "", qty = 1, price = 0, vat = 21) {
   const row = document.createElement("tr");
+
   row.innerHTML = `
-    <td><input class="desc" value="${desc}" oninput="updateTotals()" /></td>
+    <td><input class="desc" value="${desc}" oninput="updateTotals()" placeholder="Description" /></td>
     <td><input class="qty" type="number" value="${qty}" min="1" onchange="updateTotals()" /></td>
     <td><input class="price" type="number" value="${price}" step="0.01" onchange="updateTotals()" /></td>
     <td><input class="vat" type="number" value="${vat}" step="1" onchange="updateTotals()" /></td>
     <td class="item-total">€0.00</td>
-    <td><button onclick="this.parentElement.parentElement.remove(); updateTotals();">❌</button></td>
+    <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
   `;
+
   document.getElementById("itemsBody").appendChild(row);
   updateTotals();
 }
@@ -153,314 +247,170 @@ function updateTotals() {
   let subtotal = 0;
   let totalVAT = 0;
 
-  document.querySelectorAll("#itemsBody tr").forEach(row => {
-    const qty = parseFloat(row.querySelector(".qty").value) || 0;
-    const price = parseFloat(row.querySelector(".price").value) || 0;
-    const vat = parseFloat(row.querySelector(".vat").value) || 0;
+  const rows = document.querySelectorAll("#itemsBody tr");
+  if (!rows.length) {
+    document.getElementById("subtotal").innerText = "€0.00";
+    document.getElementById("totalVat").innerText = "€0.00";
+    document.getElementById("grandTotal").innerText = "€0.00";
+    return;
+  }
+
+  rows.forEach(row => {
+    const qty = parseFloat(row.querySelector(".qty")?.value) || 0;
+    const price = parseFloat(row.querySelector(".price")?.value) || 0;
+    const vat = parseFloat(row.querySelector(".vat")?.value) || 0;
 
     const itemTotal = qty * price;
     const itemVAT = itemTotal * vat / 100;
+    const totalWithVAT = itemTotal + itemVAT;
 
     subtotal += itemTotal;
     totalVAT += itemVAT;
 
-    row.querySelector(".item-total").innerText = `€${(itemTotal + itemVAT).toFixed(2)}`;
+    const totalCell = row.querySelector(".item-total");
+    if (totalCell) totalCell.innerText = `€${totalWithVAT.toFixed(2)}`;
   });
 
   document.getElementById("subtotal").innerText = `€${subtotal.toFixed(2)}`;
   document.getElementById("totalVat").innerText = `€${totalVAT.toFixed(2)}`;
   document.getElementById("grandTotal").innerText = `€${(subtotal + totalVAT).toFixed(2)}`;
-  }
-  
+}
 
+ function resetFormFields() {
+  // Step 1 — Business
+  document.getElementById("businessName").value = "";
+  document.getElementById("kvk").value = "";
+  document.getElementById("iban").value = "";
+  document.getElementById("btw").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("businessAddress").value = "";
+  document.getElementById("businessPhone").value = "";
 
+  // Step 2 — Client
+  document.getElementById("clientName").value = "";
+  document.getElementById("clientEmail").value = "";
+  document.getElementById("clientAddress").value = "";
+  document.getElementById("clientPhone").value = "";
+  document.getElementById("invoiceNumber").value = generateNextInvoiceNumber();
+  document.getElementById("invoiceDate").value = "";
+  document.getElementById("dueDate").value = "";
+  document.getElementById("note").value = "";
+  document.getElementById("status").value = "Draft";
 
-  
+  // Step 3 — Items
+  const tbody = document.getElementById("itemsBody");
+  tbody.innerHTML = "";
+
+  // Step 4 — Totals
+  document.getElementById("subtotal").innerText = "€0.00";
+  document.getElementById("totalVat").innerText = "€0.00";
+  document.getElementById("grandTotal").innerText = "€0.00";
+
+  // Step 5 — Signatures
+  ["signatureBusiness", "signatureClient"].forEach(id => {
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+
+  signatureBusinessDate = "";
+  signatureClientDate = "";
+  document.getElementById("signatureBusinessDate").innerText = "";
+  document.getElementById("signatureClientDate").innerText = "";
+}
+    
+
 function clearSignature(canvasId) {
   const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (canvasId === "signatureBusiness") {
     signatureBusinessDate = "";
-    document.getElementById("signatureBusinessDate").innerText = "";
+    const dateEl = document.getElementById("signatureBusinessDate");
+    if (dateEl) dateEl.innerText = "";
   } else {
     signatureClientDate = "";
-    document.getElementById("signatureClientDate").innerText = "";
+    const dateEl = document.getElementById("signatureClientDate");
+    if (dateEl) dateEl.innerText = "";
   }
 }
 
 // ініціалізація підписів при завантаженні
 document.addEventListener("DOMContentLoaded", () => {
-// Підписування через canvas
-let businessCanvas, clientCanvas, businessCtx, clientCtx;
-let signing = false;
+  ["signatureBusiness", "signatureClient"].forEach((id, idx) => {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
 
-  businessCanvas = document.getElementById("signatureBusiness");
-  clientCanvas = document.getElementById("signatureClient");
+    const ctx = canvas.getContext("2d");
+    let isDrawing = false;
 
-  if (businessCanvas && clientCanvas) {
-    businessCtx = businessCanvas.getContext("2d");
-    clientCtx = clientCanvas.getContext("2d");
-
-    [businessCanvas, clientCanvas].forEach((canvas, idx) => {
-      const ctx = canvas.getContext("2d");
-      let isDrawing = false;
-
-      canvas.addEventListener("mousedown", () => isDrawing = true);
-      canvas.addEventListener("mouseup", () => isDrawing = false);
-      canvas.addEventListener("mouseout", () => isDrawing = false);
-      canvas.addEventListener("mousemove", (e) => {
-        if (!isDrawing) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        ctx.lineWidth = 2;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "black";
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-      });
+    canvas.addEventListener("mousedown", () => {
+      isDrawing = true;
+      ctx.beginPath();
     });
-  }
+
+    canvas.addEventListener("mouseup", () => {
+      isDrawing = false;
+
+      const now = new Date().toLocaleDateString("nl-NL");
+      if (id === "signatureBusiness") {
+        signatureBusinessDate = now;
+        const dateEl = document.getElementById("signatureBusinessDate");
+        if (dateEl) dateEl.innerText = now;
+      } else {
+        signatureClientDate = now;
+        const dateEl = document.getElementById("signatureClientDate");
+        if (dateEl) dateEl.innerText = now;
+      }
+    });
+
+    canvas.addEventListener("mouseout", () => isDrawing = false);
+    canvas.addEventListener("mousemove", (e) => {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "black";
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    });
+  });
 });
 
-    // Очищення від нелатинських символів (наприклад, кирилиці)
-const cleanText = (text) =>
-  text.replace(/[^\x00-\x7F]/g, ""); // видаляє всі нелатинські символи
+// Очищення від нелатинських символів (наприклад, кирилиці)
+const cleanText = (text) => (text || "").replace(/[^\x00-\x7F]/g, "");
 
-  async function downloadPDF(index) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const cleanText = (text) => (text || "").replace(/[^\x00-\x7F]/g, "");
-
-  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
-  const inv = invoices[index];
-  if (!inv) return;
-
-  const invoiceNumber = cleanText(inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`);
-
-  // Заголовок
-  doc.setFontSize(18);
-  doc.text("INVOICE", 105, 20, null, null, "center");
-
-  // From (Business)
-  doc.setFontSize(12);
-  doc.text("From:", 20, 35);
-  doc.text(cleanText(inv.businessName), 20, 41);
-  doc.text(`KvK: ${cleanText(inv.kvk)}`, 20, 47);
-  doc.text(`IBAN: ${cleanText(inv.iban)}`, 20, 53);
-  doc.text(`Email: ${cleanText(inv.email)}`, 20, 59);
-  if (inv.btw) doc.text(`BTW: ${cleanText(inv.btw)}`, 20, 65);
-  doc.text(`Address: ${cleanText(inv.businessAddress)}`, 20, 71);
-  doc.text(`Phone: ${cleanText(inv.businessPhone)}`, 20, 77);
-
-  // To (Client)
-  const toY = inv.btw ? 65 : 59;
-  doc.text("To:", 140, 35);
-  doc.text(cleanText(inv.clientName), 140, 41);
-  if (inv.clientEmail) doc.text(cleanText(inv.clientEmail), 140, 47);
-  doc.text(`Address: ${cleanText(inv.clientAddress)}`, 140, 53);
-  doc.text(`Phone: ${cleanText(inv.clientPhone)}`, 140, 59);
-
-  // Invoice Info
-  doc.autoTable({
-    startY: toY + 15,
-    head: [['Invoice Number', 'Date Issued', 'Due Date', 'Status']],
-    body: [[
-      invoiceNumber,
-      cleanText(inv.invoiceDate),
-      cleanText(inv.dueDate),
-      cleanText(inv.status || 'Draft')
-    ]],
-    styles: { halign: 'left' },
-    headStyles: { fillColor: [240, 240, 240] }
-  });
-
-  // Items
-  const itemRows = inv.items.map(item => [
-    cleanText(item.desc),
-    item.qty,
-    `€${parseFloat(item.price).toFixed(2)}`,
-    `${item.vat}%`,
-    `€${(item.qty * item.price * (1 + item.vat / 100)).toFixed(2)}`
-  ]);
-
-  doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 10,
-    head: [['Description', 'Qty', 'Unit Price', 'VAT', 'Total']],
-    body: itemRows,
-    styles: { halign: 'left' },
-    columnStyles: {
-      0: { cellWidth: 60 },
-      1: { halign: 'right' },
-      2: { halign: 'right' },
-      3: { halign: 'right' },
-      4: { halign: 'right' }
-    },
-    headStyles: { fillColor: [240, 240, 240] }
-  });
-
-  // Summary
-  const subtotal = inv.items.reduce((sum, item) => sum + item.qty * item.price, 0);
-  const vatTotal = inv.items.reduce((sum, item) => sum + item.qty * item.price * (item.vat / 100), 0);
-  const total = subtotal + vatTotal;
-
-  doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 10,
-    body: [
-      ['Subtotal:', `€${subtotal.toFixed(2)}`],
-      ['VAT:', `€${vatTotal.toFixed(2)}`],
-      ['Total Due:', `€${total.toFixed(2)}`]
-    ],
-    theme: 'plain',
-    styles: { fontStyle: 'bold' },
-    columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
-  });
-
-  // Notes
-  if (inv.note && inv.note.trim() !== "") {
-    doc.setFontSize(10);
-    doc.text(cleanText(inv.note), 20, doc.lastAutoTable.finalY + 16);
-  }
-
-  // Signatures
-  const signY = doc.lastAutoTable.finalY + 30;
-  const dateStr = new Date().toLocaleDateString("nl-NL");
-
-  doc.setFontSize(12);
-  doc.text("Business Signature:", 20, signY);
-  doc.text("Client Signature:", 130, signY);
-
-  doc.setFontSize(10);
-  doc.setLineWidth(0.1);
-  doc.line(20, signY + 12, 70, signY + 12); // business line
-  doc.line(130, signY + 12, 180, signY + 12); // client line
-
-  if (inv.signatures?.business) {
-    doc.text("Business Signature:", 20, doc.lastAutoTable.finalY + 10);
-    doc.addImage(inv.signatures.business, "PNG", 20, doc.lastAutoTable.finalY + 15, 60, 30);
-  }
-
-  if (inv.signatures?.client) {
-    doc.text("Client Signature:", 120, doc.lastAutoTable.finalY + 10);
-    doc.addImage(inv.signatures.client, "PNG", 120, doc.lastAutoTable.finalY + 15, 60, 30);
-  }
-
-  if (inv.signatures?.date) {
-    doc.setFontSize(10);
-    doc.text(`Signed on: ${cleanText(inv.signatures.date)}`, 20, doc.lastAutoTable.finalY + 50);
-  }
-
-  doc.save(`${invoiceNumber}.pdf`);
-}
-
-
-
-
-function editInvoice(index) {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const inv = invoices[index];
-  if (!inv || inv.status !== "Draft") {
-    alert("Editing is only allowed in 'Draft' status.");
-    return;
-  }
-
-  // Step 1
-  document.getElementById("businessName").value = inv.businessName || "";
-  document.getElementById("kvk").value = inv.kvk || "";
-  document.getElementById("iban").value = inv.iban || "";
-  document.getElementById("btw").value = inv.btw || "";
-  document.getElementById("email").value = inv.email || "";
-  document.getElementById("businessAddress").value = inv.businessAddress || "";
-  document.getElementById("businessPhone").value = inv.businessPhone || "";
-
-  // Step 2
-  document.getElementById("clientName").value = inv.clientName || "";
-  document.getElementById("clientEmail").value = inv.clientEmail || "";
-  document.getElementById("clientAddress").value = inv.clientAddress || "";
-  document.getElementById("clientPhone").value = inv.clientPhone || "";
-  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
-  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
-  document.getElementById("dueDate").value = inv.dueDate || "";
-  document.getElementById("note").value = inv.note || "";
-  document.getElementById("status").value = inv.status || "Draft";
-
-  // Step 3 — Items table
-  const tbody = document.getElementById("itemsBody");
-  tbody.innerHTML = "";
-  inv.items.forEach(item => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td><input type="text" class="desc" value="${item.desc || ""}" onchange="updateTotals()" /></td>
-      <td><input type="number" class="qty" value="${item.qty || 1}" min="1" onchange="updateTotals()" /></td>
-      <td><input type="number" class="price" value="${item.price || 0}" step="0.01" onchange="updateTotals()" /></td>
-      <td><input type="number" class="vat" value="${item.vat || 21}" step="1" onchange="updateTotals()" /></td>
-      <td class="item-total">€0.00</td>
-      <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
-    `;
-    tbody.appendChild(row);
-  });
-
-  // Signatures (if exist)
-  if (inv.signatures) {
-    // Business signature
-    const businessImg = new Image();
-    businessImg.onload = () => {
-      const canvas = document.getElementById("signatureBusiness");
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(businessImg, 0, 0);
-      document.getElementById("signatureBusinessDate").innerText = inv.signatures.businessDate || "";
-    };
-    businessImg.src = inv.signatures.business;
-
-    // Client signature
-    const clientImg = new Image();
-    clientImg.onload = () => {
-      const canvas = document.getElementById("signatureClient");
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(clientImg, 0, 0);
-      document.getElementById("signatureClientDate").innerText = inv.signatures.clientDate || "";
-    };
-    clientImg.src = inv.signatures.client;
-  }
-
-  updateTotals();
-  localStorage.setItem("currentInvoiceIndex", index);
-}
-    
-
-function deleteInvoice(index) {
-    if (!confirm("Are you sure you want to delete this invoice?")) return;
-
-    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-    invoices.splice(index, 1); // видаляємо 1 елемент за індексом
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices(); // перерендеримо список
-    alert("Invoice deleted.");
-  }
-
-  let signatureBusinessDate = "";
-let signatureClientDate = "";
-
-function setupSignature(canvasId) {
+    function setupSignature(canvasId) {
   const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
   const ctx = canvas.getContext("2d");
   let drawing = false;
 
-  canvas.addEventListener("mousedown", () => {
+  canvas.addEventListener("mousedown", (e) => {
     drawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
   });
 
   canvas.addEventListener("mouseup", () => {
     drawing = false;
+    ctx.closePath();
     const now = new Date().toLocaleDateString("nl-NL");
+
     if (canvasId === "signatureBusiness") {
       signatureBusinessDate = now;
       document.getElementById("signatureBusinessDate").innerText = now;
@@ -473,23 +423,14 @@ function setupSignature(canvasId) {
   canvas.addEventListener("mousemove", (e) => {
     if (!drawing) return;
     const rect = canvas.getBoundingClientRect();
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.lineTo(x, y);
     ctx.stroke();
   });
 }
 
-
-function updateStatus(index, newStatus) {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  if (invoices[index]) {
-    invoices[index].status = newStatus;
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices();
-  }
-}
-    
-
- function saveInvoice() {
+     function saveInvoice() {
   const invoice = {
     businessName: document.getElementById("businessName")?.value || "",
     kvk: document.getElementById("kvk")?.value || "",
@@ -514,11 +455,17 @@ function updateStatus(index, newStatus) {
     signatures: {
       business: "",
       client: "",
+      businessDate: signatureBusinessDate || "",
+      clientDate: signatureClientDate || "",
       date: new Date().toLocaleDateString("nl-NL")
     }
   };
 
-  document.querySelectorAll("#itemsBody tr").forEach(row => {
+  // 🧾 Рядки таблиці
+  const rows = document.querySelectorAll("#itemsBody tr");
+  invoice.items = []; // на всякий випадок очистити перед додаванням
+
+  rows.forEach(row => {
     invoice.items.push({
       desc: row.querySelector(".desc")?.value || "",
       qty: parseFloat(row.querySelector(".qty")?.value || 0),
@@ -527,6 +474,7 @@ function updateStatus(index, newStatus) {
     });
   });
 
+  // ✍️ Підписи
   try {
     const signatureBusiness = document.getElementById("signatureBusiness")?.toDataURL() || "";
     const signatureClient = document.getElementById("signatureClient")?.toDataURL() || "";
@@ -539,10 +487,12 @@ function updateStatus(index, newStatus) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const currentIndex = localStorage.getItem("currentInvoiceIndex");
 
-  if (currentIndex !== null && invoices[currentIndex]) {
-    invoices[currentIndex] = invoice;
+  // Редагування існуючого інвойсу
+  if (currentIndex !== null && !isNaN(currentIndex) && invoices[+currentIndex]) {
+    invoices[+currentIndex] = invoice;
     localStorage.removeItem("currentInvoiceIndex");
   } else {
+    // Запобігання дублікату інвойсу
     const exists = invoices.some(i => i.invoiceNumber === invoice.invoiceNumber);
     if (exists) {
       alert("Invoice with this number already exists.");
@@ -556,46 +506,220 @@ function updateStatus(index, newStatus) {
   resetFormFields();
   alert("Invoice saved successfully!");
 }
-    function searchInvoices() {
-  const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
+
+function editInvoice(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const container = document.getElementById("invoicesContainer");
+  const inv = invoices[index];
 
-  container.innerHTML = "";
+  if (!inv || (inv.status && inv.status !== "Draft")) {
+    alert("Editing is only allowed in 'Draft' status.");
+    return;
+  }
 
-  invoices.forEach((inv, i) => {
-    if (inv.clientName?.toLowerCase().includes(search)) {
-      const invoiceDiv = document.createElement("div");
-      invoiceDiv.classList.add("invoice-entry");
-      invoiceDiv.innerHTML = `
-        <strong>${inv.clientName}</strong> — ${inv.invoiceNumber}
-        <button onclick="downloadPDF(${i})">📄 PDF</button>
-        <button onclick="editInvoice(${i})">✏️ Edit</button>
-        <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
-      `;
-      container.appendChild(invoiceDiv);
-    }
+  // Step 1 – Business info
+  document.getElementById("businessName").value = inv.businessName || "";
+  document.getElementById("kvk").value = inv.kvk || "";
+  document.getElementById("iban").value = inv.iban || "";
+  document.getElementById("btw").value = inv.btw || "";
+  document.getElementById("email").value = inv.email || "";
+  document.getElementById("businessAddress").value = inv.businessAddress || "";
+  document.getElementById("businessPhone").value = inv.businessPhone || "";
+
+  // Step 2 – Client info
+  document.getElementById("clientName").value = inv.clientName || "";
+  document.getElementById("clientEmail").value = inv.clientEmail || "";
+  document.getElementById("clientAddress").value = inv.clientAddress || "";
+  document.getElementById("clientPhone").value = inv.clientPhone || "";
+  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
+  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
+  document.getElementById("dueDate").value = inv.dueDate || "";
+  document.getElementById("note").value = inv.note || "";
+  document.getElementById("status").value = inv.status || "Draft";
+
+  // Step 3 – Items
+  const tbody = document.getElementById("itemsBody");
+  tbody.innerHTML = "";
+
+  inv.items.forEach(item => {
+    const row = document.createElement("tr");
+
+    const tdDesc = document.createElement("td");
+    const inputDesc = document.createElement("input");
+    inputDesc.className = "desc";
+    inputDesc.value = item.desc || "";
+    inputDesc.oninput = updateTotals;
+    tdDesc.appendChild(inputDesc);
+
+    const tdQty = document.createElement("td");
+    const inputQty = document.createElement("input");
+    inputQty.className = "qty";
+    inputQty.type = "number";
+    inputQty.min = "1";
+    inputQty.value = item.qty || 1;
+    inputQty.onchange = updateTotals;
+    tdQty.appendChild(inputQty);
+
+    const tdPrice = document.createElement("td");
+    const inputPrice = document.createElement("input");
+    inputPrice.className = "price";
+    inputPrice.type = "number";
+    inputPrice.step = "0.01";
+    inputPrice.value = item.price || 0;
+    inputPrice.onchange = updateTotals;
+    tdPrice.appendChild(inputPrice);
+
+    const tdVAT = document.createElement("td");
+    const inputVAT = document.createElement("input");
+    inputVAT.className = "vat";
+    inputVAT.type = "number";
+    inputVAT.step = "1";
+    inputVAT.value = item.vat || 21;
+    inputVAT.onchange = updateTotals;
+    tdVAT.appendChild(inputVAT);
+
+    const tdTotal = document.createElement("td");
+    tdTotal.className = "item-total";
+    tdTotal.textContent = "€0.00";
+
+    const tdDelete = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "❌";
+    btn.onclick = function () {
+      this.closest("tr").remove();
+      updateTotals();
+    };
+    tdDelete.appendChild(btn);
+
+    row.append(tdDesc, tdQty, tdPrice, tdVAT, tdTotal, tdDelete);
+    tbody.appendChild(row);
   });
+
+  // Step 4 — Signatures (if exist)
+  if (inv.signatures) {
+    // Business Signature
+    const businessImg = new Image();
+    businessImg.onload = () => {
+      const canvas = document.getElementById("signatureBusiness");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(businessImg, 0, 0);
+      document.getElementById("signatureBusinessDate").innerText =
+        inv.signatures.businessDate || inv.signatures.date || "";
+    };
+    businessImg.src = inv.signatures.business || "";
+
+    // Client Signature
+    const clientImg = new Image();
+    clientImg.onload = () => {
+      const canvas = document.getElementById("signatureClient");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(clientImg, 0, 0);
+      document.getElementById("signatureClientDate").innerText =
+        inv.signatures.clientDate || inv.signatures.date || "";
+    };
+    clientImg.src = inv.signatures.client || "";
+  }
+
+  updateTotals();
+  localStorage.setItem("currentInvoiceIndex", index);
 }
 
- function renderInvoices() {
+function deleteInvoice(index) {
+  if (!confirm("Are you sure you want to delete this invoice?")) return;
+
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+  if (index >= 0 && index < invoices.length) {
+    invoices.splice(index, 1);
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    localStorage.removeItem("currentInvoiceIndex"); // видаляємо поточний індекс (якщо був)
+    renderInvoices();
+    alert("Invoice deleted.");
+  } else {
+    alert("Invalid invoice index.");
+  }
+}
+
+// Глобальні змінні для підписів
+let signatureBusinessDate = "";
+let signatureClientDate = "";
+
+function updateStatus(index, newStatus) {
+  const validStatuses = ["Draft", "Sent", "Paid"];
+  if (!validStatuses.includes(newStatus)) {
+    alert("Invalid status");
+    return;
+  }
+
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  if (invoices[index]) {
+    invoices[index].status = newStatus;
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+
+    // Якщо статус змінено — скинути редагування
+    if (localStorage.getItem("currentInvoiceIndex") == index) {
+      localStorage.removeItem("currentInvoiceIndex");
+    }
+
+    renderInvoices();
+  }
+}
+    function renderInvoices() {
   const savedContainer = document.getElementById("savedInvoices");
   if (!savedContainer) return;
 
   savedContainer.innerHTML = "";
 
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const filter = document.getElementById("statusFilter")?.value || "all";
+  let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
 
+  const status = document.getElementById("statusFilter")?.value || "all";
+  const search = document.getElementById("searchNumber")?.value?.toLowerCase() || "";
+  const fromDate = document.getElementById("dateFrom")?.value || "";
+  const toDate = document.getElementById("dateTo")?.value || "";
+  const sortBy = document.getElementById("sortBy")?.value || "date_desc";
+
+  // 🔍 Фільтрація
+  invoices = invoices.filter(inv => {
+    const matchStatus = status === "all" || inv.status === status;
+    const matchSearch =
+      inv.invoiceNumber?.toLowerCase().includes(search) ||
+      inv.clientName?.toLowerCase().includes(search);
+
+    const invDate = new Date(inv.invoiceDate || "1900-01-01");
+    const matchFrom = !fromDate || new Date(fromDate) <= invDate;
+    const matchTo = !toDate || new Date(toDate) >= invDate;
+
+    return matchStatus && matchSearch && matchFrom && matchTo;
+  });
+
+  // 🔃 Сортування
+  invoices.sort((a, b) => {
+    const dateA = new Date(a.invoiceDate || "1900-01-01");
+    const dateB = new Date(b.invoiceDate || "1900-01-01");
+    const totalA = getInvoiceTotal(a);
+    const totalB = getInvoiceTotal(b);
+
+    switch (sortBy) {
+      case "date_asc": return dateA - dateB;
+      case "date_desc": return dateB - dateA;
+      case "amount_asc": return totalA - totalB;
+      case "amount_desc": return totalB - totalA;
+      default: return 0;
+    }
+  });
+
+  // 🧾 Вивід
   invoices.forEach((inv, index) => {
-    if (filter !== "all" && inv.status !== filter) return;
-
     const div = document.createElement("div");
     div.className = "invoice-block";
 
     div.innerHTML = `
-      <strong>${inv.businessName}</strong> — ${inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`}<br>
+      <strong>${inv.businessName}</strong> — ${inv.invoiceNumber || "INV-2025-XXX"}<br>
       <em>Status: ${inv.status || "Draft"}</em><br>
+      <em>Date: ${inv.invoiceDate || "N/A"}</em><br>
+      <em>Total: €${getInvoiceTotal(inv).toFixed(2)}</em><br>
       <button onclick="downloadPDF(${index})">📄 PDF</button>
       <button onclick="editInvoice(${index})">✏️ Edit</button>
       <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
@@ -605,29 +729,397 @@ function updateStatus(index, newStatus) {
   });
 }
 
-  function resetFormFields() {
-  document.querySelectorAll("input, textarea").forEach(el => {
-    if (!["status", "invoiceNumber"].includes(el.id)) {
-      el.value = "";
+    function getInvoiceTotal(inv) {
+  if (!inv.items) return 0;
+  return inv.items.reduce((sum, item) => {
+    const qty = parseFloat(item.qty || 0);
+    const price = parseFloat(item.price || 0);
+    const vat = parseFloat(item.vat || 0);
+    return sum + qty * price * (1 + vat / 100);
+  }, 0);
+updateChart(invoices);
+}
+
+let incomeChartInstance = null;
+
+function updateChart(invoices) {
+  const monthlyTotals = {};
+
+  invoices.forEach(inv => {
+    if (!inv.invoiceDate || !inv.items) return;
+    const month = inv.invoiceDate.slice(0, 7); // YYYY-MM
+
+    const total = getInvoiceTotal(inv);
+    const vat = inv.items.reduce((sum, item) => {
+      return sum + (parseFloat(item.qty || 0) * parseFloat(item.price || 0) * parseFloat(item.vat || 0) / 100);
+    }, 0);
+
+    if (!monthlyTotals[month]) {
+      monthlyTotals[month] = { income: 0, vat: 0 };
     }
+
+    monthlyTotals[month].income += total;
+    monthlyTotals[month].vat += vat;
   });
 
-  const statusEl = document.getElementById("status");
-  if (statusEl) {
-    statusEl.value = "Draft";
-  }
+  const labels = Object.keys(monthlyTotals).sort();
+  const incomeData = labels.map(m => monthlyTotals[m].income.toFixed(2));
+  const vatData = labels.map(m => monthlyTotals[m].vat.toFixed(2));
 
-  const itemsBody = document.getElementById("itemsBody");
-  if (itemsBody) itemsBody.innerHTML = "";
+  const ctx = document.getElementById("incomeChart").getContext("2d");
 
-  ["signatureBusiness", "signatureClient"].forEach(id => {
-    const canvas = document.getElementById(id);
-    if (canvas && canvas.getContext) {
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (incomeChartInstance) incomeChartInstance.destroy(); // перерендер
+
+  incomeChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Total Income (€)",
+          data: incomeData,
+          backgroundColor: "rgba(75, 192, 192, 0.6)"
+        },
+        {
+          label: "Total VAT (€)",
+          data: vatData,
+          backgroundColor: "rgba(255, 99, 132, 0.6)"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: 'Monthly Income & VAT Overview' }
+      }
     }
   });
 }
+
+    function filterAndRenderInvoices() {
+  const status = document.getElementById("statusFilter")?.value || "all";
+  const search = document.getElementById("searchQuery")?.value?.toLowerCase() || "";
+  const dateFrom = document.getElementById("filterDateFrom")?.value;
+  const dateTo = document.getElementById("filterDateTo")?.value;
+  const sortBy = document.getElementById("sortBy")?.value || "date-desc";
+
+  let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+  // Фільтрація
+  invoices = invoices.filter(inv => {
+    const matchStatus = status === "all" || inv.status === status;
+    const matchSearch = inv.clientName?.toLowerCase().includes(search) || inv.invoiceNumber?.toLowerCase().includes(search);
+    const invDate = new Date(inv.invoiceDate);
+    const matchDateFrom = !dateFrom || invDate >= new Date(dateFrom);
+    const matchDateTo = !dateTo || invDate <= new Date(dateTo);
+
+    return matchStatus && matchSearch && matchDateFrom && matchDateTo;
+  });
+
+  // Сортування
+  invoices.sort((a, b) => {
+    if (sortBy === "date-desc") return new Date(b.invoiceDate) - new Date(a.invoiceDate);
+    if (sortBy === "date-asc") return new Date(a.invoiceDate) - new Date(b.invoiceDate);
+
+    const totalA = a.items.reduce((s, i) => s + i.qty * i.price * (1 + i.vat / 100), 0);
+    const totalB = b.items.reduce((s, i) => s + i.qty * i.price * (1 + i.vat / 100), 0);
+    return sortBy === "amount-asc" ? totalA - totalB : totalB - totalA;
+  });
+
+  // Рендер
+  const savedContainer = document.getElementById("savedInvoices");
+  savedContainer.innerHTML = "";
+
+  invoices.forEach((inv, index) => {
+    const div = document.createElement("div");
+    div.className = "invoice-block";
+
+    div.innerHTML = `
+      <strong>${inv.businessName}</strong> — ${inv.invoiceNumber}<br>
+      <em>Status: ${inv.status}</em><br>
+      <button onclick="downloadPDF(${index})">📄 PDF</button>
+      <button onclick="editInvoice(${index})">✏️ Edit</button>
+      <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
+      <button onclick="repeatMonthly(${index})">📅 Repeat</button>
+    `;
+
+    savedContainer.appendChild(div);
+  });
+}
+
+  function searchInvoices() {
+  const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const container = document.getElementById("invoicesContainer");
+
+  container.innerHTML = "";
+
+  let found = 0;
+
+  invoices.forEach((inv, i) => {
+    const matchByClient = inv.clientName?.toLowerCase().includes(search);
+    const matchByNumber = inv.invoiceNumber?.toLowerCase().includes(search);
+
+    if (matchByClient || matchByNumber) {
+      found++;
+      const invoiceDiv = document.createElement("div");
+      invoiceDiv.classList.add("invoice-entry");
+      invoiceDiv.innerHTML = `
+        <strong>${inv.clientName}</strong> — ${inv.invoiceNumber}<br>
+        <em>${inv.status || "Draft"}</em><br>
+        <button onclick="downloadPDF(${i})">📄 PDF</button>
+        <button onclick="editInvoice(${i})">✏️ Edit</button>
+        <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
+      `;
+      container.appendChild(invoiceDiv);
+    }
+  });
+
+  if (found === 0) {
+    container.innerHTML = `<p>No invoices found.</p>`;
+  }
+}
+
+async function downloadPDF(index) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const cleanText = (text) => (text || "").toString().replace(/[^\x00-\x7F]/g, "");
+
+  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
+  const inv = invoices[index];
+  if (!inv) return;
+
+  const invoiceNumber = cleanText(inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`);
+
+  // Header
+  doc.setFontSize(18);
+  doc.text("INVOICE", 105, 20, null, null, "center");
+
+  // Business Info
+  doc.setFontSize(12);
+  doc.text("From:", 20, 35);
+  doc.text(cleanText(inv.businessName), 20, 41);
+  doc.text(`KvK: ${cleanText(inv.kvk)}`, 20, 47);
+  doc.text(`IBAN: ${cleanText(inv.iban)}`, 20, 53);
+  doc.text(`Email: ${cleanText(inv.email)}`, 20, 59);
+  if (inv.btw) doc.text(`BTW: ${cleanText(inv.btw)}`, 20, 65);
+  doc.text(`Address: ${cleanText(inv.businessAddress)}`, 20, 71);
+  doc.text(`Phone: ${cleanText(inv.businessPhone)}`, 20, 77);
+
+  // Client Info
+  doc.text("To:", 140, 35);
+  doc.text(cleanText(inv.clientName), 140, 41);
+  if (inv.clientEmail) doc.text(cleanText(inv.clientEmail), 140, 47);
+  doc.text(`Address: ${cleanText(inv.clientAddress)}`, 140, 53);
+  doc.text(`Phone: ${cleanText(inv.clientPhone)}`, 140, 59);
+
+  // Invoice Metadata
+  let nextY = 90;
+  doc.autoTable({
+    startY: nextY,
+    head: [['Invoice Number', 'Date Issued', 'Due Date', 'Status']],
+    body: [[
+      invoiceNumber,
+      cleanText(inv.invoiceDate || ""),
+      cleanText(inv.dueDate || ""),
+      cleanText(inv.status || 'Draft')
+    ]],
+    styles: { halign: 'left' },
+    headStyles: { fillColor: [240, 240, 240] }
+  });
+  nextY = doc.lastAutoTable.finalY + 10;
+
+  // Items Table
+  const itemRows = (inv.items || []).map(item => [
+    cleanText(item.desc),
+    item.qty,
+    `€${parseFloat(item.price).toFixed(2)}`,
+    `${item.vat}%`,
+    `€${(item.qty * item.price * (1 + item.vat / 100)).toFixed(2)}`
+  ]);
+
+  doc.autoTable({
+    startY: nextY,
+    head: [['Description', 'Qty', 'Unit Price', 'VAT', 'Total']],
+    body: itemRows,
+    styles: { halign: 'left' },
+    columnStyles: {
+      0: { cellWidth: 60 },
+      1: { halign: 'right' },
+      2: { halign: 'right' },
+      3: { halign: 'right' },
+      4: { halign: 'right' }
+    },
+    headStyles: { fillColor: [240, 240, 240] }
+  });
+  nextY = doc.lastAutoTable.finalY + 10;
+
+  // Summary Totals
+  const subtotal = inv.items.reduce((sum, i) => sum + i.qty * i.price, 0);
+  const vatTotal = inv.items.reduce((sum, i) => sum + i.qty * i.price * (i.vat / 100), 0);
+  const total = subtotal + vatTotal;
+
+  doc.autoTable({
+    startY: nextY,
+    body: [
+      ['Subtotal:', `€${subtotal.toFixed(2)}`],
+      ['VAT:', `€${vatTotal.toFixed(2)}`],
+      ['Total Due:', `€${total.toFixed(2)}`]
+    ],
+    theme: 'plain',
+    styles: { fontStyle: 'bold' },
+    columnStyles: { 0: { halign: 'right' }, 1: { halign: 'right' } }
+  });
+  nextY = doc.lastAutoTable.finalY + 10;
+
+  // Notes
+  if (inv.note?.trim()) {
+    doc.setFontSize(10);
+    doc.text("Note:", 20, nextY);
+    doc.text(cleanText(inv.note), 20, nextY + 6);
+    nextY += 20;
+  }
+
+  // Signatures
+  doc.setFontSize(12);
+  doc.text("Business Signature:", 20, nextY);
+  doc.text("Client Signature:", 130, nextY);
+  doc.setLineWidth(0.1);
+  doc.line(20, nextY + 10, 70, nextY + 10);  // Business
+  doc.line(130, nextY + 10, 180, nextY + 10); // Client
+  nextY += 20;
+
+  // Signature Images
+  if (inv.signatures?.business) {
+    doc.addImage(inv.signatures.business, "PNG", 20, nextY, 60, 30);
+  }
+  if (inv.signatures?.client) {
+    doc.addImage(inv.signatures.client, "PNG", 130, nextY, 60, 30);
+  }
+
+  nextY += 40;
+
+  if (inv.signatures?.date) {
+    doc.setFontSize(10);
+    doc.text(`Signed on: ${cleanText(inv.signatures.date)}`, 20, nextY);
+  }
+
+  // Save file
+  doc.save(`${invoiceNumber}.pdf`);
+}
+
+    function repeatMonthly() {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const currentIndex = localStorage.getItem("currentInvoiceIndex");
+
+  if (currentIndex === null || !invoices[currentIndex]) {
+    alert("Please select and save a draft invoice first.");
+    return;
+  }
+
+  const original = invoices[currentIndex];
+
+  // Створення копії з новою датою
+  const newInvoice = JSON.parse(JSON.stringify(original));
+
+  // Нова дата — через місяць
+  const newDate = new Date(original.invoiceDate || new Date());
+  newDate.setMonth(newDate.getMonth() + 1);
+
+  newInvoice.invoiceDate = newDate.toISOString().split("T")[0];
+
+  // Due date = +14 днів
+  const due = new Date(newInvoice.invoiceDate);
+  due.setDate(due.getDate() + 14);
+  newInvoice.dueDate = due.toISOString().split("T")[0];
+
+  // Генеруємо новий номер інвойсу
+  newInvoice.invoiceNumber = generateNextInvoiceNumber();
+
+  // Ставимо статус Draft
+  newInvoice.status = "Draft";
+
+  // Додаємо в кінець списку
+  invoices.push(newInvoice);
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+  localStorage.removeItem("currentInvoiceIndex");
+
+  renderInvoices();
+  alert("📅 Monthly invoice created!");
+}
+
+    function scanReceipt() {
+  const fileInput = document.getElementById("receiptUpload");
+  const resultEl = document.getElementById("ocrResult");
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert("Please upload a receipt image.");
+    return;
+  }
+
+  resultEl.innerText = "⏳ Scanning...";
+
+  Tesseract.recognize(file, 'eng', {
+    logger: m => {
+      if (m.status === 'recognizing text') {
+        resultEl.innerText = `⏳ Scanning: ${Math.round(m.progress * 100)}%`;
+      }
+    }
+  }).then(({ data: { text } }) => {
+    resultEl.innerText = `✅ Extracted text:\n${text.trim()}`;
+  }).catch(err => {
+    resultEl.innerText = "❌ Error scanning image.";
+    console.error(err);
+  });
+}
+
+
+    function renderChart(invoices) {
+  const canvas = document.getElementById("chart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  canvas.width = 600;
+  canvas.height = 300;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const monthlyTotals = {};
+  invoices.forEach(inv => {
+    if (!inv.invoiceDate) return;
+    const date = new Date(inv.invoiceDate);
+    const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    const total = inv.items.reduce((sum, item) =>
+      sum + item.qty * item.price * (1 + item.vat / 100), 0);
+    monthlyTotals[key] = (monthlyTotals[key] || 0) + total;
+  });
+
+  const months = Object.keys(monthlyTotals).sort();
+  const values = months.map(m => monthlyTotals[m]);
+
+  // графік лінії
+  const max = Math.max(...values, 1000);
+  const stepX = canvas.width / (months.length + 1);
+  const stepY = canvas.height / max;
+
+  ctx.beginPath();
+  ctx.moveTo(50, canvas.height - values[0] * stepY);
+  values.forEach((v, i) => {
+    ctx.lineTo(50 + stepX * i, canvas.height - v * stepY);
+  });
+  ctx.strokeStyle = "blue";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // підпис
+  ctx.fillStyle = "black";
+  months.forEach((m, i) => {
+    ctx.fillText(m, 50 + stepX * i, canvas.height - 5);
+  });
+}
+    
 </script>
 </body>
 </html>
