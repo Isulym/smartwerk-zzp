@@ -177,11 +177,10 @@
 </div>
 
 <!-- 📥 CSV Import (Placeholder) -->
-<section class="step">
-  <h2>📥 CSV Import</h2>
-  <input type="file" id="csvImport" accept=".csv" />
-  <button onclick="importCSV()">📄 Import</button>
-</section>
+<div style="margin-top: 20px;">
+  <label for="csvInput">📥 Import CSV:</label>
+  <input type="file" id="csvInput" accept=".csv" onchange="importCSV()" />
+</div>
 
 <!-- 🌐 Peppol/e-Delivery Placeholder -->
 <section class="step">
@@ -1146,6 +1145,49 @@ async function downloadPDF(index) {
     }
   };
   reader.readAsDataURL(file);
+}
+    function importCSV() {
+  const fileInput = document.getElementById("csvInput");
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const csv = e.target.result;
+    const lines = csv.split("\n");
+    const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+    for (let i = 1; i < lines.length; i++) {
+      const row = lines[i].split(",");
+      if (row.length < headers.length) continue;
+
+      const invoice = {
+        businessName: row[headers.indexOf("businessname")] || "",
+        clientName: row[headers.indexOf("clientname")] || "",
+        invoiceNumber: row[headers.indexOf("invoicenumber")] || generateNextInvoiceNumber(),
+        invoiceDate: row[headers.indexOf("invoicedate")] || "",
+        dueDate: row[headers.indexOf("duedate")] || "",
+        status: row[headers.indexOf("status")] || "Draft",
+        note: row[headers.indexOf("note")] || "",
+        items: [],
+        signatures: {
+          business: "",
+          client: "",
+          date: new Date().toLocaleDateString("nl-NL")
+        }
+      };
+
+      invoices.push(invoice);
+    }
+
+    localStorage.setItem("invoices", JSON.stringify(invoices));
+    renderInvoices();
+    alert("✅ CSV Imported Successfully!");
+  };
+
+  reader.readAsText(file);
 }
     
 </script>
