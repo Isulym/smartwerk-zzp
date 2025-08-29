@@ -216,35 +216,21 @@ let signing = false;
   }
 });
 
+    // Очищення від нелатинських символів (наприклад, кирилиці)
+const cleanText = (text) =>
+  text.replace(/[^\x00-\x7F]/g, ""); // видаляє всі нелатинські символи
 
-    async function downloadPDF(index) {
+  async function downloadPDF(index) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+
+  const cleanText = (text) => (text || "").replace(/[^\x00-\x7F]/g, "");
 
   const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
   const inv = invoices[index];
   if (!inv) return;
 
-  // 🧾 Номер інвойсу
-  const invoiceNumber = inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`;
-
-      // Кодування українського шрифта NotoSans у base64
-// Потрібно вставити лише 1 раз, при ініціалізації jsPDF
-if (typeof jsPDF !== "undefined") {
-  jsPDF.API.events.push(['addFonts', function() {
-    this.addFileToVFS('NotoSans.ttf', notoFontBase64);
-    this.addFont('NotoSans.ttf', 'NotoSans', 'normal');
-  }]);
-}
-
-const notoFontBase64 = `
-AAEAAAASAQAABAAgR0RFRrRCsIIAAAToAAAHEdEFUWVhpYAAAAXAAAAiZR1NVQ0XzLgAAAEwA
-...
-(ЗАВАНТАЖИТИ ТУТ → велика base64 стрічка, я вставлю її повністю нижче як окремий блок)
-...
-`; 
-
-  doc.setFont("NotoSans");
+  const invoiceNumber = cleanText(inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`);
 
   // Заголовок
   doc.setFontSize(18);
@@ -253,34 +239,39 @@ AAEAAAASAQAABAAgR0RFRrRCsIIAAAToAAAHEdEFUWVhpYAAAAXAAAAiZR1NVQ0XzLgAAAEwA
   // From (Business)
   doc.setFontSize(12);
   doc.text("From:", 20, 35);
-  doc.text(`${inv.businessName}`, 20, 41);
-  doc.text(`KvK: ${inv.kvk}`, 20, 47);
-  doc.text(`IBAN: ${inv.iban}`, 20, 53);
-  doc.text(`Email: ${inv.email}`, 20, 59);
-  doc.text(`Address: ${inv.businessAddress}`, 20, 71);
-  doc.text(`Phone: ${inv.businessPhone}`, 20, 77);    
-  if (inv.btw) doc.text(`BTW: ${inv.btw}`, 20, 65);
+  doc.text(cleanText(inv.businessName), 20, 41);
+  doc.text(`KvK: ${cleanText(inv.kvk)}`, 20, 47);
+  doc.text(`IBAN: ${cleanText(inv.iban)}`, 20, 53);
+  doc.text(`Email: ${cleanText(inv.email)}`, 20, 59);
+  if (inv.btw) doc.text(`BTW: ${cleanText(inv.btw)}`, 20, 65);
+  doc.text(`Address: ${cleanText(inv.businessAddress)}`, 20, 71);
+  doc.text(`Phone: ${cleanText(inv.businessPhone)}`, 20, 77);
 
   // To (Client)
   const toY = inv.btw ? 65 : 59;
   doc.text("To:", 140, 35);
-  doc.text(`${inv.clientName}`, 140, 41);
-  doc.text(`Address: ${inv.clientAddress}`, 140, 53);
-  doc.text(`Phone: ${inv.clientPhone}`, 140, 59);    
-  if (inv.clientEmail) doc.text(`${inv.clientEmail}`, 140, 47);
+  doc.text(cleanText(inv.clientName), 140, 41);
+  if (inv.clientEmail) doc.text(cleanText(inv.clientEmail), 140, 47);
+  doc.text(`Address: ${cleanText(inv.clientAddress)}`, 140, 53);
+  doc.text(`Phone: ${cleanText(inv.clientPhone)}`, 140, 59);
 
   // Invoice Info
   doc.autoTable({
     startY: toY + 15,
     head: [['Invoice Number', 'Date Issued', 'Due Date', 'Status']],
-    body: [[invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status || 'Draft']],
+    body: [[
+      invoiceNumber,
+      cleanText(inv.invoiceDate),
+      cleanText(inv.dueDate),
+      cleanText(inv.status || 'Draft')
+    ]],
     styles: { halign: 'left' },
     headStyles: { fillColor: [240, 240, 240] }
   });
 
   // Items
   const itemRows = inv.items.map(item => [
-    item.desc,
+    cleanText(item.desc),
     item.qty,
     `€${parseFloat(item.price).toFixed(2)}`,
     `${item.vat}%`,
@@ -322,10 +313,10 @@ AAEAAAASAQAABAAgR0RFRrRCsIIAAAToAAAHEdEFUWVhpYAAAAXAAAAiZR1NVQ0XzLgAAAEwA
   // Notes
   if (inv.note && inv.note.trim() !== "") {
     doc.setFontSize(10);
-    doc.text(inv.note, 20, doc.lastAutoTable.finalY + 16);
+    doc.text(cleanText(inv.note), 20, doc.lastAutoTable.finalY + 16);
   }
 
-  // Підписи
+  // Signatures
   const signY = doc.lastAutoTable.finalY + 30;
   const dateStr = new Date().toLocaleDateString("nl-NL");
 
@@ -334,30 +325,25 @@ AAEAAAASAQAABAAgR0RFRrRCsIIAAAToAAAHEdEFUWVhpYAAAAXAAAAiZR1NVQ0XzLgAAAEwA
   doc.text("Client Signature:", 130, signY);
 
   doc.setFontSize(10);
- 
-
   doc.setLineWidth(0.1);
   doc.line(20, signY + 12, 70, signY + 12); // business line
   doc.line(130, signY + 12, 180, signY + 12); // client line
 
-      // Додати підписи (зображення)
-if (inv.signatures?.business) {
-  doc.text("Business Signature:", 20, doc.lastAutoTable.finalY + 10);
-  doc.addImage(inv.signatures.business, "PNG", 20, doc.lastAutoTable.finalY + 15, 60, 30);
-}
+  if (inv.signatures?.business) {
+    doc.text("Business Signature:", 20, doc.lastAutoTable.finalY + 10);
+    doc.addImage(inv.signatures.business, "PNG", 20, doc.lastAutoTable.finalY + 15, 60, 30);
+  }
 
-if (inv.signatures?.client) {
-  doc.text("Client Signature:", 120, doc.lastAutoTable.finalY + 10);
-  doc.addImage(inv.signatures.client, "PNG", 120, doc.lastAutoTable.finalY + 15, 60, 30);
-}
+  if (inv.signatures?.client) {
+    doc.text("Client Signature:", 120, doc.lastAutoTable.finalY + 10);
+    doc.addImage(inv.signatures.client, "PNG", 120, doc.lastAutoTable.finalY + 15, 60, 30);
+  }
 
-if (inv.signatures?.date) {
-  doc.setFontSize(10);
-  doc.text(`Signed on: ${inv.signatures.date}`, 20, doc.lastAutoTable.finalY + 50);
-}
-      
+  if (inv.signatures?.date) {
+    doc.setFontSize(10);
+    doc.text(`Signed on: ${cleanText(inv.signatures.date)}`, 20, doc.lastAutoTable.finalY + 50);
+  }
 
-  // Final save
   doc.save(`${invoiceNumber}.pdf`);
 }
 
