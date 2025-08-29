@@ -80,7 +80,6 @@
 </section>
 
 
-    <div id="invoicesContainer" class="invoices-list"></div>
 
 
 
@@ -100,10 +99,10 @@
 </select>
     </section>
 
-      <section class="step">
-      <h2>📁 Saved Invoices</h2>
-      <ul id="invoiceList"></ul>
-    </section>
+      <section>
+  <h3>📂 Saved Invoices</h3>
+  <div id="savedInvoices"></div>
+</section>
 
     
     
@@ -507,7 +506,7 @@ function updateStatus(index, newStatus) {
 }
     
 
-    function saveInvoice() {
+   function saveInvoice() {
   const invoice = {
     businessName: document.getElementById("businessName")?.value || "",
     kvk: document.getElementById("kvk")?.value || "",
@@ -569,8 +568,10 @@ function updateStatus(index, newStatus) {
 
   localStorage.setItem("invoices", JSON.stringify(invoices));
   renderInvoices();
+  resetFormFields(); // 🔄 очищення після збереження
   alert("Invoice saved successfully!");
 }
+
     function searchInvoices() {
   const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
@@ -589,6 +590,51 @@ function updateStatus(index, newStatus) {
         <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
       `;
       container.appendChild(invoiceDiv);
+    }
+  });
+}
+
+ function renderInvoices() {
+  const savedContainer = document.getElementById("savedInvoices");
+  if (!savedContainer) return;
+
+  savedContainer.innerHTML = "";
+
+  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
+
+  invoices.forEach((inv, index) => {
+    const div = document.createElement("div");
+    div.className = "invoice-block";
+
+    div.innerHTML = `
+      <strong>${inv.businessName}</strong> — ${inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`}<br>
+      <em>${inv.status || "Draft"}</em><br>
+      <button onclick="downloadPDF(${index})">📄 PDF</button>
+      <button onclick="editInvoice(${index})">✏️ Edit</button>
+      <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
+    `;
+
+    savedContainer.appendChild(div);
+  });
+}
+
+    function resetFormFields() {
+  document.querySelectorAll("input, textarea").forEach(el => {
+    if (!["status", "invoiceNumber"].includes(el.id)) {
+      el.value = "";
+    }
+  });
+
+  // Очистити items
+  const itemsBody = document.getElementById("itemsBody");
+  if (itemsBody) itemsBody.innerHTML = "";
+
+  // Очистити підписи
+  ["signatureBusiness", "signatureClient"].forEach(id => {
+    const canvas = document.getElementById(id);
+    if (canvas && canvas.getContext) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   });
 }
