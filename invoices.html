@@ -60,6 +60,7 @@
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
+
    <!-- Підпис -->
 <section class="step">
   <h2>✍️ Signatures</h2>
@@ -90,8 +91,8 @@
       <button onclick="searchInvoices()">🔍 Search</button>
       <button onclick="renderInvoices()">📋 Show All</button>
 
-       <label for="statusFilter">Filter by Status:</label>
-<select id="statusFilter" onchange="renderInvoices()">
+       <label for="Status">Status:</label>
+<select id="Status" onchange="renderInvoices()">
   <option value="all">All</option>
   <option value="Draft">Draft</option>
   <option value="Sent">Sent</option>
@@ -467,34 +468,6 @@ function setupSignature(canvasId) {
   });
 }
 
-    
-
-    function renderInvoices() {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const container = document.getElementById("invoicesContainer");
-  const filter = document.getElementById("statusFilter")?.value || "all";
-
-  container.innerHTML = "";
-
-  invoices.forEach((inv, i) => {
-    if (filter !== "all" && inv.status !== filter) return;
-
-    const invoiceDiv = document.createElement("div");
-    invoiceDiv.classList.add("invoice-entry");
-    invoiceDiv.innerHTML = `
-      <strong>${inv.clientName}</strong> — ${inv.invoiceNumber} — 
-      <select onchange="updateStatus(${i}, this.value)">
-        <option value="Draft" ${inv.status === "Draft" ? "selected" : ""}>Draft</option>
-        <option value="Sent" ${inv.status === "Sent" ? "selected" : ""}>Sent</option>
-        <option value="Paid" ${inv.status === "Paid" ? "selected" : ""}>Paid</option>
-      </select>
-      <button onclick="downloadPDF(${i})">📄 PDF</button>
-      ${inv.status === "Draft" ? `<button onclick="editInvoice(${i})">✏️ Edit</button>` : ""}
-      <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
-    `;
-    container.appendChild(invoiceDiv);
-  });
-}
 
 function updateStatus(index, newStatus) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
@@ -506,7 +479,7 @@ function updateStatus(index, newStatus) {
 }
     
 
-   function saveInvoice() {
+  function saveInvoice() {
   const invoice = {
     businessName: document.getElementById("businessName")?.value || "",
     kvk: document.getElementById("kvk")?.value || "",
@@ -555,10 +528,20 @@ function updateStatus(index, newStatus) {
     console.warn("Підпис не зчитано:", e.message);
   }
 
-  // Збереження
+  // Завантаження існуючих інвойсів
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const currentIndex = localStorage.getItem("currentInvoiceIndex");
 
+  // 🔐 Перевірка на дублікат тільки якщо не редагуємо існуючий
+  if (
+    currentIndex === null &&
+    invoices.some(i => i.invoiceNumber === invoice.invoiceNumber)
+  ) {
+    alert("Invoice with this number already exists!");
+    return;
+  }
+
+  // Оновлення чи нове збереження
   if (currentIndex !== null && invoices[currentIndex]) {
     invoices[currentIndex] = invoice;
     localStorage.removeItem("currentInvoiceIndex");
@@ -568,7 +551,7 @@ function updateStatus(index, newStatus) {
 
   localStorage.setItem("invoices", JSON.stringify(invoices));
   renderInvoices();
-  resetFormFields(); // 🔄 очищення після збереження
+  resetFormFields();
   alert("Invoice saved successfully!");
 }
 
@@ -600,15 +583,18 @@ function updateStatus(index, newStatus) {
 
   savedContainer.innerHTML = "";
 
-  const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const filter = document.getElementById("statusFilter")?.value || "all";
 
   invoices.forEach((inv, index) => {
+    if (filter !== "all" && inv.status !== filter) return;
+
     const div = document.createElement("div");
     div.className = "invoice-block";
 
     div.innerHTML = `
       <strong>${inv.businessName}</strong> — ${inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`}<br>
-      <em>${inv.status || "Draft"}</em><br>
+      <em>Status: ${inv.status || "Draft"}</em><br>
       <button onclick="downloadPDF(${index})">📄 PDF</button>
       <button onclick="editInvoice(${index})">✏️ Edit</button>
       <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
@@ -624,7 +610,8 @@ function updateStatus(index, newStatus) {
       el.value = "";
     }
   });
-
+document.getElementById("status").value = "Draft";
+      
   // Очистити items
   const itemsBody = document.getElementById("itemsBody");
   if (itemsBody) itemsBody.innerHTML = "";
