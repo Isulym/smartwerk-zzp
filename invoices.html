@@ -91,8 +91,8 @@
       <button onclick="searchInvoices()">🔍 Search</button>
       <button onclick="renderInvoices()">📋 Show All</button>
 
-       <label for="Status">Status:</label>
-<select id="Status" onchange="renderInvoices()">
+       <label for="statusFilter">statusFilter:</label>
+<select id="statusFilter" onchange="renderInvoices()">
   <option value="all">All</option>
   <option value="Draft">Draft</option>
   <option value="Sent">Sent</option>
@@ -533,13 +533,19 @@ function updateStatus(index, newStatus) {
   const currentIndex = localStorage.getItem("currentInvoiceIndex");
 
   // 🔐 Перевірка на дублікат тільки якщо не редагуємо існуючий
-  if (
-    currentIndex === null &&
-    invoices.some(i => i.invoiceNumber === invoice.invoiceNumber)
-  ) {
-    alert("Invoice with this number already exists!");
+if (currentIndex !== null && invoices[currentIndex]) {
+  invoices[currentIndex] = invoice;
+  localStorage.removeItem("currentInvoiceIndex");
+} else {
+  // Якщо такий номер вже існує, не додаємо повторно
+  const exists = invoices.some(i => i.invoiceNumber === invoice.invoiceNumber);
+  if (!exists) {
+    invoices.push(invoice);
+  } else {
+    alert("Invoice with this number already exists.");
     return;
   }
+}
 
   // Оновлення чи нове збереження
   if (currentIndex !== null && invoices[currentIndex]) {
@@ -604,19 +610,19 @@ function updateStatus(index, newStatus) {
   });
 }
 
-    function resetFormFields() {
+   function resetFormFields() {
   document.querySelectorAll("input, textarea").forEach(el => {
     if (!["status", "invoiceNumber"].includes(el.id)) {
       el.value = "";
     }
   });
-document.getElementById("status").value = "Draft";
-      
-  // Очистити items
+
+  const statusEl = document.getElementById("status");
+  if (statusEl) statusEl.value = "Draft";
+
   const itemsBody = document.getElementById("itemsBody");
   if (itemsBody) itemsBody.innerHTML = "";
 
-  // Очистити підписи
   ["signatureBusiness", "signatureClient"].forEach(id => {
     const canvas = document.getElementById(id);
     if (canvas && canvas.getContext) {
