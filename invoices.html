@@ -54,7 +54,7 @@
 
     <section class="step">
       <h2>📦 Summary</h2>
-      <textarea id="note" placeholder="Invoice note (optional)..."></textarea>
+      <textarea id="note" placeholder="Invoice note (optional)..."></textarea><br/>
       <p><strong>Subtotal:</strong> <span id="subtotal">€0.00</span></p>
       <p><strong>Total VAT:</strong> <span id="totalVat">€0.00</span></p>
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
@@ -82,20 +82,30 @@
 
     <div id="invoicesContainer" class="invoices-list"></div>
 
- 
 
-    <section class="step">
-      <h2>📁 Saved Invoices</h2>
-    </section>
+<tfoot>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>Subtotal:</strong></td>
+    <td id="subtotal">€0.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>VAT:</strong></td>
+    <td id="totalVat">€0.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>Total:</strong></td>
+    <td id="grandTotal">€0.00</td>
+  </tr>
+</tfoot>
+    
 
-  <label for="statusFilter">Filter by Status:</label>
-   <label for="status">Status:</label>
-   <select id="status">
-   <option value="all">All</option>
-   <option value="Draft">Draft</option>
-   <option value="Sent">Sent</option>
-   <option value="Paid">Paid</option>
-   </select>
+ <label for="statusFilter">Filter by Status:</label>
+<select id="statusFilter" onchange="renderInvoices()">
+  <option value="all">All</option>
+  <option value="Draft">Draft</option>
+  <option value="Sent">Sent</option>
+  <option value="Paid">Paid</option>
+</select>
 
      <section class="step">
       <h2>⚙️ Actions</h2>
@@ -105,6 +115,25 @@
       <button onclick="renderInvoices()">📋 Show All</button>
     </section>
 
+      <section class="step">
+      <h2>📁 Saved Invoices</h2>
+      <ul id="invoiceList"></ul>
+    </section>
+<tfoot>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>Subtotal:</strong></td>
+    <td id="subtotal">€0.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>VAT:</strong></td>
+    <td id="totalVat">€0.00</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align: right"><strong>Total:</strong></td>
+    <td id="grandTotal">€0.00</td>
+  </tr>
+</tfoot>
+    
     
   </main>
 
