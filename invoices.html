@@ -83,29 +83,6 @@
     <div id="invoicesContainer" class="invoices-list"></div>
 
 
-<tfoot>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>Subtotal:</strong></td>
-    <td id="subtotal">€0.00</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>VAT:</strong></td>
-    <td id="totalVat">€0.00</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>Total:</strong></td>
-    <td id="grandTotal">€0.00</td>
-  </tr>
-</tfoot>
-    
-
- <label for="statusFilter">Filter by Status:</label>
-<select id="statusFilter" onchange="renderInvoices()">
-  <option value="all">All</option>
-  <option value="Draft">Draft</option>
-  <option value="Sent">Sent</option>
-  <option value="Paid">Paid</option>
-</select>
 
      <section class="step">
       <h2>⚙️ Actions</h2>
@@ -113,26 +90,21 @@
       <input type="text" id="searchInput" placeholder="Search client..." />
       <button onclick="searchInvoices()">🔍 Search</button>
       <button onclick="renderInvoices()">📋 Show All</button>
+
+       <label for="statusFilter">Filter by Status:</label>
+<select id="statusFilter" onchange="renderInvoices()">
+  <option value="all">All</option>
+  <option value="Draft">Draft</option>
+  <option value="Sent">Sent</option>
+  <option value="Paid">Paid</option>
+</select>
     </section>
 
       <section class="step">
       <h2>📁 Saved Invoices</h2>
       <ul id="invoiceList"></ul>
     </section>
-<tfoot>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>Subtotal:</strong></td>
-    <td id="subtotal">€0.00</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>VAT:</strong></td>
-    <td id="totalVat">€0.00</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align: right"><strong>Total:</strong></td>
-    <td id="grandTotal">€0.00</td>
-  </tr>
-</tfoot>
+
     
     
   </main>
