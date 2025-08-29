@@ -502,7 +502,6 @@ const cleanText = (text) => (text || "").replace(/[^\x00-\x7F]/g, "");
   }
 
   localStorage.setItem("invoices", JSON.stringify(invoices));
-  renderInvoices();
   resetFormFields();
   alert("Invoice saved successfully!");
 }
