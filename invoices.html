@@ -91,12 +91,15 @@
     <div id="invoicesContainer" class="invoices-list"></div>
 
     <label for="statusFilter">Filter by Status:</label>
-    <select id="statusFilter" onchange="renderInvoices()">
-      <option value="all">All</option>
-      <option value="Draft">Draft</option>
-      <option value="Sent">Sent</option>
-      <option value="Paid">Paid</option>
-    </select>
+   <label for="status">Status:</label>
+   <select id="status">
+   <option value="all">All</option>
+   <option value="Draft">Draft</option>
+   <option value="Sent">Sent</option>
+   <option value="Paid">Paid</option>
+   </select>
+
+
 
     <section class="step">
       <h2>📁 Saved Invoices</h2>
