@@ -68,14 +68,14 @@
     <h3>Business Signature:</h3>
     <canvas id="signatureBusiness" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
     <button onclick="clearSignature('signatureBusiness')">Clear</button>
-    <p>Date: <span id="businessSignDate"></span></p>
+    <p>Date: <span id="signatureBusinessDate"></span></p>
   </div>
 
   <div>
     <h3>Client Signature:</h3>
     <canvas id="signatureClient" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
     <button onclick="clearSignature('signatureClient')">Clear</button>
-    <p>Date: <span id="clientSignDate"></span></p>
+    <p>Date: <span id="signatureClientDate"></span></p>
   </div>
 </section>
 
@@ -170,12 +170,12 @@ function clearSignature(canvasId) {
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (canvasId === "businessSign") {
-    businessSignDate = "";
-    document.getElementById("businessSignDate").innerText = "";
+  if (canvasId === "signatureBusiness") {
+    signatureBusinessDate = "";
+    document.getElementById("signatureBusinessDate").innerText = "";
   } else {
-    clientSignDate = "";
-    document.getElementById("clientSignDate").innerText = "";
+    signatureClientDate = "";
+    document.getElementById("signatureClientDate").innerText = "";
   }
 }
 
@@ -185,8 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
 let businessCanvas, clientCanvas, businessCtx, clientCtx;
 let signing = false;
 
-  businessCanvas = document.getElementById("businessSign");
-  clientCanvas = document.getElementById("clientSign");
+  businessCanvas = document.getElementById("signatureBusiness");
+  clientCanvas = document.getElementById("signatureClient");
 
   if (businessCanvas && clientCanvas) {
     businessCtx = businessCanvas.getContext("2d");
@@ -413,22 +413,22 @@ function editInvoice(index) {
     // Business signature
     const businessImg = new Image();
     businessImg.onload = () => {
-      const canvas = document.getElementById("businessSign");
+      const canvas = document.getElementById("signatureBusiness");
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(businessImg, 0, 0);
-      document.getElementById("businessSignDate").innerText = inv.signatures.businessDate || "";
+      document.getElementById("signatureBusinessDate").innerText = inv.signatures.businessDate || "";
     };
     businessImg.src = inv.signatures.business;
 
     // Client signature
     const clientImg = new Image();
     clientImg.onload = () => {
-      const canvas = document.getElementById("clientSign");
+      const canvas = document.getElementById("signatureClient");
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(clientImg, 0, 0);
-      document.getElementById("clientSignDate").innerText = inv.signatures.clientDate || "";
+      document.getElementById("signatureClientDate").innerText = inv.signatures.clientDate || "";
     };
     clientImg.src = inv.signatures.client;
   }
@@ -448,8 +448,8 @@ function deleteInvoice(index) {
     alert("Invoice deleted.");
   }
 
-  let businessSignDate = "";
-let clientSignDate = "";
+  let signatureBusinessDate = "";
+let signatureClientDate = "";
 
 function setupSignature(canvasId) {
   const canvas = document.getElementById(canvasId);
@@ -464,12 +464,12 @@ function setupSignature(canvasId) {
   canvas.addEventListener("mouseup", () => {
     drawing = false;
     const now = new Date().toLocaleDateString("nl-NL");
-    if (canvasId === "businessSign") {
-      businessSignDate = now;
-      document.getElementById("businessSignDate").innerText = now;
+    if (canvasId === "signatureBusiness") {
+      signatureBusinessDate = now;
+      document.getElementById("signatureBusinessDate").innerText = now;
     } else {
-      clientSignDate = now;
-      document.getElementById("clientSignDate").innerText = now;
+      signatureClientDate = now;
+      document.getElementById("signatureClientDate").innerText = now;
     }
   });
 
@@ -561,10 +561,10 @@ function updateStatus(index, newStatus) {
 
   // Підписи
   try {
-    const businessSign = document.getElementById("signatureBusiness")?.toDataURL() || "";
-    const clientSign = document.getElementById("signatureClient")?.toDataURL() || "";
-    invoice.signatures.business = businessSign;
-    invoice.signatures.client = clientSign;
+    const signatureBusiness = document.getElementById("signatureBusiness")?.toDataURL() || "";
+    const signatureClient = document.getElementById("signatureClient")?.toDataURL() || "";
+    invoice.signatures.business = signatureBusiness;
+    invoice.signatures.client = signatureClient;
   } catch (e) {
     console.warn("Підпис не зчитано:", e.message);
   }
@@ -583,6 +583,27 @@ function updateStatus(index, newStatus) {
   localStorage.setItem("invoices", JSON.stringify(invoices));
   renderInvoices();
   alert("Invoice saved successfully!");
+}
+    function searchInvoices() {
+  const search = document.getElementById("searchInput")?.value?.toLowerCase() || "";
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const container = document.getElementById("invoicesContainer");
+
+  container.innerHTML = "";
+
+  invoices.forEach((inv, i) => {
+    if (inv.clientName?.toLowerCase().includes(search)) {
+      const invoiceDiv = document.createElement("div");
+      invoiceDiv.classList.add("invoice-entry");
+      invoiceDiv.innerHTML = `
+        <strong>${inv.clientName}</strong> — ${inv.invoiceNumber}
+        <button onclick="downloadPDF(${i})">📄 PDF</button>
+        <button onclick="editInvoice(${i})">✏️ Edit</button>
+        <button onclick="deleteInvoice(${i})">🗑️ Delete</button>
+      `;
+      container.appendChild(invoiceDiv);
+    }
+  });
 }
 </script>
 </body>
