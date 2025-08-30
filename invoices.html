@@ -1169,7 +1169,6 @@ function renderChart(invoices) {
 
   reader.readAsText(file);
 }
-    <script>
 function exportCSV() {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
 
@@ -1224,9 +1223,7 @@ function exportCSV() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-}
-</script>
-    
+}    
 </script>
 </body>
 </html>
