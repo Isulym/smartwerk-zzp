@@ -679,7 +679,6 @@ function updateStatus(index, newStatus) {
       default: return 0;
     }
   });
-      renderChart(invoices);
 
   // 🧾 Вивід
   invoices.forEach((inv, index) => {
@@ -696,7 +695,7 @@ function updateStatus(index, newStatus) {
       <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
       <button onclick="repeatMonthly(${index})">📅 Repeat Monthly</button>
     `;
-
+renderChart(invoices);
     savedContainer.appendChild(div);
   });
 }
