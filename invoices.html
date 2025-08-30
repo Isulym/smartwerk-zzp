@@ -115,6 +115,10 @@
   <label for="dateTo">To:</label>
   <input type="date" id="dateTo">
 
+   <input type="text" id="searchInvoiceNumber" placeholder="Search by invoice number / client name" />
+  <button onclick="renderInvoices()">🔎 Filter</button>
+  <button onclick="resetFilters()">🔄 Reset</button>
+
     <label for="statusFilter">Status:</label>
   <select id="statusFilter" onchange="filterAndRenderInvoices()">
     <option value="all">All</option>
@@ -123,9 +127,7 @@
     <option value="Paid">Paid</option>
   </select>
   
-  <input type="text" id="searchInvoiceNumber" placeholder="Search by invoice number / client name" />
-  <button onclick="renderInvoices()">🔎 Filter</button>
-  <button onclick="resetFilters()">🔄 Reset</button>
+ 
 
   <label for="sortBy">Sort by:</label>
   <select id="sortBy" onchange="renderInvoices()">
