@@ -34,10 +34,6 @@
       <input id="clientPhone" placeholder="Client Phone" />
       <input id="clientAddress" placeholder="Client Address" />
       <input id="invoiceDate" type="date" />
-      <label>
-      <input type="checkbox" id="repeatMonthly" />
-      📅 Repeat Monthly
-      </label>
       <input id="dueDate" type="date" />
       <input id="invoiceNumber" placeholder="Invoice Number" />
 
@@ -697,6 +693,7 @@ function updateStatus(index, newStatus) {
       <button onclick="downloadPDF(${index})">📄 PDF</button>
       <button onclick="editInvoice(${index})">✏️ Edit</button>
       <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
+      <button onclick="repeatMonthly(${index})">📅 Repeat Monthly</button>
     `;
 
     savedContainer.appendChild(div);
@@ -984,44 +981,35 @@ async function downloadPDF(index) {
   doc.save(`${invoiceNumber}.pdf`);
 }
 
-    function repeatMonthly() {
+  function repeatMonthly(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const currentIndex = localStorage.getItem("currentInvoiceIndex");
+  const original = invoices[index];
+  if (!original) return;
 
-  if (currentIndex === null || !invoices[currentIndex]) {
-    alert("Please select and save a draft invoice first.");
-    return;
-  }
-
-  const original = invoices[currentIndex];
-
-  // Створення копії з новою датою
+  // Копія інвойсу
   const newInvoice = JSON.parse(JSON.stringify(original));
 
-  // Нова дата — через місяць
-  const newDate = new Date(original.invoiceDate || new Date());
-  newDate.setMonth(newDate.getMonth() + 1);
+  // Нова дата (поточна + 1 місяць)
+  const today = new Date();
+  const nextMonth = new Date(today.setMonth(today.getMonth() + 1));
+  const formattedDate = nextMonth.toISOString().split("T")[0];
 
-  newInvoice.invoiceDate = newDate.toISOString().split("T")[0];
-
-  // Due date = +14 днів
-  const due = new Date(newInvoice.invoiceDate);
-  due.setDate(due.getDate() + 14);
-  newInvoice.dueDate = due.toISOString().split("T")[0];
-
-  // Генеруємо новий номер інвойсу
+  // Оновлення номеру та дат
   newInvoice.invoiceNumber = generateNextInvoiceNumber();
+  newInvoice.invoiceDate = formattedDate;
+  newInvoice.dueDate = ""; // залишаємо пустим, або можна +14 днів
 
-  // Ставимо статус Draft
   newInvoice.status = "Draft";
+  newInvoice.signatures = {
+    business: "",
+    client: "",
+    date: new Date().toLocaleDateString("nl-NL")
+  };
 
-  // Додаємо в кінець списку
   invoices.push(newInvoice);
   localStorage.setItem("invoices", JSON.stringify(invoices));
-  localStorage.removeItem("currentInvoiceIndex");
-
   renderInvoices();
-  alert("📅 Monthly invoice created!");
+  alert("✅ Monthly invoice created!");
 }
 
     function scanReceipt() {
