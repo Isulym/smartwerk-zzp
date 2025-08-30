@@ -104,28 +104,6 @@
   <h2>⚙️ Actions</h2>
 
   <button onclick="saveInvoice()">💾 Save Invoice</button>
-
-  <input type="text" id="searchQuery" placeholder="🔍 Search by invoice number or client" oninput="filterAndRenderInvoices()" />
-
-  <label>From: <input type="date" id="filterDateFrom" onchange="filterAndRenderInvoices()"></label>
-  <label>To: <input type="date" id="filterDateTo" onchange="filterAndRenderInvoices()"></label>
-
-  <label for="statusFilter">Status:</label>
-  <select id="statusFilter" onchange="filterAndRenderInvoices()">
-    <option value="all">All</option>
-    <option value="Draft">Draft</option>
-    <option value="Sent">Sent</option>
-    <option value="Paid">Paid</option>
-  </select>
-
-  <label for="sortBy">Sort by:</label>
-  <select id="sortBy" onchange="filterAndRenderInvoices()">
-    <option value="date-desc">Newest Date</option>
-    <option value="date-asc">Oldest Date</option>
-    <option value="amount-desc">Highest Amount</option>
-    <option value="amount-asc">Lowest Amount</option>
-  </select>
-
   <button onclick="renderInvoices()">📋 Show All</button>
 </section>
 
@@ -136,6 +114,14 @@
   <input type="date" id="dateFrom">
   <label for="dateTo">To:</label>
   <input type="date" id="dateTo">
+
+    <label for="statusFilter">Status:</label>
+  <select id="statusFilter" onchange="filterAndRenderInvoices()">
+    <option value="all">All</option>
+    <option value="Draft">Draft</option>
+    <option value="Sent">Sent</option>
+    <option value="Paid">Paid</option>
+  </select>
   
   <input type="text" id="searchInvoiceNumber" placeholder="Search by invoice number / client name" />
   <button onclick="renderInvoices()">🔎 Filter</button>
