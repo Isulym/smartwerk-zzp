@@ -140,10 +140,11 @@
 
 
 <!-- 📥 CSV Import (Placeholder) -->
-<div style="margin-top: 20px;">
-  <label for="csvInput">📥 Import CSV:</label>
-  <input type="file" id="csvInput" accept=".csv" onchange="importCSV()" />
-  <button onclick="exportCSV()" class="btn">📤 Export CSV</button>
+<div class="ocr-receipt-box">
+  <label for="receiptInput">📷 Upload Receipt (Image)</label>
+  <input type="file" id="receiptInput" accept="image/*" />
+  <button onclick="processReceipt()">Scan Receipt</button>
+  <pre id="receiptText" style="white-space: pre-wrap; margin-top: 10px;"></pre>
 </div>
 
 <!-- 🌐 Peppol/e-Delivery Placeholder -->
@@ -1089,29 +1090,45 @@ function renderChart(invoices) {
   document.getElementById("statusFilter").value = "all";
   renderInvoices();
 }
-    function processReceipt() {
+function processReceipt() {
   const input = document.getElementById("receiptInput");
-  const file = input.files[0];
-  if (!file) return;
+  const output = document.getElementById("receiptText");
+
+  if (!input || !output) {
+    console.error("❌ Missing receiptInput or receiptText element.");
+    return;
+  }
+
+  const file = input.files?.[0];
+  if (!file) {
+    output.innerText = "⚠️ No file selected.";
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = async function () {
     const imageData = reader.result;
-    document.getElementById("receiptText").innerText = "⏳ Processing OCR...";
+    output.innerText = "⏳ Processing OCR...";
 
     try {
       const { data: { text } } = await Tesseract.recognize(
         imageData,
-        'eng', // мовний пакет
+        'eng', // або 'ukr' / 'nld' / 'deu' — якщо потрібно
         { logger: m => console.log(m) }
       );
 
-      document.getElementById("receiptText").innerText = `🧾 Recognized text:\n${text}`;
+      output.innerText = `✅ Extracted text:\n${text.trim()}`;
     } catch (err) {
       console.error("OCR error:", err);
-      document.getElementById("receiptText").innerText = "❌ Failed to process receipt.";
+      output.innerText = "❌ Failed to process receipt.";
     }
   };
+
+  reader.onerror = function () {
+    output.innerText = "❌ Error reading the file.";
+    console.error("FileReader error:", reader.error);
+  };
+
   reader.readAsDataURL(file);
 }
     function importCSV() {
