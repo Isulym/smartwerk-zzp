@@ -171,7 +171,7 @@
 
     <section class="step">
   <h2>📊 Income & Expense Overview</h2>
-  <canvas id="incomeChart" height="300"></canvas>
+  <canvas id="incomeChart" height="100"></canvas>
 </section>
 
   </main>
@@ -679,6 +679,7 @@ function updateStatus(index, newStatus) {
       default: return 0;
     }
   });
+      renderChart(invoices);
 
   // 🧾 Вивід
   invoices.forEach((inv, index) => {
@@ -1039,46 +1040,56 @@ async function downloadPDF(index) {
 }
 
 
-    function renderChart(invoices) {
-  const canvas = document.getElementById("chart");
-  if (!canvas) return;
+  let incomeChartInstance = null;
 
-  const ctx = canvas.getContext("2d");
-  canvas.width = 600;
-  canvas.height = 300;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+function renderChart(invoices) {
   const monthlyTotals = {};
+
   invoices.forEach(inv => {
-    if (!inv.invoiceDate) return;
-    const date = new Date(inv.invoiceDate);
-    const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-    const total = inv.items.reduce((sum, item) =>
-      sum + item.qty * item.price * (1 + item.vat / 100), 0);
-    monthlyTotals[key] = (monthlyTotals[key] || 0) + total;
+    const month = new Date(inv.invoiceDate).toLocaleString("default", { month: "long", year: "numeric" });
+    const total = inv.items.reduce((sum, item) => sum + item.qty * item.price * (1 + item.vat / 100), 0);
+
+    if (!monthlyTotals[month]) monthlyTotals[month] = 0;
+    monthlyTotals[month] += total;
   });
 
-  const months = Object.keys(monthlyTotals).sort();
-  const values = months.map(m => monthlyTotals[m]);
+  const labels = Object.keys(monthlyTotals);
+  const data = Object.values(monthlyTotals);
 
-  // графік лінії
-  const max = Math.max(...values, 1000);
-  const stepX = canvas.width / (months.length + 1);
-  const stepY = canvas.height / max;
+  const ctx = document.getElementById("incomeChart").getContext("2d");
 
-  ctx.beginPath();
-  ctx.moveTo(50, canvas.height - values[0] * stepY);
-  values.forEach((v, i) => {
-    ctx.lineTo(50 + stepX * i, canvas.height - v * stepY);
-  });
-  ctx.strokeStyle = "blue";
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  // Знищити попередній графік, якщо існує
+  if (incomeChartInstance) incomeChartInstance.destroy();
 
-  // підпис
-  ctx.fillStyle = "black";
-  months.forEach((m, i) => {
-    ctx.fillText(m, 50 + stepX * i, canvas.height - 5);
+  incomeChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Monthly Income (€)",
+        data,
+        backgroundColor: "rgba(75, 192, 192, 0.6)"
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `€${context.parsed.y.toFixed(2)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: value => `€${value}` }
+        }
+      }
+    }
   });
 }
 
