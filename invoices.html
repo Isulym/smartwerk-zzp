@@ -716,8 +716,12 @@ function updateChart(invoices) {
   const monthlyTotals = {};
 
   invoices.forEach(inv => {
-    if (!inv.invoiceDate || !inv.items) return;
-    const month = inv.invoiceDate.slice(0, 7); // YYYY-MM
+  if (!inv.invoiceDate || !inv.items) return;
+
+  const date = new Date(inv.invoiceDate);
+  if (isNaN(date)) return;
+
+  const month = date.toLocaleString("en-US", { month: "short", year: "numeric" });
 
     const total = getInvoiceTotal(inv);
     const vat = inv.items.reduce((sum, item) => {
@@ -1044,7 +1048,7 @@ function renderChart(invoices) {
   const monthlyTotals = {};
 
   invoices.forEach(inv => {
-    const month = new Date(inv.invoiceDate).toLocaleString("default", { month: "long", year: "numeric" });
+    const month = new Date(inv.invoiceDate).toLocaleString("en-US", { month: "short", year: "numeric" });
     const total = inv.items.reduce((sum, item) => sum + item.qty * item.price * (1 + item.vat / 100), 0);
 
     if (!monthlyTotals[month]) monthlyTotals[month] = 0;
