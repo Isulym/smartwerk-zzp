@@ -72,13 +72,15 @@
       <p><strong>Total VAT:</strong> <span id="totalVat">€0.00</span></p>
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
+    
 
-    <section class="step">
-  <h2>🧾 Receipt Scanner (OCR)</h2>
-  <input type="file" id="receiptUpload" accept="image/*" />
-  <button onclick="scanReceipt()">📷 Scan Receipt</button>
-  <p id="ocrResult"></p>
-</section>
+    <div class="ocr-section">
+  <label for="receiptInput">📷 Upload Receipt:</label>
+  <input type="file" id="receiptInput" accept="image/*" />
+  <button onclick="processReceipt()">Scan</button>
+
+  <pre id="receiptText" style="margin-top: 10px; white-space: pre-wrap; background: #f8f8f8; padding: 10px; border-radius: 5px;"></pre>
+</div>
 
     <!-- Step 5: Signatures -->
     <section class="step">
@@ -138,14 +140,6 @@
   </select>
 </section>
 
-
-<!-- 📥 CSV Import (Placeholder) -->
-<div class="ocr-receipt-box">
-  <label for="receiptInput">📷 Upload Receipt (Image)</label>
-  <input type="file" id="receiptInput" accept="image/*" />
-  <button onclick="processReceipt()">Scan Receipt</button>
-  <pre id="receiptText" style="white-space: pre-wrap; margin-top: 10px;"></pre>
-</div>
 
 <!-- 🌐 Peppol/e-Delivery Placeholder -->
 <section class="step">
@@ -1094,8 +1088,9 @@ function processReceipt() {
   const input = document.getElementById("receiptInput");
   const output = document.getElementById("receiptText");
 
+  // Перевірка наявності елементів
   if (!input || !output) {
-    console.error("❌ Missing receiptInput or receiptText element.");
+    console.error("❌ Missing #receiptInput або #receiptText у HTML.");
     return;
   }
 
@@ -1106,20 +1101,23 @@ function processReceipt() {
   }
 
   const reader = new FileReader();
+
   reader.onload = async function () {
     const imageData = reader.result;
     output.innerText = "⏳ Processing OCR...";
 
     try {
-      const { data: { text } } = await Tesseract.recognize(
+      const {
+        data: { text }
+      } = await Tesseract.recognize(
         imageData,
-        'eng', // або 'ukr' / 'nld' / 'deu' — якщо потрібно
+        'eng', // можеш змінити на 'ukr', 'nld', 'deu' за потреби
         { logger: m => console.log(m) }
       );
 
       output.innerText = `✅ Extracted text:\n${text.trim()}`;
     } catch (err) {
-      console.error("OCR error:", err);
+      console.error("❌ OCR error:", err);
       output.innerText = "❌ Failed to process receipt.";
     }
   };
