@@ -757,7 +757,7 @@ function updateChart(invoices) {
 
     function filterAndRenderInvoices() {
   const status = document.getElementById("statusFilter")?.value || "all";
-  const search = document.getElementById("searchQuery")?.value?.toLowerCase() || "";
+  const search = document.getElementById("invoiceClientSearch")?.value?.toLowerCase() || "";
   const dateFrom = document.getElementById("filterDateFrom")?.value;
   const dateTo = document.getElementById("filterDateTo")?.value;
   const sortBy = document.getElementById("sortBy")?.value || "date-desc";
