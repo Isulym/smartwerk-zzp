@@ -1101,7 +1101,7 @@ function resetFilters() {
   if (sortSelect) sortSelect.value = "newest"; // або "oldest" / "amount" тощо
 
   // Скинути поле invoice number / client name (якщо окреме)
-  const invoiceClientSearch = document.getElementById("searchQuery");
+  const invoiceClientSearch = document.getElementById("invoiceClientSearch");
   if (invoiceClientSearch) invoiceClientSearch.value = "";
 
   // Перерендерити
