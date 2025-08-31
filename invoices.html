@@ -1079,9 +1079,26 @@ function renderChart(invoices) {
   });
 }
 
-   function resetFilters() {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("statusFilter").value = "all"; // якщо фільтр статусу є
+function resetFilters() {
+  // Очистити поле пошуку
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) searchInput.value = "";
+
+  // Скинути фільтр статусу
+  const statusFilter = document.getElementById("statusFilter");
+  if (statusFilter) statusFilter.value = "all";
+
+  // Скинути дати "From" і "To"
+  const fromDate = document.getElementById("dateFrom");
+  const toDate = document.getElementById("dateTo");
+  if (fromDate) fromDate.value = "";
+  if (toDate) toDate.value = "";
+
+  // Скинути сортування (опціонально)
+  const sortSelect = document.getElementById("sortSelect");
+  if (sortSelect) sortSelect.value = "newest"; // або "oldest" / "amount" тощо
+
+  // Перерендерити
   renderInvoices();
 }
 function processReceipt() {
