@@ -157,5 +157,69 @@
       <p><a href="privacy.html">Privacy Policy</a> • <a href="terms.html">Terms</a></p>
     </div>
   </footer>
+  <!-- CTA у герої (можеш поставити в будь-яке місце сторінки) -->
+<a id="ctaAuth" class="btn-primary" href="login.html" style="visibility:hidden;">Login</a>
+
+<!-- (опційно) у navbar тримай обидва елементи, а я їх сховаю/покажу автоматично -->
+<nav>
+  <a href="login.html" data-auth-when="out">Login</a>
+  <a href="dashboard.html" data-auth-when="in" style="display:none;">Dashboard</a>
+</nav>
+
+<script type="module">
+  // 1) Firebase конфіг із Console → Project settings → Your apps (Web)
+  const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
+
+  // 2) Модульні імпорти
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // 3) Init
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // 4) Початково сховаємо все, що залежить від стану логіну (анти-флік)
+  const authElems = document.querySelectorAll('[data-auth-when]');
+  authElems.forEach(el => el.style.display = 'none');
+
+  const cta = document.getElementById('ctaAuth');
+  if (cta) cta.style.visibility = 'hidden';
+
+  // 5) Реактивний перемикач
+  onAuthStateChanged(auth, (user) => {
+    const loggedIn = !!user;
+
+    // Показати/сховати елементи з атрибутами
+    document.querySelectorAll('[data-auth-when="in"]').forEach(el => {
+      el.style.display = loggedIn ? '' : 'none';
+    });
+    document.querySelectorAll('[data-auth-when="out"]').forEach(el => {
+      el.style.display = loggedIn ? 'none' : '';
+    });
+
+    // Оновити головну кнопку
+    if (cta) {
+      cta.href = loggedIn ? 'dashboard.html' : 'login.html';
+      cta.textContent = loggedIn ? 'Open Dashboard' : 'Login';
+      cta.setAttribute('aria-label', loggedIn ? 'Go to Dashboard' : 'Login to SmartWerk');
+      cta.style.visibility = 'visible';
+    }
+  });
+</script>
+
+<!-- (опційно) простий стиль кнопки -->
+<style>
+  .btn-primary{
+    display:inline-block; padding:12px 18px; border-radius:10px; 
+    background:#3b79ff; border:1px solid #4d86ff; color:#fff; 
+    text-decoration:none; font-weight:600; transition:.2s ease;
+  }
+  .btn-primary:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+</style>
 </body>
 </html>
