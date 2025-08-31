@@ -1,174 +1,236 @@
-<script type="module">
-  // 1) Firebase config (замініть на свої значення)
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    appId: "YOUR_APP_ID",
-  };
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartWerk Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- ✅ Мінімальний сучасний стиль -->
+  <style>
+    :root { --bg:#0e1014; --card:#151823; --muted:#9aa3b2; --ok:#27c693; --warn:#ffb020; --err:#ff5470; --line:#22283a; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;color:#e9edf5;background:radial-gradient(1200px 600px at 10% -10%,#1d2233 0%,#0e1014 40%),linear-gradient(#0e1014,#0e1014)}
+    .wrap{max-width:1100px;margin:0 auto;padding:28px}
+    .topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{font-weight:700;font-size:20px;letter-spacing:.3px}
+    .right{display:flex;gap:10px;align-items:center}
+    .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px}
+    .badge.pro{background:linear-gradient(90deg,#ffdf6b,#ffb020);color:#1c1200}
+    .badge.free{background:#2a3147;color:#c9d2e3;border:1px solid #3a425e}
+    .btn{background:#2b3350;border:1px solid #3b4567;color:#e9edf5;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .btn:hover{filter:brightness(1.1)}
+    .btn.primary{background:#3b79ff;border-color:#4d86ff}
+    .btn.danger{background:#4a2330;border-color:#6a2c40}
+    .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+    .card{background:linear-gradient(180deg,#161b28,#141827);border:1px solid #232a42;border-radius:16px;padding:18px}
+    .card h3{margin:0 0 10px 0;font-size:16px}
+    .muted{color:var(--muted);font-size:13px}
+    .kv{display:grid;grid-template-columns:160px 1fr;gap:8px;margin-top:10px}
+    .sep{height:1px;background:var(--line);margin:16px 0}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{border:1px solid #2b3350;background:#171b29;padding:8px 10px;border-radius:10px;font-size:13px}
+    .warn{color:var(--warn)} .ok{color:var(--ok)} .err{color:var(--err)}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">💼 SmartWerk — Dashboard</div>
+      <div class="right">
+        <span id="planBadge" class="badge free">FREE</span>
+        <button id="btnLogout" class="btn danger">Logout</button>
+      </div>
+    </div>
 
-  // 2) Modular SDK (тільки module-імпорти)
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <div class="grid">
+      <!-- Профіль користувача -->
+      <div class="card">
+        <h3>👤 User Profile</h3>
+        <div class="muted" id="userEmailTop">—</div>
+        <div class="kv">
+          <div class="muted">Name</div><div id="fullName">—</div>
+          <div class="muted">Email</div><div id="emailKv">—</div>
+          <div class="muted">Address</div><div id="address">—</div>
+          <div class="muted">KvK</div><div id="kvk">—</div>
+          <div class="muted">IBAN</div><div id="iban">—</div>
+          <div class="muted">Phone</div><div id="phone">—</div>
+          <div class="muted">Plan</div><div id="planText">Free</div>
+        </div>
+        <div class="sep"></div>
+        <div class="row">
+          <button id="btnProfile" class="btn">Edit profile</button>
+          <button id="btnUpgrade" class="btn primary">Upgrade to PRO</button>
+        </div>
+      </div>
 
-  // 3) Єдиний інстанс Firebase (анти-конфлікт)
-  const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+      <!-- Статус лімітів / швидкі дії -->
+      <div class="card">
+        <h3>⚙️ Plan & Limits</h3>
+        <div class="muted">Free-план: до 3 інвойсів, без експорту PDF/Excel, без SmartWerk AI</div>
+        <div class="sep"></div>
+        <div class="kv">
+          <div class="muted">Invoices created</div><div id="invCount">0</div>
+          <div class="muted">Limit</div><div id="invLimit">3</div>
+          <div class="muted">Status</div><div id="limitStatus" class="ok">OK</div>
+        </div>
+        <div class="sep"></div>
+        <div class="row">
+          <button onclick="window.location.href='tax-calculator.html'" class="btn">🧾 Tax Calculator</button>
+          <button onclick="window.location.href='invoices.html'" class="btn">📂 Invoice Manager</button>
+        </div>
+      </div>
+    </div>
 
-  // 4) DOM refs
-  const $ = (id)=>document.getElementById(id);
-  const elEmailTop   = $("userEmailTop");
-  const elEmailKv    = $("emailKv");
-  const elFullName   = $("fullName");
-  const elAddress    = $("address");
-  const elKvk        = $("kvk");
-  const elIban       = $("iban");
-  const elPhone      = $("phone");
-  const elPlanText   = $("planText");
-  const elPlanBadge  = $("planBadge");
-  const elInvCount   = $("invCount");
-  const elInvLimit   = $("invLimit");
-  const elLimitStatus= $("limitStatus");
-  const elNotice     = $("noticeArea");
+    <!-- Інформаційні плашки -->
+    <div class="card" style="margin-top:16px">
+      <h3>🔔 Notices</h3>
+      <div id="noticeArea" class="muted">—</div>
+    </div>
+  </div>
 
-  const FREE_LIMIT = 3;
+  <!-- Firebase SDK (module imports) -->
+  <script type="module">
+    // ⚠️ Замініть на свої значення з Firebase Console
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
 
-  // 5) Надійний Logout (поза onAuthStateChanged)
-  function bindLogout() {
-    const btn = document.querySelector('#btnLogout,[data-logout]');
-    if (!btn) { console.warn('[Logout] Button not found'); return; }
-    if (btn.dataset.bound === "1") return;
-    btn.dataset.bound = "1";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        btn.disabled = true;
-        const old = btn.textContent;
-        btn.textContent = 'Logging out…';
-        await signOut(auth);
-        window.location.replace('login.html');
-      } catch (err) {
-        console.error('[Logout] error:', err);
-        window.location.replace('login.html');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // UI refs
+    const $ = (id)=>document.getElementById(id);
+    const elEmailTop = $("userEmailTop");
+    const elEmailKv = $("emailKv");
+    const elFullName = $("fullName");
+    const elAddress = $("address");
+    const elKvk = $("kvk");
+    const elIban = $("iban");
+    const elPhone = $("phone");
+    const elPlanText = $("planText");
+    const elPlanBadge = $("planBadge");
+    const elInvCount = $("invCount");
+    const elInvLimit = $("invLimit");
+    const elLimitStatus = $("limitStatus");
+    const elNotice = $("noticeArea");
+
+    const FREE_LIMIT = 3;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        location.href = "login.html";
+        return;
       }
-    });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindLogout);
-  } else {
-    bindLogout();
-  }
 
-  // 6) Рендер плану/лімітів
-  function renderPlan(isPro){
-    elPlanText.textContent = isPro ? "PRO" : "Free";
-    elPlanBadge.textContent = isPro ? "PRO" : "FREE";
-    elPlanBadge.classList.toggle("pro", isPro);
-    elPlanBadge.classList.toggle("free", !isPro);
-    const aiBtn = $("btnUseAI");
-    if (aiBtn) aiBtn.disabled = !isPro;
-  }
-  function renderLimits(isPro, invoiceCount){
-    elInvCount.textContent = invoiceCount;
-    elInvLimit.textContent = isPro ? "Unlimited" : FREE_LIMIT;
-    if (isPro) {
-      elLimitStatus.textContent = "Unlimited";
-      elLimitStatus.className = "ok";
-    } else {
-      const left = FREE_LIMIT - invoiceCount;
-      if (left > 0) {
-        elLimitStatus.textContent = `OK — ${left} left`;
-        elLimitStatus.className = "ok";
-      } else {
-        elLimitStatus.textContent = "Limit reached";
-        elLimitStatus.className = "warn";
+      // email з Auth
+      elEmailTop.textContent = user.email || "—";
+      elEmailKv.textContent = user.email || "—";
+
+      const userRef = doc(db, "users", user.uid);
+      let snap = await getDoc(userRef);
+
+      if (!snap.exists()) {
+        // створюємо базовий документ з новими полями
+        await setDoc(userRef, {
+          email: user.email || "",
+          pro: false,
+          fullName: "",
+          address: "",
+          kvk: "",
+          iban: "",
+          phone: "",
+          invoiceCount: 0
+        });
+        snap = await getDoc(userRef);
       }
-    }
-  }
-  function canUseInvoices(isPro, invoiceCount){
-    return isPro || invoiceCount < FREE_LIMIT;
-  }
 
-  // 7) Захист сторінки + завантаження профілю + дії
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.replace("login.html");
+      const data = snap.data() || {};
+      const isPro = !!data.pro;
+      const invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
+
+      // Рендер профілю
+      elFullName.textContent = data.fullName || "—";
+      elAddress.textContent = data.address || "—";
+      elKvk.textContent = data.kvk || "—";
+      elIban.textContent = data.iban || "—";
+      elPhone.textContent = data.phone || "—";
+
+      // Рендер плану
+      renderPlan(isPro);
+      renderLimits(isPro, invoiceCount);
+
+      // Дії
+      $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
+      $("btnProfile").onclick = () => location.href = "profile.html";
+      $("btnOpenInvoices").onclick = () => {
+    const isPro = elPlanBadge.classList.contains("pro");
+    const invoiceCount = Number(elInvCount.textContent || 0);
+    const FREE_LIMIT = 3;
+
+    if (!isPro && invoiceCount >= FREE_LIMIT) {
+      elNotice.innerHTML = "❗ Ви на Free-плані та досягли ліміту інвойсів. <b>Upgrade to PRO</b> для безліміту.";
       return;
     }
-    console.log('[Auth] Logged in as', user.email);
 
-    // Email з Auth
-    elEmailTop.textContent = user.email || "—";
-    elEmailKv.textContent  = user.email || "—";
+    // 👉 передаємо намір автозаповнення через hash
+    location.href = "invoices.html#autofill=1";
+  };
+      $("btnOpenCalculator").onclick = () => { location.href = "calculator.html"; };
+      $("btnUseAI").onclick = () => {
+        if (!isPro) {
+          elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
+          return;
+        }
+        location.href = "ai-assistant.html";
+      };
 
-    // User doc
-    const userRef = doc(db, "users", user.uid);
-    let snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      await setDoc(userRef, {
-        email: user.email || "",
-        pro: false,
-        fullName: "",
-        address: "",
-        kvk: "",
-        iban: "",
-        phone: "",
-        invoiceCount: 0
-      });
-      snap = await getDoc(userRef);
+      $("btnUpgrade").onclick = async () => {
+        if (isPro) { elNotice.textContent = "У вас вже PRO."; return; }
+        await updateDoc(userRef, { pro: true });
+        elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
+        setTimeout(()=>location.reload(), 800);
+      };
+    });
+
+    function renderPlan(isPro){
+      elPlanText.textContent = isPro ? "PRO" : "Free";
+      elPlanBadge.textContent = isPro ? "PRO" : "FREE";
+      elPlanBadge.classList.toggle("pro", isPro);
+      elPlanBadge.classList.toggle("free", !isPro);
+      $("btnUseAI").disabled = !isPro;
     }
-    const data = snap.data() || {};
-    let isPro = !!data.pro;
-    let invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
 
-    // Рендер профілю
-    elFullName.textContent = data.fullName || "—";
-    elAddress.textContent  = data.address  || "—";
-    elKvk.textContent      = data.kvk      || "—";
-    elIban.textContent     = data.iban     || "—";
-    elPhone.textContent    = data.phone    || "—";
-
-    // План/ліміти
-    renderPlan(isPro);
-    renderLimits(isPro, invoiceCount);
-
-    // Навігаційні дії
-    const btnProfile = $("btnProfile");
-    if (btnProfile) btnProfile.onclick = () => location.href = "profile.html";
-
-    const btnOpenInv = $("btnOpenInvoices");
-    if (btnOpenInv) btnOpenInv.onclick = () => {
-      if (!canUseInvoices(isPro, invoiceCount)) {
-        elNotice.innerHTML = "❗ Ви на Free-плані та досягли ліміту інвойсів. <b>Upgrade to PRO</b> для безліміту.";
-        return;
+    function renderLimits(isPro, invoiceCount){
+      elInvCount.textContent = invoiceCount;
+      elInvLimit.textContent = isPro ? "Unlimited" : FREE_LIMIT;
+      if (isPro) {
+        elLimitStatus.textContent = "Unlimited";
+        elLimitStatus.className = "ok";
+      } else {
+        const left = FREE_LIMIT - invoiceCount;
+        if (left > 0) {
+          elLimitStatus.textContent = `OK — ${left} left`;
+          elLimitStatus.className = "ok";
+        } else {
+          elLimitStatus.textContent = "Limit reached";
+          elLimitStatus.className = "warn";
+        }
       }
-      // Автозаповнення профілем в invoices.html
-      location.href = "invoices.html#autofill=1";
-    };
+    }
 
-    const btnCalc = $("btnOpenCalculator");
-    if (btnCalc) btnCalc.onclick = () => { location.href = "calculator.html"; };
-
-    const btnAI = $("btnUseAI");
-    if (btnAI) btnAI.onclick = () => {
-      if (!isPro) {
-        elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
-        return;
-      }
-      location.href = "ai-assistant.html";
-    };
-
-    const btnUpgrade = $("btnUpgrade");
-    if (btnUpgrade) btnUpgrade.onclick = async () => {
-      if (isPro) { elNotice.textContent = "У вас вже PRO."; return; }
-      await updateDoc(userRef, { pro: true });
-      elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
-      setTimeout(()=>location.reload(), 800);
-    };
-  }, (err) => {
-    console.error('[Auth] onAuthStateChanged error:', err);
-  });
-</script>
+    function canUseInvoices(isPro, invoiceCount){
+      return isPro || invoiceCount < FREE_LIMIT;
+    }
+  </script>
+</body>
+</html>
