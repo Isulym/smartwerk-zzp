@@ -46,8 +46,11 @@
       <!-- Профіль користувача -->
       <div class="card">
         <h3>👤 User Profile</h3>
-        <div class="muted" id="userEmail">—</div>
+        <div class="muted" id="userEmailTop">—</div>
         <div class="kv">
+          <div class="muted">Name</div><div id="fullName">—</div>
+          <div class="muted">Email</div><div id="emailKv">—</div>
+          <div class="muted">Address</div><div id="address">—</div>
           <div class="muted">KvK</div><div id="kvk">—</div>
           <div class="muted">IBAN</div><div id="iban">—</div>
           <div class="muted">Phone</div><div id="phone">—</div>
@@ -88,7 +91,7 @@
 
   <!-- Firebase SDK (module imports) -->
   <script type="module">
-    // ⚠️ Замініть значеннями з Firebase Console → Project settings → Your apps (Web)
+    // ⚠️ Замініть на свої значення з Firebase Console
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -99,7 +102,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
-      getFirestore, doc, getDoc, setDoc, updateDoc, increment
+      getFirestore, doc, getDoc, setDoc, updateDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
@@ -108,7 +111,10 @@
 
     // UI refs
     const $ = (id)=>document.getElementById(id);
-    const elEmail = $("userEmail");
+    const elEmailTop = $("userEmailTop");
+    const elEmailKv = $("emailKv");
+    const elFullName = $("fullName");
+    const elAddress = $("address");
     const elKvk = $("kvk");
     const elIban = $("iban");
     const elPhone = $("phone");
@@ -119,23 +125,33 @@
     const elLimitStatus = $("limitStatus");
     const elNotice = $("noticeArea");
 
-    const FREE_LIMIT = 3; // приклад ліміту
+    const FREE_LIMIT = 3;
 
-    // Захист сторінки + завантаження профілю
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         location.href = "login.html";
         return;
       }
 
-      elEmail.textContent = user.email || "—";
+      // email з Auth
+      elEmailTop.textContent = user.email || "—";
+      elEmailKv.textContent = user.email || "—";
 
       const userRef = doc(db, "users", user.uid);
       let snap = await getDoc(userRef);
 
       if (!snap.exists()) {
-        // створюємо базовий документ користувача
-        await setDoc(userRef, { email: user.email, pro: false, kvk: "", iban: "", phone: "", invoiceCount: 0 });
+        // створюємо базовий документ з новими полями
+        await setDoc(userRef, {
+          email: user.email || "",
+          pro: false,
+          fullName: "",
+          address: "",
+          kvk: "",
+          iban: "",
+          phone: "",
+          invoiceCount: 0
+        });
         snap = await getDoc(userRef);
       }
 
@@ -144,6 +160,8 @@
       const invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
 
       // Рендер профілю
+      elFullName.textContent = data.fullName || "—";
+      elAddress.textContent = data.address || "—";
       elKvk.textContent = data.kvk || "—";
       elIban.textContent = data.iban || "—";
       elPhone.textContent = data.phone || "—";
@@ -162,9 +180,7 @@
         }
         location.href = "invoices.html";
       };
-      $("btnOpenCalculator").onclick = () => {
-        location.href = "calculator.html"; // змініть на ваш шлях
-      };
+      $("btnOpenCalculator").onclick = () => { location.href = "calculator.html"; };
       $("btnUseAI").onclick = () => {
         if (!isPro) {
           elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
@@ -173,7 +189,6 @@
         location.href = "ai-assistant.html";
       };
 
-      // Upgrade → простий перемикач pro=true (поки без білінгу)
       $("btnUpgrade").onclick = async () => {
         if (isPro) { elNotice.textContent = "У вас вже PRO."; return; }
         await updateDoc(userRef, { pro: true });
@@ -187,7 +202,6 @@
       elPlanBadge.textContent = isPro ? "PRO" : "FREE";
       elPlanBadge.classList.toggle("pro", isPro);
       elPlanBadge.classList.toggle("free", !isPro);
-      // Вимкнути/увімкнути кнопки для Free
       $("btnUseAI").disabled = !isPro;
     }
 
@@ -212,9 +226,6 @@
     function canUseInvoices(isPro, invoiceCount){
       return isPro || invoiceCount < FREE_LIMIT;
     }
-
-    // 🔎 Приклад: інкрементувати лічильник інвойсів (викликайте з вашого коду, після створення інвойсу)
-    // await updateDoc(doc(db,"users",uid), { invoiceCount: increment(1) });
   </script>
 </body>
 </html>
