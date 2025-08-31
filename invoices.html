@@ -628,7 +628,7 @@ function updateStatus(index, newStatus) {
   let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
 
   const status = document.getElementById("statusFilter")?.value || "all";
-  const search = document.getElementById("searchQuery")?.value?.toLowerCase() || "";
+  const search = document.getElementById("searchNumber")?.value?.toLowerCase() || "";
   const fromDate = document.getElementById("dateFrom")?.value || "";
   const toDate = document.getElementById("dateTo")?.value || "";
   const sortBy = document.getElementById("sortBy")?.value || "date_desc";
