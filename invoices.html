@@ -1251,5 +1251,116 @@ function exportCSV() {
   document.body.removeChild(link);
 }    
 </script>
+  <script type="module">
+  // ✅ Firebase config
+  const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Читаємо параметр #autofill=1
+  const wantAutofill = location.hash.includes("autofill=1");
+
+  // Акуратне встановлення значення в поле (лише якщо воно порожнє або якщо #autofill=1)
+  function setIfAllowed(input, value) {
+    if (!input) return;
+    const isEmpty = !input.value || String(input.value).trim() === "";
+    if (wantAutofill || isEmpty) {
+      input.value = value ?? "";
+      input.dispatchEvent(new Event("input", { bubbles: true })); // тригер для вашого live-калькулятора
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
+
+  // Пошук поля за кількома можливими ID
+  function pick(...ids) {
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  // Основна функція автозаповнення
+  function prefillInvoiceForm(profile, userEmailFromAuth) {
+    // Меппінг найтиповіших ID (з урахуванням ваших попередніх версій)
+    const elBusinessName   = pick("businessName", "companyName", "sellerName");
+    const elBusinessEmail  = pick("businessEmail", "email", "sellerEmail");
+    const elBusinessPhone  = pick("businessPhone", "phone", "sellerPhone");
+    const elBusinessAddr   = pick("businessAddress", "address", "sellerAddress", "addrLine");
+    const elKvK            = pick("kvk", "kvkNumber", "sellerKvK");
+    const elIBAN           = pick("iban", "bankIban", "sellerIban");
+    const elVAT            = pick("vatNumber", "vat", "sellerVat");
+
+    // Джерела даних (із Firestore + email із Auth)
+    const fullName = profile.fullName || "";
+    const address  = profile.address  || "";
+    const phone    = profile.phone    || "";
+    const kvk      = profile.kvk      || "";
+    const iban     = profile.iban     || "";
+    const vatNum   = profile.vatNumber || profile.vat || ""; // якщо додасте у профіль
+    const email    = profile.email || userEmailFromAuth || "";
+
+    setIfAllowed(elBusinessName, fullName);
+    setIfAllowed(elBusinessEmail, email);
+    setIfAllowed(elBusinessPhone, phone);
+    setIfAllowed(elBusinessAddr, address);
+    setIfAllowed(elKvK, kvk);
+    setIfAllowed(elIBAN, iban);
+    setIfAllowed(elVAT, vatNum);
+  }
+
+  // Старт: чекаємо авторизацію, читаємо профіль, заповнюємо форму
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return; // якщо є гостьовий доступ — нічого не робимо
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.exists() ? snap.data() : {};
+
+      // Підстрахуємо email (беремо з Auth)
+      if (!data.email && user.email) {
+        data.email = user.email;
+      }
+
+      // Коли DOM готовий — заповнюємо
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => prefillInvoiceForm(data, user.email));
+      } else {
+        prefillInvoiceForm(data, user.email);
+      }
+
+      // Додатково: якщо у вас є кнопка "New Invoice" / "Reset" — підчіпимо автозаповнення і туди
+      const newBtn = document.getElementById("btnNewInvoice") || document.getElementById("newInvoice");
+      if (newBtn) {
+        newBtn.addEventListener("click", () => {
+          // невелика пауза, якщо ваш код спочатку очищає форму
+          setTimeout(() => prefillInvoiceForm(data, user.email), 50);
+        });
+      }
+      const resetBtn = document.getElementById("btnResetForm") || document.getElementById("resetForm");
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          setTimeout(() => prefillInvoiceForm(data, user.email), 50);
+        });
+      }
+
+    } catch (err) {
+      console.error("Autofill profile → invoices error:", err);
+    }
+  });
+</script>
+
 </body>
 </html>
