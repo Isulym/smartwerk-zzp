@@ -174,12 +174,18 @@
       $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
       $("btnProfile").onclick = () => location.href = "profile.html";
       $("btnOpenInvoices").onclick = () => {
-        if (!canUseInvoices(isPro, invoiceCount)) {
-          elNotice.innerHTML = "❗ Ви на Free-плані та досягли ліміту інвойсів. <b>Upgrade to PRO</b> для безліміту.";
-          return;
-        }
-        location.href = "invoices.html";
-      };
+    const isPro = elPlanBadge.classList.contains("pro");
+    const invoiceCount = Number(elInvCount.textContent || 0);
+    const FREE_LIMIT = 3;
+
+    if (!isPro && invoiceCount >= FREE_LIMIT) {
+      elNotice.innerHTML = "❗ Ви на Free-плані та досягли ліміту інвойсів. <b>Upgrade to PRO</b> для безліміту.";
+      return;
+    }
+
+    // 👉 передаємо намір автозаповнення через hash
+    location.href = "invoices.html#autofill=1";
+  };
       $("btnOpenCalculator").onclick = () => { location.href = "calculator.html"; };
       $("btnUseAI").onclick = () => {
         if (!isPro) {
