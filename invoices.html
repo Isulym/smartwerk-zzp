@@ -1079,8 +1079,9 @@ function renderChart(invoices) {
   });
 }
 
-    function resetFilters() {
-  document.getElementById("searchInput").value = "null";
+   function resetFilters() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("statusFilter").value = "all"; // якщо фільтр статусу є
   renderInvoices();
 }
 function processReceipt() {
