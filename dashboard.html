@@ -78,7 +78,7 @@
         <div class="row">
           <button onclick="window.location.href='tax-calculator.html'" class="btn">🧾 Tax Calculator</button>
           <button onclick="window.location.href='invoices.html'" class="btn">📂 Invoice Manager</button>
-          <button onclick="toggleSmartWerkAI()">🧠 Ask SmartWerk AI</button>
+          <button onclick="toggleSmartWerkAI()" class="btn">🔮 Ask SmartWerk AI</button>
         </div>
       </div>
     </div>
@@ -90,7 +90,8 @@
     </div>
   </div>
 
-   <div id="smartwerkAiSection" style="display:none; margin-top:20px;">
+
+  <section id="smartwerkAiSection" style="display:none; margin-top:20px;">
   <h2>🧠 Ask SmartWerk AI – Documents</h2>
   <p>You can ask your accountant assistant about uploaded invoices, KvK, taxes and more.</p>
   <iframe
@@ -100,7 +101,7 @@
     frameborder="0"
     style="border:1px solid #ccc; border-radius: 8px;">
   </iframe>
-</div>
+</section>
 
   <!-- Firebase SDK (module imports) -->
   <script 
@@ -248,7 +249,7 @@
     
     }
     
-     function toggleSmartWerkAI() {
+  function toggleSmartWerkAI() {
     const section = document.getElementById("smartwerkAiSection");
     if (section.style.display === "none") {
       section.style.display = "block";
