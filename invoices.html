@@ -620,7 +620,7 @@ function updateStatus(index, newStatus) {
     renderInvoices();
   }
 }
-    function renderInvoices() {
+   function renderInvoices() {
   const savedContainer = document.getElementById("savedInvoices");
   if (!savedContainer) return;
 
@@ -679,9 +679,12 @@ function updateStatus(index, newStatus) {
       <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
       <button onclick="repeatMonthly(${index})">📅 Repeat Monthly</button>
     `;
-renderChart(invoices);
+
     savedContainer.appendChild(div);
   });
+
+  // 📊 Побудова графіка (доходи/витрати)
+  renderChart(invoices);
 }
 
     function getInvoiceTotal(inv) {
