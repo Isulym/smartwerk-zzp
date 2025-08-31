@@ -62,6 +62,18 @@
           <button id="btnUpgrade" class="btn primary">Upgrade to PRO</button>
         </div>
       </div>
+      
+      <section id="smartwerkAiSection" style="display:none; margin-top:20px;">
+  <h2>🧠 Ask SmartWerk AI – Documents</h2>
+  <p>You can ask your accountant assistant about uploaded invoices, KvK, taxes and more.</p>
+  <iframe
+    src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8Hnk8A2Hb3onls"
+    width="100%"
+    height="500"
+    frameborder="0"
+    style="border:1px solid #ccc; border-radius: 8px;">
+  </iframe>
+</section>
 
       <!-- Статус лімітів / швидкі дії -->
       <div class="card">
@@ -77,6 +89,7 @@
         <div class="row">
           <button onclick="window.location.href='tax-calculator.html'" class="btn">🧾 Tax Calculator</button>
           <button onclick="window.location.href='invoices.html'" class="btn">📂 Invoice Manager</button>
+          <button onclick="toggleSmartWerkAI()">🧠 Ask SmartWerk AI</button>
         </div>
       </div>
     </div>
@@ -230,7 +243,18 @@
 
     function canUseInvoices(isPro, invoiceCount){
       return isPro || invoiceCount < FREE_LIMIT;
+    
     }
+    
+     function toggleSmartWerkAI() {
+    const section = document.getElementById("smartwerkAiSection");
+    if (section.style.display === "none") {
+      section.style.display = "block";
+      window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
+    } else {
+      section.style.display = "none";
+    }
+  }
   </script>
 </body>
 </html>
