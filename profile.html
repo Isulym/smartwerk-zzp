@@ -7,75 +7,47 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
-      background: #f0f4f8;
-    }
-    h2 {
-      color: #333;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-    }
-    input {
-      padding: 10px;
-      width: 300px;
-      margin-top: 5px;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-    }
-    .pro-badge {
-      display: inline-block;
-      padding: 5px 10px;
-      margin-left: 10px;
-      color: white;
-      background: gold;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-    .free {
-      background: #999;
-    }
+    body { font-family: Arial, sans-serif; padding: 30px; background: #f0f4f8; }
+    h2 { color: #333; }
+    label { display: block; margin-top: 15px; }
+    input { padding: 10px; width: 320px; margin-top: 5px; }
+    .ro { background: #eee; color:#555; }
+    button { margin-top: 20px; padding: 10px 20px; }
+    .pro-badge { display:inline-block; padding:5px 10px; margin-left:10px; color:#fff; background:gold; border-radius:8px; font-weight:700; }
+    .free { background:#999; }
   </style>
 </head>
 <body>
   <h2>User Profile</h2>
-  <p>Email: <span id="userEmail"></span> <span id="userStatus" class="pro-badge"></span></p>
+  <p>
+    Status: <span id="userStatus" class="pro-badge free">FREE</span>
+  </p>
 
   <form id="profileForm">
-    <label for="kvk">KvK Number</label>
+    <label>Email</label>
+    <input type="email" id="emailDisplay" class="ro" disabled />
+
+    <label>Full Name</label>
+    <input type="text" id="fullName" placeholder="John Doe" />
+
+    <label>Address</label>
+    <input type="text" id="address" placeholder="Street, City, Postcode" />
+
+    <label>KvK Number</label>
     <input type="text" id="kvk" />
 
-    <label for="iban">IBAN</label>
+    <label>IBAN</label>
     <input type="text" id="iban" />
 
-    <label for="phone">Phone Number</label>
+    <label>Phone Number</label>
     <input type="text" id="phone" />
 
     <button type="submit">Save Profile</button>
   </form>
 
-  <div id="proFeatures" style="margin-top: 30px;">
-    <h3>PRO Features</h3>
-    <ul>
-      <li>✅ Unlimited invoices</li>
-      <li>✅ Export to PDF/Excel</li>
-      <li>✅ SmartWerk AI Assistant</li>
-    </ul>
-  </div>
-
-  <div id="freeNotice" style="margin-top: 20px; color: red; font-weight: bold; display: none;">
-    You are on Free Plan. Upgrade to PRO to unlock full features.
-  </div>
-
-  <button id="logoutBtn">Logout</button>
+  <p style="margin-top:20px;"><a href="dashboard.html">← Back to Dashboard</a></p>
 
   <script type="module">
-    // 🔧 Replace this with your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -84,110 +56,70 @@
     };
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      getDoc,
-      setDoc,
-      updateDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const emailSpan = document.getElementById("userEmail");
-    const statusBadge = document.getElementById("userStatus");
-    const proFeatures = document.getElementById("proFeatures");
-    const freeNotice = document.getElementById("freeNotice");
+    const $ = (id)=>document.getElementById(id);
+    const statusBadge = $("userStatus");
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-      } else {
-        const email = user.email;
-        const uid = user.uid;
-        emailSpan.textContent = email;
+      if (!user) { location.href = "login.html"; return; }
 
-        const docRef = doc(db, "users", uid);
-        const docSnap = await getDoc(docRef);
+      $("emailDisplay").value = user.email || "";
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("kvk").value = data.kvk || "";
-          document.getElementById("iban").value = data.iban || "";
-          document.getElementById("phone").value = data.phone || "";
+      const userRef = doc(db, "users", user.uid);
+      let snap = await getDoc(userRef);
 
-          const isPro = data.pro === true;
-          statusBadge.textContent = isPro ? "PRO" : "FREE";
-          statusBadge.classList.add(isPro ? "" : "free");
-          if (!isPro) {
-            proFeatures.style.opacity = "0.3";
-            freeNotice.style.display = "block";
-          }
-        } else {
-          // First time → create user doc
-          await setDoc(docRef, {
-            email: email,
-            pro: false
-          });
-          statusBadge.textContent = "FREE";
-          statusBadge.classList.add("free");
-          proFeatures.style.opacity = "0.3";
-          freeNotice.style.display = "block";
-        }
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          email: user.email || "",
+          pro: false,
+          fullName: "",
+          address: "",
+          kvk: "",
+          iban: "",
+          phone: "",
+          invoiceCount: 0
+        });
+        snap = await getDoc(userRef);
       }
+
+      const data = snap.data() || {};
+      renderStatus(!!data.pro);
+
+      $("fullName").value = data.fullName || "";
+      $("address").value = data.address || "";
+      $("kvk").value = data.kvk || "";
+      $("iban").value = data.iban || "";
+      $("phone").value = data.phone || "";
     });
 
-    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+    $("profileForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const user = auth.currentUser;
       if (!user) return;
 
-      const uid = user.uid;
-      const docRef = doc(db, "users", uid);
-      await updateDoc(docRef, {
-        kvk: document.getElementById("kvk").value,
-        iban: document.getElementById("iban").value,
-        phone: document.getElementById("phone").value,
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        fullName: $("fullName").value.trim(),
+        address: $("address").value.trim(),
+        kvk: $("kvk").value.trim(),
+        iban: $("iban").value.trim(),
+        phone: $("phone").value.trim(),
       });
 
-      alert("Profile updated successfully!");
+      alert("Profile updated!");
+      location.href = "dashboard.html";
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "login.html";
-      });
-    });
+    function renderStatus(isPro){
+      statusBadge.textContent = isPro ? "PRO" : "FREE";
+      statusBadge.classList.toggle("free", !isPro);
+    }
   </script>
 </body>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-    authDomain: "smartwerk8520.firebaseapp.com",
-    projectId: "smartwerk8520",
-    storageBucket: "smartwerk8520.firebasestorage.app",
-    messagingSenderId: "607670981972",
-    appId: "1:607670981972:web:c07103c981c86860d724c1",
-    measurementId: "G-JDVFMD8MDS"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
 </html>
