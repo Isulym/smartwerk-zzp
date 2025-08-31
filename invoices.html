@@ -116,8 +116,7 @@
   <input type="date" id="dateFrom">
   <label for="dateTo">To:</label>
   <input type="date" id="dateTo">
-
-   <input type="text" id="searchNumber" placeholder="Search by invoice number / client name" />
+   <input type="text" id="searchNumber" placeholder="Search..." oninput="renderInvoices()" />
   <button onclick="renderInvoices()">🔎 Filter</button>
   <button onclick="resetFilters()">🔄 Reset</button>
 
