@@ -1,82 +1,63 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>SmartWerk Dashboard</title>
-  <link rel="stylesheet" href="style-dashboard.css" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 </head>
 <body>
+  <h2>Welcome to SmartWerk Dashboard</h2>
+  <button id="logoutBtn">Logout</button>
 
- <div class="sidebar">
-  <h2 style="text-align:center; margin-bottom:30px;">SmartWerk</h2>
-  <a href="summary.html" class="nav-link" id="summary-link">📊 Summary</a>
-  <a href="invoices.html" class="nav-link" id="invoices-link">🧾 Invoices</a>
-  <a href="tax-calculator.html" class="nav-link" id="tax-link">🧮 Tax Calculator</a>
-  <a href="templates.html" class="nav-link" id="templates-link">📁 Templates</a>
-  <a href="my-bookkeeper.html" class="nav-link" id="bookkeeper-link">🏆 My Bookkeeper</a>
-  <a href="settings.html" class="nav-link" id="settings-link">⚙️ Settings</a>
-  <a href="index.html" style="margin-top:40px;">← Back to Home</a>
-</div>
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
 
-  <div class="main-content">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    <a href="summary.html" class="card-link">
-  <div class="dashboard-card">
-    <h3>Smart Summary</h3>
-    <p>Your income, expenses, tax overview and more – in one glance.</p>
-  </div>
-     </a>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    <a href="invoices.html" class="card-link">
-  <div class="dashboard-card">
-    <h3>Invoices & Documents</h3>
-    <p>Manage your invoices, KvK, IBAN and tax forms.</p>
-  </div>
-</a>
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
 
-    <a href="tax-calculator.html" class="card-link">
-  <div class="dashboard-card">
-    <h3>Tax Calculator</h3>
-    <p>Get real-time tax estimates with AI assistance.</p>
-  </div>
-</a>
-
-    <a href="templates.html" class="card-link">
-  <div class="dashboard-card">
-    <h3>Smart Templates</h3>
-    <p>Access invoices, reports, and benefit request templates.</p>
-  </div>
-</a>
-
-    <a href="my-bookkeeper.html" class="card-link">
-  <div class="dashboard-card">
-    <h3>My Bookkeeper</h3>
-    <p>View your documents, send to accountant, or get help.</p>
-  </div>
-    </a>
-
-    <a href="settings.html" class="card-link">
-  <div class="dashboard-card">
-    <h3>Settings</h3>
-    <p>Update your name, KvK, IBAN, email, language and currency.</p>
-  </div>
-    </a>
-    
-    </div>
-
-  <script>
-  // Highlight active link
-  const links = document.querySelectorAll('.sidebar .nav-link');
-  const current = window.location.pathname.split("/").pop();
-
-  links.forEach(link => {
-    if (link.getAttribute('href') === current) {
-      link.classList.add('active');
-    }
-  });
-</script>
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    });
+  </script>
 </body>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    storageBucket: "smartwerk8520.firebasestorage.app",
+    messagingSenderId: "607670981972",
+    appId: "1:607670981972:web:c07103c981c86860d724c1",
+    measurementId: "G-JDVFMD8MDS"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </html>
