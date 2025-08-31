@@ -15,8 +15,8 @@
           <li><a href="free.html">Free</a></li>
           <li><a href="pro.html">PRO</a></li>
           <li><a href="tools.html">Tools</a></li>
-          <li><a href="dashboard.html">Dashboard</a></li> <!-- Ось це нове -->
-          <li><a href="login.html" class="login-btn">Login</a></li>
+          <li><a href="dashboard.html" data-auth-when="in">Dashboard</a></li> <!-- Ось це нове -->
+          <li><a href="login.html" data-auth-when="out">Login</a></li>
         </ul>
       </nav>
     </div>
@@ -27,6 +27,7 @@
       <h1>Welcome to SmartWerk</h1>
       <p>The only tool you'll need to manage your ZZP life</p>
       <div class="cta-buttons">
+        <a id="ctaAuth" class="btn-primary" href="login.html" style="visibility:hidden;">Login</a>
         <a href="register.html" class="btn-primary">Start for Free</a>
         <a href="pro.html" class="btn-secondary">Upgrade to PRO</a>
       </div>
@@ -157,17 +158,19 @@
       <p><a href="privacy.html">Privacy Policy</a> • <a href="terms.html">Terms</a></p>
     </div>
   </footer>
-  <!-- CTA у герої (можеш поставити в будь-яке місце сторінки) -->
-<a id="ctaAuth" class="btn-primary" href="login.html" style="visibility:hidden;">Login</a>
-
-<!-- (опційно) у navbar тримай обидва елементи, а я їх сховаю/покажу автоматично -->
-<nav>
-  <a href="login.html" data-auth-when="out">Login</a>
-  <a href="dashboard.html" data-auth-when="in" style="display:none;">Dashboard</a>
-</nav>
+  <style>
+  /* Анти-міготіння: поки йде ініціалізація, ховаємо auth-елементи */
+  body.auth-pending [data-auth-when] { display: none !important; }
+  .btn-primary{
+    display:inline-block; padding:12px 18px; border-radius:10px;
+    background:#3b79ff; border:1px solid #4d86ff; color:#fff;
+    text-decoration:none; font-weight:600; transition:.2s ease;
+  }
+  .btn-primary:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+</style>
 
 <script type="module">
-  // 1) Firebase конфіг із Console → Project settings → Your apps (Web)
+  // ✅ 1) Firebase config (Project settings → Your apps → Web)
   const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -175,51 +178,67 @@
       appId: "1:607670981972:web:c07103c981c86860d724c1",
   };
 
-  // 2) Модульні імпорти
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  // ✅ 2) Імпорти (module only). Без <script src="...firebase-*.js">
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  // 3) Init
-  const app = initializeApp(firebaseConfig);
+  // 🔧 Увімкнемо анти-міготіння
+  document.body.classList.add('auth-pending');
+
+  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // 4) Початково сховаємо все, що залежить від стану логіну (анти-флік)
-  const authElems = document.querySelectorAll('[data-auth-when]');
-  authElems.forEach(el => el.style.display = 'none');
+  const $  = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-  const cta = document.getElementById('ctaAuth');
-  if (cta) cta.style.visibility = 'hidden';
-
-  // 5) Реактивний перемикач
-  onAuthStateChanged(auth, (user) => {
-    const loggedIn = !!user;
-
-    // Показати/сховати елементи з атрибутами
-    document.querySelectorAll('[data-auth-when="in"]').forEach(el => {
-      el.style.display = loggedIn ? '' : 'none';
-    });
-    document.querySelectorAll('[data-auth-when="out"]').forEach(el => {
-      el.style.display = loggedIn ? 'none' : '';
+  function renderAuthState(loggedIn) {
+    // Спершу сховаємо всі auth-елементи
+    $$('[data-auth-when]').forEach(el => el.style.display = 'none');
+    // Потім покажемо лише ті, що відповідають стану
+    $$(`[data-auth-when="${loggedIn ? 'in' : 'out'}"]`).forEach(el => {
+      el.style.display = '';
     });
 
-    // Оновити головну кнопку
+    // Оновимо головну CTA
+    const cta = $('#ctaAuth') || $('[data-cta-auth]');
     if (cta) {
       cta.href = loggedIn ? 'dashboard.html' : 'login.html';
       cta.textContent = loggedIn ? 'Open Dashboard' : 'Login';
       cta.setAttribute('aria-label', loggedIn ? 'Go to Dashboard' : 'Login to SmartWerk');
       cta.style.visibility = 'visible';
     }
-  });
-</script>
 
-<!-- (опційно) простий стиль кнопки -->
-<style>
-  .btn-primary{
-    display:inline-block; padding:12px 18px; border-radius:10px; 
-    background:#3b79ff; border:1px solid #4d86ff; color:#fff; 
-    text-decoration:none; font-weight:600; transition:.2s ease;
+    // Зняти стан очікування
+    document.body.classList.remove('auth-pending');
   }
-  .btn-primary:hover{ filter:brightness(1.05); transform:translateY(-1px); }
-</style>
+
+  // Безпечний fallback: якщо щось піде не так — покажемо варіант "вийшов"
+  function failSafe() {
+    console.warn('[Auth] Fallback → showing logged OUT UI');
+    renderAuthState(false);
+  }
+
+  try {
+    onAuthStateChanged(auth,
+      user => {
+        console.log('[Auth] state:', user ? 'IN' : 'OUT', user?.email || '');
+        renderAuthState(!!user);
+      },
+      error => {
+        console.error('[Auth] onAuthStateChanged error:', error);
+        failSafe();
+      }
+    );
+
+    // Додатковий таймаут-запаска на випадок мережевих затримок SDK
+    setTimeout(() => {
+      // Якщо ще висить auth-pending через 3с — покажемо "OUT"
+      if (document.body.classList.contains('auth-pending')) failSafe();
+    }, 3000);
+  } catch (e) {
+    console.error('[Auth] init failed:', e);
+    failSafe();
+  }
+</script>
 </body>
 </html>
