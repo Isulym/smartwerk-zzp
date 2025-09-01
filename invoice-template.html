@@ -2,89 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Invoice Template | SmartWerk</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk — Invoice Template</title>
-  <link rel="stylesheet" href="style-invoice-template.css" />
+  <link rel="stylesheet" href="invoice-template.css" />
 </head>
 <body>
   <div class="wrap">
     <header class="topbar">
-      <h1>📄 Invoice Template</h1>
-      <a href="templates.html" class="btn">← Back to Templates</a>
+      <a href="templates.html" class="brand">← Back to Templates</a>
+      <button id="generatePDFBtn" class="btn primary">Export as PDF</button>
     </header>
 
-    <form id="invoiceForm">
-      <!-- Business Info -->
-      <section class="card">
-        <h2>🏢 Business Information</h2>
-        <div class="grid">
-          <input type="text" placeholder="Business Name" required />
-          <input type="text" placeholder="KvK Number" />
-          <input type="text" placeholder="VAT Number" />
-          <input type="text" placeholder="IBAN" />
-          <input type="text" placeholder="Phone" />
-          <input type="text" placeholder="Address" />
+    <section class="invoice">
+      <h1>🧾 Invoice</h1>
+      <div class="row space-between">
+        <div>
+          <h2>From</h2>
+          <p>SmartWerk B.V.<br>
+          KvK: 12345678<br>
+          IBAN: NL91ABNA0417164300<br>
+          VAT: NL001234567B01</p>
         </div>
-      </section>
-
-      <!-- Client Info -->
-      <section class="card">
-        <h2>👤 Client Information</h2>
-        <div class="grid">
-          <input type="text" placeholder="Client Name" required />
-          <input type="text" placeholder="Client Email" />
-          <input type="text" placeholder="Client VAT" />
-          <input type="text" placeholder="Client Phone" />
-          <input type="text" placeholder="Client Address" />
+        <div>
+          <h2>To</h2>
+          <p>Client Company<br>
+          info@client.com<br>
+          Amsterdam, Netherlands</p>
         </div>
-      </section>
+      </div>
 
-      <!-- Invoice Details -->
-      <section class="card">
-        <h2>📅 Invoice Details</h2>
-        <div class="grid">
-          <input type="text" placeholder="Invoice Number" id="invoiceNumber" readonly />
-          <input type="date" placeholder="Invoice Date" />
-          <input type="date" placeholder="Due Date" />
-          <select>
-            <option>Status: Draft</option>
-            <option>Status: Sent</option>
-            <option>Status: Paid</option>
-          </select>
+      <div class="row space-between info-bar">
+        <div><strong>Invoice #</strong> INV-2025-001</div>
+        <div><strong>Date</strong> 2025-09-01</div>
+        <div><strong>Status</strong> Sent</div>
+      </div>
+
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>VAT</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Web design & development</td>
+            <td>1</td>
+            <td>€1,200.00</td>
+            <td>21%</td>
+            <td>€1,452.00</td>
+          </tr>
+          <tr>
+            <td>Consultation</td>
+            <td>3</td>
+            <td>€100.00</td>
+            <td>21%</td>
+            <td>€363.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <p><strong>Subtotal:</strong> €1,500.00</p>
+        <p><strong>VAT (21%):</strong> €315.00</p>
+        <p><strong>Total:</strong> €1,815.00</p>
+      </div>
+
+      <div class="signatures">
+        <div class="sig-box">
+          <p><strong>Business Signature:</strong></p>
+          <canvas id="sigBusiness" width="220" height="80"></canvas>
+          <p class="sig-date">Signed: 2025-09-01</p>
         </div>
-      </section>
-
-      <!-- Items -->
-      <section class="card">
-        <h2>📦 Invoice Items</h2>
-        <div id="items"></div>
-        <button type="button" id="addItem" class="btn ghost">+ Add Item</button>
-      </section>
-
-      <!-- Summary -->
-      <section class="card">
-        <h2>🧾 Summary</h2>
-        <div class="summary">
-          <div>Subtotal: €<span id="subtotal">0.00</span></div>
-          <div>Total VAT: €<span id="totalVAT">0.00</span></div>
-          <div><strong>Total: €<span id="total">0.00</span></strong></div>
+        <div class="sig-box">
+          <p><strong>Client Signature:</strong></p>
+          <canvas id="sigClient" width="220" height="80"></canvas>
+          <p class="sig-date">Signed: 2025-09-01</p>
         </div>
-      </section>
-
-      <!-- Notes -->
-      <section class="card">
-        <h2>📝 Notes</h2>
-        <textarea placeholder="Optional notes or description..."></textarea>
-      </section>
-
-      <!-- Actions -->
-      <section class="card actions">
-        <button type="submit" class="btn primary">💾 Save</button>
-        <button type="button" class="btn" id="generatePDF">📤 Export PDF</button>
-      </section>
-    </form>
+      </div>
+    </section>
   </div>
 
-  <script src="invoice.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    const { jsPDF } = window.jspdf;
+
+    document.getElementById("generatePDFBtn").addEventListener("click", () => {
+      alert("📄 PDF export is coming in Step 2!");
+      // Далі буде функція PDF експорту
+    });
+  </script>
 </body>
 </html>
