@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk Invoice Manager</title>
 
-  <!-- Тема в стилі dashboard/login -->
+  <!-- Стилі в стилі dashboard/login -->
   <link rel="stylesheet" href="style-invoices.css?v=3" />
 
   <!-- Flatpickr calendar -->
@@ -185,10 +185,6 @@ function initDatepickers(root=document){
   pickers.forEach(sel => document.querySelectorAll(sel).forEach(el=>nodes.add(el)));
   nodes.forEach(el => { if (!el._fp) el._fp = flatpickr(el, opts); });
 }
-function fpSet(el, dateStr){
-  if (!el) return;
-  if (el._fp) el._fp.setDate(dateStr || "", true); else el.value = dateStr || "";
-}
 function suggestDueDate(){
   const inv = document.getElementById('invoiceDate');
   const due = document.getElementById('dueDate');
@@ -196,8 +192,9 @@ function suggestDueDate(){
   const d = new Date(inv.value); if (String(d)==='Invalid Date') return;
   d.setDate(d.getDate()+14);
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
-  const v = `${y}-${m}-${dd}`;
-  fpSet(due, v);
+  due.value = `${y}-${m}-${dd}`;
+  due.dispatchEvent(new Event('input',{bubbles:true}));
+  due.dispatchEvent(new Event('change',{bubbles:true}));
 }
 
 /* ==== Invoice number ==== */
@@ -216,17 +213,68 @@ function generateNextInvoiceNumber() {
 /* ==== Items & totals ==== */
 function addItem(desc = "", qty = 1, price = 0, vat = 21) {
   const row = document.createElement("tr");
-  row.innerHTML = `
-    <td><input class="desc" value="\${desc}" oninput="updateTotals()" placeholder="Description" /></td>
-    <td><input class="qty" type="number" value="\${qty}" min="1" onchange="updateTotals()" /></td>
-    <td><input class="price" type="number" value="\${price}" step="0.01" onchange="updateTotals()" /></td>
-    <td><input class="vat" type="number" value="\${vat}" step="1" onchange="updateTotals()" /></td>
-    <td class="item-total">€0.00</td>
-    <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
-  `.replace(/\$\{([^}]+)\}/g, (_,x)=>eval(x));
+
+  // Опис
+  const tdDesc = document.createElement("td");
+  const inputDesc = document.createElement("input");
+  inputDesc.className = "desc";
+  inputDesc.placeholder = "Description";
+  inputDesc.value = desc;
+  inputDesc.oninput = updateTotals;
+  tdDesc.appendChild(inputDesc);
+
+  // Qty
+  const tdQty = document.createElement("td");
+  const inputQty = document.createElement("input");
+  inputQty.className = "qty";
+  inputQty.type = "number";
+  inputQty.min = "1";
+  inputQty.value = qty;
+  inputQty.onchange = updateTotals;
+  tdQty.appendChild(inputQty);
+
+  // Price
+  const tdPrice = document.createElement("td");
+  const inputPrice = document.createElement("input");
+  inputPrice.className = "price";
+  inputPrice.type = "number";
+  inputPrice.step = "0.01";
+  inputPrice.value = price;
+  inputPrice.onchange = updateTotals;
+  tdPrice.appendChild(inputPrice);
+
+  // VAT (select 0/9/21)
+  const tdVAT = document.createElement("td");
+  const selVAT = document.createElement("select");
+  selVAT.className = "vat-select";
+  [0,9,21].forEach(v=>{
+    const opt = document.createElement("option");
+    opt.value = String(v);
+    opt.textContent = String(v);
+    if (Number(v) === Number(vat)) opt.selected = true;
+    selVAT.appendChild(opt);
+  });
+  selVAT.onchange = updateTotals;
+  tdVAT.appendChild(selVAT);
+
+  // Total cell
+  const tdTotal = document.createElement("td");
+  tdTotal.className = "item-total";
+  tdTotal.textContent = "€0.00";
+
+  // Delete
+  const tdDelete = document.createElement("td");
+  const btnDel = document.createElement("button");
+  btnDel.type = "button";
+  btnDel.textContent = "❌";
+  btnDel.onclick = function () { this.closest("tr").remove(); updateTotals(); };
+  tdDelete.appendChild(btnDel);
+
+  row.append(tdDesc, tdQty, tdPrice, tdVAT, tdTotal, tdDelete);
   document.getElementById("itemsBody").appendChild(row);
   updateTotals();
 }
+
 function updateTotals() {
   let subtotal = 0, totalVAT = 0;
   const rows = document.querySelectorAll("#itemsBody tr");
@@ -239,10 +287,13 @@ function updateTotals() {
   rows.forEach(row => {
     const qty = parseFloat(row.querySelector(".qty")?.value) || 0;
     const price = parseFloat(row.querySelector(".price")?.value) || 0;
-    const vat = parseFloat(row.querySelector(".vat")?.value) || 0;
+    const vatEl = row.querySelector(".vat-select") || row.querySelector(".vat");
+    const vat = parseFloat(vatEl ? vatEl.value : 0) || 0;
+
     const itemTotal = qty * price;
     const itemVAT = itemTotal * vat / 100;
     const totalWithVAT = itemTotal + itemVAT;
+
     subtotal += itemTotal; totalVAT += itemVAT;
     const totalCell = row.querySelector(".item-total");
     if (totalCell) totalCell.innerText = `€${totalWithVAT.toFixed(2)}`;
@@ -259,8 +310,8 @@ function resetFormFields() {
     const el = document.getElementById(id); if (el) el.value="";
   });
   document.getElementById("invoiceNumber").value = generateNextInvoiceNumber();
-  fpSet(document.getElementById("invoiceDate"), "");
-  fpSet(document.getElementById("dueDate"), "");
+  document.getElementById("invoiceDate").value = "";
+  document.getElementById("dueDate").value = "";
   document.getElementById("status").value = "Draft";
   document.getElementById("itemsBody").innerHTML="";
   document.getElementById("subtotal").innerText="€0.00";
@@ -364,11 +415,12 @@ function saveInvoice() {
   };
   const rows = document.querySelectorAll("#itemsBody tr");
   rows.forEach(row => {
+    const vatEl = row.querySelector(".vat-select, .vat");
     invoice.items.push({
       desc: row.querySelector(".desc")?.value || "",
       qty: parseFloat(row.querySelector(".qty")?.value || 0),
       price: parseFloat(row.querySelector(".price")?.value || 0),
-      vat: parseFloat(row.querySelector(".vat")?.value || 0)
+      vat: parseFloat(vatEl ? vatEl.value : 0)
     });
   });
   try {
@@ -406,75 +458,27 @@ function saveInvoice() {
   resetFormFields();
   alert("Invoice saved successfully!");
 }
-
-/* === Пошук індексу за номером (щоб кнопки в списку були стабільні після фільтрів/сорту) === */
-function findInvoiceIndexByNumber(num){
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  return invoices.findIndex(i => (i.invoiceNumber||"") === num);
-}
-
-/* === Обгортки для дій за номером інвойсу === */
-function editInvoiceByNumber(num){
-  const idx = findInvoiceIndexByNumber(num);
-  if (idx < 0) { alert("Invoice not found."); return; }
-  editInvoice(idx);
-}
-function deleteInvoiceByNumber(num){
-  const idx = findInvoiceIndexByNumber(num);
-  if (idx < 0) { alert("Invoice not found."); return; }
-  deleteInvoice(idx);
-}
-function downloadPDFByNumber(num){
-  const idx = findInvoiceIndexByNumber(num);
-  if (idx < 0) { alert("Invoice not found."); return; }
-  downloadPDF(idx);
-}
-function repeatMonthlyByNumber(num){
-  const idx = findInvoiceIndexByNumber(num);
-  if (idx < 0) { alert("Invoice not found."); return; }
-  repeatMonthly(idx);
-}
-
 function editInvoice(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const inv = invoices[index];
+  if (!inv || (inv.status && inv.status !== "Draft")) { alert("Editing is only allowed in 'Draft' status."); return; }
 
-  /* 🔒 Дозволяємо редагувати лише Draft (нечутливо до регістру) */
-  if (!inv || (inv.status && String(inv.status).toLowerCase() !== "draft")) {
-    alert("Editing is only allowed in 'Draft' status.");
-    return;
-  }
-
-  // Step 1 – Business info
-  const map = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
-  map("businessName",  inv.businessName);
-  map("kvk",           inv.kvk);
-  map("iban",          inv.iban);
-  map("btw",           inv.btw);
-  map("email",         inv.email);
-  map("businessAddress", inv.businessAddress);
-  map("businessPhone", inv.businessPhone);
-
-  // Step 2 – Client info
-  map("clientName",    inv.clientName);
-  map("clientEmail",   inv.clientEmail);
-  map("clientAddress", inv.clientAddress);
-  map("clientPhone",   inv.clientPhone);
-  map("invoiceNumber", inv.invoiceNumber);
-
-  // Дати через Flatpickr, щоб UI відобразився правильно
-  fpSet(document.getElementById("invoiceDate"), inv.invoiceDate || "");
-  fpSet(document.getElementById("dueDate"),     inv.dueDate || "");
-
-  map("note", inv.note);
+  ["businessName","kvk","iban","btw","email","businessAddress","businessPhone"].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value = inv[id] || "";
+  });
+  document.getElementById("clientName").value = inv.clientName || "";
+  document.getElementById("clientEmail").value = inv.clientEmail || "";
+  document.getElementById("clientAddress").value = inv.clientAddress || "";
+  document.getElementById("clientPhone").value = inv.clientPhone || "";
+  document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
+  document.getElementById("invoiceDate").value = inv.invoiceDate || "";
+  document.getElementById("dueDate").value = inv.dueDate || "";
+  document.getElementById("note").value = inv.note || "";
   document.getElementById("status").value = inv.status || "Draft";
 
-  // Step 3 – Items
-  const tbody = document.getElementById("itemsBody");
-  tbody.innerHTML = "";
-  (inv.items || []).forEach(item => addItem(item.desc, item.qty, item.price, item.vat));
+  const tbody = document.getElementById("itemsBody"); tbody.innerHTML="";
+  (inv.items||[]).forEach(item => addItem(item.desc, item.qty, item.price, item.vat));
 
-  // Step 5 — Signatures (якщо були збережені)
   if (inv.signatures) {
     const bImg = new Image();
     bImg.onload = () => {
@@ -483,7 +487,6 @@ function editInvoice(index) {
       document.getElementById("signatureBusinessDate").innerText = inv.signatures.businessDate || inv.signatures.date || "";
     };
     bImg.src = inv.signatures.business || "";
-
     const cImg = new Image();
     cImg.onload = () => {
       const c = document.getElementById("signatureClient"); const ctx=c.getContext("2d");
@@ -491,25 +494,10 @@ function editInvoice(index) {
       document.getElementById("signatureClientDate").innerText = inv.signatures.clientDate || inv.signatures.date || "";
     };
     cImg.src = inv.signatures.client || "";
-  } else {
-    // якщо підписів не було — очищаємо канваси
-    ["signatureBusiness","signatureClient"].forEach(id=>{
-      const canvas = document.getElementById(id); const ctx = canvas.getContext("2d");
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-    });
-    document.getElementById("signatureBusinessDate").innerText = "";
-    document.getElementById("signatureClientDate").innerText = "";
   }
-
   updateTotals();
-
-  // Позначаємо, що редагуємо саме цей індекс (щоб saveInvoice не рахував як новий)
   localStorage.setItem("currentInvoiceIndex", index);
-
-  // Прокрутка до форми, щоб було видно
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
 function deleteInvoice(index) {
   if (!confirm("Are you sure you want to delete this invoice?")) return;
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
@@ -562,7 +550,7 @@ function renderChart(invoices) {
     options: {
       responsive: true,
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c)=>`€${c.parsed.y.toFixed(2)}` } } },
-      scales: { y: { beginAtZero: true, ticks: { callback: v => `€${v}` } } }
+      scales: { y: { beginAtZero: true, ticks: { callback: (v)=>`€${v}` } } }
     }
   });
 }
@@ -584,7 +572,7 @@ function renderInvoices() {
   const sortBy   = document.getElementById("sortBy")?.value || "dateDesc";
 
   invoices = invoices.filter(inv => {
-    const matchStatus = status === "all" || (inv.status || "").toLowerCase() === status.toLowerCase();
+    const matchStatus = status === "all" || inv.status === status;
     const matchSearch = (inv.invoiceNumber || "").toLowerCase().includes(search) || (inv.clientName || "").toLowerCase().includes(search);
     const invDate = new Date(inv.invoiceDate || "1900-01-01");
     const matchFrom = !fromDate || new Date(fromDate) <= invDate;
@@ -606,19 +594,18 @@ function renderInvoices() {
     }
   });
 
-  invoices.forEach((inv) => {
+  invoices.forEach((inv, index) => {
     const div = document.createElement("div");
     div.className = "invoice-block";
     const badge = statusBadgeHTML(inv.status);
-    const num = (inv.invoiceNumber || "INV-2025-XXX");
     div.innerHTML = `
-      <strong>${inv.businessName || "-"}</strong> — ${num} ${badge}<br>
+      <strong>${inv.businessName || "-"}</strong> — ${inv.invoiceNumber || "INV-2025-XXX"} ${badge}<br>
       <em>Date: ${inv.invoiceDate || "N/A"}</em><br>
       <em>Total: €${getInvoiceTotal(inv).toFixed(2)}</em><br>
-      <button onclick="downloadPDFByNumber('${num}')">📄 PDF</button>
-      <button onclick="editInvoiceByNumber('${num}')">✏️ Edit</button>
-      <button onclick="deleteInvoiceByNumber('${num}')">🗑️ Delete</button>
-      <button onclick="repeatMonthlyByNumber('${num}')">📅 Repeat Monthly</button>
+      <button onclick="downloadPDF(${index})">📄 PDF</button>
+      <button onclick="editInvoice(${index})">✏️ Edit</button>
+      <button onclick="deleteInvoice(${index})">🗑️ Delete</button>
+      <button onclick="repeatMonthly(${index})">📅 Repeat Monthly</button>
     `;
     savedContainer.appendChild(div);
   });
@@ -688,7 +675,7 @@ async function downloadPDF(index) {
   doc.save(`${invoiceNumber}.pdf`);
 }
 function repeatMonthly(index) {
-  // перевірка ліміту (це завжди створення нового інвойсу)
+  // перевірка ліміту (створення нового інвойсу)
   if (typeof window.isBlockedByFreeLimit === "function" && window.isBlockedByFreeLimit(false)) {
     alert(`❗ You've reached the Free plan limit (3 invoices). Upgrade to PRO for unlimited invoices.`);
     return;
@@ -698,7 +685,6 @@ function repeatMonthly(index) {
   const original = invoices[index]; if (!original) return;
 
   const newInvoice = JSON.parse(JSON.stringify(original));
-
   const today = new Date();
   const nextMonth = new Date(today.setMonth(today.getMonth()+1));
   const formattedDate = nextMonth.toISOString().split("T")[0];
@@ -712,7 +698,6 @@ function repeatMonthly(index) {
   invoices.push(newInvoice);
   localStorage.setItem("invoices", JSON.stringify(invoices));
 
-  // у хмару — як новий (інкремент лічильника)
   if (window.saveInvoiceToCloud) {
     window.saveInvoiceToCloud(newInvoice).catch(console.error);
   }
@@ -720,9 +705,14 @@ function repeatMonthly(index) {
   renderInvoices();
   alert("✅ Monthly invoice created!");
 }
+
+/* реальний час між вкладками */
+window.addEventListener('storage', (e)=>{
+  if (e.key === 'invoices') renderInvoices();
+});
   </script>
 
-  <!-- ===== Firebase module: profile autofill + cloud save + increment + limit check ===== -->
+  <!-- ===== Firebase module: profile autofill + cloud save + increment + limit check + realtime list ===== -->
   <script type="module">
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -734,7 +724,7 @@ function repeatMonthly(index) {
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
-      getFirestore, doc, getDoc, updateDoc, collection, addDoc, increment
+      getFirestore, doc, getDoc, updateDoc, collection, addDoc, increment, onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
@@ -758,11 +748,10 @@ function repeatMonthly(index) {
       if (!user) return;
       await addDoc(collection(db, 'users', user.uid, 'invoices'), invoice);
       await updateDoc(doc(db,'users',user.uid), { invoiceCount: increment(1) }).catch(()=>{});
-      // локально оновимо стан (щоб одразу працювала перевірка без перезавантаження)
       window.SW_STATE.invoiceCount = (window.SW_STATE.invoiceCount || 0) + 1;
     };
 
-    // Autofill from profile on #autofill=1
+    // Автозаповнення профілем (#autofill=1)
     const wantAutofill = location.hash.includes("autofill=1");
     function setIfAllowed(input, value) {
       if (!input) return;
@@ -798,24 +787,63 @@ function repeatMonthly(index) {
       setIfAllowed(elVAT, vatNum);
     }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) return; // гостьовий режим: без лімітів
-      try {
-        const userRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userRef);
-        const data = snap.exists() ? snap.data() : {};
-        if (!data.email && user.email) data.email = user.email;
+    /* ==== Realtime список інвойсів (Firestore → localStorage → render) ==== */
+    let unsubscribeInvoices = null;
+    function subscribeInvoices(user){
+      if (unsubscribeInvoices) { unsubscribeInvoices(); unsubscribeInvoices = null; }
+      if (!user) return;
 
-        // оновлюємо стан для ліміту
-        window.SW_STATE.isPro        = !!data.pro;
-        window.SW_STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
+      const colRef = collection(db, 'users', user.uid, 'invoices');
+      unsubscribeInvoices = onSnapshot(colRef, (snap)=>{
+        const remote = [];
+        snap.forEach(doc => remote.push(doc.data()));
 
-        if (document.readyState === "loading") {
-          document.addEventListener("DOMContentLoaded", () => prefillInvoiceForm(data, user.email));
-        } else {
-          prefillInvoiceForm(data, user.email);
+        // Мердж у локальне сховище за invoiceNumber
+        const local = JSON.parse(localStorage.getItem('invoices') || '[]');
+        const map = new Map(local.map(inv => [inv.invoiceNumber, inv]));
+        let changed = false;
+
+        remote.forEach(r => {
+          if (!r || !r.invoiceNumber) return;
+          const prev = map.get(r.invoiceNumber);
+          map.set(r.invoiceNumber, r);
+          if (!prev || JSON.stringify(prev) !== JSON.stringify(r)) changed = true;
+        });
+
+        if (changed) {
+          const merged = Array.from(map.values());
+          localStorage.setItem('invoices', JSON.stringify(merged));
         }
-      } catch (err) { console.error("Autofill profile → invoices error:", err); }
+
+        if (typeof renderInvoices === 'function') renderInvoices();
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userRef = doc(db, "users", user.uid);
+          const snap = await getDoc(userRef);
+          const data = snap.exists() ? snap.data() : {};
+          if (!data.email && user.email) data.email = user.email;
+
+          window.SW_STATE.isPro        = !!data.pro;
+          window.SW_STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
+
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", () => prefillInvoiceForm(data, user.email));
+          } else {
+            prefillInvoiceForm(data, user.email);
+          }
+
+          subscribeInvoices(user);
+        } catch (err) {
+          console.error("Autofill/Realtime error:", err);
+        }
+      } else {
+        // Гостьовий режим: тільки localStorage. Слухаємо міжвкладкові зміни.
+        window.addEventListener('storage', (e)=>{ if (e.key==='invoices') renderInvoices(); });
+      }
     });
   </script>
 </body>
