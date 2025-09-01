@@ -75,11 +75,17 @@ section.step{
 .btn.ghost{ background:transparent; border-color:#2a3552 }
 .btn.danger{ background:#4a2330; border-color:#6a2c40 }
 
-/* ===== Form Controls ===== */
+/* ===== Form Controls (covers inputs without type attr too) ===== */
+input:not([type]),
 input[type="text"],
 input[type="email"],
+input[type="tel"],
+input[type="search"],
+input[type="url"],
+input[type="password"],
 input[type="number"],
-input[type="file"],
+input[type="date"],
+input[type="datetime-local"],
 textarea,
 select{
   width:100%;
@@ -89,12 +95,26 @@ select{
   border-radius:10px;
   padding:10px 12px;
   outline:none;
+  color-scheme: dark;
 }
 input::placeholder, textarea::placeholder{ color:#74809a }
 input:focus, textarea:focus, select:focus{
   border-color:#4d86ff;
-  box-shadow: 0 0 0 3px rgba(77,134,255,.15);
+  box-shadow:0 0 0 3px rgba(77,134,255,.15);
 }
+
+/* Chrome autofill forced white bg — fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill{
+  -webkit-text-fill-color: var(--txt);
+  -webkit-box-shadow: 0 0 0 30px #121728 inset !important;
+          box-shadow: 0 0 0 30px #121728 inset !important;
+  caret-color: var(--txt);
+}
+
 label{ font-size:13px; color:#bfc6da; display:inline-block; margin:6px 0 4px }
 
 /* ===== Items table ===== */
