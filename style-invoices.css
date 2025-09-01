@@ -43,13 +43,8 @@ main{
   margin:0 auto;
   padding:18px 22px 28px;
 }
-h1{
-  margin:4px 0 16px 0;
-  font-size:22px; letter-spacing:.2px;
-}
-h2{
-  margin:0 0 10px 0; font-size:16px; color:#dbe2f6;
-}
+h1{ margin:4px 0 16px 0; font-size:22px; letter-spacing:.2px }
+h2{ margin:0 0 10px 0; font-size:16px; color:#dbe2f6 }
 
 /* ===== Panels / steps ===== */
 section.step{
@@ -102,10 +97,6 @@ input:focus, textarea:focus, select:focus{
 }
 label{ font-size:13px; color:#bfc6da; display:inline-block; margin:6px 0 4px }
 
-/* Two-column helpers if needed
-   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-*/
-
 /* ===== Items table ===== */
 table{
   width:100%;
@@ -139,6 +130,18 @@ tbody td .btn{ padding:6px 10px; border-radius:8px }
 }
 .invoice-block strong{ color:#fff }
 .invoice-block em{ color:var(--muted) }
+.status-badge{
+  display:inline-block;
+  padding:2px 8px;
+  font-size:12px;
+  border-radius:999px;
+  border:1px solid transparent;
+  line-height:1.6;
+  margin-left:6px;
+}
+.status-badge.draft{ background:#2a3147; border-color:#3a425e; color:#c9d2e3 }
+.status-badge.sent{ background:var(--accent); border-color:#4d86ff; color:#fff }
+.status-badge.paid{ background:#143329; border-color:#1f634d; color:var(--accent-2) }
 
 /* ===== OCR section ===== */
 .ocr-section{
@@ -151,6 +154,7 @@ tbody td .btn{ padding:6px 10px; border-radius:8px }
 .ocr-section pre{
   background:#0f1425; color:#dfe7ff;
   border:1px solid #283055;
+  padding:10px; border-radius:10px; white-space:pre-wrap;
 }
 
 /* ===== Chart ===== */
@@ -176,6 +180,13 @@ tbody td .btn{ padding:6px 10px; border-radius:8px }
 }
 .flatpickr-months, .flatpickr-weekdays{ background:#141b30; color:#dbe2f6 }
 .flatpickr-weekday{ color:#9fb2ff }
+
+/* ===== Signatures: ONLY signature canvases white ===== */
+canvas.signature{
+  background:#ffffff;
+  border:1px solid #d4dae6;
+  border-radius:8px;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 900px){
