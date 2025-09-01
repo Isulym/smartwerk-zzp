@@ -208,7 +208,7 @@
       if (elNotice) elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
       setTimeout(()=>location.reload(), 800);
     });
-    bindClickSafe('btnOpenCalculator', () => location.href = "calculator.html");
+    bindClickSafe('btnOpenCalculator', () => location.href = "tax-calculator.html");
     bindClickSafe('btnOpenInvoices', () => {
       if (!liveIsPro && liveInvoiceCount >= FREE_LIMIT) {
         if (elNotice) elNotice.innerHTML = "❗ Free-ліміт вичерпано. <b>Upgrade to PRO</b> для безліміту.";
