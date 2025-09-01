@@ -218,39 +218,87 @@ canvas.signature{
   table td.item-total{ text-align:right }
 }
 
-/* ==== Flatpickr dark tweaks for better readability ==== */
+/* === SmartWerk — high-contrast dark theme for Flatpickr === */
 .flatpickr-calendar {
-  background: #121728;
-  color: #f3f6ff;
-  border: 1px solid #2a3147;
+  --fp-bg: #101521;
+  --fp-surface: #151b2d;
+  --fp-border: #2c3552;
+  --fp-text: #eef3ff;
+  --fp-muted: #b9c6ee;
+  --fp-accent: #3b79ff;
+  --fp-hover: #2b3556;
+
+  background: var(--fp-bg) !important;
+  color: var(--fp-text) !important;
+  border: 1px solid var(--fp-border) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5) !important;
 }
-.flatpickr-months .flatpickr-month,
+
+/* header, місяць/рік, кнопки навігації */
+.flatpickr-months,
+.flatpickr-weekdays {
+  background: var(--fp-surface) !important;
+  color: var(--fp-text) !important;
+  border-bottom: 1px solid var(--fp-border) !important;
+}
 .flatpickr-current-month .cur-month,
 .flatpickr-current-month .numInputWrapper input,
-.flatpickr-weekdays {
-  color: #f3f6ff;
+.flatpickr-weekday {
+  color: var(--fp-muted) !important;
+  font-weight: 600 !important;
 }
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  color: var(--fp-text) !important;
+}
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+  fill: var(--fp-text) !important;
+}
+
+/* дні */
 .flatpickr-day {
-  color: #e6ecff;
+  color: var(--fp-text) !important;
+  background: transparent !important;
+  border-radius: 8px !important;
 }
 .flatpickr-day.prevMonthDay,
 .flatpickr-day.nextMonthDay,
 .flatpickr-day.flatpickr-disabled {
-  color: #95a0bd;
+  color: #8a95c0 !important;
+}
+.flatpickr-day:hover {
+  background: var(--fp-hover) !important;
+}
+.flatpickr-day.today {
+  border-color: var(--fp-accent) !important;
+  color: var(--fp-text) !important;
 }
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.endRange,
-.flatpickr-day.today {
-  background: #3b79ff !important;
-  border-color: #4d86ff !important;
+.flatpickr-day.selected:hover {
+  background: var(--fp-accent) !important;
+  border-color: var(--fp-accent) !important;
   color: #fff !important;
 }
-.flatpickr-time input { color:#fff; }
 
-/* Підсвітимо і плейсхолдери полів дат */
+/* час (якщо ввімкнено) */
+.flatpickr-time, .flatpickr-time input, .flatpickr-time .numInputWrapper {
+  background: var(--fp-surface) !important;
+  color: var(--fp-text) !important;
+}
+
+/* інпут і плейсхолдери */
+input.flatpickr-input,
+input.js-date {
+  color: #eef3ff !important;
+}
+input.flatpickr-input::placeholder,
 input.js-date::placeholder,
 #invoiceDate::placeholder,
 #dueDate::placeholder,
 #dateFrom::placeholder,
-#dateTo::placeholder { color:#c8d1e6; }
+#dateTo::placeholder {
+  color: #c7d2ff !important;
+}
