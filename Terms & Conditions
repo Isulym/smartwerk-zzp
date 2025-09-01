@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms & Conditions | SmartWerk</title>
+  <link rel="stylesheet" href="template-terms-conditions.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="templates.html">← All Templates</a>
+      <div class="right">
+        <a href="dashboard.html" class="btn ghost">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <div class="template-view">
+      <h2>📜 Terms & Conditions (Full Version)</h2>
+      <p class="muted">This is a full, legal-style version for professional SaaS or freelancing services.</p>
+
+      <textarea id="templateText">
+TERMS AND CONDITIONS — SMARTWERK (v2025)
+
+1. DEFINITIONS:
+"SmartWerk" refers to the online platform and all related services provided by SmartWerk B.V.
+"Client" refers to the individual or entity using the service.
+
+2. SCOPE OF AGREEMENT:
+These terms govern all interactions between SmartWerk and its Clients, unless otherwise agreed in writing.
+
+3. SERVICES:
+SmartWerk provides accounting tools, templates, calculators, and AI-powered assistants. Availability and functionality may vary by subscription level.
+
+4. PAYMENT TERMS:
+All invoices must be paid within 14 calendar days. In case of late payment, SmartWerk reserves the right to restrict access or charge interest of 1.5% per month.
+
+5. INTELLECTUAL PROPERTY:
+All content, tools, and designs remain the property of SmartWerk unless explicitly transferred in writing. Clients may not resell, reproduce or redistribute materials without permission.
+
+6. CLIENT OBLIGATIONS:
+Clients must provide accurate information. Abuse of AI tools, fake data input, or attempts to hack the system will result in immediate suspension.
+
+7. TECHNICAL SUPPORT:
+Support is offered via email and chat for all active accounts. SmartWerk aims to reply within 48 hours on business days.
+
+8. DATA PRIVACY & GDPR:
+SmartWerk stores personal and business data in accordance with GDPR. Clients may request deletion or export of their data. Full privacy policy is available at: https://smartwerk.nl/privacy.
+
+9. CANCELLATION & TERMINATION:
+Clients can cancel any time via their dashboard. Refunds are only issued within the first 14 days unless otherwise stated. SmartWerk reserves the right to suspend accounts for violations.
+
+10. FORCE MAJEURE:
+SmartWerk is not liable for delays or failures due to events beyond reasonable control (e.g., natural disasters, outages, war).
+
+11. LIABILITY:
+SmartWerk is not responsible for financial loss, missed tax submissions, or business interruption. Use is at own risk.
+
+12. JURISDICTION:
+Dutch law applies. All legal disputes will be handled in the competent court of 's-Hertogenbosch, Netherlands.
+
+13. VERSION AND SIGNATURE:
+This document was last updated on 01/09/2025 and is digitally accepted upon registration.
+
+© 2025 SmartWerk B.V. | www.smartwerk.nl
+      </textarea>
+
+      <div class="template-actions">
+        <button class="btn primary" onclick="copyText()">📋 Copy</button>
+        <button class="btn ghost" onclick="fillWithAI()">🤖 AI Fill</button>
+      </div>
+      <div id="statusMsg" class="status-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    function copyText() {
+      const textarea = document.getElementById("templateText");
+      textarea.select();
+      document.execCommand("copy");
+      const status = document.getElementById("statusMsg");
+      status.textContent = "✔️ Copied to clipboard";
+      status.style.display = "block";
+      setTimeout(() => (status.style.display = "none"), 2000);
+    }
+
+    function fillWithAI() {
+      document.getElementById("templateText").value = `TERMS AND CONDITIONS — SMARTWERK (v2025)
+
+1. DEFINITIONS:
+"SmartWerk" refers to the online platform and all related services provided by SmartWerk B.V.
+"Client" refers to the individual or entity using the service.
+
+2. SCOPE OF AGREEMENT:
+These terms govern all interactions between SmartWerk and its Clients, unless otherwise agreed in writing.
+
+3. SERVICES:
+SmartWerk provides accounting tools, templates, calculators, and AI-powered assistants. Availability and functionality may vary by subscription level.
+
+4. PAYMENT TERMS:
+All invoices must be paid within 14 calendar days. In case of late payment, SmartWerk reserves the right to restrict access or charge interest of 1.5% per month.
+
+5. INTELLECTUAL PROPERTY:
+All content, tools, and designs remain the property of SmartWerk unless explicitly transferred in writing. Clients may not resell, reproduce or redistribute materials without permission.
+
+6. CLIENT OBLIGATIONS:
+Clients must provide accurate information. Abuse of AI tools, fake data input, or attempts to hack the system will result in immediate suspension.
+
+7. TECHNICAL SUPPORT:
+Support is offered via email and chat for all active accounts. SmartWerk aims to reply within 48 hours on business days.
+
+8. DATA PRIVACY & GDPR:
+SmartWerk stores personal and business data in accordance with GDPR. Clients may request deletion or export of their data. Full privacy policy is available at: https://smartwerk.nl/privacy.
+
+9. CANCELLATION & TERMINATION:
+Clients can cancel any time via their dashboard. Refunds are only issued within the first 14 days unless otherwise stated. SmartWerk reserves the right to suspend accounts for violations.
+
+10. FORCE MAJEURE:
+SmartWerk is not liable for delays or failures due to events beyond reasonable control (e.g., natural disasters, outages, war).
+
+11. LIABILITY:
+SmartWerk is not responsible for financial loss, missed tax submissions, or business interruption. Use is at own risk.
+
+12. JURISDICTION:
+Dutch law applies. All legal disputes will be handled in the competent court of 's-Hertogenbosch, Netherlands.
+
+13. VERSION AND SIGNATURE:
+This document was last updated on 01/09/2025 and is digitally accepted upon registration.
+
+© 2025 SmartWerk B.V. | www.smartwerk.nl`;
+    }
+  </script>
+</body>
+</html>
