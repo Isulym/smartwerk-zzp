@@ -140,8 +140,8 @@
 
             <a href="#" class="card-link" id="cardInvoices">
               <div class="dashboard-card">
-                <h3>Invoices & Documents</h3>
-                <p>Manage invoices, KvK, IBAN and tax forms.</p>
+                <h3>Invoices list</h3>
+                <p>Saved invoices</p>
               </div>
             </a>
 
@@ -282,7 +282,7 @@
 
     // CARDS
     bindNav("cardSummary",   ()=>location.href="summary.html");
-    bindNav("cardInvoices",  openInvoices);
+    bindNav("cardInvoices",  ()=>location.href="invoices-list.html");
     bindNav("cardTax",       openTaxCalculator);
     bindNav("cardTemplates", ()=>location.href="templates.html");
     bindNav("cardBookkeeper",()=>location.href="my-bookkeeper.html");
