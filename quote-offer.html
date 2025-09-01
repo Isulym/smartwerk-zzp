@@ -5,8 +5,18 @@
   <title>SmartWerk — Create Quote / Offer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style-quote-offer.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+<section class="intro">
+  <h1>📄 Create a Quote / Offer</h1>
+  <p class="muted">
+    This tool helps you create a professional quote (proposal) before sending an invoice.
+    Use it to outline services, pricing, and terms — then export as PDF and send to your client.
+  </p>
+</section>
+  
   <div class="wrap">
     <header class="topbar">
       <a href="templates.html" class="brand">📄 SmartWerk — Quote / Offer</a>
@@ -69,6 +79,7 @@
           </tbody>
         </table>
         <button type="button" id="addItemBtn">➕ Add Item</button>
+        <button id="downloadPDFBtn" class="btn primary">Export as PDF</button>
       </fieldset>
 
       <!-- Totals -->
@@ -96,6 +107,233 @@
     </form>
   </div>
 
-  <script src="quote-offer.js"></script>
+  <script 
+
+    // Elements
+const itemsBody = document.getElementById("itemsBody");
+const addItemBtn = document.getElementById("addItemBtn");
+const subtotalEl = document.getElementById("subtotal");
+const vatEl = document.getElementById("vat");
+const totalEl = document.getElementById("total");
+const clearSignatureBtn = document.getElementById("clearSignature");
+const signatureCanvas = document.getElementById("signatureCanvas");
+const ctx = signatureCanvas.getContext("2d");
+
+// Signature logic
+let drawing = false;
+signatureCanvas.addEventListener("mousedown", () => drawing = true);
+signatureCanvas.addEventListener("mouseup", () => drawing = false);
+signatureCanvas.addEventListener("mouseout", () => drawing = false);
+signatureCanvas.addEventListener("mousemove", drawSignature);
+
+function drawSignature(e) {
+  if (!drawing) return;
+  const rect = signatureCanvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+  ctx.lineTo(x, y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+}
+
+clearSignatureBtn.addEventListener("click", () => {
+  ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+});
+
+// Create new item row
+function createItemRow() {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td><input type="text" placeholder="Service description" required></td>
+    <td><input type="number" min="1" value="1"></td>
+    <td><input type="number" min="0" step="0.01" value="0"></td>
+    <td class="row-total">€0.00</td>
+    <td><button type="button" class="removeRow">✕</button></td>
+  `;
+  // Add listeners
+  row.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", calculateTotals);
+  });
+  row.querySelector(".removeRow").addEventListener("click", () => {
+    row.remove();
+    calculateTotals();
+  });
+  return row;
+}
+
+addItemBtn.addEventListener("click", () => {
+  const newRow = createItemRow();
+  itemsBody.appendChild(newRow);
+  calculateTotals();
+});
+
+// Recalculate totals
+function calculateTotals() {
+  let subtotal = 0;
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    const qty = parseFloat(row.cells[1].querySelector("input").value) || 0;
+    const price = parseFloat(row.cells[2].querySelector("input").value) || 0;
+    const total = qty * price;
+    subtotal += total;
+    row.cells[3].textContent = `€${total.toFixed(2)}`;
+  });
+
+  const vat = subtotal * 0.21;
+  const grandTotal = subtotal + vat;
+
+  subtotalEl.textContent = `€${subtotal.toFixed(2)}`;
+  vatEl.textContent = `€${vat.toFixed(2)}`;
+  totalEl.textContent = `€${grandTotal.toFixed(2)}`;
+}
+
+// Init first row
+window.addEventListener("DOMContentLoaded", () => {
+  itemsBody.innerHTML = "";
+  itemsBody.appendChild(createItemRow());
+  calculateTotals();
+});
+
+    // quote-offer.js — логіка для шаблону Quote / Offer
+
+// Elements
+const itemsBody = document.getElementById("itemsBody");
+const addItemBtn = document.getElementById("addItemBtn");
+const subtotalEl = document.getElementById("subtotal");
+const vatEl = document.getElementById("vat");
+const totalEl = document.getElementById("total");
+const clearSignatureBtn = document.getElementById("clearSignature");
+const signatureCanvas = document.getElementById("signatureCanvas");
+const ctx = signatureCanvas.getContext("2d");
+
+// Signature logic
+let drawing = false;
+signatureCanvas.addEventListener("mousedown", () => drawing = true);
+signatureCanvas.addEventListener("mouseup", () => drawing = false);
+signatureCanvas.addEventListener("mouseout", () => drawing = false);
+signatureCanvas.addEventListener("mousemove", drawSignature);
+
+function drawSignature(e) {
+  if (!drawing) return;
+  const rect = signatureCanvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+  ctx.lineTo(x, y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+}
+
+clearSignatureBtn.addEventListener("click", () => {
+  ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+});
+
+// Create new item row
+function createItemRow() {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td><input type="text" placeholder="Service description" required></td>
+    <td><input type="number" min="1" value="1"></td>
+    <td><input type="number" min="0" step="0.01" value="0"></td>
+    <td class="row-total">€0.00</td>
+    <td><button type="button" class="removeRow">✕</button></td>
+  `;
+  row.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", calculateTotals);
+  });
+  row.querySelector(".removeRow").addEventListener("click", () => {
+    row.remove();
+    calculateTotals();
+  });
+  return row;
+}
+
+addItemBtn.addEventListener("click", () => {
+  const newRow = createItemRow();
+  itemsBody.appendChild(newRow);
+  calculateTotals();
+});
+
+// Recalculate totals
+function calculateTotals() {
+  let subtotal = 0;
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    const qty = parseFloat(row.cells[1].querySelector("input").value) || 0;
+    const price = parseFloat(row.cells[2].querySelector("input").value) || 0;
+    const total = qty * price;
+    subtotal += total;
+    row.cells[3].textContent = `€${total.toFixed(2)}`;
+  });
+
+  const vat = subtotal * 0.21;
+  const grandTotal = subtotal + vat;
+
+  subtotalEl.textContent = `€${subtotal.toFixed(2)}`;
+  vatEl.textContent = `€${vat.toFixed(2)}`;
+  totalEl.textContent = `€${grandTotal.toFixed(2)}`;
+}
+
+// Init first row
+window.addEventListener("DOMContentLoaded", () => {
+  itemsBody.innerHTML = "";
+  itemsBody.appendChild(createItemRow());
+  calculateTotals();
+});
+
+    document.getElementById("downloadPDFBtn").addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const business = document.getElementById("businessName").value || "Your Business";
+  const client = document.getElementById("clientName").value || "Client";
+  const date = new Date().toLocaleDateString();
+
+  // Title
+  doc.setFontSize(18);
+  doc.text("Quote / Offer", 14, 20);
+  doc.setFontSize(12);
+  doc.text(`From: ${business}`, 14, 30);
+  doc.text(`To: ${client}`, 14, 37);
+  doc.text(`Date: ${date}`, 14, 44);
+
+  // Table
+  const rows = [];
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    const desc = row.cells[0].querySelector("input").value;
+    const qty = row.cells[1].querySelector("input").value;
+    const price = row.cells[2].querySelector("input").value;
+    const total = row.cells[3].textContent;
+    rows.push([desc, qty, `€${price}`, total]);
+  });
+
+  doc.autoTable({
+    startY: 50,
+    head: [["Description", "Qty", "Price", "Total"]],
+    body: rows,
+    theme: "grid",
+  });
+
+  // Totals
+  const finalY = doc.lastAutoTable.finalY || 80;
+  doc.text(`Subtotal: ${subtotalEl.textContent}`, 140, finalY + 10);
+  doc.text(`VAT (21%): ${vatEl.textContent}`, 140, finalY + 17);
+  doc.text(`Total: ${totalEl.textContent}`, 140, finalY + 24);
+
+  // Signature
+  const signatureDataURL = signatureCanvas.toDataURL("image/png");
+  doc.text("Signature:", 14, finalY + 35);
+  doc.addImage(signatureDataURL, "PNG", 14, finalY + 38, 60, 20);
+
+  // Save
+  doc.save(`Quote-${client.replace(/\\s+/g, '_')}.pdf`);
+});
+    
+    ></script>
 </body>
 </html>
