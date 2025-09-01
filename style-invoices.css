@@ -1,9 +1,15 @@
+/* ===========================
+   SmartWerk — Invoices (dark UI)
+   Matches Dashboard/Login look
+   =========================== */
+
 :root{
   --bg:#0e1014;
-  --panel:#151a26;
-  --line:#242a3d;
+  --panel:#151b28;
+  --panel-2:#141827;
+  --line:#232a42;
   --muted:#9aa3b2;
-  --txt:#e7ecf7;
+  --txt:#e9edf5;
   --brand:#7aa4ff;
   --accent:#3b79ff;
   --accent-2:#27c693;
@@ -14,109 +20,169 @@
 html,body{height:100%}
 body{
   margin:0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color:var(--txt);
+  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background:
-    radial-gradient(1000px 600px at 10% -10%,#1a2133 0%,var(--bg) 60%),
-    linear-gradient(var(--bg),var(--bg));
+    radial-gradient(1200px 600px at 10% -10%, #1d2233 0%, var(--bg) 40%),
+    linear-gradient(var(--bg), var(--bg));
 }
 
-/* Header */
-.sw-header{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:16px 22px; border-bottom:1px solid var(--line);
-  position:sticky; top:0; backdrop-filter: blur(6px);
-  background:linear-gradient(180deg, rgba(21,26,38,.85), rgba(21,26,38,.6));
-  z-index:50;
+/* ===== Top actions bar (styled like dashboard topbar) ===== */
+nav.actions{
+  position: sticky; top:0; z-index:50;
+  display:flex; gap:10px; align-items:center; justify-content:flex-start;
+  padding:14px 22px;
+  background:linear-gradient(180deg, rgba(21,26,40,.9), rgba(21,26,40,.65));
+  border-bottom:1px solid var(--line);
+  backdrop-filter: blur(6px);
 }
-.brand{display:flex; align-items:center; gap:10px}
-.logo{
-  width:36px; height:36px; display:grid; place-items:center;
-  background:linear-gradient(135deg,#99b8ff, #5e86ff);
-  color:#0b0e16; font-weight:800; border-radius:12px;
-  box-shadow: 0 6px 18px rgba(62,118,255,.25);
-}
-.title{font-weight:700; letter-spacing:.2px}
 
-.actions{display:flex; gap:10px; flex-wrap:wrap}
-.btn{
-  appearance:none; border:1px solid #2d3651; background:#212842; color:var(--txt);
-  padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600;
-  transition:.18s ease; box-shadow: inset 0 0 0 0 rgba(0,0,0,0);
+/* ===== Layout ===== */
+main{
+  max-width:1100px;
+  margin:0 auto;
+  padding:18px 22px 28px;
 }
-.btn:hover{ filter:brightness(1.05); transform:translateY(-1px) }
+h1{
+  margin:4px 0 16px 0;
+  font-size:22px; letter-spacing:.2px;
+}
+h2{
+  margin:0 0 10px 0; font-size:16px; color:#dbe2f6;
+}
+
+/* ===== Panels / steps ===== */
+section.step{
+  background:linear-gradient(180deg, var(--panel), var(--panel-2));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:16px;
+  margin:12px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+
+/* ===== Buttons (same as dashboard/login) ===== */
+.btn, button, .actions .btn{
+  appearance:none;
+  background:#2b3350;
+  border:1px solid #3b4567;
+  color:var(--txt);
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  text-decoration:none;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:.15s ease;
+}
+.btn:hover, button:hover{ filter:brightness(1.08) }
 .btn.primary{ background:var(--accent); border-color:#4d86ff; color:#fff }
 .btn.ghost{ background:transparent; border-color:#2a3552 }
-.btn .icon{margin-right:.4rem}
-.icon.danger{ color: var(--danger); background:transparent; border:none; cursor:pointer; }
+.btn.danger{ background:#4a2330; border-color:#6a2c40 }
 
-/* Layout */
-.sw-main{
-  display:grid; grid-template-columns: 320px minmax(0,1fr);
-  gap:16px; padding:16px 22px;
+/* ===== Form Controls ===== */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="file"],
+textarea,
+select{
+  width:100%;
+  background:#121728;
+  color:var(--txt);
+  border:1px solid #2b3350;
+  border-radius:10px;
+  padding:10px 12px;
+  outline:none;
 }
-.panel{
-  background: linear-gradient(180deg, #161b28, #141827);
-  border:1px solid var(--line); border-radius:16px; padding:16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+input::placeholder, textarea::placeholder{ color:#74809a }
+input:focus, textarea:focus, select:focus{
+  border-color:#4d86ff;
+  box-shadow: 0 0 0 3px rgba(77,134,255,.15);
 }
-.stretch{ min-height: 70vh; }
+label{ font-size:13px; color:#bfc6da; display:inline-block; margin:6px 0 4px }
 
-h3{ margin:0 0 12px 0; font-size:16px }
-h4{ margin:10px 0; font-size:14px; color:#d8def0 }
-.muted{ color:var(--muted); font-size:13px }
+/* Two-column helpers if needed
+   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+*/
 
-/* Forms */
-.form-grid{
-  display:grid; grid-template-columns: 1fr 1fr; gap:12px;
+/* ===== Items table ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#111629;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
 }
-.form-grid label{ display:flex; flex-direction:column; gap:6px; font-size:13px; color:#bfc6da }
-.form-grid input, .form-grid select{
-  background:#121728; border:1px solid #2b3350; color:var(--txt);
-  padding:10px 12px; border-radius:10px; outline:none; width:100%;
-}
-.form-grid input::placeholder{ color:#74809a }
-.form-grid input:focus, .form-grid select:focus{ border-color:#4d86ff; box-shadow: 0 0 0 3px rgba(77,134,255,.15) }
-
-.two-col{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
-
-/* Items table */
-.table-wrap{ margin-top:10px }
-table.items{
-  width:100%; border-collapse:collapse; background:#111629;
-  border:1px solid var(--line); border-radius:12px; overflow:hidden;
-}
-.items thead th{
+thead th{
   text-align:left; font-weight:700; font-size:12px; letter-spacing:.3px; color:#aab6d6;
   background:#131a30; padding:12px 10px; border-bottom:1px solid var(--line);
 }
-.items tbody td{ padding:8px 10px; border-bottom:1px solid #1f2540; vertical-align:middle; }
-.items tbody tr:last-child td{ border-bottom:none }
-.items input, .items select{ width:100%; }
-.ta-right{ text-align:right }
-
-.row.gap{ display:flex; gap:10px; margin-top:10px }
-
-/* Summary */
-.summary{
-  margin-top:16px; max-width:520px; margin-left:auto; border-top:1px dashed #2a3150; padding-top:12px;
+tbody td{
+  padding:8px 10px; border-bottom:1px solid #1f2540; vertical-align:middle;
 }
-.sum-row{ display:flex; align-items:center; justify-content:space-between; padding:6px 0; }
-.sum-row.total{ font-size:18px; font-weight:800; color:#fff }
-.sum-row span:last-child{ font-variant-numeric: tabular-nums; }
+tbody tr:last-child td{ border-bottom:none }
+tbody td .btn{ padding:6px 10px; border-radius:8px }
 
-/* Footer */
-.sw-footer{ padding:10px 22px 24px; color:var(--muted) }
+/* ===== Summary ===== */
+#subtotal,#totalVat,#grandTotal{ font-variant-numeric: tabular-nums }
+#grandTotal{ font-weight:800 }
 
-/* Utilities */
-.w100{ width:100% }
+/* ===== Saved invoices list ===== */
+.invoice-block{
+  background:#111629;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  margin:10px 0;
+}
+.invoice-block strong{ color:#fff }
+.invoice-block em{ color:var(--muted) }
 
-/* Flatpickr overrides (щоб в темі виглядало краще) */
+/* ===== OCR section ===== */
+.ocr-section{
+  background:#111629;
+  border:1px dashed #2a3150;
+  border-radius:12px;
+  padding:12px;
+  margin:12px 0;
+}
+.ocr-section pre{
+  background:#0f1425; color:#dfe7ff;
+  border:1px solid #283055;
+}
+
+/* ===== Chart ===== */
+#incomeChart{
+  background:#0f1425;
+  border:1px solid #263054;
+  border-radius:12px;
+  padding:10px;
+}
+
+/* ===== Flatpickr dark tune ===== */
 .flatpickr-calendar{
-  border:1px solid #2a3150;
-  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  background:#0f1425 !important;
+  color:var(--txt) !important;
+  border:1px solid #2a3150 !important;
+  box-shadow: 0 12px 36px rgba(0,0,0,.45) !important;
 }
-.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange{
-  background: var(--accent); border-color:var(--accent);
-}
+.flatpickr-day{ color:#cbd6ff }
+.flatpickr-day:hover{ background:#1a2340 }
 .flatpickr-day.today{ border-color:#6ea0ff }
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange{
+  background:var(--accent) !important; border-color:var(--accent) !important; color:#fff !important;
+}
+.flatpickr-months, .flatpickr-weekdays{ background:#141b30; color:#dbe2f6 }
+.flatpickr-weekday{ color:#9fb2ff }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px){
+  nav.actions{ justify-content:space-between; flex-wrap:wrap }
+  main{ padding:14px 14px 22px }
+  table thead{ display:none }
+  table tr{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; padding:8px 10px }
+  table td, table th{ border:none }
+  table td.item-total{ text-align:right }
+}
