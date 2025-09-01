@@ -57,15 +57,15 @@
       <a href="index.html" class="brand">💼 SmartWerk — Login</a>
       <div class="right">
         <!-- НОВЕ: кнопка на головну сторінку у стилі dashboard -->
-        <a href="index.html" class="btn" id="btnHome">На головну сторінку</a>
+        <a href="index.html" class="btn" id="btnHome">Go to main page</a>
       </div>
     </div>
   </div>
 
   <div class="center">
     <div class="card">
-      <h2>Увійти до SmartWerk</h2>
-      <div class="muted">Доступ до вашого ZZP-кабінету</div>
+      <h2>Login to SmartWerk</h2>
+      <div class="muted">Access to your ZZP account</div>
 
       <div id="errorBox"></div>
       <div id="okBox"></div>
@@ -76,18 +76,18 @@
           <input type="email" id="email" placeholder="you@smartwerk.nl" autocomplete="email" required />
         </div>
         <div class="field">
-          <label for="password">Пароль</label>
-          <input type="password" id="password" placeholder="Ваш пароль" autocomplete="current-password" required />
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
         </div>
 
         <div class="row">
           <button type="submit" class="btn primary" id="loginBtn">Login</button>
-          <a href="register.html" class="btn ghost">Зареєструватись</a>
+          <a href="register.html" class="btn ghost">Register</a>
         </div>
       </form>
 
       <div class="foot">
-        Повернутись на <a href="index.html">головну сторінку</a>
+        Go to <a href="index.html">main page</a>
       </div>
     </div>
   </div>
@@ -127,16 +127,16 @@
       const email = $("email").value.trim();
       const password = $("password").value;
 
-      if (!email || !password) { showErr("Введіть email і пароль."); return; }
+      if (!email || !password) { showErr("Enter email and password."); return; }
 
       try{
         $("loginBtn").disabled = true;
         $("loginBtn").textContent = "Входимо…";
         await signInWithEmailAndPassword(auth, email, password);
-        showOk("Успішно! Переходимо в Dashboard…");
+        showOk("Successful! Moving on to the Dashboard…");
         window.location.replace("dashboard.html");
       }catch(err){
-        showErr(err.message || "Помилка входу.");
+        showErr(err.message || "Login error.");
       }finally{
         $("loginBtn").disabled = false;
         $("loginBtn").textContent = "Login";
