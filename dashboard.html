@@ -109,57 +109,101 @@
 
   <!-- Firebase SDK (module imports) -->
   <script type="module">
-    // ⚠️ Замініть на свої значення з Firebase Console
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
+  // ⚙️ Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, doc, getDoc, setDoc, updateDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  // ✅ Modular SDK
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  // Єдиний інстанс
+  const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
 
-    // UI refs
-    const $ = (id)=>document.getElementById(id);
-    const elEmailTop = $("userEmailTop");
-    const elEmailKv = $("emailKv");
-    const elFullName = $("fullName");
-    const elAddress = $("address");
-    const elKvk = $("kvk");
-    const elIban = $("iban");
-    const elPhone = $("phone");
-    const elPlanText = $("planText");
-    const elPlanBadge = $("planBadge");
-    const elInvCount = $("invCount");
-    const elInvLimit = $("invLimit");
-    const elLimitStatus = $("limitStatus");
-    const elNotice = $("noticeArea");
+  // ===== helpers =====
+  const $ = (id)=>document.getElementById(id);
+  function bindClickSafe(id, handler){
+    const el = $(id);
+    if (!el) return false;
+    if (el.dataset.bound === "1") return true;
+    el.dataset.bound = "1";
+    el.addEventListener('click', (e)=>{ e.preventDefault(); handler(e, el); });
+    return true;
+  }
 
-    const FREE_LIMIT = 3;
+  // 🔒 Logout — прив’язуємо ОДРАЗУ (поза onAuthStateChanged)
+  bindClickSafe('btnLogout', async (_e, btn) => {
+    try {
+      btn.disabled = true;
+      const old = btn.textContent;
+      btn.textContent = 'Logging out…';
+      await signOut(auth);
+    } catch (err) {
+      console.error('[Logout] signOut error:', err);
+    } finally {
+      // навіть якщо signOut впав — йдемо на login
+      window.location.replace('login.html');
+    }
+  });
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        location.href = "login.html";
-        return;
-      }
+  // ===== UI refs =====
+  const elEmailTop    = $("userEmailTop");
+  const elEmailKv     = $("emailKv");
+  const elFullName    = $("fullName");
+  const elAddress     = $("address");
+  const elKvk         = $("kvk");
+  const elIban        = $("iban");
+  const elPhone       = $("phone");
+  const elPlanText    = $("planText");
+  const elPlanBadge   = $("planBadge");
+  const elInvCount    = $("invCount");
+  const elInvLimit    = $("invLimit");
+  const elLimitStatus = $("limitStatus");
+  const elNotice      = $("noticeArea");
+  const FREE_LIMIT = 3;
 
+  function renderPlan(isPro){
+    elPlanText.textContent = isPro ? "PRO" : "Free";
+    elPlanBadge.textContent = isPro ? "PRO" : "FREE";
+    elPlanBadge.classList.toggle("pro", isPro);
+    elPlanBadge.classList.toggle("free", !isPro);
+    const btnAI = document.querySelector('#btnUseAI'); // може й не існувати
+    if (btnAI) btnAI.disabled = !isPro;
+  }
+  function renderLimits(isPro, invoiceCount){
+    elInvCount.textContent = Number.isFinite(invoiceCount) ? invoiceCount : 0;
+    elInvLimit.textContent = isPro ? "Unlimited" : FREE_LIMIT;
+    if (isPro) {
+      elLimitStatus.textContent = "Unlimited";
+      elLimitStatus.className = "ok";
+    } else {
+      const left = FREE_LIMIT - (Number(elInvCount.textContent)||0);
+      if (left > 0) { elLimitStatus.textContent = `OK — ${left} left`; elLimitStatus.className = "ok"; }
+      else { elLimitStatus.textContent = "Limit reached"; elLimitStatus.className = "warn"; }
+    }
+  }
+
+  // ===== auth guard + профіль =====
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.replace("login.html"); return; }
+
+    try {
       // email з Auth
-      elEmailTop.textContent = user.email || "—";
-      elEmailKv.textContent = user.email || "—";
+      if (elEmailTop) elEmailTop.textContent = user.email || "—";
+      if (elEmailKv)  elEmailKv.textContent  = user.email || "—";
 
+      // Док користувача
       const userRef = doc(db, "users", user.uid);
       let snap = await getDoc(userRef);
 
       if (!snap.exists()) {
-        // створюємо базовий документ з новими полями
         await setDoc(userRef, {
           email: user.email || "",
           pro: false,
@@ -178,89 +222,51 @@
       const invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
 
       // Рендер профілю
-      elFullName.textContent = data.fullName || "—";
-      elAddress.textContent = data.address || "—";
-      elKvk.textContent = data.kvk || "—";
-      elIban.textContent = data.iban || "—";
-      elPhone.textContent = data.phone || "—";
+      if (elFullName) elFullName.textContent = data.fullName || "—";
+      if (elAddress)  elAddress.textContent  = data.address  || "—";
+      if (elKvk)      elKvk.textContent      = data.kvk      || "—";
+      if (elIban)     elIban.textContent     = data.iban     || "—";
+      if (elPhone)    elPhone.textContent    = data.phone    || "—";
 
-      // Рендер плану
       renderPlan(isPro);
       renderLimits(isPro, invoiceCount);
 
-      // Дії
-      $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
-      $("btnProfile").onclick = () => location.href = "profile.html";
-      $("btnOpenInvoices").onclick = () => {
-    const isPro = elPlanBadge.classList.contains("pro");
-    const invoiceCount = Number(elInvCount.textContent || 0);
-    const FREE_LIMIT = 3;
-
-    if (!isPro && invoiceCount >= FREE_LIMIT) {
-      elNotice.innerHTML = "❗ Ви на Free-плані та досягли ліміту інвойсів. <b>Upgrade to PRO</b> для безліміту.";
-      return;
-    }
-
-    // 👉 передаємо намір автозаповнення через hash
-    location.href = "invoices.html#autofill=1";
-  };
-      $("btnOpenCalculator").onclick = () => { location.href = "calculator.html"; };
-      $("btnUseAI").onclick = () => {
-        if (!isPro) {
-          elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
-          return;
-        }
-        location.href = "ai-assistant.html";
-      };
-
-      $("btnUpgrade").onclick = async () => {
-        if (isPro) { elNotice.textContent = "У вас вже PRO."; return; }
+      // Інші дії — прив’язуємо безпечним способом (не кидаємо помилку, якщо немає елемента)
+      bindClickSafe('btnProfile', () => location.href = "profile.html");
+      bindClickSafe('btnUpgrade', async () => {
+        if (isPro) { if (elNotice) elNotice.textContent = "У вас вже PRO."; return; }
         await updateDoc(userRef, { pro: true });
-        elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
+        if (elNotice) elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
         setTimeout(()=>location.reload(), 800);
-      };
-    });
+      });
 
-    function renderPlan(isPro){
-      elPlanText.textContent = isPro ? "PRO" : "Free";
-      elPlanBadge.textContent = isPro ? "PRO" : "FREE";
-      elPlanBadge.classList.toggle("pro", isPro);
-      elPlanBadge.classList.toggle("free", !isPro);
-      $("btnUseAI").disabled = !isPro;
-    }
+      // Якщо захочеш керувати кнопками без inline-обробників — додай цим елементам id і розкоментуй:
+      // bindClickSafe('btnOpenCalculator', () => location.href = "calculator.html");
+      // bindClickSafe('btnOpenInvoices', () => {
+      //   if (!isPro && invoiceCount >= FREE_LIMIT) {
+      //     if (elNotice) elNotice.innerHTML = "❗ Ви на Free-плані та досягли ліміту інвойсів. <b>Upgrade to PRO</b> для безліміту.";
+      //     return;
+      //   }
+      //   location.href = "invoices.html#autofill=1";
+      // });
 
-    function renderLimits(isPro, invoiceCount){
-      elInvCount.textContent = invoiceCount;
-      elInvLimit.textContent = isPro ? "Unlimited" : FREE_LIMIT;
-      if (isPro) {
-        elLimitStatus.textContent = "Unlimited";
-        elLimitStatus.className = "ok";
-      } else {
-        const left = FREE_LIMIT - invoiceCount;
-        if (left > 0) {
-          elLimitStatus.textContent = `OK — ${left} left`;
-          elLimitStatus.className = "ok";
-        } else {
-          elLimitStatus.textContent = "Limit reached";
-          elLimitStatus.className = "warn";
-        }
-      }
+    } catch (err) {
+      console.error('[Profile] load/render error:', err);
+      // навіть якщо профіль не підвантажився — Logout уже прив’язаний і працюватиме
     }
+  }, (err) => {
+    console.error('[Auth] onAuthStateChanged error:', err);
+  });
 
-    function canUseInvoices(isPro, invoiceCount){
-      return isPro || invoiceCount < FREE_LIMIT;
-    
-    }
-    
-  function toggleSmartWerkAI() {
+  // ❗ Якщо залишаєш inline onclick="toggleSmartWerkAI()", а функцію тримаєш у module-скрипті —
+  // зроби її доступною глобально:
+  window.toggleSmartWerkAI = function toggleSmartWerkAI(){
     const section = document.getElementById("smartwerkAiSection");
-    if (section.style.display === "none") {
-      section.style.display = "block";
-      window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
-    } else {
-      section.style.display = "none";
-    }
-  }
-  </script>
+    if (!section) return;
+    const show = section.style.display === "none";
+    section.style.display = show ? "block" : "none";
+    if (show) window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
+  };
+</script>
 </body>
 </html>
