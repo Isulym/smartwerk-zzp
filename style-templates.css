@@ -1,152 +1,96 @@
-/* templates.css — full CSS for SmartWerk Templates section */
-
 :root {
   --bg: #0e1014;
   --card: #151823;
   --muted: #9aa3b2;
-  --ok: #27c693;
-  --warn: #ffb020;
-  --err: #ff5470;
   --line: #232a42;
-  --panel: #151b28;
-  --panel2: #141827;
   --accent: #3b79ff;
+  --btn: #3b79ff;
+  --btn-dark: #1c1f2e;
+  --btn-hover: #4d86ff;
 }
 
 body {
   margin: 0;
   font-family: Inter, system-ui, sans-serif;
   background: var(--bg);
-  color: #e9edf5;
-}
-
-.wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-h1, h2, h3 {
-  margin: 0 0 8px;
   color: #fff;
+  padding: 40px 20px;
 }
 
 h1 {
   font-size: 24px;
+  margin-bottom: 10px;
 }
 
-.grid {
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+.container {
   display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .card {
-  background: var(--panel2);
+  background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 40px rgba(0,0,0,0.3);
-}
-
-.card-icon {
-  font-size: 24px;
-}
-
-.card-title {
+.card h3 {
+  margin: 0 0 6px 0;
   font-size: 16px;
-  font-weight: 600;
 }
 
-.card-desc {
+.card p {
   font-size: 13px;
   color: var(--muted);
-  line-height: 1.4;
+  margin-bottom: 14px;
 }
 
-.card-buttons {
+.card .actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-top: auto;
 }
 
-.btn {
+.card .actions .btn {
+  background: var(--btn);
+  border: none;
+  color: white;
   padding: 8px 14px;
   font-weight: 600;
-  font-size: 14px;
-  border-radius: 10px;
+  border-radius: 8px;
+  font-size: 13px;
   text-decoration: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.btn.primary {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  box-shadow: 0 2px 10px rgba(59, 121, 255, 0.4);
-}
-
-.btn.primary:hover {
-  filter: brightness(1.1);
-}
-
-.btn.secondary {
-  background: transparent;
-  border: 1px solid var(--line);
-  color: var(--muted);
-}
-
-.btn.secondary:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.topbar a {
-  text-decoration: none;
-  color: #9bb6ff;
-  font-size: 14px;
-}
-
-.topbar a:hover {
-  text-decoration: underline;
-}
-
-/* Special icons */
-.card-icon::before {
   display: inline-block;
-  margin-right: 6px;
+  transition: 0.2s ease-in-out;
 }
 
-.card[data-icon="contract"] .card-icon::before { content: "📄"; }
-.card[data-icon="email"] .card-icon::before { content: "✉️"; }
-.card[data-icon="reminder"] .card-icon::before { content: "🕒"; }
-.card[data-icon="cv"] .card-icon::before { content: "📑"; }
-.card[data-icon="privacy"] .card-icon::before { content: "🔐"; }
-.card[data-icon="terms"] .card-icon::before { content: "📜"; }
-.card[data-icon="roi"] .card-icon::before { content: "📊"; }
+.card .actions .btn:hover {
+  background: var(--btn-hover);
+}
 
-/* Mobile-friendly */
-@media (max-width: 500px) {
-  .btn { flex: 1 1 100%; }
+.card .actions .btn.secondary {
+  background: var(--btn-dark);
+  color: #fff;
+  border: 1px solid var(--line);
+}
+
+.back {
+  margin-bottom: 30px;
+  color: #9bb6ff;
+  display: inline-block;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back:hover {
+  text-decoration: underline;
 }
