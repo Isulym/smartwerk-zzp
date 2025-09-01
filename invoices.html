@@ -6,7 +6,7 @@
   <title>SmartWerk Invoice Manager</title>
 
   <!-- Тема в стилі dashboard/login -->
-  <link rel="stylesheet" href="style-invoices.css" />
+  <link rel="stylesheet" href="style-invoices.css?v=3" />
 
   <!-- Flatpickr calendar -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -29,27 +29,27 @@
     <!-- Step 1: Business Info -->
     <section class="step">
       <h2>🏢 Business Info</h2>
-      <label>Business Name <input id="businessName" placeholder="Business Name" /></label>
-      <label>KvK Number <input id="kvk" placeholder="KvK Number" /></label>
-      <label>IBAN <input id="iban" placeholder="IBAN" /></label>
-      <label>Email <input id="email" placeholder="Email" /></label>
-      <label>Business Address <input id="businessAddress" placeholder="Business Address" /></label>
-      <label>Business Phone <input id="businessPhone" placeholder="Business Phone" /></label>
+      <label>Business Name <input id="businessName" type="text" placeholder="Business Name" /></label>
+      <label>KvK Number <input id="kvk" type="text" placeholder="KvK Number" /></label>
+      <label>IBAN <input id="iban" type="text" placeholder="IBAN" /></label>
+      <label>Email <input id="email" type="email" placeholder="Email" /></label>
+      <label>Business Address <input id="businessAddress" type="text" placeholder="Business Address" /></label>
+      <label>Business Phone <input id="businessPhone" type="tel" placeholder="Business Phone" /></label>
       <label for="btw">BTW:</label>
-      <input type="text" id="btw">
+      <input type="text" id="btw" />
     </section>
 
     <!-- Step 2: Client Info -->
     <section class="step">
       <h2>👤 Client Info</h2>
-      <label>Client Name <input id="clientName" placeholder="Client Name" /></label>
-      <label>Client Email <input id="clientEmail" placeholder="Client Email" /></label>
-      <label>Client Phone <input id="clientPhone" placeholder="Client Phone" /></label>
-      <label>Client Address <input id="clientAddress" placeholder="Client Address" /></label>
+      <label>Client Name <input id="clientName" type="text" placeholder="Client Name" /></label>
+      <label>Client Email <input id="clientEmail" type="email" placeholder="Client Email" /></label>
+      <label>Client Phone <input id="clientPhone" type="tel" placeholder="Client Phone" /></label>
+      <label>Client Address <input id="clientAddress" type="text" placeholder="Client Address" /></label>
 
       <label>Invoice Date <input id="invoiceDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
       <label>Due Date <input id="dueDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
-      <label>Invoice Number <input id="invoiceNumber" placeholder="Invoice Number" /></label>
+      <label>Invoice Number <input id="invoiceNumber" type="text" placeholder="Invoice Number" /></label>
 
       <label for="status">Status:</label>
       <select id="status">
@@ -166,7 +166,7 @@
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-  <!-- ===== App logic (оновлено з бейджами, без інлайнових стилів) ===== -->
+  <!-- ===== App logic ===== -->
   <script>
 /* ==== Helpers & Calendars ==== */
 function initDatepickers(root=document){
@@ -214,13 +214,13 @@ function generateNextInvoiceNumber() {
 function addItem(desc = "", qty = 1, price = 0, vat = 21) {
   const row = document.createElement("tr");
   row.innerHTML = `
-    <td><input class="desc" value="${desc}" oninput="updateTotals()" placeholder="Description" /></td>
-    <td><input class="qty" type="number" value="${qty}" min="1" onchange="updateTotals()" /></td>
-    <td><input class="price" type="number" value="${price}" step="0.01" onchange="updateTotals()" /></td>
-    <td><input class="vat" type="number" value="${vat}" step="1" onchange="updateTotals()" /></td>
+    <td><input class="desc" value="\${desc}" oninput="updateTotals()" placeholder="Description" /></td>
+    <td><input class="qty" type="number" value="\${qty}" min="1" onchange="updateTotals()" /></td>
+    <td><input class="price" type="number" value="\${price}" step="0.01" onchange="updateTotals()" /></td>
+    <td><input class="vat" type="number" value="\${vat}" step="1" onchange="updateTotals()" /></td>
     <td class="item-total">€0.00</td>
     <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
-  `;
+  `.replace(/\$\{([^}]+)\}/g, (_,x)=>eval(x)); /* tiny templating for initial values */
   document.getElementById("itemsBody").appendChild(row);
   updateTotals();
 }
@@ -299,7 +299,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // init UI
   initDatepickers(document);
   const invNum = document.getElementById("invoiceNumber");
   if (invNum && !invNum.value) invNum.value = generateNextInvoiceNumber();
@@ -542,6 +541,7 @@ function renderInvoices() {
 
   renderChart(invoices);
 }
+function filterAndRenderInvoices(){ renderInvoices(); }
 function resetFilters() {
   ["searchNumber"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
   ["statusFilter"].forEach(id => { const el = document.getElementById(id); if (el) el.value="all"; });
@@ -638,6 +638,7 @@ function repeatMonthly(index) {
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
+    // Cloud save for limits (optional if logged in)
     window.saveInvoiceToCloud = async function(invoice){
       const user = auth.currentUser;
       if (!user) return;
@@ -645,6 +646,7 @@ function repeatMonthly(index) {
       await updateDoc(doc(db,'users',user.uid), { invoiceCount: increment(1) }).catch(()=>{});
     };
 
+    // Autofill from profile on #autofill=1
     const wantAutofill = location.hash.includes("autofill=1");
     function setIfAllowed(input, value) {
       if (!input) return;
