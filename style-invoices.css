@@ -302,3 +302,21 @@ input.js-date::placeholder,
 #dateTo::placeholder {
   color: #c7d2ff !important;
 }
+
+/* === Fix: month name color = year color (high-contrast) === */
+.flatpickr-calendar .flatpickr-current-month .cur-month,
+.flatpickr-calendar .flatpickr-current-month .numInputWrapper input,
+.flatpickr-calendar .flatpickr-current-month input.cur-year {
+  color: var(--fp-text) !important; /* той самий колір, що і для року */
+}
+
+/* Якщо використовується селект для місяця — теж фарбуємо його й опції */
+.flatpickr-calendar select.flatpickr-monthDropdown-months {
+  color: var(--fp-text) !important;
+  background: var(--fp-surface) !important;
+  border: 1px solid var(--fp-border) !important;
+}
+.flatpickr-calendar select.flatpickr-monthDropdown-months option {
+  color: var(--fp-text) !important;
+  background: var(--fp-bg) !important;
+}
