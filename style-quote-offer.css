@@ -1,160 +1,188 @@
-/* quote-offer.css — стиль для шаблону Quote / Offer */
-
+/* quote-offer.css */
 :root {
   --bg: #0e1014;
   --card: #151823;
   --muted: #9aa3b2;
-  --line: #232a42;
-  --accent: #3b79ff;
   --ok: #27c693;
-}
-
-* {
-  box-sizing: border-box;
+  --warn: #ffb020;
+  --err: #ff5470;
+  --line: #22283a;
+  --accent: #3b79ff;
 }
 
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: Inter, system-ui, sans-serif;
   background: var(--bg);
   color: #e9edf5;
-  padding: 0 16px 40px;
 }
 
 .wrap {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
+  padding: 24px;
 }
 
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 0;
+  margin-bottom: 20px;
 }
 
 .brand {
   font-size: 20px;
   font-weight: bold;
-  color: white;
+  color: #fff;
   text-decoration: none;
 }
 
-.btn {
+.right .btn {
   background: #2b3350;
   border: 1px solid #3b4567;
-  color: #e9edf5;
-  padding: 10px 16px;
+  padding: 10px 14px;
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.intro {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.intro h1 {
+  font-size: 26px;
+  margin: 0;
+}
+
+.intro .muted {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.quote-valid {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.form-section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.form-section h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  margin-bottom: 14px;
+  background: #121728;
+  border: 1px solid #2b3350;
+  color: #fff;
+  border-radius: 10px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn {
+  padding: 10px 14px;
   border-radius: 10px;
   cursor: pointer;
+  font-weight: bold;
+  border: 1px solid #3b4567;
+  background: #2b3350;
+  color: #fff;
+  transition: 0.2s;
   text-decoration: none;
-  font-weight: 600;
+  display: inline-block;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
 }
 
 .btn.primary {
   background: var(--accent);
   border-color: #4d86ff;
-  color: white;
 }
 
 .btn.ghost {
   background: transparent;
-  border: 1px solid #2a3552;
 }
 
-h1 {
-  font-size: 28px;
-  margin-top: 0;
-  margin-bottom: 24px;
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-form fieldset {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
-  background: var(--card);
-}
-
-form legend {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 12px;
+.foot-note {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 13px;
   color: var(--muted);
 }
 
-form input,
-form textarea {
-  background: #121728;
-  border: 1px solid #2b3350;
-  border-radius: 8px;
-  color: white;
-  padding: 10px;
-  width: 100%;
-  margin: 6px 0;
+.info-icon {
+  font-size: 16px;
+  cursor: help;
+  margin-left: 4px;
 }
 
-form input:focus,
-form textarea:focus {
-  border-color: var(--accent);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(77, 134, 255, 0.2);
-}
-
-#itemsTable {
+/* Table styling */
+#servicesTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
 
-#itemsTable th,
-#itemsTable td {
-  padding: 8px;
-  border: 1px solid #2c3248;
+#servicesTable th, #servicesTable td {
+  border: 1px solid var(--line);
+  padding: 10px;
   text-align: left;
 }
 
-.removeRow {
-  background: none;
+#servicesTable th {
+  background: #1d2233;
+  font-weight: 600;
+  color: #fff;
+}
+
+#servicesTable td input {
+  width: 100%;
+  padding: 6px 10px;
+  background: #121728;
+  border: 1px solid #2b3350;
+  color: #fff;
+  border-radius: 8px;
+}
+
+#servicesTable td:last-child {
+  text-align: center;
+}
+
+.remove-btn {
+  background: transparent;
   border: none;
-  color: #ff5470;
+  color: var(--err);
   font-size: 18px;
   cursor: pointer;
-}
-
-#addItemBtn {
-  margin-top: 10px;
-  background: #222a40;
-  border: 1px solid #3a4563;
-  color: #9cb3ff;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.totals {
-  text-align: right;
-  margin-bottom: 20px;
-}
-
-.totals span {
-  font-weight: bold;
-  font-size: 16px;
-  margin-left: 10px;
-}
-
-#signatureCanvas {
-  margin-top: 10px;
-  background: white;
-  border-radius: 6px;
-}
-
-.sign-controls {
-  margin-top: 6px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
 }
