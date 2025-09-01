@@ -1,14 +1,10 @@
-/* === SmartWerk Invoice CSS (invoice.css) === */
 :root {
   --bg: #0e1014;
-  --card: #151823;
-  --muted: #9aa3b2;
-  --line: #22283a;
-  --input: #121728;
-  --border: #2b3350;
+  --card: #151b28;
+  --line: #2a2e45;
   --accent: #3b79ff;
-  --accent-hover: #4d86ff;
-  --success: #27c693;
+  --text: #e9edf5;
+  --muted: #9aa3b2;
 }
 
 * {
@@ -17,129 +13,129 @@
 
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Inter', sans-serif;
   background: var(--bg);
-  color: #e9edf5;
-  line-height: 1.5;
+  color: var(--text);
 }
 
 .wrap {
-  max-width: 960px;
+  max-width: 1000px;
   margin: auto;
-  padding: 20px;
+  padding: 24px;
 }
 
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
-.topbar h1 {
-  margin: 0;
-  font-size: 24px;
+.brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text);
+  text-decoration: none;
 }
 
 .btn {
-  background: var(--border);
-  border: 1px solid var(--line);
-  color: #fff;
   padding: 10px 16px;
-  border-radius: 10px;
-  text-decoration: none;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn:hover {
-  background: var(--accent-hover);
+  text-decoration: none;
+  display: inline-block;
+  transition: 0.2s ease-in-out;
 }
 
 .btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background-color: var(--accent);
+  color: white;
+  border: none;
 }
 
-.btn.ghost {
-  background: transparent;
-  border: 1px solid var(--border);
+.btn.primary:hover {
+  filter: brightness(1.1);
 }
 
-.card {
+.invoice h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.info-bar {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
-.card h2 {
-  margin-top: 0;
-  font-size: 18px;
-  color: #ffffff;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
-
-input, select, textarea {
-  background: var(--input);
-  border: 1px solid var(--border);
+  padding: 12px 20px;
+  margin: 24px 0;
   border-radius: 10px;
-  padding: 12px;
-  color: #e9edf5;
   font-size: 15px;
 }
 
-input::placeholder,
-textarea::placeholder {
-  color: #7d8ba0;
-}
-
-textarea {
+.invoice-table {
   width: 100%;
-  min-height: 100px;
-  resize: vertical;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 15px;
 }
 
-#items {
+.invoice-table th,
+.invoice-table td {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+}
+
+.invoice-table th {
+  background-color: #1c2333;
+  text-align: left;
+}
+
+.invoice-table td {
+  background-color: #131927;
+}
+
+.totals {
+  text-align: right;
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.totals p {
+  margin: 4px 0;
+}
+
+.signatures {
+  display: flex;
+  gap: 40px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.sig-box {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.item-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 10px;
-}
-
-.item-row input {
-  width: 100%;
-}
-
-.summary {
-  display: grid;
+  align-items: flex-start;
   gap: 8px;
-  font-size: 16px;
-  margin-top: 8px;
 }
 
-.summary strong {
-  font-size: 18px;
-  color: var(--success);
+.sig-box canvas {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+.sig-date {
+  font-size: 13px;
+  color: var(--muted);
 }
