@@ -36,25 +36,14 @@ body {
   animation: fadeIn 1s ease-out;
 }
 
-.register-card h2 {
+h2 {
   margin-top: 0;
-  font-size: 28px;
+  font-size: 26px;
   color: var(--accent);
   text-align: center;
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.form-group input {
+input {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
@@ -62,14 +51,15 @@ body {
   background-color: var(--panel);
   color: white;
   font-size: 15px;
+  margin-bottom: 10px;
 }
 
-.form-group input:focus {
+input:focus {
   border-color: var(--accent);
   outline: none;
 }
 
-.register-btn {
+button {
   width: 100%;
   padding: 14px;
   background-color: var(--accent);
@@ -82,7 +72,7 @@ body {
   transition: background 0.3s ease;
 }
 
-.register-btn:hover {
+button:hover {
   background-color: #4c8bff;
 }
 
@@ -100,6 +90,11 @@ body {
 
 .text-small a:hover {
   text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
