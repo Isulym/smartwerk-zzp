@@ -1,140 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <title>SmartWerk Profile</title>
-
-  <!-- (лишив як у тебе) Firebase tags -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-
+  <title>SmartWerk — Профіль</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Сучасний темний стиль у дусі вашого дашборда -->
   <style>
-    /* ===== SmartWerk dark theme (як у dashboard) ===== */
-    :root{
-      --bg:#0e1014;
-      --panel:#151b28;
-      --panel-2:#141827;
-      --line:#232a42;
-      --muted:#9aa3b2;
-      --txt:#e9edf5;
-      --accent:#3b79ff;
-      --accent-2:#27c693;
-    }
-    *{ box-sizing:border-box }
-    html,body{ height:100% }
-    body{
-      margin:0;
-      padding:28px;
-      color:var(--txt);
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 600px at 10% -10%, #1d2233 0%, var(--bg) 40%),
-        linear-gradient(var(--bg), var(--bg));
-    }
-
-    /* Заголовок */
-    h2{
-      margin:0 0 10px 0;
-      font-size:22px;
-      letter-spacing:.2px;
-      color:#dbe2f6;
-    }
-    /* Плашка статусу */
-    .pro-badge{
-      display:inline-block; padding:6px 10px; margin-left:8px;
-      border-radius:999px; font-weight:700; font-size:12px;
-      background:linear-gradient(90deg,#ffdf6b,#ffb020); color:#1c1200;
-      border:1px solid #ffd163;
-    }
-    .pro-badge.free{
-      background:#2a3147; color:#c9d2e3; border:1px solid #3a425e;
-    }
-
-    /* Карточка форми */
-    #profileForm{
-      background:linear-gradient(180deg, var(--panel), var(--panel-2));
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:18px;
-      max-width:760px;
-      box-shadow:0 14px 36px rgba(0,0,0,.22);
-    }
-
-    label{
-      display:block; margin:12px 0 6px; color:var(--muted); font-size:13px;
-    }
-
-    /* Інпути в темі dashboard (включно з без type і автозаповненням) */
-    input:not([type]),
-    input[type="text"], input[type="email"], input[type="tel"],
-    input[type="search"], input[type="url"], input[type="password"],
-    input[type="number"], input[type="date"], input[type="datetime-local"]{
-      width:100%;
-      background:#121728; color:var(--txt);
-      border:1px solid #2b3350; border-radius:10px;
-      padding:10px 12px; outline:none; color-scheme:dark;
-    }
-    input::placeholder{ color:#74809a }
-    input:focus{
-      border-color:#4d86ff; box-shadow:0 0 0 3px rgba(77,134,255,.15);
-    }
-    /* read-only email */
-    .ro{ background:#0f1425; color:#a6b2d6; border-color:#243254 }
-    input:disabled{ opacity:1 }
-
-    /* Кнопка збереження */
-    button{
-      margin-top:18px; padding:10px 14px; border-radius:10px;
-      background:var(--accent); color:#fff; font-weight:700;
-      border:1px solid #4d86ff; cursor:pointer; transition:.15s ease;
-    }
-    button:hover{ filter:brightness(1.08) }
-
-    /* Лінк "Back to Dashboard" як кнопка-ghost */
-    body > p:last-of-type a{
-      display:inline-flex; align-items:center; gap:8px;
-      margin-top:14px; padding:10px 14px; border-radius:10px;
-      text-decoration:none; color:var(--txt);
-      background:transparent; border:1px solid #2a3552;
-      transition:.15s ease;
-    }
-    body > p:last-of-type a:hover{ filter:brightness(1.08) }
-
-    /* дрібні відступи */
-    p{ margin:0 0 14px 0 }
+    :root { --bg:#0e1014; --card:#151823; --muted:#9aa3b2; --ok:#27c693; --warn:#ffb020; --err:#ff5470; --line:#22283a; --pri:#3b79ff;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;color:#e9edf5;background:radial-gradient(1200px 600px at 10% -10%,#1d2233 0%,#0e1014 40%),linear-gradient(#0e1014,#0e1014)}
+    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{font-weight:700;font-size:18px;letter-spacing:.2px}
+    .right{display:flex;gap:10px;align-items:center}
+    .btn{background:#2b3350;border:1px solid #3b4567;color:#e9edf5;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none}
+    .btn:hover{filter:brightness(1.08)}
+    .btn.ghost{background:transparent;border-color:#3b4567}
+    .btn.danger{background:#4a2330;border-color:#6a2c40}
+    .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px}
+    .badge.pro{background:linear-gradient(90deg,#ffdf6b,#ffb020);color:#1c1200}
+    .badge.free{background:#2a3147;color:#c9d2e3;border:1px solid #3a425e}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    .card{background:linear-gradient(180deg,#161b28,#141827);border:1px solid #232a42;border-radius:16px;padding:18px}
+    .card h2{margin:0 0 12px 0;font-size:18px}
+    .muted{color:var(--muted);font-size:13px}
+    .form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form label{font-size:12px;color:var(--muted)}
+    .field{display:flex;flex-direction:column;gap:6px}
+    input,select{background:#0f1320;border:1px solid #2a3147;color:#e9edf5;border-radius:10px;padding:10px 12px;outline:none}
+    input:disabled{opacity:.7}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .sep{height:1px;background:var(--line);margin:14px 0}
+    .note{font-size:13px}
+    .note.ok{color:var(--ok)} .note.warn{color:var(--warn)} .note.err{color:var(--err)}
+    .banner{background:#1a2033;border:1px dashed #2e3a62;padding:10px 12px;border-radius:10px;margin-bottom:12px;font-size:13px}
+    @media (max-width:820px){.form{grid-template-columns:1fr}}
   </style>
-</head>
-<body>
-  <h2>User Profile</h2>
-  <p>
-    Status: <span id="userStatus" class="pro-badge free">FREE</span>
-  </p>
 
-  <form id="profileForm">
-    <label>Email</label>
-    <input type="email" id="emailDisplay" class="ro" disabled />
-
-    <label>Full Name</label>
-    <input type="text" id="fullName" placeholder="John Doe" />
-
-    <label>Address</label>
-    <input type="text" id="address" placeholder="Street, City, Postcode" />
-
-    <label>KvK Number</label>
-    <input type="text" id="kvk" />
-
-    <label>IBAN</label>
-    <input type="text" id="iban" />
-
-    <label>Phone Number</label>
-    <input type="text" id="phone" />
-
-    <button type="submit">Save Profile</button>
-  </form>
-
-  <p style="margin-top:16px;"><a href="dashboard.html">← Back to Dashboard</a></p>
-
+  <!-- Firebase CDN (ESM) -->
   <script type="module">
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -144,70 +47,225 @@
     };
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc,
+      runTransaction, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
+    const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db   = getFirestore(app);
 
+    // UI refs
     const $ = (id)=>document.getElementById(id);
-    const statusBadge = $("userStatus");
+    const planBadge = $("planBadge");
+    const statusText = $("statusText");
+    const verifyBanner = $("verifyBanner");
 
+    // KvK нормалізація: 8 цифр
+    const normKvK = v => (v || "").toString().replace(/\D/g, "").padStart(8,"0").slice(-8);
+
+    // Транзакція: прив’язка KvK → uid (та звільнення старого)
+    async function linkKvKToUser(rawKvK) {
+      const user = auth.currentUser;
+      if (!user) throw new Error("Необхідно увійти.");
+      const newKvK = normKvK(rawKvK);
+      if (!/^\d{8}$/.test(newKvK)) throw new Error("Невірний KvK (8 цифр).");
+
+      await runTransaction(db, async (tx) => {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await tx.get(userRef);
+        const oldKvK = userSnap.exists() ? normKvK(userSnap.data().kvk || "") : "";
+
+        const newIdxRef = doc(db, "kvkIndex", newKvK);
+        const newIdxSnap = await tx.get(newIdxRef);
+        if (newIdxSnap.exists() && newIdxSnap.data().uid !== user.uid) {
+          throw new Error("❗ Цей KvK уже прив’язаний до іншого акаунта.");
+        }
+
+        // Звільняємо старий індекс, якщо юзер міняє KvK
+        if (oldKvK && oldKvK !== newKvK) {
+          const oldIdxRef = doc(db, "kvkIndex", oldKvK);
+          const oldIdxSnap = await tx.get(oldIdxRef);
+          if (oldIdxSnap.exists() && oldIdxSnap.data().uid === user.uid) {
+            tx.delete(oldIdxRef);
+          }
+        }
+
+        // Оновлюємо індекс і профіль
+        tx.set(newIdxRef, {
+          uid: user.uid,
+          email: user.email || "",
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        tx.set(userRef, {
+          email: user.email || "",
+          kvk: newKvK,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      });
+    }
+
+    // Завантаження профілю
     onAuthStateChanged(auth, async (user) => {
       if (!user) { location.href = "login.html"; return; }
 
-      $("emailDisplay").value = user.email || "";
+      $("email").value = user.email || "";
 
-      const userRef = doc(db, "users", user.uid);
-      let snap = await getDoc(userRef);
+      try {
+        const userRef = doc(db, "users", user.uid);
+        let snap = await getDoc(userRef);
 
-      if (!snap.exists()) {
-        await setDoc(userRef, {
-          email: user.email || "",
-          pro: false,
-          fullName: "",
-          address: "",
-          kvk: "",
-          iban: "",
-          phone: "",
-          invoiceCount: 0
-        });
-        snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          await setDoc(userRef, {
+            email: user.email || "",
+            pro: false,
+            fullName: "",
+            address: "",
+            kvk: "",
+            iban: "",
+            phone: "",
+            invoiceCount: 0,
+            createdAt: serverTimestamp()
+          });
+          snap = await getDoc(userRef);
+        }
+
+        const data = snap.data() || {};
+        renderPlan(!!data.pro);
+
+        $("fullName").value = data.fullName || "";
+        $("address").value  = data.address  || "";
+        $("kvk").value      = data.kvk      || "";
+        $("iban").value     = data.iban     || "";
+        $("phone").value    = data.phone    || "";
+
+        // банер верифікації емейла
+        if (!user.emailVerified) {
+          verifyBanner.style.display = "block";
+        } else {
+          verifyBanner.style.display = "none";
+        }
+      } catch (e) {
+        statusText.textContent = "Помилка завантаження профілю.";
+        statusText.className = "note err";
+        console.error(e);
       }
-
-      const data = snap.data() || {};
-      renderStatus(!!data.pro);
-
-      $("fullName").value = data.fullName || "";
-      $("address").value = data.address || "";
-      $("kvk").value = data.kvk || "";
-      $("iban").value = data.iban || "";
-      $("phone").value = data.phone || "";
     });
 
+    function renderPlan(isPro){
+      planBadge.textContent = isPro ? "PRO" : "FREE";
+      planBadge.className = "badge " + (isPro ? "pro" : "free");
+    }
+
+    // Кнопки
+    $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
+    $("btnVerify").onclick = async () => {
+      const u = auth.currentUser;
+      if (!u) return;
+      await sendEmailVerification(u);
+      alert("Посилання для підтвердження надіслано на ваш email.");
+    };
+
+    // Збереження форми з прив’язкою KvK
     $("profileForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const user = auth.currentUser;
-      if (!user) return;
+      statusText.textContent = "";
+      statusText.className = "note";
 
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, {
-        fullName: $("fullName").value.trim(),
-        address: $("address").value.trim(),
-        kvk: $("kvk").value.trim(),
-        iban: $("iban").value.trim(),
-        phone: $("phone").value.trim(),
-      });
+      const kvkRaw = $("kvk").value;
 
-      alert("Profile updated!");
-      location.href = "dashboard.html";
+      try {
+        // 1) Прив’язуємо KvK атомарно через транзакцію
+        await linkKvKToUser(kvkRaw);
+
+        // 2) Оновлюємо решту полів профілю
+        const user = auth.currentUser;
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+          fullName: $("fullName").value.trim(),
+          address:  $("address").value.trim(),
+          iban:     $("iban").value.trim(),
+          phone:    $("phone").value.trim(),
+          updatedAt: serverTimestamp()
+        });
+
+        statusText.textContent = "✅ Профіль оновлено. KvK прив’язано.";
+        statusText.className = "note ok";
+        setTimeout(()=>location.href="dashboard.html", 800);
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = err.message || "❌ Не вдалося зберегти профіль.";
+        statusText.className = "note err";
+      }
     });
-
-    function renderStatus(isPro){
-      statusBadge.textContent = isPro ? "PRO" : "FREE";
-      statusBadge.classList.toggle("free", !isPro);
-    }
   </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">💼 SmartWerk — Профіль</div>
+      <div class="right">
+        <a href="index.html" class="btn ghost">На головну</a>
+        <a href="dashboard.html" class="btn">Dashboard</a>
+        <span id="planBadge" class="badge free">FREE</span>
+        <button id="btnLogout" class="btn danger">Logout</button>
+      </div>
+    </div>
+
+    <div id="verifyBanner" class="banner" style="display:none">
+      Ваш email не підтверджено. Деякі дії можуть бути обмежені.
+      <button id="btnVerify" class="btn ghost" style="margin-left:8px;">Надіслати підтвердження</button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>👤 Дані користувача</h2>
+        <form id="profileForm" class="form">
+          <div class="field">
+            <label>Email</label>
+            <input id="email" type="email" disabled />
+          </div>
+
+          <div class="field">
+            <label>KvK (8 цифр) — унікально для акаунта</label>
+            <input id="kvk" type="text" inputmode="numeric" placeholder="12345678" maxlength="12"/>
+          </div>
+
+          <div class="field">
+            <label>Повне ім’я</label>
+            <input id="fullName" type="text" placeholder="John Doe" />
+          </div>
+
+          <div class="field">
+            <label>Адреса</label>
+            <input id="address" type="text" placeholder="Street, City, Postcode" />
+          </div>
+
+          <div class="field">
+            <label>IBAN</label>
+            <input id="iban" type="text" placeholder="NL.." />
+          </div>
+
+          <div class="field">
+            <label>Телефон</label>
+            <input id="phone" type="text" placeholder="+31..." />
+          </div>
+
+          <div class="field" style="grid-column:1/-1;">
+            <button type="submit" class="btn" style="width:220px;background:var(--pri);border-color:#4d86ff">💾 Зберегти профіль</button>
+          </div>
+        </form>
+
+        <div class="sep"></div>
+        <div id="statusText" class="note"></div>
+        <div class="muted" style="margin-top:8px">
+          Примітка: якщо змінюєте KvK, попередня прив’язка буде автоматично звільнена.
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
