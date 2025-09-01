@@ -118,6 +118,7 @@
               <button id="btnOpenCalculator" class="btn">🧾 Tax Calculator</button>
               <button id="btnOpenInvoices" class="btn">📂 Invoice Manager</button>
               <button id="btnUseAI" class="btn">🔮 Ask SmartWerk AI</button>
+              <button type="button" id="btn-ai">💬 Open AI Assistant</button>
             </div>
           </div>
         </div>
@@ -365,6 +366,66 @@
       section.style.display = "none";
     }
   }
+
+    // ---------- AI: зібрати контекст і відкрити чат ----------
+<!-- ensure latest numbers are saved, then open new tab -->
+  function openAIChat(){
+    // 1) перерахунок на всякий випадок
+    try { if (typeof calculateTax === 'function') calculateTax(); } catch(e){}
+
+    // 2) зручні гетери
+    const v = id => (document.getElementById(id)?.value || '').trim();
+    const t = id => (document.getElementById(id)?.textContent || '').trim();
+    const euro = n => Number(n||0).toFixed(2);
+
+    // 3) формуємо payload
+    const payload = {
+      companyName:  v('companyName'),
+      emailPhone:   v('email'),
+      period:       v('period'),
+      hoursWorked:  v('hoursWorked'),
+      hourlyRate:   v('hourlyRate'),
+      income:       v('income'),
+      kvkNumber:    v('kvkNumber'),
+      vatNumber:    v('vatNumber'),
+      iban:         v('iban'),
+      contactPerson:v('contactPerson'),
+      reportingNotes: v('reportingNotes'),
+      totals: {
+        grossIncome:    euro(t('grossIncome')),
+        totalExpenses:  euro(t('totalExpenses')),
+        taxableProfit:  euro(t('taxableProfit')),
+        zzpDeductions:  euro(t('zzpDeductions')),
+        mkbVrijstelling:euro(t('mkbVrijstelling')),
+        finalTaxable:   euro(t('finalTaxable')),
+        incomeTax:      euro(t('incomeTax')),
+        zvwAmount:      euro(t('zvwAmount')),
+        btwAmount:      euro(t('btwAmount')),
+        totalTax:       euro(t('totalTax')),
+        totalSavings:   euro(t('totalSavings')),
+        netIncome:      euro(t('netIncome')),
+      }
+    };
+
+    // 4) короткий текст для першого повідомлення
+    payload.textSummary =
+`SmartWerk Tax Calculation
+Company: ${payload.companyName}
+Period: ${payload.period}
+Gross: €${payload.totals.grossIncome}, Expenses: €${payload.totals.totalExpenses}, Taxable: €${payload.totals.taxableProfit}, ZZP: €${payload.totals.zzpDeductions}, MKB: €${payload.totals.mkbVrijstelling}, Final Taxable: €${payload.totals.finalTaxable}, Income Tax: €${payload.totals.incomeTax}, ZVW: €${payload.totals.zvwAmount}, BTW: €${payload.totals.btwAmount}, Total Tax: €${payload.totals.totalTax}
+Saved (ZZP+MKB): €${payload.totals.totalSavings}, Net After Tax: €${payload.totals.netIncome}
+${payload.reportingNotes ? `Notes: ${payload.reportingNotes}` : ''}`;
+
+    // 5) кладемо в localStorage і відкриваємо чат
+    localStorage.setItem('smartwerk_chat_context', JSON.stringify(payload));
+    window.open('./ai-assistant.html','_blank');
+  }
+
+  // вішаємо на кнопку (id="btn-ai")
+  document.getElementById('btn-ai')?.addEventListener('click', openAIChat);
+
+    
+  // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
 </script>
 
 </body>
