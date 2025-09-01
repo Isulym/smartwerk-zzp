@@ -1,0 +1,145 @@
+/* === SmartWerk Invoice CSS (invoice.css) === */
+:root {
+  --bg: #0e1014;
+  --card: #151823;
+  --muted: #9aa3b2;
+  --line: #22283a;
+  --input: #121728;
+  --border: #2b3350;
+  --accent: #3b79ff;
+  --accent-hover: #4d86ff;
+  --success: #27c693;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: #e9edf5;
+  line-height: 1.5;
+}
+
+.wrap {
+  max-width: 960px;
+  margin: auto;
+  padding: 20px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.btn {
+  background: var(--border);
+  border: 1px solid var(--line);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+input, select, textarea {
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  color: #e9edf5;
+  font-size: 15px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #7d8ba0;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+}
+
+#items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.item-row input {
+  width: 100%;
+}
+
+.summary {
+  display: grid;
+  gap: 8px;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.summary strong {
+  font-size: 18px;
+  color: var(--success);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
