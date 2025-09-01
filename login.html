@@ -4,59 +4,16 @@
   <meta charset="UTF-8" />
   <title>SmartWerk — Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root { --bg:#0e1014; --card:#151823; --muted:#9aa3b2; --line:#22283a; }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:Inter,system-ui,Arial; color:#e9edf5;
-      background:radial-gradient(1200px 600px at 10% -10%,#1d2233 0%,#0e1014 40%),linear-gradient(#0e1014,#0e1014);
-      min-height:100vh; display:flex; flex-direction:column;
-    }
-    .wrap{max-width:1100px;margin:0 auto;padding:28px;width:100%}
-    .topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
-    .brand{font-weight:700;font-size:20px;letter-spacing:.3px;text-decoration:none;color:inherit}
-    .right{display:flex;gap:10px;align-items:center}
-
-    /* Кнопки — як у dashboard */
-    .btn{
-      background:#2b3350;border:1px solid #3b4567;color:#e9edf5;
-      padding:10px 14px;border-radius:10px;cursor:pointer;
-      text-decoration:none; font-weight:600; display:inline-block
-    }
-    .btn:hover{filter:brightness(1.1)}
-    .btn.primary{background:#3b79ff;border-color:#4d86ff;color:#fff}
-    .btn.ghost{background:transparent;border:1px solid #2a3552}
-
-    /* Карта логіну */
-    .center{display:grid;place-items:center;flex:1;padding:24px}
-    .card{
-      width:100%; max-width:420px; background:linear-gradient(180deg,#161b28,#141827);
-      border:1px solid #232a42; border-radius:16px; padding:22px;
-      box-shadow:0 10px 30px rgba(0,0,0,.2)
-    }
-    h2{margin:0 0 6px 0}
-    .muted{color:var(--muted);font-size:13px;margin-bottom:16px}
-    .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
-    .field input{
-      background:#121728;border:1px solid #2b3350;color:#e9edf5;
-      padding:12px;border-radius:10px;outline:none
-    }
-    .field input::placeholder{color:#74809a}
-    .field input:focus{border-color:#4d86ff; box-shadow:0 0 0 3px rgba(77,134,255,.15)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:14px}
-    #errorBox{color:#ff5470;background:#3a1f28;border:1px solid #6a2c40;padding:10px;border-radius:10px;display:none;margin-top:8px}
-    #okBox{color:#27c693;background:#143329;border:1px solid #1f634d;padding:10px;border-radius:10px;display:none;margin-top:8px}
-    .foot{margin-top:14px;font-size:13px}
-    .foot a{color:#9bb6ff;text-decoration:none}
-    .foot a:hover{text-decoration:underline}
-  </style>
+  <link rel="stylesheet" href="login.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 </head>
 <body>
+
   <div class="wrap">
     <div class="topbar">
       <a href="index.html" class="brand">💼 SmartWerk — Login</a>
       <div class="right">
-        <!-- НОВЕ: кнопка на головну сторінку у стилі dashboard -->
         <a href="index.html" class="btn" id="btnHome">Go to main page</a>
       </div>
     </div>
@@ -65,7 +22,7 @@
   <div class="center">
     <div class="card">
       <h2>Login to SmartWerk</h2>
-      <div class="muted">Access to your ZZP account</div>
+      <div class="muted">Access your ZZP account</div>
 
       <div id="errorBox"></div>
       <div id="okBox"></div>
@@ -75,9 +32,13 @@
           <label for="email">Email</label>
           <input type="email" id="email" placeholder="you@smartwerk.nl" autocomplete="email" required />
         </div>
+
         <div class="field">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+          <div class="password-wrap">
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+            <button type="button" class="toggle-btn" onclick="togglePassword()">👁️</button>
+          </div>
         </div>
 
         <div class="row">
@@ -87,14 +48,29 @@
       </form>
 
       <div class="foot">
-        Go to <a href="index.html">main page</a>
+        Forgot password? <input type="email" id="resetEmail" placeholder="Enter your email" />
+        <button onclick="resetPassword()" class="btn ghost small">Send reset link</button>
+        <br><br>
+        Or use <button onclick="loginWithGoogle()" class="btn primary small">Login with Google</button>
       </div>
     </div>
   </div>
 
-  <!-- Firebase (modular) -->
   <script type="module">
-    // Використовую той самий конфіг, що і в інших сторінках
+    import {
+      initializeApp,
+      getApps,
+      getApp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -102,46 +78,80 @@
       appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
 
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const $ = (id)=>document.getElementById(id);
+    const $ = id => document.getElementById(id);
     const errorBox = $("errorBox");
     const okBox = $("okBox");
 
-    function showErr(msg){ errorBox.textContent = msg; errorBox.style.display='block'; okBox.style.display='none'; }
-    function showOk(msg){ okBox.textContent = msg; okBox.style.display='block'; errorBox.style.display='none'; }
+    function showErr(msg) {
+      errorBox.textContent = "⚠️ " + msg;
+      errorBox.style.display = "block";
+      okBox.style.display = "none";
+    }
 
-    // Якщо вже залогінений — одразу у дашборд
+    function showOk(msg) {
+      okBox.textContent = "✅ " + msg;
+      okBox.style.display = "block";
+      errorBox.style.display = "none";
+    }
+
     onAuthStateChanged(auth, (user) => {
       if (user) window.location.replace("dashboard.html");
     });
 
     $("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      errorBox.style.display='none'; okBox.style.display='none';
+      errorBox.style.display = "none";
+      okBox.style.display = "none";
 
       const email = $("email").value.trim();
       const password = $("password").value;
 
-      if (!email || !password) { showErr("Enter email and password."); return; }
+      if (!email || !password) return showErr("Введіть email та пароль");
 
-      try{
+      try {
         $("loginBtn").disabled = true;
-        $("loginBtn").textContent = "Входимо…";
+        $("loginBtn").textContent = "Входимо...";
         await signInWithEmailAndPassword(auth, email, password);
-        showOk("Successful! Moving on to the Dashboard…");
+        showOk("Успішний вхід. Перенаправлення...");
         window.location.replace("dashboard.html");
-      }catch(err){
-        showErr(err.message || "Login error.");
-      }finally{
+      } catch (err) {
+        const msg = err.message.includes("auth/user-not-found") ? "Користувача не знайдено" :
+                    err.message.includes("auth/wrong-password") ? "Неправильний пароль" :
+                    err.message.includes("auth/invalid-email") ? "Невірний формат email" :
+                    err.message;
+        showErr(msg);
+      } finally {
         $("loginBtn").disabled = false;
         $("loginBtn").textContent = "Login";
       }
     });
+
+    window.togglePassword = function () {
+      const field = $("password");
+      field.type = field.type === "password" ? "text" : "password";
+    }
+
+    window.resetPassword = function () {
+      const email = $("resetEmail").value.trim();
+      if (!email) return showErr("Введіть email для відновлення");
+
+      sendPasswordResetEmail(auth, email)
+        .then(() => showOk("Лист для відновлення надіслано!"))
+        .catch((err) => showErr("⚠️ " + err.message));
+    }
+
+    window.loginWithGoogle = function () {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then(() => {
+          showOk("Google вхід успішний!");
+          window.location.replace("dashboard.html");
+        })
+        .catch((err) => showErr("⚠️ " + err.message));
+    }
   </script>
 </body>
 </html>
