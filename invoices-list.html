@@ -56,7 +56,9 @@
 
       <label for="sortBy">Sort by:</label>
       <select id="sortBy" onchange="renderInvoices()">
-        <option value="dateDesc" selected>Date (Newest First)</option>
+        <option value="numberDesc" selected>Invoice Number (Newest First)</option>
+        <option value="numberAsc">Invoice Number (Oldest First)</option>
+        <option value="dateDesc">Date (Newest First)</option>
         <option value="dateAsc">Date (Oldest First)</option>
         <option value="amountDesc">Amount (High to Low)</option>
         <option value="amountAsc">Amount (Low to High)</option>
@@ -104,11 +106,10 @@ function indexByNumber(invNumber){
   return arr.findIndex(i => String(i.invoiceNumber) === String(invNumber));
 }
 
-/* новий допоміжний парсер для fallback-сортування за номером */
-function seqFromInvoiceNumber(num){
-  const m = String(num||"").match(/INV-(\d{4})-(\d{3})/);
-  if (!m) return {year:0, seq:0};
-  return {year: +m[1]||0, seq: +m[2]||0};
+/* парсер номера: INV-YYYY-XXX -> {year, seq} */
+function parseInvoiceNumber(num){
+  const m = String(num||"").match(/INV-(\d{4})-(\d{3})/i);
+  return m ? {year:+m[1], seq:+m[2]} : {year:0, seq:0};
 }
 
 /* ==== Listing / Chart ==== */
@@ -162,7 +163,7 @@ function renderInvoices() {
   const search = (document.getElementById("searchNumber")?.value || "").toLowerCase();
   const fromDate = document.getElementById("dateFrom")?.value || "";
   const toDate   = document.getElementById("dateTo")?.value || "";
-  const sortBy   = document.getElementById("sortBy")?.value || "dateDesc";
+  const sortBy   = document.getElementById("sortBy")?.value || "numberDesc";
 
   /* фільтри */
   invoices = invoices.filter(inv => {
@@ -174,29 +175,35 @@ function renderInvoices() {
     return matchStatus && matchSearch && matchFrom && matchTo;
   });
 
-  /* сортування — NEWEST FIRST як дефолт, з надійним fallback */
+  /* компаратори */
+  const cmpNumDesc = (a,b)=>{
+    const pa = parseInvoiceNumber(a.invoiceNumber), pb = parseInvoiceNumber(b.invoiceNumber);
+    if (pb.year !== pa.year) return pb.year - pa.year;   // новіший рік вище
+    if (pb.seq  !== pa.seq ) return pb.seq  - pa.seq;    // більший порядковий вище
+    // fallback: за датою
+    const ta = Date.parse(a.invoiceDate||"") || 0;
+    const tb = Date.parse(b.invoiceDate||"") || 0;
+    return tb - ta;
+  };
+  const cmpNumAsc   = (a,b)=> -cmpNumDesc(a,b);
   const cmpDateDesc = (a,b)=>{
     const ta = Date.parse(a.invoiceDate||"") || 0;
     const tb = Date.parse(b.invoiceDate||"") || 0;
-    if (tb !== ta) return tb - ta; // новіші вище
-    // fallback: за роком+послідовністю з номера
-    const sa = seqFromInvoiceNumber(a.invoiceNumber);
-    const sb = seqFromInvoiceNumber(b.invoiceNumber);
-    if (sb.year !== sa.year) return sb.year - sa.year;
-    if (sb.seq !== sa.seq) return sb.seq - sa.seq;
-    return 0;
+    return tb - ta;
   };
-  const cmpDateAsc = (a,b)=> -cmpDateDesc(a,b);
-  const cmpAmountDesc = (a,b)=> getInvoiceTotal(b) - getInvoiceTotal(a);
-  const cmpAmountAsc  = (a,b)=> -cmpAmountDesc(a,b);
+  const cmpDateAsc   = (a,b)=> -cmpDateDesc(a,b);
+  const cmpAmountDesc= (a,b)=> getInvoiceTotal(b) - getInvoiceTotal(a);
+  const cmpAmountAsc = (a,b)=> -cmpAmountDesc(a,b);
 
   invoices.sort((a,b)=>{
     switch (sortBy) {
-      case "dateAsc":     return cmpDateAsc(a,b);
-      case "amountAsc":   return cmpAmountAsc(a,b);
-      case "amountDesc":  return cmpAmountDesc(a,b);
-      case "dateDesc":
-      default:            return cmpDateDesc(a,b);
+      case "numberAsc":  return cmpNumAsc(a,b);
+      case "dateDesc":   return cmpDateDesc(a,b);
+      case "dateAsc":    return cmpDateAsc(a,b);
+      case "amountDesc": return cmpAmountDesc(a,b);
+      case "amountAsc":  return cmpAmountAsc(a,b);
+      case "numberDesc":
+      default:           return cmpNumDesc(a,b);
     }
   });
 
@@ -206,7 +213,7 @@ function renderInvoices() {
     div.className = "invoice-block";
     const badge = statusBadgeHTML(inv.status);
     div.innerHTML = `
-      <strong>${inv.clientName || "-"}</strong> — ${inv.invoiceNumber || "INV-2025-XXX"} ${badge}<br>
+      <strong>${inv.clientName || "-"}</strong> — ${inv.invoiceNumber || "INV-XXXX-XXX"} ${badge}<br>
       <em>Date: ${inv.invoiceDate || "N/A"}</em><br>
       <em>Total: €${getInvoiceTotal(inv).toFixed(2)}</em><br>
       <button onclick="downloadPDFByNumber('${inv.invoiceNumber}')">📄 PDF</button>
@@ -220,13 +227,13 @@ function renderInvoices() {
   renderChart(invoices);
 }
 
-/* зручний ресет фільтрів */
+/* reset фільтрів */
 function resetFilters() {
   ["searchNumber"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
   const fd = document.getElementById("dateFrom"); if (fd) fd.value="";
   const td = document.getElementById("dateTo");   if (td) td.value="";
   const sf = document.getElementById("statusFilter"); if (sf) sf.value="all";
-  const sb = document.getElementById("sortBy"); if (sb) sb.value="dateDesc";
+  const sb = document.getElementById("sortBy"); if (sb) sb.value="numberDesc";
   renderInvoices();
 }
 
@@ -236,7 +243,7 @@ async function downloadPDFByNumber(num){
   const { jsPDF } = window.jspdf; const doc = new jsPDF();
   const invoices = JSON.parse(localStorage.getItem("invoices")) || []; const inv = invoices[idx]; if (!inv) return;
   const cleanText = (t) => (t || "").toString().replace(/[^\x00-\x7F]/g, "");
-  const invoiceNumber = cleanText(inv.invoiceNumber || `INV-2025-${(idx + 1).toString().padStart(3, "0")}`);
+  const invoiceNumber = cleanText(inv.invoiceNumber || `INV-XXXX-${(idx + 1).toString().padStart(3, "0")}`);
   doc.setFontSize(18); doc.text("INVOICE", 105, 20, null, null, "center");
   doc.setFontSize(12);
   doc.text("From:", 20, 35);
@@ -315,15 +322,16 @@ function repeatMonthlyByNumber(num){
   const nextMonth = new Date(today.setMonth(today.getMonth()+1));
   const formattedDate = nextMonth.toISOString().split("T")[0];
 
-  /* збережемо номер як новий */
+  /* новий номер */
   const numbers = invoices
     .map(inv => inv.invoiceNumber)
-    .filter(num => /^INV-2025-\d{3}$/.test(num || ""))
-    .map(num => parseInt(num.split("-")[2]))
+    .filter(n => /^INV-\d{4}-\d{3}$/i.test(n || ""))
+    .map(n => parseInt(n.split("-")[2]))
     .sort((a, b) => b - a);
   const next = numbers.length ? numbers[0] + 1 : 1;
   const padded = String(next).padStart(3, "0");
-  newInvoice.invoiceNumber = `INV-2025-${padded}`;
+  const year = new Date().getFullYear();
+  newInvoice.invoiceNumber = `INV-${year}-${padded}`;
 
   newInvoice.invoiceDate = formattedDate;
   newInvoice.dueDate = "";
@@ -341,7 +349,7 @@ function repeatMonthlyByNumber(num){
   alert("✅ Monthly invoice created!");
 }
 
-/* ==== Реальний час між вкладками + коли сторінка активується ==== */
+/* ==== Реальний час між вкладками + активізація ==== */
 let LAST_INVOICES_RAW = null;
 function maybeRerenderOnLocalChange(){
   const raw = localStorage.getItem('invoices') || '[]';
@@ -364,7 +372,7 @@ setInterval(maybeRerenderOnLocalChange, 1500);
 /* init */
 document.addEventListener('DOMContentLoaded', ()=>{
   initDatepickers(document);
-  const sb = document.getElementById('sortBy'); if (sb) sb.value = 'dateDesc'; // гарантуємо "нові зверху"
+  const sb = document.getElementById('sortBy'); if (sb) sb.value = 'numberDesc'; // гарантуємо "нові зверху" за номером
   maybeRerenderOnLocalChange();
 });
   </script>
@@ -406,7 +414,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       window.SW_STATE.invoiceCount = (window.SW_STATE.invoiceCount || 0) + 1;
     };
 
-    /* Realtime Firestore → localStorage → рендер ЗАВЖДИ */
+    /* Realtime Firestore → localStorage → рендер */
     let unsubscribeInvoices = null;
     function subscribeInvoices(user){
       if (unsubscribeInvoices) { unsubscribeInvoices(); unsubscribeInvoices = null; }
