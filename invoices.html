@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk Invoice Manager</title>
 
-  <!-- Спільні стилі -->
   <link rel="stylesheet" href="style-invoices.css?v=3" />
 
   <!-- Flatpickr calendar -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    /* Підвищена читабельність календаря (темна тема) */
+    /* Легка читабельність календаря (темна тема) */
     .flatpickr-calendar{background:#0f172a;color:#e5e7eb;border:1px solid #1f2937}
     .flatpickr-months{background:#111827;border-bottom:1px solid #1f2937}
     .flatpickr-months .flatpickr-month,
@@ -176,8 +175,8 @@ function suggestDueDate(){
 function normStatus(s){ return (s||"").toString().trim().toLowerCase(); }
 function toEnumStatus(s){ const t = normStatus(s); return t==="paid"?"Paid":t==="sent"?"Sent":"Draft"; }
 function generateNextInvoiceNumber() {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const numbers = invoices
+  const arr = safeReadInvoices();
+  const numbers = arr
     .map(inv => inv.invoiceNumber)
     .filter(num => /^INV-2025-\d{3}$/.test(num || ""))
     .map(num => parseInt(num.split("-")[2]))
@@ -185,6 +184,19 @@ function generateNextInvoiceNumber() {
   const next = numbers.length ? numbers[0] + 1 : 1;
   const padded = String(next).padStart(3, "0");
   return `INV-2025-${padded}`;
+}
+function safeReadInvoices(){
+  const raw = localStorage.getItem("invoices");
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e){ return []; }
+}
+function safeWriteInvoices(arr){
+  localStorage.setItem("invoices", JSON.stringify(arr || []));
+  // "Пульс", щоб інші вкладки/сторінки гарантовано побачили зміну
+  localStorage.setItem("invoices:pulse", String(Date.now()));
 }
 
 /* ==== Items & totals ==== */
@@ -343,7 +355,7 @@ function saveInvoice() {
     clientEmail: document.getElementById("clientEmail")?.value || "",
     clientAddress: document.getElementById("clientAddress")?.value || "",
     clientPhone: document.getElementById("clientPhone")?.value || "",
-    invoiceNumber: document.getElementById("invoiceNumber")?.value || generateNextInvoiceNumber(),
+    invoiceNumber: (document.getElementById("invoiceNumber")?.value || "").trim() || generateNextInvoiceNumber(),
     invoiceDate: document.getElementById("invoiceDate")?.value || "",
     dueDate: document.getElementById("dueDate")?.value || "",
     note: document.getElementById("note")?.value || "",
@@ -357,8 +369,9 @@ function saveInvoice() {
       date: new Date().toLocaleDateString("nl-NL")
     }
   };
-  const rows = document.querySelectorAll("#itemsBody tr");
-  rows.forEach(row => {
+
+  // Зібрати рядки
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
     const vatEl = row.querySelector(".vat-select, .vat");
     invoice.items.push({
       desc: row.querySelector(".desc")?.value || "",
@@ -367,19 +380,22 @@ function saveInvoice() {
       vat: parseFloat(vatEl ? vatEl.value : 0)
     });
   });
+
+  // Підписи (якщо є)
   try {
     const sb = document.getElementById("signatureBusiness")?.toDataURL() || "";
     const sc = document.getElementById("signatureClient")?.toDataURL() || "";
     invoice.signatures.business = sb; invoice.signatures.client = sc;
   } catch(e) {}
 
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  // Безпечне читання колекції
+  let invoices = safeReadInvoices();
 
-  // Режим редагування: шукаємо за оригінальним номером
+  // Режим редагування (оригінальний номер)
   const originalNum = window.EDITING_ORIGINAL_NUMBER || localStorage.getItem("editingOriginalNumber") || null;
   const isEdit = !!originalNum;
 
-  // ліміт тільки для нових
+  // Ліміт тільки для нових
   if (!isEdit && typeof window.isBlockedByFreeLimit === "function" && window.isBlockedByFreeLimit(false)) {
     alert(`❗ You've reached the Free plan limit (3 invoices). Upgrade to PRO for unlimited invoices.`);
     return;
@@ -388,29 +404,32 @@ function saveInvoice() {
   if (isEdit) {
     const idx = invoices.findIndex(i => String(i.invoiceNumber) === String(originalNum));
     if (idx >= 0) {
-      // Перевірка на дубль, якщо номер змінено
+      // Якщо змінено номер — перевірити дубль
       const dupIdx = invoices.findIndex(i => String(i.invoiceNumber) === String(invoice.invoiceNumber));
       if (dupIdx >= 0 && dupIdx !== idx) { alert("Invoice with this number already exists."); return; }
       invoices[idx] = invoice;
     } else {
-      // не знайшли оригінал — збережемо як новий (перевіривши дубль)
-      if (invoices.some(i => i.invoiceNumber === invoice.invoiceNumber)) {
+      // Оригінал не знайдено — зберегти як новий, перевіривши дубль
+      if (invoices.some(i => String(i.invoiceNumber) === String(invoice.invoiceNumber))) {
         alert("Invoice with this number already exists."); return;
       }
       invoices.push(invoice);
     }
+    // Очистити прапори редагування
     localStorage.removeItem("editingOriginalNumber");
     window.EDITING_ORIGINAL_NUMBER = null;
   } else {
-    if (invoices.some(i => i.invoiceNumber === invoice.invoiceNumber)) {
+    // Новий — перевірка дубля
+    if (invoices.some(i => String(i.invoiceNumber) === String(invoice.invoiceNumber))) {
       alert("Invoice with this number already exists."); return;
     }
     invoices.push(invoice);
   }
 
-  localStorage.setItem("invoices", JSON.stringify(invoices));
+  // Запис + “пульс”
+  safeWriteInvoices(invoices);
 
-  // у хмару — лише нові
+  // У хмару — лише нові
   if (!isEdit && window.saveInvoiceToCloud) {
     window.saveInvoiceToCloud(invoice).catch(console.error);
   }
@@ -421,7 +440,7 @@ function saveInvoice() {
 
 /* ==== Load for edit if requested from list page ==== */
 function loadInvoiceForEditByNumber(num) {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const invoices = safeReadInvoices();
   const idx = invoices.findIndex(i => String(i.invoiceNumber) === String(num));
   const inv = invoices[idx];
   if (!inv) { alert("Invoice not found."); return; }
@@ -488,7 +507,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initDatepickers(document);
   const invNum = document.getElementById("invoiceNumber");
   if (invNum && !invNum.value) invNum.value = generateNextInvoiceNumber();
-  addItem();
+  if (!document.querySelector("#itemsBody tr")) addItem();
   updateTotals();
   const invDate = document.getElementById('invoiceDate');
   if (invDate) invDate.addEventListener('change', suggestDueDate);
@@ -502,7 +521,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
   </script>
 
-  <!-- ===== Firebase: profile autofill + limit check + cloud save + realtime merge (для коректного редагування) ===== -->
+  <!-- ===== Firebase: profile autofill + limit check + cloud save + realtime merge ===== -->
   <script type="module">
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -575,7 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setIfAllowed(elVAT, vatNum);
     }
 
-    /* Realtime merge Firestore → localStorage (щоб редагувати актуальні дані) */
+    /* Realtime merge Firestore → localStorage */
     let unsubscribeInvoices = null;
     function subscribeInvoices(user){
       if (unsubscribeInvoices) { unsubscribeInvoices(); unsubscribeInvoices = null; }
@@ -584,8 +603,8 @@ document.addEventListener("DOMContentLoaded", () => {
       unsubscribeInvoices = onSnapshot(colRef, (snap)=>{
         const remote = [];
         snap.forEach(d => remote.push(d.data()));
-        const local = JSON.parse(localStorage.getItem('invoices') || '[]');
-        const map = new Map(local.map(inv => [inv.invoiceNumber, inv]));
+        const local = JSON.parse(localStorage.getItem('invoices') || '[]') || [];
+        const map = new Map(Array.isArray(local) ? local.map(inv => [inv?.invoiceNumber, inv]) : []);
         let changed = false;
         remote.forEach(r => {
           if (!r || !r.invoiceNumber) return;
@@ -594,8 +613,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!prev || JSON.stringify(prev) !== JSON.stringify(r)) changed = true;
         });
         if (changed) {
-          const merged = Array.from(map.values());
-          localStorage.setItem('invoices', JSON.stringify(merged));
+          localStorage.setItem('invoices', JSON.stringify(Array.from(map.values())));
+          localStorage.setItem('invoices:pulse', String(Date.now()));
         }
       });
     }
@@ -611,7 +630,6 @@ document.addEventListener("DOMContentLoaded", () => {
           window.SW_STATE.isPro        = !!data.pro;
           window.SW_STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
 
-          // заповнити форму
           if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", () => prefillInvoiceForm(data, user.email));
           } else {
