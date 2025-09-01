@@ -7,8 +7,9 @@
 
   <link rel="stylesheet" href="style-invoices.css?v=3" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
   <style>
-    /* Ті ж кольори flatpickr для читабельності */
+    /* читабельні кольори flatpickr */
     .flatpickr-calendar{background:#0f172a;color:#e5e7eb;border:1px solid #1f2937}
     .flatpickr-months{background:#111827;border-bottom:1px solid #1f2937}
     .flatpickr-months .flatpickr-month,
@@ -21,7 +22,7 @@
     .flatpickr-next-month,.flatpickr-prev-month{color:#9ca3af}
   </style>
 
-  <!-- libs, потрібні тут для PDF і графіка -->
+  <!-- libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -98,17 +99,6 @@ function initDatepickers(root=document){
 /* ==== Utils ==== */
 function normStatus(s){ return (s||"").toString().trim().toLowerCase(); }
 function toEnumStatus(s){ const t = normStatus(s); return t==="paid"?"Paid":t==="sent"?"Sent":"Draft"; }
-function generateNextInvoiceNumber() {
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const numbers = invoices
-    .map(inv => inv.invoiceNumber)
-    .filter(num => /^INV-2025-\d{3}$/.test(num || ""))
-    .map(num => parseInt(num.split("-")[2]))
-    .sort((a, b) => b - a);
-  const next = numbers.length ? numbers[0] + 1 : 1;
-  const padded = String(next).padStart(3, "0");
-  return `INV-2025-${padded}`;
-}
 function indexByNumber(invNumber){
   const arr = JSON.parse(localStorage.getItem("invoices") || "[]");
   return arr.findIndex(i => String(i.invoiceNumber) === String(invNumber));
@@ -154,9 +144,11 @@ function statusBadgeHTML(statusRaw){
   return `<span class="status-badge ${cls}">${txt}</span>`;
 }
 
+/* ---- main render ---- */
 function renderInvoices() {
   const savedContainer = document.getElementById("savedInvoices"); if (!savedContainer) return;
   savedContainer.innerHTML = "";
+
   let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
 
   const status = document.getElementById("statusFilter")?.value || "all";
@@ -207,6 +199,7 @@ function renderInvoices() {
   renderChart(invoices);
 }
 
+/* зручний ресет фільтрів */
 function resetFilters() {
   ["searchNumber"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
   const fd = document.getElementById("dateFrom"); if (fd) fd.value="";
@@ -271,7 +264,6 @@ function editInvoiceByNumber(num){
   if (normStatus(inv.status) !== "draft") {
     alert("Editing is only allowed in 'Draft' status."); return;
   }
-  // передамо намір редагування на сторінку менеджера
   localStorage.setItem('editInvoiceNumber', String(num));
   location.href = 'invoices.html#edit=1';
 }
@@ -289,7 +281,6 @@ function deleteInvoiceByNumber(num){
 }
 
 function repeatMonthlyByNumber(num){
-  // ліміт, бо створюємо новий
   if (typeof window.isBlockedByFreeLimit === "function" && window.isBlockedByFreeLimit(false)) {
     alert(`❗ You've reached the Free plan limit (3 invoices). Upgrade to PRO for unlimited invoices.`);
     return;
@@ -303,7 +294,16 @@ function repeatMonthlyByNumber(num){
   const nextMonth = new Date(today.setMonth(today.getMonth()+1));
   const formattedDate = nextMonth.toISOString().split("T")[0];
 
-  newInvoice.invoiceNumber = generateNextInvoiceNumber();
+  // збережемо номер як новий
+  const numbers = invoices
+    .map(inv => inv.invoiceNumber)
+    .filter(num => /^INV-2025-\d{3}$/.test(num || ""))
+    .map(num => parseInt(num.split("-")[2]))
+    .sort((a, b) => b - a);
+  const next = numbers.length ? numbers[0] + 1 : 1;
+  const padded = String(next).padStart(3, "0");
+  newInvoice.invoiceNumber = `INV-2025-${padded}`;
+
   newInvoice.invoiceDate = formattedDate;
   newInvoice.dueDate = "";
   newInvoice.status = "Draft";
@@ -311,24 +311,40 @@ function repeatMonthlyByNumber(num){
 
   invoices.push(newInvoice);
   localStorage.setItem("invoices", JSON.stringify(invoices));
+  renderInvoices();
 
   if (window.saveInvoiceToCloud) {
     window.saveInvoiceToCloud(newInvoice).catch(console.error);
   }
 
-  renderInvoices();
   alert("✅ Monthly invoice created!");
 }
 
-/* realtime між вкладками */
+/* ==== Реальний час між вкладками + коли сторінка активується ==== */
+let LAST_INVOICES_RAW = null;
+function maybeRerenderOnLocalChange(){
+  const raw = localStorage.getItem('invoices') || '[]';
+  if (raw !== LAST_INVOICES_RAW) {
+    LAST_INVOICES_RAW = raw;
+    renderInvoices();
+  }
+}
 window.addEventListener('storage', (e)=>{
-  if (e.key === 'invoices') renderInvoices();
+  if (e.key === 'invoices' || e.key === 'invoices:pulse') {
+    maybeRerenderOnLocalChange();
+  }
 });
+document.addEventListener('visibilitychange', ()=>{
+  if (!document.hidden) maybeRerenderOnLocalChange();
+});
+window.addEventListener('focus', maybeRerenderOnLocalChange);
+/* легкий полінг, якщо storage не спрацював (інший origin / dev-сервер) */
+setInterval(maybeRerenderOnLocalChange, 1500);
 
 /* init */
 document.addEventListener('DOMContentLoaded', ()=>{
   initDatepickers(document);
-  renderInvoices();
+  maybeRerenderOnLocalChange(); // одразу перший рендер
 });
   </script>
 
@@ -360,7 +376,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       return !isEdit && Number(invoiceCount || 0) >= FREE_LIMIT;
     };
 
-    // Cloud save для нових
+    // Cloud save тільки для нових
     window.saveInvoiceToCloud = async function(invoice){
       const user = auth.currentUser;
       if (!user) return;
@@ -369,7 +385,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       window.SW_STATE.invoiceCount = (window.SW_STATE.invoiceCount || 0) + 1;
     };
 
-    /* Realtime Firestore → localStorage → render */
+    /* Realtime Firestore → localStorage → рендер ЗАВЖДИ */
     let unsubscribeInvoices = null;
     function subscribeInvoices(user){
       if (unsubscribeInvoices) { unsubscribeInvoices(); unsubscribeInvoices = null; }
@@ -382,20 +398,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
         const local = JSON.parse(localStorage.getItem('invoices') || '[]');
         const map = new Map(local.map(inv => [inv.invoiceNumber, inv]));
-        let changed = false;
 
         remote.forEach(r => {
-          if (!r || !r.invoiceNumber) return;
-          const prev = map.get(r.invoiceNumber);
-          map.set(r.invoiceNumber, r);
-          if (!prev || JSON.stringify(prev) !== JSON.stringify(r)) changed = true;
+          if (r && r.invoiceNumber) map.set(r.invoiceNumber, r); // мерж без видалення локальних
         });
 
-        if (changed) {
-          const merged = Array.from(map.values());
-          localStorage.setItem('invoices', JSON.stringify(merged));
-          if (typeof renderInvoices === 'function') renderInvoices();
-        }
+        const merged = Array.from(map.values());
+        localStorage.setItem('invoices', JSON.stringify(merged));
+        // торкнемося додаткового ключа, щоб гарантовано збудити інші вкладки/слухачів
+        localStorage.setItem('invoices:pulse', String(Date.now()));
       });
     }
 
