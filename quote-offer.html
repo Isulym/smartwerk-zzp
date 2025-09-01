@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartWerk — Create Quote / Offer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style-quote-offer.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a href="templates.html" class="brand">📄 SmartWerk — Quote / Offer</a>
+      <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+    </header>
+
+    <h1>Create a Professional Quote / Offer</h1>
+
+    <form id="quoteForm">
+      <!-- Business Info -->
+      <fieldset>
+        <legend>Business Info</legend>
+        <input type="text" placeholder="Business Name" required />
+        <input type="text" placeholder="KvK Number" />
+        <input type="text" placeholder="IBAN" />
+        <input type="email" placeholder="Email" />
+        <input type="text" placeholder="Phone" />
+        <input type="text" placeholder="Address" />
+      </fieldset>
+
+      <!-- Client Info -->
+      <fieldset>
+        <legend>Client Info</legend>
+        <input type="text" placeholder="Client Name" required />
+        <input type="text" placeholder="Company (optional)" />
+        <input type="email" placeholder="Client Email" />
+        <input type="text" placeholder="Phone" />
+        <input type="text" placeholder="Address" />
+      </fieldset>
+
+      <!-- Quote Details -->
+      <fieldset>
+        <legend>Quote Details</legend>
+        <input type="text" placeholder="Quote Number (e.g., Q-2025-001)" required />
+        <input type="date" />
+        <textarea placeholder="Additional notes or terms..." rows="4"></textarea>
+      </fieldset>
+
+      <!-- Items Table -->
+      <fieldset>
+        <legend>Quote Items</legend>
+        <table id="itemsTable">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody">
+            <tr>
+              <td><input type="text" placeholder="Service description" required /></td>
+              <td><input type="number" min="1" value="1" /></td>
+              <td><input type="number" min="0" step="0.01" value="0" /></td>
+              <td class="row-total">€0.00</td>
+              <td><button type="button" class="removeRow">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="button" id="addItemBtn">➕ Add Item</button>
+      </fieldset>
+
+      <!-- Totals -->
+      <div class="totals">
+        <p>Subtotal: <span id="subtotal">€0.00</span></p>
+        <p>VAT (21%): <span id="vat">€0.00</span></p>
+        <h3>Total: <span id="total">€0.00</span></h3>
+      </div>
+
+      <!-- Signature -->
+      <fieldset>
+        <legend>Signature</legend>
+        <p>Please sign below to approve this quote:</p>
+        <canvas id="signatureCanvas" width="300" height="100" style="border:1px solid #444; background:#fff;"></canvas>
+        <div class="sign-controls">
+          <button type="button" id="clearSignature">🧹 Clear</button>
+        </div>
+      </fieldset>
+
+      <!-- Final Buttons -->
+      <div class="form-actions">
+        <button type="submit" class="btn primary">Export as PDF</button>
+        <a href="templates.html" class="btn ghost">← Back</a>
+      </div>
+    </form>
+  </div>
+
+  <script src="quote-offer.js"></script>
+</body>
+</html>
