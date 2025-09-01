@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartWerk — KVK Lookup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --bg:#0e1014; --card:#151823; --muted:#9aa3b2; --line:#22283a;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;color:#e9edf5;background:radial-gradient(1200px 600px at 10% -10%,#1d2233 0%,#0e1014 40%)}
+    .wrap{max-width:760px;margin:0 auto;padding:24px}
+    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .btn{background:#2b3350;border:1px solid #3b4567;color:#e9edf5;padding:8px 12px;border-radius:10px;cursor:pointer;text-decoration:none}
+    .card{background:linear-gradient(180deg,#161b28,#141827);border:1px solid #232a42;border-radius:16px;padding:18px}
+    input{background:#0f1320;border:1px solid #2a3147;color:#e9edf5;border-radius:10px;padding:10px 12px;outline:none;width:220px}
+    .row{display:flex;gap:10px;align-items:center}
+    .muted{color:var(--muted);font-size:13px}
+    .sep{height:1px;background:var(--line);margin:14px 0}
+    pre{white-space:pre-wrap;background:#0f1320;border:1px solid #2a3147;border-radius:10px;padding:10px}
+  </style>
+
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const $ = (id)=>document.getElementById(id);
+    const normKvK = v => (v || "").toString().replace(/\D/g, "").padStart(8,"0").slice(-8);
+
+    onAuthStateChanged(auth, (user)=>{
+      if (!user) { location.href="login.html"; }
+      $("who").textContent = user.email || user.uid;
+    });
+
+    $("btnLookup").onclick = async ()=>{
+      const kvk = normKvK($("kvk").value);
+      $("out").textContent = "Loading…";
+      try{
+        const snap = await getDoc(doc(db,"kvkIndex", kvk));
+        if (!snap.exists()){
+          $("out").textContent = `KvK ${kvk} не знайдено у індексі.`;
+          return;
+        }
+        $("out").textContent = JSON.stringify(snap.data(), null, 2);
+      }catch(e){
+        $("out").textContent = "Помилка читання.";
+        console.error(e);
+      }
+    };
+
+    $("btnLogout").onclick = ()=>signOut(auth).then(()=>location.href="login.html");
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>🔎 KVK Lookup</div>
+      <div class="row">
+        <a href="index.html" class="btn">На головну</a>
+        <a href="dashboard.html" class="btn">Dashboard</a>
+        <button id="btnLogout" class="btn">Logout</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:10px">
+        <input id="kvk" placeholder="12345678" />
+        <button id="btnLookup" class="btn">Перевірити</button>
+      </div>
+      <div class="muted">Увійшов: <span id="who">—</span></div>
+      <div class="sep"></div>
+      <pre id="out">—</pre>
+    </div>
+  </div>
+</body>
+</html>
