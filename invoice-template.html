@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk — Invoice Template</title>
+  <link rel="stylesheet" href="style-invoice-template.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <h1>📄 Invoice Template</h1>
+      <a href="templates.html" class="btn">← Back to Templates</a>
+    </header>
+
+    <form id="invoiceForm">
+      <!-- Business Info -->
+      <section class="card">
+        <h2>🏢 Business Information</h2>
+        <div class="grid">
+          <input type="text" placeholder="Business Name" required />
+          <input type="text" placeholder="KvK Number" />
+          <input type="text" placeholder="VAT Number" />
+          <input type="text" placeholder="IBAN" />
+          <input type="text" placeholder="Phone" />
+          <input type="text" placeholder="Address" />
+        </div>
+      </section>
+
+      <!-- Client Info -->
+      <section class="card">
+        <h2>👤 Client Information</h2>
+        <div class="grid">
+          <input type="text" placeholder="Client Name" required />
+          <input type="text" placeholder="Client Email" />
+          <input type="text" placeholder="Client VAT" />
+          <input type="text" placeholder="Client Phone" />
+          <input type="text" placeholder="Client Address" />
+        </div>
+      </section>
+
+      <!-- Invoice Details -->
+      <section class="card">
+        <h2>📅 Invoice Details</h2>
+        <div class="grid">
+          <input type="text" placeholder="Invoice Number" id="invoiceNumber" readonly />
+          <input type="date" placeholder="Invoice Date" />
+          <input type="date" placeholder="Due Date" />
+          <select>
+            <option>Status: Draft</option>
+            <option>Status: Sent</option>
+            <option>Status: Paid</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Items -->
+      <section class="card">
+        <h2>📦 Invoice Items</h2>
+        <div id="items"></div>
+        <button type="button" id="addItem" class="btn ghost">+ Add Item</button>
+      </section>
+
+      <!-- Summary -->
+      <section class="card">
+        <h2>🧾 Summary</h2>
+        <div class="summary">
+          <div>Subtotal: €<span id="subtotal">0.00</span></div>
+          <div>Total VAT: €<span id="totalVAT">0.00</span></div>
+          <div><strong>Total: €<span id="total">0.00</span></strong></div>
+        </div>
+      </section>
+
+      <!-- Notes -->
+      <section class="card">
+        <h2>📝 Notes</h2>
+        <textarea placeholder="Optional notes or description..."></textarea>
+      </section>
+
+      <!-- Actions -->
+      <section class="card actions">
+        <button type="submit" class="btn primary">💾 Save</button>
+        <button type="button" class="btn" id="generatePDF">📤 Export PDF</button>
+      </section>
+    </form>
+  </div>
+
+  <script src="invoice.js"></script>
+</body>
+</html>
