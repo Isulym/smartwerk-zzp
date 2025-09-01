@@ -1,0 +1,136 @@
+:root {
+  --bg: #0e1014;
+  --card: #151823;
+  --muted: #9aa3b2;
+  --line: #22283a;
+  --accent: #3b79ff;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, Arial;
+  background: linear-gradient(180deg, #0e1014 0%, #11131a 100%);
+  color: #e9edf5;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.brand {
+  font-weight: bold;
+  font-size: 20px;
+  color: white;
+  text-decoration: none;
+}
+
+.right {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: 0.3s;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid #2f3a55;
+  color: var(--muted);
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.intro {
+  margin-bottom: 36px;
+}
+
+.intro h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.intro p {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.template-card {
+  background: var(--card);
+  border: 1px solid #232a42;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+}
+
+.template-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 12px 32px rgba(59, 121, 255, 0.15);
+}
+
+.template-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.template-card p {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 500px) {
+  .template-card {
+    padding: 16px;
+  }
+  .intro h1 {
+    font-size: 22px;
+  }
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+  .actions {
+    flex-direction: column;
+  }
+}
