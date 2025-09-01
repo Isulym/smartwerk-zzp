@@ -217,3 +217,40 @@ canvas.signature{
   table td, table th{ border:none }
   table td.item-total{ text-align:right }
 }
+
+/* ==== Flatpickr dark tweaks for better readability ==== */
+.flatpickr-calendar {
+  background: #121728;
+  color: #f3f6ff;
+  border: 1px solid #2a3147;
+}
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month .numInputWrapper input,
+.flatpickr-weekdays {
+  color: #f3f6ff;
+}
+.flatpickr-day {
+  color: #e6ecff;
+}
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay,
+.flatpickr-day.flatpickr-disabled {
+  color: #95a0bd;
+}
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.today {
+  background: #3b79ff !important;
+  border-color: #4d86ff !important;
+  color: #fff !important;
+}
+.flatpickr-time input { color:#fff; }
+
+/* Підсвітимо і плейсхолдери полів дат */
+input.js-date::placeholder,
+#invoiceDate::placeholder,
+#dueDate::placeholder,
+#dateFrom::placeholder,
+#dateTo::placeholder { color:#c8d1e6; }
