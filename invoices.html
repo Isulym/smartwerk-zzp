@@ -220,7 +220,7 @@ function addItem(desc = "", qty = 1, price = 0, vat = 21) {
     <td><input class="vat" type="number" value="\${vat}" step="1" onchange="updateTotals()" /></td>
     <td class="item-total">€0.00</td>
     <td><button type="button" onclick="this.closest('tr').remove(); updateTotals();">❌</button></td>
-  `.replace(/\$\{([^}]+)\}/g, (_,x)=>eval(x)); /* tiny templating for initial values */
+  `.replace(/\$\{([^}]+)\}/g, (_,x)=>eval(x));
   document.getElementById("itemsBody").appendChild(row);
   updateTotals();
 }
@@ -374,10 +374,20 @@ function saveInvoice() {
     invoice.signatures.business = sb; invoice.signatures.client = sc;
   } catch(e) {}
 
+  // визначаємо: редагування чи новий інвойс
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const currentIndex = localStorage.getItem("currentInvoiceIndex");
-  if (currentIndex !== null && !isNaN(currentIndex) && invoices[+currentIndex]) {
-    invoices[+currentIndex] = invoice; localStorage.removeItem("currentInvoiceIndex");
+  const isEdit = currentIndex !== null && !isNaN(currentIndex) && invoices[+currentIndex];
+
+  // перевірка ліміту перед створенням нового інвойсу
+  if (!isEdit && typeof window.isBlockedByFreeLimit === "function" && window.isBlockedByFreeLimit(false)) {
+    alert(`❗ You've reached the Free plan limit (3 invoices). Upgrade to PRO for unlimited invoices.`);
+    return;
+  }
+
+  if (isEdit) {
+    invoices[+currentIndex] = invoice;
+    localStorage.removeItem("currentInvoiceIndex");
   } else {
     const exists = invoices.some(i => i.invoiceNumber === invoice.invoiceNumber);
     if (exists) { alert("Invoice with this number already exists."); return; }
@@ -385,7 +395,10 @@ function saveInvoice() {
   }
   localStorage.setItem("invoices", JSON.stringify(invoices));
 
-  if (window.saveInvoiceToCloud) { window.saveInvoiceToCloud(invoice).catch(console.error); }
+  // у хмару — лише нові
+  if (!isEdit && window.saveInvoiceToCloud) {
+    window.saveInvoiceToCloud(invoice).catch(console.error);
+  }
 
   resetFormFields();
   alert("Invoice saved successfully!");
@@ -604,22 +617,41 @@ async function downloadPDF(index) {
   doc.save(`${invoiceNumber}.pdf`);
 }
 function repeatMonthly(index) {
+  // перевірка ліміту (це завжди створення нового інвойсу)
+  if (typeof window.isBlockedByFreeLimit === "function" && window.isBlockedByFreeLimit(false)) {
+    alert(`❗ You've reached the Free plan limit (3 invoices). Upgrade to PRO for unlimited invoices.`);
+    return;
+  }
+
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const original = invoices[index]; if (!original) return;
+
   const newInvoice = JSON.parse(JSON.stringify(original));
-  const today = new Date(); const nextMonth = new Date(today.setMonth(today.getMonth()+1));
+
+  const today = new Date();
+  const nextMonth = new Date(today.setMonth(today.getMonth()+1));
   const formattedDate = nextMonth.toISOString().split("T")[0];
+
   newInvoice.invoiceNumber = generateNextInvoiceNumber();
   newInvoice.invoiceDate = formattedDate;
   newInvoice.dueDate = "";
   newInvoice.status = "Draft";
   newInvoice.signatures = { business:"", client:"", date:new Date().toLocaleDateString("nl-NL") };
-  invoices.push(newInvoice); localStorage.setItem("invoices", JSON.stringify(invoices));
-  renderInvoices(); alert("✅ Monthly invoice created!");
+
+  invoices.push(newInvoice);
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+
+  // у хмару — як новий (інкремент лічильника)
+  if (window.saveInvoiceToCloud) {
+    window.saveInvoiceToCloud(newInvoice).catch(console.error);
+  }
+
+  renderInvoices();
+  alert("✅ Monthly invoice created!");
 }
   </script>
 
-  <!-- ===== Firebase module: profile autofill + cloud save + increment ===== -->
+  <!-- ===== Firebase module: profile autofill + cloud save + increment + limit check ===== -->
   <script type="module">
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -638,12 +670,25 @@ function repeatMonthly(index) {
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // Cloud save for limits (optional if logged in)
+    /* Глобальний стан для ліміту */
+    const FREE_LIMIT = 3;
+    window.SW_STATE = { isPro:false, invoiceCount:0 };
+
+    /* Єдина перевірка ліміту (створення нового інвойсу) */
+    window.isBlockedByFreeLimit = function isBlockedByFreeLimit(isEdit = false){
+      const { isPro, invoiceCount } = window.SW_STATE || {};
+      if (isPro) return false;
+      return !isEdit && Number(invoiceCount || 0) >= FREE_LIMIT;
+    };
+
+    // Cloud save для ліміту — викликати лише при створенні нового
     window.saveInvoiceToCloud = async function(invoice){
       const user = auth.currentUser;
       if (!user) return;
       await addDoc(collection(db, 'users', user.uid, 'invoices'), invoice);
       await updateDoc(doc(db,'users',user.uid), { invoiceCount: increment(1) }).catch(()=>{});
+      // локально оновимо стан (щоб одразу працювала перевірка без перезавантаження)
+      window.SW_STATE.invoiceCount = (window.SW_STATE.invoiceCount || 0) + 1;
     };
 
     // Autofill from profile on #autofill=1
@@ -683,12 +728,17 @@ function repeatMonthly(index) {
     }
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+      if (!user) return; // гостьовий режим: без лімітів
       try {
         const userRef = doc(db, "users", user.uid);
         const snap = await getDoc(userRef);
         const data = snap.exists() ? snap.data() : {};
         if (!data.email && user.email) data.email = user.email;
+
+        // оновлюємо стан для ліміту
+        window.SW_STATE.isPro        = !!data.pro;
+        window.SW_STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
+
         if (document.readyState === "loading") {
           document.addEventListener("DOMContentLoaded", () => prefillInvoiceForm(data, user.email));
         } else {
