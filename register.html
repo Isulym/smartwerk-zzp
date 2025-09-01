@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <title>Register | SmartWerk</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <!-- Підключення CSS -->
+
+  <!-- Підключення стилю -->
   <link rel="stylesheet" href="register.css" />
 
   <!-- Firebase SDK -->
@@ -19,14 +19,24 @@
     <form id="registerForm">
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+
+      <div class="form-group">
+        <label style="font-size: 14px;">
+          <input type="checkbox" id="termsCheckbox" required />
+          I agree to the <a href="terms.html" target="_blank">terms of service</a>
+        </label>
+      </div>
+
       <button type="submit">Register</button>
     </form>
+
     <div class="text-small">
-      Already have an account? <a href="login.html">Login</a>
+      Already have an account? <a href="login.html">Login</a><br>
+      <a href="reset-password.html">Forgot password?</a>
     </div>
   </div>
 
-  <!-- Firebase реєстрація -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -44,8 +54,21 @@
     const form = document.getElementById("registerForm");
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const termsChecked = document.getElementById("termsCheckbox").checked;
+
+      if (password !== confirmPassword) {
+        alert("❌ Passwords do not match");
+        return;
+      }
+
+      if (!termsChecked) {
+        alert("❗ You must agree to the terms");
+        return;
+      }
 
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
