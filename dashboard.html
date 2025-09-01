@@ -21,6 +21,9 @@
     .btn:hover{filter:brightness(1.1)}
     .btn.primary{background:#3b79ff;border-color:#4d86ff}
     .btn.danger{background:#4a2330;border-color:#6a2c40}
+    /* NEW: subtle/ghost button */
+    .btn.ghost{background:transparent;border:1px solid #3b4567;color:#9aa3b2}
+    .btn.ghost:hover{filter:brightness(1.15)}
     .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px}
     .badge.pro{background:linear-gradient(90deg,#ffdf6b,#ffb020);color:#1c1200}
     .badge.free{background:#2a3147;color:#c9d2e3;border:1px solid #3a425e}
@@ -67,7 +70,7 @@
     </div>
 
     <div class="layout">
-      <!-- Sidebar from your snippet -->
+      <!-- Sidebar -->
       <aside class="sidebar">
         <h2>SmartWerk</h2>
         <a href="#" class="nav-link" id="linkSummary">📊 Summary</a>
@@ -79,7 +82,7 @@
         <a href="index.html" class="back">← Back to Home</a>
       </aside>
 
-      <!-- Main column (our existing dashboard content) -->
+      <!-- Main -->
       <main>
         <div class="grid">
           <!-- Profile -->
@@ -113,10 +116,13 @@
               <div class="muted">Status</div><div id="limitStatus" class="ok">OK</div>
             </div>
             <div class="sep"></div>
-            <!-- Quick actions keep our previous IDs so JS не ламається -->
+            <!-- Quick actions -->
             <div class="row">
               <button id="btnOpenCalculator" class="btn">🧾 Tax Calculator</button>
               <button id="btnOpenInvoices" class="btn">📂 Invoice Manager</button>
+              <!-- NEW: subtle AI Assistant button opening in new tab -->
+              <button id="btnAiAssistant" class="btn ghost">🤖 AI Assistant</button>
+              <!-- existing Ask AI toggle kept -->
               <button id="btnUseAI" class="btn">🔮 Ask SmartWerk AI</button>
             </div>
           </div>
@@ -128,7 +134,7 @@
           <div id="noticeArea" class="muted">—</div>
         </div>
 
-        <!-- App tiles from your snippet -->
+        <!-- App tiles -->
         <section class="apps">
           <div class="cards">
             <a href="#" class="card-link" id="cardSummary">
@@ -227,7 +233,6 @@
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = "login.html"; return; }
 
-    // email з Auth
     elEmailTop.textContent = user.email || "—";
     elEmailKv.textContent  = user.email || "—";
 
@@ -252,27 +257,31 @@
     STATE.isPro = !!data.pro;
     STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
 
-    // Рендер профілю
     elFullName.textContent = data.fullName || "—";
     elAddress.textContent  = data.address  || "—";
     elKvk.textContent      = data.kvk      || "—";
     elIban.textContent     = data.iban     || "—";
     elPhone.textContent    = data.phone    || "—";
 
-    // План та ліміти
     renderPlan(STATE.isPro);
     renderLimits(STATE.isPro, STATE.invoiceCount);
 
-    // Кнопки шапки/карток/сайдбару
     $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
     $("btnProfile").onclick = () => location.href = "profile.html";
 
-    // QUICK ACTIONS
     $("btnOpenInvoices").onclick   = (e)=>{ e.preventDefault(); openInvoices(); };
     $("btnOpenCalculator").onclick = (e)=>{ e.preventDefault(); openTaxCalculator(); };
     $("btnUseAI").onclick          = (e)=>{ e.preventDefault(); openAskAI(); };
 
-    // SIDEBAR
+    // NEW: open external AI Assistant in a new tab, subtle style
+    const aiBtn = $("btnAiAssistant");
+    if (aiBtn){
+      aiBtn.addEventListener("click",(e)=>{
+        e.preventDefault();
+        window.open("https://www.smartwerk.nl/ai-assistant.html","_blank","noopener");
+      });
+    }
+
     bindNav("linkSummary",   ()=>location.href="summary.html");
     bindNav("linkInvoices",  openInvoices);
     bindNav("linkTax",       openTaxCalculator);
@@ -280,7 +289,6 @@
     bindNav("linkBookkeeper",()=>location.href="my-bookkeeper.html");
     bindNav("linkSettings",  ()=>location.href="profile.html");
 
-    // CARDS
     bindNav("cardSummary",   ()=>location.href="summary.html");
     bindNav("cardInvoices",  ()=>location.href="invoices-list.html");
     bindNav("cardTax",       openTaxCalculator);
@@ -288,7 +296,6 @@
     bindNav("cardBookkeeper",()=>location.href="my-bookkeeper.html");
     bindNav("cardSettings",  ()=>location.href="profile.html");
 
-    // Upgrade
     $("btnUpgrade").onclick = async () => {
       if (STATE.isPro) { elNotice.textContent = "У вас вже PRO."; return; }
       await updateDoc(userRef, { pro: true });
@@ -302,7 +309,6 @@
     if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); fn(); });
   }
 
-  // === Єдина перевірка free-ліміту для всіх фіч ===
   function blockedByFreeLimit() {
     if (!STATE.isPro && STATE.invoiceCount >= FREE_LIMIT) {
       elNotice.innerHTML = `❗ Ви на Free-плані та досягли ліміту інвойсів (${FREE_LIMIT}). <b>Upgrade to PRO</b> для безліміту.`;
@@ -311,7 +317,6 @@
     return false;
   }
 
-  // === Навігації з перевірками ===
   function openInvoices(){
     if (blockedByFreeLimit()) return;
     location.href = "invoices.html#autofill=1";
@@ -321,12 +326,11 @@
     location.href = "tax-calculator.html";
   }
   function openAskAI(){
-    if (blockedByFreeLimit()) return;          // така ж перевірка, як для Invoices
-    if (!STATE.isPro) {                         // додатково: AI лише для PRO
+    if (blockedByFreeLimit()) return;
+    if (!STATE.isPro) {
       elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
       return;
     }
-    // Відкриваємо/ховаємо секцію AI
     toggleSmartWerkAI();
   }
 
@@ -365,8 +369,7 @@
       section.style.display = "none";
     }
   }
-    
-</script>
+  </script>
 
 </body>
 </html>
