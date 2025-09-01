@@ -1,0 +1,160 @@
+/* quote-offer.css — стиль для шаблону Quote / Offer */
+
+:root {
+  --bg: #0e1014;
+  --card: #151823;
+  --muted: #9aa3b2;
+  --line: #232a42;
+  --accent: #3b79ff;
+  --ok: #27c693;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: var(--bg);
+  color: #e9edf5;
+  padding: 0 16px 40px;
+}
+
+.wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.btn {
+  background: #2b3350;
+  border: 1px solid #3b4567;
+  color: #e9edf5;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: #4d86ff;
+  color: white;
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid #2a3552;
+}
+
+h1 {
+  font-size: 28px;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+form fieldset {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background: var(--card);
+}
+
+form legend {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: var(--muted);
+}
+
+form input,
+form textarea {
+  background: #121728;
+  border: 1px solid #2b3350;
+  border-radius: 8px;
+  color: white;
+  padding: 10px;
+  width: 100%;
+  margin: 6px 0;
+}
+
+form input:focus,
+form textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(77, 134, 255, 0.2);
+}
+
+#itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#itemsTable th,
+#itemsTable td {
+  padding: 8px;
+  border: 1px solid #2c3248;
+  text-align: left;
+}
+
+.removeRow {
+  background: none;
+  border: none;
+  color: #ff5470;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#addItemBtn {
+  margin-top: 10px;
+  background: #222a40;
+  border: 1px solid #3a4563;
+  color: #9cb3ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.totals {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.totals span {
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+#signatureCanvas {
+  margin-top: 10px;
+  background: white;
+  border-radius: 6px;
+}
+
+.sign-controls {
+  margin-top: 6px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
