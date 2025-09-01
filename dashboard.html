@@ -191,164 +191,181 @@
 
   <!-- Firebase SDK (module imports) -->
   <script type="module">
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const $ = (id)=>document.getElementById(id);
+  const elEmailTop = $("userEmailTop");
+  const elEmailKv = $("emailKv");
+  const elFullName = $("fullName");
+  const elAddress = $("address");
+  const elKvk = $("kvk");
+  const elIban = $("iban");
+  const elPhone = $("phone");
+  const elPlanText = $("planText");
+  const elPlanBadge = $("planBadge");
+  const elInvCount = $("invCount");
+  const elInvLimit = $("invLimit");
+  const elLimitStatus = $("limitStatus");
+  const elNotice = $("noticeArea");
+
+  const FREE_LIMIT = 3;
+  let STATE = { isPro:false, invoiceCount:0 };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = "login.html"; return; }
+
+    // email з Auth
+    elEmailTop.textContent = user.email || "—";
+    elEmailKv.textContent  = user.email || "—";
+
+    const userRef = doc(db, "users", user.uid);
+    let snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        email: user.email || "",
+        pro: false,
+        fullName: "",
+        address: "",
+        kvk: "",
+        iban: "",
+        phone: "",
+        invoiceCount: 0
+      });
+      snap = await getDoc(userRef);
+    }
+
+    const data = snap.data() || {};
+    STATE.isPro = !!data.pro;
+    STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
+
+    // Рендер профілю
+    elFullName.textContent = data.fullName || "—";
+    elAddress.textContent  = data.address  || "—";
+    elKvk.textContent      = data.kvk      || "—";
+    elIban.textContent     = data.iban     || "—";
+    elPhone.textContent    = data.phone    || "—";
+
+    // План та ліміти
+    renderPlan(STATE.isPro);
+    renderLimits(STATE.isPro, STATE.invoiceCount);
+
+    // Кнопки шапки/карток/сайдбару
+    $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
+    $("btnProfile").onclick = () => location.href = "profile.html";
+
+    // QUICK ACTIONS
+    $("btnOpenInvoices").onclick   = (e)=>{ e.preventDefault(); openInvoices(); };
+    $("btnOpenCalculator").onclick = (e)=>{ e.preventDefault(); openTaxCalculator(); };
+    $("btnUseAI").onclick          = (e)=>{ e.preventDefault(); openAskAI(); };
+
+    // SIDEBAR
+    bindNav("linkSummary",   ()=>location.href="summary.html");
+    bindNav("linkInvoices",  openInvoices);
+    bindNav("linkTax",       openTaxCalculator);
+    bindNav("linkTemplates", ()=>location.href="templates.html");
+    bindNav("linkBookkeeper",()=>location.href="my-bookkeeper.html");
+    bindNav("linkSettings",  ()=>location.href="settings.html");
+
+    // CARDS
+    bindNav("cardSummary",   ()=>location.href="summary.html");
+    bindNav("cardInvoices",  openInvoices);
+    bindNav("cardTax",       openTaxCalculator);
+    bindNav("cardTemplates", ()=>location.href="templates.html");
+    bindNav("cardBookkeeper",()=>location.href="my-bookkeeper.html");
+    bindNav("cardSettings",  ()=>location.href="settings.html");
+
+    // Upgrade
+    $("btnUpgrade").onclick = async () => {
+      if (STATE.isPro) { elNotice.textContent = "У вас вже PRO."; return; }
+      await updateDoc(userRef, { pro: true });
+      elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
+      setTimeout(()=>location.reload(), 800);
     };
+  });
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  function bindNav(id, fn){
+    const el = $(id);
+    if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); fn(); });
+  }
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const $ = (id)=>document.getElementById(id);
-    const elEmailTop = $("userEmailTop");
-    const elEmailKv = $("emailKv");
-    const elFullName = $("fullName");
-    const elAddress = $("address");
-    const elKvk = $("kvk");
-    const elIban = $("iban");
-    const elPhone = $("phone");
-    const elPlanText = $("planText");
-    const elPlanBadge = $("planBadge");
-    const elInvCount = $("invCount");
-    const elInvLimit = $("invLimit");
-    const elLimitStatus = $("limitStatus");
-    const elNotice = $("noticeArea");
-    const FREE_LIMIT = 3;
-
-    let STATE = { isPro:false, invoiceCount:0 };
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { location.href = "login.html"; return; }
-
-      // email з Auth
-      elEmailTop.textContent = user.email || "—";
-      elEmailKv.textContent = user.email || "—";
-
-      const userRef = doc(db, "users", user.uid);
-      let snap = await getDoc(userRef);
-
-      if (!snap.exists()) {
-        await setDoc(userRef, {
-          email: user.email || "",
-          pro: false,
-          fullName: "",
-          address: "",
-          kvk: "",
-          iban: "",
-          phone: "",
-          invoiceCount: 0
-        });
-        snap = await getDoc(userRef);
-      }
-
-      const data = snap.data() || {};
-      const isPro = !!data.pro;
-      const invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
-      STATE = { isPro, invoiceCount };
-
-      // Render profile
-      elFullName.textContent = data.fullName || "—";
-      elAddress.textContent = data.address || "—";
-      elKvk.textContent = data.kvk || "—";
-      elIban.textContent = data.iban || "—";
-      elPhone.textContent = data.phone || "—";
-
-      renderPlan(isPro);
-      renderLimits(isPro, invoiceCount);
-
-      // Actions
-      $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
-      $("btnProfile").onclick = () => location.href = "profile.html";
-
-      // Quick actions (IDs збережені з нашого старого дашборду)
-      $("btnOpenCalculator").onclick = () => location.href = "tax-calculator.html";
-      $("btnUseAI").onclick = () => {
-        if (!STATE.isPro) {
-          elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
-          return;
-        }
-        toggleSmartWerkAI();
-      };
-      $("btnOpenInvoices").onclick = (e)=>{ e.preventDefault(); openInvoices(); };
-
-      // Sidebar & tiles (з твого коду)
-      bindNav("linkSummary",   ()=>location.href="summary.html");
-      bindNav("linkTax",       ()=>location.href="tax-calculator.html");
-      bindNav("linkTemplates", ()=>location.href="templates.html");
-      bindNav("linkBookkeeper",()=>location.href="my-bookkeeper.html");
-      bindNav("linkSettings",  ()=>location.href="profile.html");
-      bindNav("linkInvoices",  openInvoices);
-
-      bindNav("cardSummary",   ()=>location.href="summary.html");
-      bindNav("cardTax",       ()=>location.href="tax-calculator.html");
-      bindNav("cardTemplates", ()=>location.href="templates.html");
-      bindNav("cardBookkeeper",()=>location.href="my-bookkeeper.html");
-      bindNav("cardSettings",  ()=>location.href="settings.html");
-      bindNav("cardInvoices",  openInvoices);
-
-      $("btnUpgrade").onclick = async () => {
-        if (STATE.isPro) { elNotice.textContent = "У вас вже PRO."; return; }
-        await updateDoc(userRef, { pro: true });
-        elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
-        setTimeout(()=>location.reload(), 800);
-      };
-    });
-
-    function bindNav(id, fn){
-      const el = $(id);
-      if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); fn(); });
+  // === Єдина перевірка free-ліміту для всіх фіч ===
+  function blockedByFreeLimit() {
+    if (!STATE.isPro && STATE.invoiceCount >= FREE_LIMIT) {
+      elNotice.innerHTML = `❗ Ви на Free-плані та досягли ліміту інвойсів (${FREE_LIMIT}). <b>Upgrade to PRO</b> для безліміту.`;
+      return true;
     }
+    return false;
+  }
 
-    function openInvoices(){
-      if (!STATE.isPro && STATE.invoiceCount >= FREE_LIMIT) {
-        elNotice.innerHTML = "❗ Ви на Free-плані та досягли ліміту інвойсів. <b>Upgrade to PRO</b> для безліміту.";
-        return;
-      }
-      location.href = "invoices.html#autofill=1";
+  // === Навігації з перевірками ===
+  function openInvoices(){
+    if (blockedByFreeLimit()) return;
+    location.href = "invoices.html#autofill=1";
+  }
+  function openTaxCalculator(){
+    if (blockedByFreeLimit()) return;
+    location.href = "tax-calculator.html";
+  }
+  function openAskAI(){
+    if (blockedByFreeLimit()) return;          // така ж перевірка, як для Invoices
+    if (!STATE.isPro) {                         // додатково: AI лише для PRO
+      elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
+      return;
     }
+    // Відкриваємо/ховаємо секцію AI
+    toggleSmartWerkAI();
+  }
 
-    function renderPlan(isPro){
-      elPlanText.textContent = isPro ? "PRO" : "Free";
-      elPlanBadge.textContent = isPro ? "PRO" : "FREE";
-      elPlanBadge.classList.toggle("pro", isPro);
-      elPlanBadge.classList.toggle("free", !isPro);
-      const askAI = $("btnUseAI"); if (askAI) askAI.disabled = !isPro;
-    }
+  function renderPlan(isPro){
+    elPlanText.textContent = isPro ? "PRO" : "Free";
+    elPlanBadge.textContent = isPro ? "PRO" : "FREE";
+    elPlanBadge.classList.toggle("pro", isPro);
+    elPlanBadge.classList.toggle("free", !isPro);
+    const askAI = $("btnUseAI"); if (askAI) askAI.disabled = !isPro;
+  }
 
-    function renderLimits(isPro, invoiceCount){
-      elInvCount.textContent = invoiceCount;
-      elInvLimit.textContent = isPro ? "Unlimited" : FREE_LIMIT;
-      if (isPro) {
-        elLimitStatus.textContent = "Unlimited";
+  function renderLimits(isPro, invoiceCount){
+    elInvCount.textContent = invoiceCount;
+    elInvLimit.textContent = isPro ? "Unlimited" : FREE_LIMIT;
+    if (isPro) {
+      elLimitStatus.textContent = "Unlimited";
+      elLimitStatus.className = "ok";
+    } else {
+      const left = FREE_LIMIT - invoiceCount;
+      if (left > 0) {
+        elLimitStatus.textContent = `OK — ${left} left`;
         elLimitStatus.className = "ok";
       } else {
-        const left = FREE_LIMIT - invoiceCount;
-        if (left > 0) {
-          elLimitStatus.textContent = `OK — ${left} left`;
-          elLimitStatus.className = "ok";
-        } else {
-          elLimitStatus.textContent = "Limit reached";
-          elLimitStatus.className = "warn";
-        }
+        elLimitStatus.textContent = "Limit reached";
+        elLimitStatus.className = "warn";
       }
     }
+  }
 
-    function toggleSmartWerkAI() {
-      const section = document.getElementById("smartwerkAiSection");
-      if (section.style.display === "none") {
-        section.style.display = "block";
-        window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
-      } else {
-        section.style.display = "none";
-      }
+  function toggleSmartWerkAI() {
+    const section = document.getElementById("smartwerkAiSection");
+    if (section.style.display === "none") {
+      section.style.display = "block";
+      window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
+    } else {
+      section.style.display = "none";
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
