@@ -4,19 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk Invoice Manager</title>
+
+  <!-- Тема в стилі dashboard/login -->
   <link rel="stylesheet" href="style-invoices.css" />
 
-  <!-- Flatpickr calendar (theme can be changed if you want) -->
+  <!-- Flatpickr calendar -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-  <!-- libs you already used -->
+  <!-- libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 </head>
 <body>
-  <nav class="actions" style="display:flex;gap:10px;flex-wrap:wrap">
+  <nav class="actions">
     <a class="btn" href="index.html" id="btnHome">Main Page</a>
     <a class="btn ghost" href="dashboard.html" id="btnToDashboard">Dashboard</a>
   </nav>
@@ -27,12 +29,12 @@
     <!-- Step 1: Business Info -->
     <section class="step">
       <h2>🏢 Business Info</h2>
-      <input id="businessName" placeholder="Business Name" />
-      <input id="kvk" placeholder="KvK Number" />
-      <input id="iban" placeholder="IBAN" />
-      <input id="email" placeholder="Email" />
-      <input id="businessAddress" placeholder="Business Address" />
-      <input id="businessPhone" placeholder="Business Phone" />
+      <label>Business Name <input id="businessName" placeholder="Business Name" /></label>
+      <label>KvK Number <input id="kvk" placeholder="KvK Number" /></label>
+      <label>IBAN <input id="iban" placeholder="IBAN" /></label>
+      <label>Email <input id="email" placeholder="Email" /></label>
+      <label>Business Address <input id="businessAddress" placeholder="Business Address" /></label>
+      <label>Business Phone <input id="businessPhone" placeholder="Business Phone" /></label>
       <label for="btw">BTW:</label>
       <input type="text" id="btw">
     </section>
@@ -40,15 +42,14 @@
     <!-- Step 2: Client Info -->
     <section class="step">
       <h2>👤 Client Info</h2>
-      <input id="clientName" placeholder="Client Name" />
-      <input id="clientEmail" placeholder="Client Email" />
-      <input id="clientPhone" placeholder="Client Phone" />
-      <input id="clientAddress" placeholder="Client Address" />
+      <label>Client Name <input id="clientName" placeholder="Client Name" /></label>
+      <label>Client Email <input id="clientEmail" placeholder="Client Email" /></label>
+      <label>Client Phone <input id="clientPhone" placeholder="Client Phone" /></label>
+      <label>Client Address <input id="clientAddress" placeholder="Client Address" /></label>
 
-      <!-- календарики через flatpickr -->
-      <input id="invoiceDate" type="text" class="js-date" placeholder="Invoice Date (YYYY-MM-DD)" />
-      <input id="dueDate" type="text" class="js-date" placeholder="Due Date (YYYY-MM-DD)" />
-      <input id="invoiceNumber" placeholder="Invoice Number" />
+      <label>Invoice Date <input id="invoiceDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
+      <label>Due Date <input id="dueDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
+      <label>Invoice Number <input id="invoiceNumber" placeholder="Invoice Number" /></label>
 
       <label for="status">Status:</label>
       <select id="status">
@@ -80,18 +81,21 @@
     <!-- Step 4: Summary -->
     <section class="step">
       <h2>📦 Summary</h2>
-      <textarea id="note" placeholder="Invoice note (optional)..."></textarea><br/>
+      <label>Note
+        <textarea id="note" placeholder="Invoice note (optional)..."></textarea>
+      </label>
       <p><strong>Subtotal:</strong> <span id="subtotal">€0.00</span></p>
       <p><strong>Total VAT:</strong> <span id="totalVat">€0.00</span></p>
       <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
     </section>
 
-    <div class="ocr-section">
-      <label for="receiptInput">📷 Upload Receipt:</label>
-      <input type="file" id="receiptInput" accept="image/*" />
+    <!-- OCR -->
+    <section class="step ocr-section">
+      <h2>📷 Receipt OCR</h2>
+      <label>Upload Receipt: <input type="file" id="receiptInput" accept="image/*" /></label>
       <button onclick="processReceipt()">Scan</button>
-      <pre id="receiptText" style="margin-top: 10px; white-space: pre-wrap; background: #f8f8f8; padding: 10px; border-radius: 5px;"></pre>
-    </div>
+      <pre id="receiptText"></pre>
+    </section>
 
     <!-- Step 5: Signatures -->
     <section class="step">
@@ -99,14 +103,14 @@
 
       <div>
         <h3>Business Signature:</h3>
-        <canvas id="signatureBusiness" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
+        <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas><br/>
         <button onclick="clearSignature('signatureBusiness')">Clear</button>
         <p>Date: <span id="signatureBusinessDate"></span></p>
       </div>
 
       <div>
         <h3>Client Signature:</h3>
-        <canvas id="signatureClient" width="300" height="100" style="border:1px solid #ccc;"></canvas><br/>
+        <canvas id="signatureClient" class="signature" width="300" height="100"></canvas><br/>
         <button onclick="clearSignature('signatureClient')">Clear</button>
         <p>Date: <span id="signatureClientDate"></span></p>
       </div>
@@ -148,8 +152,8 @@
     </section>
 
     <!-- Saved Invoices -->
-    <section>
-      <h3>📂 Saved Invoices</h3>
+    <section class="step">
+      <h2>📂 Saved Invoices</h2>
       <div id="savedInvoices"></div>
     </section>
 
@@ -162,7 +166,7 @@
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-  <!-- ===== Your existing logic (fixed & enhanced) ===== -->
+  <!-- ===== App logic (оновлено з бейджами, без інлайнових стилів) ===== -->
   <script>
 /* ==== Helpers & Calendars ==== */
 function initDatepickers(root=document){
@@ -305,6 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (invDate) invDate.addEventListener('change', suggestDueDate);
   renderInvoices();
 });
+
 /* ==== OCR ==== */
 function processReceipt() {
   const input = document.getElementById("receiptInput");
@@ -355,7 +360,6 @@ function saveInvoice() {
       date: new Date().toLocaleDateString("nl-NL")
     }
   };
-  // rows
   const rows = document.querySelectorAll("#itemsBody tr");
   rows.forEach(row => {
     invoice.items.push({
@@ -365,14 +369,12 @@ function saveInvoice() {
       vat: parseFloat(row.querySelector(".vat")?.value || 0)
     });
   });
-  // signatures
   try {
     const sb = document.getElementById("signatureBusiness")?.toDataURL() || "";
     const sc = document.getElementById("signatureClient")?.toDataURL() || "";
     invoice.signatures.business = sb; invoice.signatures.client = sc;
-  } catch(e) { /* ignore */ }
+  } catch(e) {}
 
-  // save locally
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const currentIndex = localStorage.getItem("currentInvoiceIndex");
   if (currentIndex !== null && !isNaN(currentIndex) && invoices[+currentIndex]) {
@@ -384,10 +386,7 @@ function saveInvoice() {
   }
   localStorage.setItem("invoices", JSON.stringify(invoices));
 
-  // save to Firestore (if available & logged in)
-  if (window.saveInvoiceToCloud) {
-    window.saveInvoiceToCloud(invoice).catch(console.error);
-  }
+  if (window.saveInvoiceToCloud) { window.saveInvoiceToCloud(invoice).catch(console.error); }
 
   resetFormFields();
   alert("Invoice saved successfully!");
@@ -396,11 +395,9 @@ function editInvoice(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
   const inv = invoices[index];
   if (!inv || (inv.status && inv.status !== "Draft")) { alert("Editing is only allowed in 'Draft' status."); return; }
-  // business
   ["businessName","kvk","iban","btw","email","businessAddress","businessPhone"].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value = inv[id] || "";
   });
-  // client & meta
   document.getElementById("clientName").value = inv.clientName || "";
   document.getElementById("clientEmail").value = inv.clientEmail || "";
   document.getElementById("clientAddress").value = inv.clientAddress || "";
@@ -410,16 +407,22 @@ function editInvoice(index) {
   document.getElementById("dueDate").value = inv.dueDate || "";
   document.getElementById("note").value = inv.note || "";
   document.getElementById("status").value = inv.status || "Draft";
-  // items
   const tbody = document.getElementById("itemsBody"); tbody.innerHTML="";
   (inv.items||[]).forEach(item => addItem(item.desc, item.qty, item.price, item.vat));
-  // signatures (images)
   if (inv.signatures) {
     const bImg = new Image();
-    bImg.onload = () => { const c = document.getElementById("signatureBusiness"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(bImg,0,0); document.getElementById("signatureBusinessDate").innerText = inv.signatures.businessDate || inv.signatures.date || ""; };
+    bImg.onload = () => {
+      const c = document.getElementById("signatureBusiness"); const ctx=c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(bImg,0,0);
+      document.getElementById("signatureBusinessDate").innerText = inv.signatures.businessDate || inv.signatures.date || "";
+    };
     bImg.src = inv.signatures.business || "";
     const cImg = new Image();
-    cImg.onload = () => { const c = document.getElementById("signatureClient"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(cImg,0,0); document.getElementById("signatureClientDate").innerText = inv.signatures.clientDate || inv.signatures.date || ""; };
+    cImg.onload = () => {
+      const c = document.getElementById("signatureClient"); const ctx=c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(cImg,0,0);
+      document.getElementById("signatureClientDate").innerText = inv.signatures.clientDate || inv.signatures.date || "";
+    };
     cImg.src = inv.signatures.client || "";
   }
   updateTotals();
@@ -448,7 +451,7 @@ function updateStatus(index, newStatus) {
   }
 }
 
-/* ==== Listing / Charts ==== */
+/* ==== Listing / Charts (with status badges) ==== */
 function getInvoiceTotal(inv) {
   if (!inv.items) return 0;
   return inv.items.reduce((sum, item) => {
@@ -480,6 +483,12 @@ function renderChart(invoices) {
       scales: { y: { beginAtZero: true, ticks: { callback: v => `€${v}` } } }
     }
   });
+}
+function statusBadgeHTML(statusRaw){
+  const s = (statusRaw || "Draft").toLowerCase();
+  const cls = s === "paid" ? "paid" : s === "sent" ? "sent" : "draft";
+  const txt = s === "paid" ? "Paid" : s === "sent" ? "Sent" : "Draft";
+  return `<span class="status-badge ${cls}">${txt}</span>`;
 }
 function renderInvoices() {
   const savedContainer = document.getElementById("savedInvoices"); if (!savedContainer) return;
@@ -518,9 +527,9 @@ function renderInvoices() {
   invoices.forEach((inv, index) => {
     const div = document.createElement("div");
     div.className = "invoice-block";
+    const badge = statusBadgeHTML(inv.status);
     div.innerHTML = `
-      <strong>${inv.businessName || "-"}</strong> — ${inv.invoiceNumber || "INV-2025-XXX"}<br>
-      <em>Status: ${inv.status || "Draft"}</em><br>
+      <strong>${inv.businessName || "-"}</strong> — ${inv.invoiceNumber || "INV-2025-XXX"} ${badge}<br>
       <em>Date: ${inv.invoiceDate || "N/A"}</em><br>
       <em>Total: €${getInvoiceTotal(inv).toFixed(2)}</em><br>
       <button onclick="downloadPDF(${index})">📄 PDF</button>
@@ -547,9 +556,7 @@ async function downloadPDF(index) {
   const invoices = JSON.parse(localStorage.getItem("invoices")) || []; const inv = invoices[index]; if (!inv) return;
   const cleanText = (t) => (t || "").toString().replace(/[^\x00-\x7F]/g, "");
   const invoiceNumber = cleanText(inv.invoiceNumber || `INV-2025-${(index + 1).toString().padStart(3, "0")}`);
-  // Header
   doc.setFontSize(18); doc.text("INVOICE", 105, 20, null, null, "center");
-  // From
   doc.setFontSize(12);
   doc.text("From:", 20, 35);
   doc.text(cleanText(inv.businessName), 20, 41);
@@ -559,19 +566,16 @@ async function downloadPDF(index) {
   if (inv.btw) doc.text(`BTW: ${cleanText(inv.btw)}`, 20, 65);
   doc.text(`Address: ${cleanText(inv.businessAddress)}`, 20, 71);
   doc.text(`Phone: ${cleanText(inv.businessPhone)}`, 20, 77);
-  // To
   doc.text("To:", 140, 35);
   doc.text(cleanText(inv.clientName), 140, 41);
   if (inv.clientEmail) doc.text(cleanText(inv.clientEmail), 140, 47);
   doc.text(`Address: ${cleanText(inv.clientAddress)}`, 140, 53);
   doc.text(`Phone: ${cleanText(inv.clientPhone)}`, 140, 59);
-  // Meta
   let nextY = 90;
   doc.autoTable({ startY: nextY, head: [['Invoice Number','Date Issued','Due Date','Status']],
     body:[[ invoiceNumber, cleanText(inv.invoiceDate||""), cleanText(inv.dueDate||""), cleanText(inv.status||'Draft') ]],
     styles:{halign:'left'}, headStyles:{ fillColor:[240,240,240] } });
   nextY = doc.lastAutoTable.finalY + 10;
-  // Items
   const rows = (inv.items||[]).map(item=>[
     cleanText(item.desc), item.qty, `€${parseFloat(item.price).toFixed(2)}`, `${item.vat}%`,
     `€${(item.qty*item.price*(1+item.vat/100)).toFixed(2)}`
@@ -582,7 +586,6 @@ async function downloadPDF(index) {
     headStyles:{ fillColor:[240,240,240] }
   });
   nextY = doc.lastAutoTable.finalY + 10;
-  // Totals
   const subtotal = (inv.items||[]).reduce((s,i)=>s+i.qty*i.price,0);
   const vatTotal = (inv.items||[]).reduce((s,i)=>s+i.qty*i.price*(i.vat/100),0);
   const total = subtotal + vatTotal;
@@ -618,7 +621,6 @@ function repeatMonthly(index) {
 
   <!-- ===== Firebase module: profile autofill + cloud save + increment ===== -->
   <script type="module">
-    // 🔧 Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -636,17 +638,13 @@ function repeatMonthly(index) {
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // expose cloud save to non-module script
     window.saveInvoiceToCloud = async function(invoice){
       const user = auth.currentUser;
-      if (!user) return; // allow offline/local usage
-      // Save invoice doc under user
+      if (!user) return;
       await addDoc(collection(db, 'users', user.uid, 'invoices'), invoice);
-      // Increment invoiceCount for limits
       await updateDoc(doc(db,'users',user.uid), { invoiceCount: increment(1) }).catch(()=>{});
     };
 
-    // ===== Autofill from profile when coming from dashboard (#autofill=1) =====
     const wantAutofill = location.hash.includes("autofill=1");
     function setIfAllowed(input, value) {
       if (!input) return;
