@@ -73,92 +73,89 @@
   <script>
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("emailForm");
-  const subjectEl = document.getElementById("subject");
-  const bodyEl = document.getElementById("body");
-  const cityEl = document.getElementById("city");
-  const todayEl = document.getElementById("todayDate");
-  const output = document.getElementById("output");
-  const aiBtn = document.getElementById("aiFillBtn");
-  const printBtn = document.getElementById("printBtn");
-  const exampleBtn = document.getElementById("exampleBtn");
-  const langSelector = document.getElementById("language");
-
-  // 🗓️ Автоматична дата
-  const today = new Date().toISOString().slice(0, 10);
-  todayEl.value = today;
-
-  // 🧠 AI-заповнення (демо-логіка)
-  aiBtn.addEventListener("click", () => {
-    subjectEl.value = "Request for urgent housing support";
-    bodyEl.value = `Dear Gemeente,
-
-I am writing to request urgent assistance regarding housing. My current living situation is unsustainable, and I kindly ask for your help in finding a suitable solution.
-
-Sincerely,
-[Your Name]`;
-
-    subjectEl.classList.add("ai-filled");
-    bodyEl.classList.add("ai-filled");
+  const get = (id) => document.getElementById(id);
+  
+  // Fill with AI example
+  get("aiFillBtn")?.addEventListener("click", () => {
+    get("senderName").value = "John Example";
+    get("senderEmail").value = "john@example.com";
+    get("senderAddress").value = "Main Street 1, 1234AB";
+    get("receiverName").value = "Gemeente Den Bosch";
+    get("subject").value = "Request for urgent housing support";
+    get("body").value = `Dear Gemeente,\n\nI am writing to request urgent assistance with my current housing situation. My family and I are experiencing difficulties and would greatly appreciate any available support or programs.\n\nSincerely,\nJohn Example`;
+    get("todayDate").value = new Date().toLocaleDateString();
+    
+    get("body").classList.add("ai-filled");
   });
 
-  // 🧪 Load Example
-  exampleBtn.addEventListener("click", () => {
-    subjectEl.value = "Complaint about housing conditions";
-    bodyEl.value = `Dear Gemeente,
-
-I would like to file a complaint regarding my current accommodation. The conditions are below acceptable standards, and I respectfully request your immediate attention to this matter.
-
-Kind regards,
-[Your Name]`;
-
-    subjectEl.classList.add("ai-filled");
-    bodyEl.classList.add("ai-filled");
+  // Load Example
+  get("loadExampleBtn")?.addEventListener("click", () => {
+    get("subject").value = "Complaint regarding public service";
+    get("body").value = "Dear Gemeente,\n\nI would like to file a complaint regarding...\n\nRegards,";
+    get("body").classList.add("ai-filled");
   });
 
-  // 💾 Автозбереження
-  form.addEventListener("input", () => {
-    const data = {
-      name: document.getElementById("name").value,
-      email: document.getElementById("email").value,
-      city: cityEl.value,
-      date: todayEl.value,
-      subject: subjectEl.value,
-      body: bodyEl.value,
-    };
-    localStorage.setItem("smartEmailToGemeente", JSON.stringify(data));
+  // Translate placeholder (mock)
+  get("translateBtn")?.addEventListener("click", () => {
+    alert("🌐 Auto-translation coming soon!");
   });
 
-  // 📥 Автовідновлення
-  const saved = JSON.parse(localStorage.getItem("smartEmailToGemeente"));
-  if (saved) {
-    document.getElementById("name").value = saved.name || "";
-    document.getElementById("email").value = saved.email || "";
-    cityEl.value = saved.city || "";
-    todayEl.value = saved.date || today;
-    subjectEl.value = saved.subject || "";
-    bodyEl.value = saved.body || "";
+  // Auto-date
+  const dateField = get("todayDate");
+  if (dateField && !dateField.value) {
+    dateField.value = new Date().toLocaleDateString();
   }
 
-  // 🌐 Multi-language placeholders
-  langSelector.addEventListener("change", () => {
-    const lang = langSelector.value;
-    if (lang === "nl") {
-      subjectEl.placeholder = "Onderwerp van de e-mail";
-      bodyEl.placeholder = "Typ hier uw bericht in het Nederlands...";
-    } else {
-      subjectEl.placeholder = "Subject of the email";
-      bodyEl.placeholder = "Type your message here in English...";
-    }
+  // Save
+  get("saveEmailBtn")?.addEventListener("click", () => {
+    const email = {
+      senderName: get("senderName").value,
+      senderEmail: get("senderEmail").value,
+      senderAddress: get("senderAddress").value,
+      receiverName: get("receiverName").value,
+      subject: get("subject").value,
+      body: get("body").value,
+      todayDate: get("todayDate").value,
+    };
+    const emails = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    emails.push(email);
+    localStorage.setItem("savedEmails", JSON.stringify(emails));
+    alert("💾 Email saved!");
   });
 
-  // 🖨️ Друк
-  printBtn.addEventListener("click", () => window.print());
+  // Load saved emails
+  get("savedEmailsBtn")?.addEventListener("click", () => {
+    const emails = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    if (emails.length === 0) return alert("📂 No saved emails found.");
 
-  // 📧 Send via Email (PRO)
-  document.getElementById("sendEmailBtn")?.addEventListener("click", () => {
-    const mailtoLink = `mailto:${document.getElementById("email").value}?subject=${encodeURIComponent(subjectEl.value)}&body=${encodeURIComponent(bodyEl.value)}`;
-    window.open(mailtoLink, "_blank");
+    const last = emails[emails.length - 1];
+    get("senderName").value = last.senderName;
+    get("senderEmail").value = last.senderEmail;
+    get("senderAddress").value = last.senderAddress;
+    get("receiverName").value = last.receiverName;
+    get("subject").value = last.subject;
+    get("body").value = last.body;
+    get("todayDate").value = last.todayDate;
+
+    alert("✅ Loaded latest saved email.");
+  });
+
+  // Print
+  get("printBtn")?.addEventListener("click", () => {
+    window.print();
+  });
+
+  // PDF
+  get("exportPDFBtn")?.addEventListener("click", () => {
+    alert("📄 PDF Export coming next step...");
+  });
+
+  // Send via Email
+  get("sendEmailBtn")?.addEventListener("click", () => {
+    const email = get("senderEmail").value;
+    const subject = get("subject").value;
+    const body = get("body").value;
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 });
 
