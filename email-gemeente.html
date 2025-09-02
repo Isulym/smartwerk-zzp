@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📧 Email to Gemeente - SmartWerk</title>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="style-email.css" />
 </head>
 <body>
   <div class="wrap">
@@ -17,86 +18,71 @@
 
     <section class="intro">
       <h1>📧 Send Email to Gemeente</h1>
-      <p class="muted">Fill in the details below to send a formal email to your local municipality. Use AI to draft your message, translate it, and export to PDF.</p>
+      <p class="muted">Fill in the details, use AI, save, and export to PDF.</p>
     </section>
-    <select id="languageSelect">
-  <option value="en">Translate to English</option>
-  <option value="nl">Vertaal naar Nederlands</option>
-</select>
-
-    <label for="exampleSelect">📂 Choose Example:</label>
-<select id="exampleSelect">
-  <option value="">-- Select a category --</option>
-  <option value="subsidy">Subsidy Request</option>
-  <option value="complaint">Complaint</option>
-  <option value="housing">Housing Request</option>
-  <option value="information">General Info Request</option>
-</select>
-    
 
     <form id="emailForm">
       <div class="form-section">
         <h2>📤 From (You)</h2>
-        <input type="text" id="userName" placeholder="Your Full Name" required />
-        <input type="email" id="userEmail" placeholder="Your Email Address" required />
-        <input type="text" id="userAddress" placeholder="Your Address (Street + City)" />
+        <input type="text" id="fromName" placeholder="Your Full Name" required />
+        <input type="email" id="fromEmail" placeholder="Your Email Address" required />
+        <input type="text" id="fromAddress" placeholder="Your Address" />
       </div>
 
       <div class="form-section">
         <h2>📩 To (Gemeente)</h2>
-        <input type="text" id="gemeenteName" placeholder="Gemeente Name (e.g. Den Bosch)" />
-        <input type="email" id="gemeenteEmail" placeholder="Gemeente Email" readonly />
+        <input type="text" id="toGemeente" placeholder="Gemeente Name" />
+        <input type="email" id="toEmail" placeholder="Gemeente Email" />
       </div>
 
       <div class="form-section">
         <h2>📝 Email Content</h2>
-        <input type="text" id="emailSubject" placeholder="Subject of your email" required />
-        <select id="emailCategory">
-          <option value="">Select Category</option>
-          <option value="housing">Housing Request</option>
-          <option value="subsidy">Subsidy / Financial Help</option>
-          <option value="complaint">Complaint</option>
-          <option value="general">General Question</option>
-        </select>
-        <textarea id="emailBody" rows="10" placeholder="Write your message here..." required></textarea>
+        <input type="text" id="subject" placeholder="Subject" required />
+        <textarea id="messageBody" placeholder="Write your message..." rows="8" required></textarea>
       </div>
 
       <div class="form-section">
-        <h2>📍 Date & City</h2>
+        <h2>📆 Date & City</h2>
         <input type="date" id="todayDate" />
-        <input type="text" id="currentCity" placeholder="City (e.g. Den Bosch)" />
+        <input type="text" id="city" placeholder="City" />
       </div>
 
       <div class="form-section">
         <h2>✍️ Signature</h2>
-        <textarea id="smartSignature" rows="3" placeholder="Met vriendelijke groet, [Your Name]..."></textarea>
+        <textarea id="signature" rows="3" placeholder="Met vriendelijke groet, [Your Name]"></textarea>
       </div>
 
-      <div class="form-section checkbox">
-        <label>
-          <input type="checkbox" id="gdprConsent" required />
-          I agree to save my data in localStorage for SmartWerk use (GDPR-compliant).
-        </label>
+      <div class="form-section">
+        <h2>📂 Examples & Tools</h2>
+        <select id="exampleSelect">
+          <option value="">📂 Choose Example</option>
+          <option value="subsidy">Subsidy Request</option>
+          <option value="complaint">Complaint</option>
+          <option value="housing">Housing Request</option>
+        </select>
+        <select id="languageSelect">
+          <option value="en">🌐 Translate to English</option>
+          <option value="nl">🌐 Vertaal naar Nederlands</option>
+        </select>
       </div>
 
       <div class="actions">
         <button type="button" class="btn ghost" id="aiFillBtn">🤖 AI Fill</button>
         <button type="button" class="btn ghost" id="loadExampleBtn">📂 Load Example</button>
         <button type="button" class="btn ghost" id="translateBtn">🌐 Translate</button>
-        <button type="button" class="btn" id="printBtn">🖨️ Print</button>
-       <button type="button" class="btn" id="btn-export-pdf">📄 Export as PDF</button>
+        <button type="button" class="btn" id="btn-export-pdf">📄 Export as PDF</button>
         <button type="button" class="btn" id="sendEmailBtn">📤 Send via Email</button>
         <button type="button" class="btn" id="btn-save-email">💾 Save Email</button>
         <button type="button" class="btn ghost" id="btn-view-saved">📂 View Saved Emails</button>
       </div>
 
-     <div id="savedEmailsModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>📂 Saved Emails</h3>
-    <div id="savedEmailsList"></div>
-    <button class="btn" onclick="closeModal()">Close</button>
-  </div>
-</div>
+      <div id="savedEmailsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <h3>📂 Saved Emails</h3>
+          <div id="savedEmailsList"></div>
+          <button class="btn" onclick="document.getElementById('savedEmailsModal').style.display='none'">Close</button>
+        </div>
+      </div>
     </form>
 
     <footer class="foot-note">
@@ -104,411 +90,173 @@
     </footer>
   </div>
 
- <script>
-  document.addEventListener("DOMContentLoaded", () => {
-  // 📌 Елементи
-  const todayDate = document.getElementById("todayDate");
-  const cityInput = document.getElementById("city");
-  const gemeenteSelect = document.getElementById("gemeente");
-  const gemeenteEmail = document.getElementById("toEmail");
-  const fromName = document.getElementById("fromName");
-  const fromEmail = document.getElementById("fromEmail");
-  const subjectInput = document.getElementById("subject");
-  const messageInput = document.getElementById("message");
-  const aiFillBtn = document.getElementById("aiFillBtn");
-  const loadExampleBtn = document.getElementById("loadExampleBtn");
-  const translateBtn = document.getElementById("translateBtn");
-  const saveBtn = document.getElementById("saveBtn");
+  <script>
 
-  // 📅 Автоматична дата
-  const now = new Date();
-  todayDate.value = now.toISOString().split("T")[0];
+document.addEventListener("DOMContentLoaded", () => {
+  const get = (id) => document.getElementById(id)?.value || "";
 
-  // 📍 Автозаповнення email Gemeente
-  const gemeenteEmails = {
-    "Den Bosch": "info@s-hertogenbosch.nl",
-    "Utrecht": "gemeente@utrecht.nl",
-    "Rotterdam": "gemeente@rotterdam.nl",
-    "Amsterdam": "gemeente@amsterdam.nl"
-  };
+  // Auto-fill today's date
+  const todayField = document.getElementById("todayDate");
+  if (todayField) todayField.value = new Date().toISOString().slice(0, 10);
 
-  gemeenteSelect.addEventListener("change", () => {
-    gemeenteEmail.value = gemeenteEmails[gemeenteSelect.value] || "";
-    cityInput.value = gemeenteSelect.value;
-  });
-
-  // 🤖 AI Fill — Заповнення полів (імітоване)
-  aiFillBtn.addEventListener("click", () => {
-    fromName.value = "John Example";
-    fromEmail.value = "john@example.com";
-    subjectInput.value = "Housing Support Request";
-    messageInput.value = `Dear ${gemeenteSelect.value || "Gemeente"},\n\nI am writing to request support for my housing situation. I am currently living in temporary accommodation with my family and would like to explore more stable housing options available in your municipality.\n\nThank you for your attention.\n\nKind regards,\nJohn Example`;
-
-    // Підсвітка полів
-    [subjectInput, messageInput].forEach(el => el.classList.add("ai-filled"));
-  });
-
-  // 📂 Load Example — приклад заповнення
-  loadExampleBtn.addEventListener("click", () => {
-    subjectInput.value = "Request for urgent municipal support";
-    messageInput.value = `Dear ${gemeenteSelect.value || "Gemeente"},\n\nI would like to apply for temporary housing support due to my current living conditions. My situation requires urgent review and I hope you can assist.\n\nSincerely,\nJohn Example`;
-    [subjectInput, messageInput].forEach(el => el.classList.add("ai-filled"));
-  });
-
-  // 🌐 Translate EN ↔ NL (простий placeholder)
-  translateBtn.addEventListener("click", () => {
-    if (subjectInput.value.includes("Request") || messageInput.value.includes("Dear")) {
-      subjectInput.value = "Verzoek om huisvestingssteun";
-      messageInput.value = `Geachte ${gemeenteSelect.value || "Gemeente"},\n\nIk wil hierbij een verzoek indienen voor huisvestingssteun vanwege mijn huidige woonsituatie.\n\nMet vriendelijke groet,\nJohn Example`;
-    } else {
-      subjectInput.value = "Request for housing support";
-      messageInput.value = `Dear ${gemeenteSelect.value || "Gemeente"},\n\nI am writing to request housing assistance due to my current living conditions.\n\nKind regards,\nJohn Example`;
-    }
-    [subjectInput, messageInput].forEach(el => el.classList.add("ai-filled"));
-  });
-
-  // 💾 Save Email to localStorage
-  saveBtn.addEventListener("click", () => {
-    const email = {
-      date: todayDate.value,
-      city: cityInput.value,
-      to: gemeenteEmail.value,
-      from: {
-        name: fromName.value,
-        email: fromEmail.value
-      },
-      subject: subjectInput.value,
-      message: messageInput.value
-    };
-    let saved = JSON.parse(localStorage.getItem("savedGemeenteEmails") || "[]");
-    saved.push(email);
-    localStorage.setItem("savedGemeenteEmails", JSON.stringify(saved));
-    alert("✅ Email saved!");
-  });
-});
-
-   // 📂 Показати збережені листи
-const savedEmailsBtn = document.getElementById("savedEmailsBtn");
-const savedModal = document.getElementById("savedEmailsModal");
-const savedList = document.getElementById("savedEmailsList");
-const closeModalBtn = document.getElementById("closeSavedModal");
-
-savedEmailsBtn.addEventListener("click", () => {
-  const saved = JSON.parse(localStorage.getItem("savedGemeenteEmails") || "[]");
-  savedList.innerHTML = "";
-
-  if (saved.length === 0) {
-    savedList.innerHTML = "<p class='muted'>No saved emails yet.</p>";
-    savedModal.style.display = "block";
-    return;
-  }
-
-  saved.forEach((email, index) => {
-    const item = document.createElement("div");
-    item.className = "saved-item";
-    item.innerHTML = `
-      <p><strong>Date:</strong> ${email.date} | <strong>City:</strong> ${email.city}</p>
-      <p><strong>To:</strong> ${email.to}</p>
-      <p><strong>Subject:</strong> ${email.subject}</p>
-      <pre>${email.message}</pre>
-      <hr />
-    `;
-    savedList.appendChild(item);
-  });
-
-  savedModal.style.display = "block";
-});
-
-closeModalBtn.addEventListener("click", () => {
-  savedModal.style.display = "none";
-});
-
-   document.getElementById("exportPdfBtn").addEventListener("click", async () => {
-  const { jsPDF } = await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js");
-  const doc = new jsPDF();
-
-  const get = (id) => document.getElementById(id)?.value || "-";
-
-  const today = new Date().toLocaleDateString();
-  let y = 20;
-
-  function addSection(title, content) {
-    doc.setFontSize(14);
-    doc.setFont(undefined, "bold");
-    doc.text(title, 14, y);
-    y += 6;
-    doc.setFontSize(12);
-    doc.setFont(undefined, "normal");
-    const lines = doc.splitTextToSize(content, 180);
-    doc.text(lines, 14, y);
-    y += lines.length * 6 + 4;
-  }
-
-  doc.setFontSize(18);
-  doc.text("📧 Email to Gemeente", 14, y);
-  y += 10;
-
-  addSection("📍 From", `${get("userName")}\n${get("userEmail")}`);
-  addSection("📬 To", `${get("gemeenteName")}\n${get("gemeenteEmail")}`);
-  addSection("📝 Subject", get("emailSubject"));
-  addSection("✉️ Message", get("emailBody"));
-  addSection("📆 Date & Location", `${get("todayDate")} — ${get("city")}`);
-
-  doc.setFontSize(10);
-  doc.setTextColor(150);
-  doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
-
-  doc.save(`Email-to-Gemeente-${get("gemeenteName")}.pdf`);
-});
-
-   document.getElementById("sendEmailBtn").addEventListener("click", () => {
-  const name = document.getElementById("fromName").value || "";
-  const email = document.getElementById("fromEmail").value || "";
-  const toEmail = document.getElementById("toEmail").value || "";
-  const subject = document.getElementById("emailSubject").value || "";
-  const body = document.getElementById("emailBody").value || "";
-
-  if (!toEmail || !subject || !body) {
-    alert("❗ Please fill in the recipient, subject, and body before sending.");
-    return;
-  }
-
-  const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + "\n\nFrom: " + name + " <" + email + ">")}`;
-  window.open(mailtoLink, "_blank");
-});
-   if (!isProUser) {
-  alert("🔒 This feature is available for PRO users only.");
-  return;
-}
-
-   function translateText(text, targetLang) {
-  const dictionary = {
-    en: {
-      "Geachte heer/mevrouw": "Dear Sir/Madam",
-      "Ik wil graag informatie ontvangen over": "I would like to receive information about",
-      "Met vriendelijke groet": "Kind regards",
-      "Dank voor uw hulp": "Thank you for your help",
-      "Mijn naam is": "My name is",
-      "Ik woon in": "I live in",
-      "Onderwerp": "Subject",
-    },
-    nl: {
-      "Dear Sir/Madam": "Geachte heer/mevrouw",
-      "I would like to receive information about": "Ik wil graag informatie ontvangen over",
-      "Kind regards": "Met vriendelijke groet",
-      "Thank you for your help": "Dank voor uw hulp",
-      "My name is": "Mijn naam is",
-      "I live in": "Ik woon in",
-      "Subject": "Onderwerp",
-    },
-  };
-
-  const phrases = dictionary[targetLang];
-  let translated = text;
-
-  for (const [from, to] of Object.entries(phrases)) {
-    const regex = new RegExp(from, "gi");
-    translated = translated.replace(regex, to);
-  }
-
-  return translated;
-}
-   document.getElementById("translateBtn").addEventListener("click", () => {
-  const lang = document.getElementById("languageSelect").value;
-  const emailBody = document.getElementById("emailBody");
-  const translated = translateText(emailBody.value, lang);
-  emailBody.value = translated;
-  emailBody.classList.add("ai-filled"); // підсвітка
-});
-
-   function loadExample(type) {
-  const examples = {
-    subsidy: {
-      subject: "Aanvraag voor gemeentelijke subsidie",
-      body: `Geachte heer/mevrouw,
-
-Ik wil graag informeren naar de mogelijkheden voor een gemeentelijke subsidie voor zelfstandigen in mijn situatie.
-
-Mijn naam is [Uw naam], ik ben woonachtig in [Uw woonplaats] en ik sta ingeschreven bij de KvK onder nummer [KvK-nummer].
-
-Kunt u mij alstublieft informeren over de beschikbare regelingen en de benodigde documenten?
-
-Met vriendelijke groet,
-[Uw naam]`
-    },
-    complaint: {
-      subject: "Klacht over dienstverlening",
-      body: `Geachte heer/mevrouw,
-
-Hierbij wil ik een klacht indienen over de manier waarop ik ben geholpen bij uw loket. De behandeling was onvriendelijk en onvoldoende informatief.
-
-Ik verzoek u deze klacht serieus te nemen en mij te informeren over de verdere afhandeling.
-
-Met vriendelijke groet,
-[Uw naam]`
-    },
-    housing: {
-      subject: "Aanvraag voor sociale of tijdelijke huisvesting",
-      body: `Geachte heer/mevrouw,
-
-Ik wil graag informeren naar de mogelijkheden voor tijdelijke of sociale huisvesting in [Gemeente]. Ik ben op dit moment woonachtig met mijn gezin in een tijdelijke situatie.
-
-Kunt u aangeven wat de procedure is en welke documenten nodig zijn?
-
-Met vriendelijke groet,
-[Uw naam]`
-    },
-    information: {
-      subject: "Informatieverzoek betreffende gemeentelijke diensten",
-      body: `Geachte heer/mevrouw,
-
-Ik zou graag informatie ontvangen over de beschikbare diensten en ondersteuning die uw gemeente aanbiedt voor zelfstandigen.
-
-Met vriendelijke groet,
-[Uw naam]`
-    }
-  };
-
-  if (!type || !examples[type]) return;
-
-  const subject = examples[type].subject;
-  const body = examples[type].body;
-
-  document.getElementById("emailSubject").value = subject;
-  const bodyField = document.getElementById("emailBody");
-  bodyField.value = body;
-  bodyField.classList.add("ai-filled");
-}
-
-   document.getElementById("exampleSelect").addEventListener("change", (e) => {
-  const selected = e.target.value;
-  if (selected) {
-    loadExample(selected);
-  }
-});
-
-   document.getElementById("saveEmailBtn").addEventListener("click", () => {
-  const email = {
-    fromName: document.getElementById("fromName").value,
-    fromEmail: document.getElementById("fromEmail").value,
-    toGemeente: document.getElementById("toGemeente").value,
-    toEmail: document.getElementById("toEmail").value,
-    date: document.getElementById("todayDate").value,
-    subject: document.getElementById("emailSubject").value,
-    body: document.getElementById("emailBody").value
-  };
-
-  const savedEmails = JSON.parse(localStorage.getItem("savedEmails") || "[]");
-  savedEmails.push(email);
-  localStorage.setItem("savedEmails", JSON.stringify(savedEmails));
-
-  alert("✅ Email saved!");
-});
-
-document.getElementById("viewSavedBtn").addEventListener("click", () => {
-  const modal = document.getElementById("savedEmailsModal");
-  const list = document.getElementById("savedEmailList");
-  list.innerHTML = "";
-
-  const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
-  if (saved.length === 0) {
-    list.innerHTML = "<p>No saved emails yet.</p>";
-  } else {
-    saved.forEach((email, index) => {
-      const div = document.createElement("div");
-      div.className = "saved-item";
-      div.innerHTML = `
-        <strong>${email.subject}</strong> — ${email.date}<br/>
-        To: ${email.toGemeente} (${email.toEmail})<br/>
-        <pre>${email.body}</pre>
-        <button onclick="loadSavedEmail(${index})">Load</button>
-      `;
-      list.appendChild(div);
+  // AI Fill
+  document.getElementById("aiFillBtn")?.addEventListener("click", () => {
+    document.getElementById("messageBody").value =
+      "I am writing to request urgent assistance regarding my current housing situation. I kindly ask for support or clarification on possible solutions available for residents in my case. Thank you.";
+    document.getElementById("signature").value =
+      "Met vriendelijke groet,\n" + get("fromName");
+    document.querySelectorAll("textarea, input").forEach((el) => {
+      if (el.value) el.classList.add("ai-filled");
     });
-  }
+  });
 
-  modal.classList.remove("hidden");
+  // Load Example
+  document.getElementById("loadExampleBtn")?.addEventListener("click", () => {
+    const type = document.getElementById("exampleSelect").value;
+    if (type === "subsidy") {
+      document.getElementById("subject").value = "Request for energy subsidy";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI would like to request an energy subsidy due to financial challenges. Please let me know the required steps and documentation.\n\nThank you.";
+    } else if (type === "complaint") {
+      document.getElementById("subject").value = "Formal Complaint";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI am submitting this complaint regarding an unresolved issue that affects my family. I kindly ask for a formal response and solution.\n\nSincerely.";
+    } else if (type === "housing") {
+      document.getElementById("subject").value = "Urgent housing request";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI am urgently looking for housing for my family. I kindly ask for assistance or advice on available options.\n\nThank you.";
+    }
+  });
+
+  // Translate placeholder text
+  document.getElementById("translateBtn")?.addEventListener("click", () => {
+    const lang = document.getElementById("languageSelect").value;
+    if (lang === "nl") {
+      document.getElementById("subject").placeholder = "Onderwerp";
+      document.getElementById("messageBody").placeholder = "Typ je bericht...";
+      document.getElementById("fromName").placeholder = "Jouw naam";
+      document.getElementById("fromEmail").placeholder = "Jouw e-mailadres";
+    } else {
+      document.getElementById("subject").placeholder = "Subject";
+      document.getElementById("messageBody").placeholder = "Write your message...";
+      document.getElementById("fromName").placeholder = "Your name";
+      document.getElementById("fromEmail").placeholder = "Your email address";
+    }
+  });
+
+  // Save Email to localStorage
+  document.getElementById("btn-save-email")?.addEventListener("click", () => {
+    const savedEmails = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    const email = {
+      fromName: get("fromName"),
+      fromEmail: get("fromEmail"),
+      toGemeente: get("toGemeente"),
+      toEmail: get("toEmail"),
+      subject: get("subject"),
+      body: get("messageBody"),
+      date: get("todayDate"),
+      city: get("city"),
+      signature: get("signature"),
+    };
+    savedEmails.push(email);
+    localStorage.setItem("savedEmails", JSON.stringify(savedEmails));
+    alert("✅ Email saved successfully!");
+  });
+
+  // View Saved Emails
+  document.getElementById("btn-view-saved")?.addEventListener("click", () => {
+    const list = document.getElementById("savedEmailsList");
+    list.innerHTML = "";
+    const savedEmails = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    if (!savedEmails.length) {
+      list.innerHTML = "<p class='muted'>No saved emails yet.</p>";
+    } else {
+      savedEmails.forEach((e, i) => {
+        const div = document.createElement("div");
+        div.className = "email-entry";
+        div.innerHTML = `
+          <strong>${e.subject}</strong> (${e.date}, ${e.city})<br/>
+          To: ${e.toGemeente} — ${e.toEmail}<br/>
+          <button onclick="fillEmail(${i})">Load</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+    document.getElementById("savedEmailsModal").style.display = "block";
+  });
+
+  window.fillEmail = function (index) {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]")[index];
+    if (!saved) return;
+    document.getElementById("fromName").value = saved.fromName;
+    document.getElementById("fromEmail").value = saved.fromEmail;
+    document.getElementById("toGemeente").value = saved.toGemeente;
+    document.getElementById("toEmail").value = saved.toEmail;
+    document.getElementById("subject").value = saved.subject;
+    document.getElementById("messageBody").value = saved.body;
+    document.getElementById("todayDate").value = saved.date;
+    document.getElementById("city").value = saved.city;
+    document.getElementById("signature").value = saved.signature;
+    document.getElementById("savedEmailsModal").style.display = "none";
+  };
+
+  // Send via Email (mailto)
+  document.getElementById("sendEmailBtn")?.addEventListener("click", () => {
+    const toEmail = get("toEmail");
+    const subject = get("subject");
+    const body =
+      get("messageBody") +
+      "\n\n" +
+      get("signature") +
+      "\n" +
+      get("todayDate") +
+      " — " +
+      get("city");
+    if (!toEmail || !subject || !body) {
+      alert("❗ Please fill in recipient, subject and message.");
+      return;
+    }
+    const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink, "_blank");
+  });
+
+  // Export as PDF
+  document.getElementById("btn-export-pdf")?.addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 20;
+
+    const addSection = (title, content) => {
+      doc.setFontSize(14);
+      doc.setFont(undefined, "bold");
+      doc.text(title, 14, y);
+      y += 6;
+      doc.setFontSize(12);
+      doc.setFont(undefined, "normal");
+      const lines = doc.splitTextToSize(content, 180);
+      doc.text(lines, 14, y);
+      y += lines.length * 6 + 4;
+    };
+
+    doc.setFontSize(18);
+    doc.text("📧 Email to Gemeente", 14, y);
+    y += 10;
+
+    addSection("📍 From", `${get("fromName")}\n${get("fromEmail")}\n${get("fromAddress")}`);
+    addSection("📬 To", `${get("toGemeente")}\n${get("toEmail")}`);
+    addSection("📝 Subject", get("subject"));
+    addSection("✉️ Message", get("messageBody"));
+    addSection("✍️ Signature", get("signature"));
+    addSection("📆 Date & Location", `${get("todayDate")} — ${get("city")}`);
+
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+
+    doc.save(`Email-to-Gemeente-${get("toGemeente") || "SmartWerk"}.pdf`);
+  });
 });
-
-document.getElementById("closeSavedModal").addEventListener("click", () => {
-  document.getElementById("savedEmailsModal").classList.add("hidden");
-});
-
-window.loadSavedEmail = function(index) {
-  const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
-  const email = saved[index];
-  if (!email) return;
-
-  document.getElementById("fromName").value = email.fromName;
-  document.getElementById("fromEmail").value = email.fromEmail;
-  document.getElementById("toGemeente").value = email.toGemeente;
-  document.getElementById("toEmail").value = email.toEmail;
-  document.getElementById("todayDate").value = email.date;
-  document.getElementById("emailSubject").value = email.subject;
-  document.getElementById("emailBody").value = email.body;
-  document.getElementById("emailBody").classList.add("ai-filled");
-
-  alert("📬 Email loaded!");
-};
-
- 
-   / 📄 Export PDF logic for Email to Gemeente
-import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
-
-document.getElementById("btn-export-pdf").addEventListener("click", async () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const get = (id) => document.getElementById(id)?.value?.trim() || "-";
-
-  const fromName = get("fromName");
-  const fromEmail = get("fromEmail");
-  const fromAddress = get("fromAddress");
-
-  const gemeenteName = get("toGemeente");
-  const gemeenteEmail = get("toEmail");
-
-  const subject = get("subject");
-  const body = get("messageBody");
-  const city = get("city");
-  const date = get("todayDate");
-
-  let y = 20;
-
-  doc.setFontSize(18);
-  doc.text("📧 Email to Gemeente", 14, y);
-  y += 10;
-
-  doc.setFontSize(12);
-  doc.text(`From: ${fromName}, ${fromEmail}, ${fromAddress}`, 14, y);
-  y += 8;
-  doc.text(`To: ${gemeenteName}, ${gemeenteEmail}`, 14, y);
-  y += 8;
-  doc.text(`Date: ${date}   |   City: ${city}`, 14, y);
-  y += 10;
-
-  doc.setFont(undefined, "bold");
-  doc.text(`Subject:`, 14, y);
-  doc.setFont(undefined, "normal");
-  doc.text(subject, 14, y + 6);
-  y += 16;
-
-  doc.setFont(undefined, "bold");
-  doc.text(`Message:`, 14, y);
-  y += 6;
-  doc.setFont(undefined, "normal");
-  const splitBody = doc.splitTextToSize(body, 180);
-  doc.text(splitBody, 14, y);
-  y += splitBody.length * 7;
-
-  // Footer
-  doc.setFontSize(10);
-  doc.setTextColor(150);
-  doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
-
-  doc.save(`Email-to-${gemeenteName || "Gemeente"}.pdf`);
-});
-    </script>
-
+    
+  </script>
 </body>
 </html>
