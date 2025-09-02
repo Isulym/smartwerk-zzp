@@ -61,7 +61,7 @@
 
       <div class="actions">
         <button type="button" class="btn ghost" id="aiFillBtn">🤖 AI Fill</button>
-        <button type="button" class="btn primary" id="downloadPDFBtn">Export as PDF</button>
+        <button type="submit" class="btn primary" id="downloadPDFBtn">Export as PDF</button>
         <button type="button" class="btn ghost" id="downloadDOCXBtn">Download DOCX</button>
       </div>
     </form>
@@ -249,12 +249,103 @@ function section(title, lines) {
     ),
   ];
 }
+     // saved-contracts.js — SmartWerk Freelance Contract | Saved Contracts
+
+document.addEventListener("DOMContentLoaded", () => {
+  const saveBtn = document.getElementById("saveBtn");
+  const viewBtn = document.getElementById("viewSavedBtn");
+
+  saveBtn?.addEventListener("click", () => {
+    const contract = {
+      businessName: get("businessName"),
+      businessKvK: get("businessKvK"),
+      businessVAT: get("businessVAT"),
+      businessIBAN: get("businessIBAN"),
+      clientName: get("clientName"),
+      clientAddress: get("clientAddress"),
+      projectDescription: get("projectDescription"),
+      timeline: get("timeline"),
+      rate: get("rate"),
+      paymentTerms: get("paymentTerms"),
+      terminationClause: get("terminationClause"),
+      jurisdiction: get("jurisdiction"),
+      signatureName: get("signatureName"),
+      contractDate: get("contractDate"),
+      id: Date.now()
+    };
+
+    const saved = JSON.parse(localStorage.getItem("smartwerkSavedContracts") || "[]");
+    saved.push(contract);
+    localStorage.setItem("smartwerkSavedContracts", JSON.stringify(saved));
+    alert("✅ Contract saved successfully.");
+  });
+
+  viewBtn?.addEventListener("click", () => {
+    const container = document.createElement("div");
+    container.className = "saved-modal";
+    container.innerHTML = `<div class="modal-content"><h2>📂 Saved Contracts</h2><div id="savedList"></div><button class="btn close-modal">Close</button></div>`;
+    document.body.appendChild(container);
+
+    const list = container.querySelector("#savedList");
+    const saved = JSON.parse(localStorage.getItem("smartwerkSavedContracts") || "[]");
+
+    if (!saved.length) {
+      list.innerHTML = "<p class='muted'>No saved contracts found.</p>";
+    } else {
+      saved.forEach((c, i) => {
+        const block = document.createElement("div");
+        block.className = "saved-contract";
+        block.innerHTML = `
+          <strong>📄 ${c.clientName || "Unnamed Contract"}</strong><br/>
+          <span class="muted">Date: ${c.contractDate}</span><br/>
+          <button class="btn small export-pdf">Export PDF</button>
+          <button class="btn small export-docx">Download DOCX</button>
+          <button class="btn small danger delete-contract">🗑️</button>
+        `;
+        // PDF
+        block.querySelector(".export-pdf").onclick = () => {
+          fillFields(c);
+          document.getElementById("downloadPDFBtn").click();
+        };
+        // DOCX
+        block.querySelector(".export-docx").onclick = () => {
+          fillFields(c);
+          document.getElementById("downloadDOCXBtn").click();
+        };
+        // Delete
+        block.querySelector(".delete-contract").onclick = () => {
+          saved.splice(i, 1);
+          localStorage.setItem("smartwerkSavedContracts", JSON.stringify(saved));
+          container.remove();
+          viewBtn.click();
+        };
+        list.appendChild(block);
+      });
+    }
+
+    container.querySelector(".close-modal").onclick = () => container.remove();
+  });
+
+  function get(id) {
+    return document.getElementById(id)?.value.trim() || "";
+  }
+
+  function fillFields(contract) {
+    for (const key in contract) {
+      const field = document.getElementById(key);
+      if (field) field.value = contract[key];
+    }
+  }
+});
+
+     
      
    </script>
 
   <script type="module" src="contract.js"></script>
   <script type="module" src="contract-pdf.js"></script>
   <script type="module" src="contract-docx.js"></script>
+  <script type="module" src="saved-contracts.js"></script>
 
   
 </body>
