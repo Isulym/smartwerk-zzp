@@ -1,11 +1,10 @@
-<!-- ✅ ДОПОВНЕНИЙ ФАЙЛ: contract.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>📃 Freelance Contract - SmartWerk</title>
-  <link rel="stylesheet" href="style-contract.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style-contract.css" />
 </head>
 <body>
   <div class="wrap">
@@ -23,25 +22,35 @@
 
     <form id="contractForm">
       <div class="form-section">
-        <h2>📓 Language</h2>
-        <select id="languageSwitcher">
-          <option value="en">English</option>
-          <option value="nl">Nederlands</option>
-        </select>
-      </div>
-
-      <div class="form-section">
-        <h2>💾 Preview & Content</h2>
-        <textarea id="contractText" rows="14" placeholder="Contract will appear here..." required></textarea>
-      </div>
-
-      <div class="form-section">
-        <h2>📜 Project Info</h2>
+        <h2>🧾 Business Info</h2>
         <input type="text" id="businessName" placeholder="Your Business Name" required />
+        <input type="text" id="businessKvK" placeholder="KvK Number (optional)" />
+        <input type="text" id="businessVAT" placeholder="VAT Number (optional)" />
+        <input type="text" id="businessIBAN" placeholder="IBAN (optional)" />
+      </div>
+
+      <div class="form-section">
+        <h2>👤 Client Info</h2>
         <input type="text" id="clientName" placeholder="Client Name" required />
-        <textarea id="projectDesc" placeholder="Describe the project..."></textarea>
-        <input type="text" id="projectFee" placeholder="Project Fee (e.g. 1000 EUR)" />
-        <input type="text" id="projectDeadline" placeholder="Deadline" />
+        <input type="text" id="clientAddress" placeholder="Client Address (optional)" />
+      </div>
+
+      <div class="form-section">
+        <h2>📋 Project Details</h2>
+        <textarea id="projectDescription" placeholder="Describe the project scope and deliverables..." required></textarea>
+        <textarea id="timeline" placeholder="Timeline / Milestones (optional)"></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>💶 Payment Terms</h2>
+        <input type="text" id="rate" placeholder="Total Rate / Hourly Rate" />
+        <textarea id="paymentTerms" placeholder="E.g. 50% upfront, 50% after delivery (optional)"></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>⚖️ Legal</h2>
+        <textarea id="terminationClause" placeholder="Termination terms, cancellation period, etc."></textarea>
+        <textarea id="jurisdiction" placeholder="This contract is governed by the laws of the Netherlands."></textarea>
       </div>
 
       <div class="form-section">
@@ -52,9 +61,7 @@
 
       <div class="actions">
         <button type="button" class="btn ghost" id="aiFillBtn">🤖 AI Fill</button>
-        <button type="button" class="btn" id="saveBtn">📂 Save</button>
-        <button type="button" class="btn primary" id="exportBtn">📄 Export as TXT</button>
-        <button type="submit" class="btn primary" id="downloadPDFBtn">🔍 Export as PDF</button>
+        <button type="button" class="btn primary" id="downloadPDFBtn">Export as PDF</button>
         <button type="button" class="btn ghost" id="downloadDOCXBtn">Download DOCX</button>
       </div>
     </form>
