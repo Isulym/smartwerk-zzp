@@ -51,6 +51,7 @@
         <button type="button" class="btn ghost" id="printBtn">🖨️ Print</button>
         <button type="button" class="btn ghost" id="sendEmailBtn">📤 Send via Email</button>
         <button type="submit" class="btn primary" id="exportBtn">📄 Export as PDF</button>
+        <button type="button" class="btn" id="exportPDFBtn">📄 Export as PDF</button>
       </div>
     </form>
 
@@ -69,6 +70,150 @@
   </div>
 
   <!-- JS Scripts -->
-  <script type="module" src="email-gemeente.js"></script>
+  <script>
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("emailForm");
+  const subjectEl = document.getElementById("subject");
+  const bodyEl = document.getElementById("body");
+  const cityEl = document.getElementById("city");
+  const todayEl = document.getElementById("todayDate");
+  const output = document.getElementById("output");
+  const aiBtn = document.getElementById("aiFillBtn");
+  const printBtn = document.getElementById("printBtn");
+  const exampleBtn = document.getElementById("exampleBtn");
+  const langSelector = document.getElementById("language");
+
+  // 🗓️ Автоматична дата
+  const today = new Date().toISOString().slice(0, 10);
+  todayEl.value = today;
+
+  // 🧠 AI-заповнення (демо-логіка)
+  aiBtn.addEventListener("click", () => {
+    subjectEl.value = "Request for urgent housing support";
+    bodyEl.value = `Dear Gemeente,
+
+I am writing to request urgent assistance regarding housing. My current living situation is unsustainable, and I kindly ask for your help in finding a suitable solution.
+
+Sincerely,
+[Your Name]`;
+
+    subjectEl.classList.add("ai-filled");
+    bodyEl.classList.add("ai-filled");
+  });
+
+  // 🧪 Load Example
+  exampleBtn.addEventListener("click", () => {
+    subjectEl.value = "Complaint about housing conditions";
+    bodyEl.value = `Dear Gemeente,
+
+I would like to file a complaint regarding my current accommodation. The conditions are below acceptable standards, and I respectfully request your immediate attention to this matter.
+
+Kind regards,
+[Your Name]`;
+
+    subjectEl.classList.add("ai-filled");
+    bodyEl.classList.add("ai-filled");
+  });
+
+  // 💾 Автозбереження
+  form.addEventListener("input", () => {
+    const data = {
+      name: document.getElementById("name").value,
+      email: document.getElementById("email").value,
+      city: cityEl.value,
+      date: todayEl.value,
+      subject: subjectEl.value,
+      body: bodyEl.value,
+    };
+    localStorage.setItem("smartEmailToGemeente", JSON.stringify(data));
+  });
+
+  // 📥 Автовідновлення
+  const saved = JSON.parse(localStorage.getItem("smartEmailToGemeente"));
+  if (saved) {
+    document.getElementById("name").value = saved.name || "";
+    document.getElementById("email").value = saved.email || "";
+    cityEl.value = saved.city || "";
+    todayEl.value = saved.date || today;
+    subjectEl.value = saved.subject || "";
+    bodyEl.value = saved.body || "";
+  }
+
+  // 🌐 Multi-language placeholders
+  langSelector.addEventListener("change", () => {
+    const lang = langSelector.value;
+    if (lang === "nl") {
+      subjectEl.placeholder = "Onderwerp van de e-mail";
+      bodyEl.placeholder = "Typ hier uw bericht in het Nederlands...";
+    } else {
+      subjectEl.placeholder = "Subject of the email";
+      bodyEl.placeholder = "Type your message here in English...";
+    }
+  });
+
+  // 🖨️ Друк
+  printBtn.addEventListener("click", () => window.print());
+
+  // 📧 Send via Email (PRO)
+  document.getElementById("sendEmailBtn")?.addEventListener("click", () => {
+    const mailtoLink = `mailto:${document.getElementById("email").value}?subject=${encodeURIComponent(subjectEl.value)}&body=${encodeURIComponent(bodyEl.value)}`;
+    window.open(mailtoLink, "_blank");
+  });
+});
+
+   type="module">
+  import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
+
+  const exportEmailAsPDF = async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const get = (id) => document.getElementById(id)?.value?.trim() || "-";
+
+    let y = 20;
+    doc.setFontSize(18);
+    doc.text("📧 Email to Gemeente", 14, y);
+    y += 10;
+
+    doc.setFontSize(12);
+    doc.text("From:", 14, y);
+    y += 6;
+    doc.text(`Name: ${get("senderName")}`, 14, y); y += 6;
+    doc.text(`Email: ${get("senderEmail")}`, 14, y); y += 6;
+    doc.text(`Address: ${get("senderAddress")}`, 14, y); y += 10;
+
+    doc.text("To:", 14, y);
+    y += 6;
+    doc.text(`${get("receiverName")}`, 14, y); y += 10;
+
+    doc.text("Subject:", 14, y);
+    y += 6;
+    const subjectLines = doc.splitTextToSize(get("subject"), 180);
+    doc.text(subjectLines, 14, y);
+    y += subjectLines.length * 6 + 4;
+
+    doc.text("Date:", 14, y);
+    y += 6;
+    doc.text(`${get("todayDate")}`, 14, y);
+    y += 10;
+
+    doc.text("Body:", 14, y);
+    y += 6;
+    const bodyLines = doc.splitTextToSize(get("body"), 180);
+    doc.text(bodyLines, 14, y);
+    y += bodyLines.length * 6 + 12;
+
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+
+    doc.save(`Email-${get("receiverName") || "Gemeente"}.pdf`);
+  };
+
+  document.getElementById("exportPDFBtn")?.addEventListener("click", exportEmailAsPDF);
+
+    
+  </script>
 </body>
 </html>
