@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📃 Freelance Contract - SmartWerk</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f9fc; color: #333; padding: 2em; max-width: 800px; margin: auto; }
+    .wrap { background: white; padding: 2em; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .topbar { display: flex; justify-content: space-between; margin-bottom: 1em; }
+    .brand { font-weight: bold; font-size: 1.2em; text-decoration: none; color: #000; }
+    .btn { background: #3b82f6; color: white; border: none; padding: 0.5em 1em; border-radius: 5px; cursor: pointer; text-decoration: none; }
+    .btn.ghost { background: #e2e8f0; color: #333; }
+    .form-section { margin-bottom: 1.5em; }
+    .form-section h2 { font-size: 1.1em; margin-bottom: 0.5em; }
+    input, textarea, select { width: 100%; padding: 0.5em; margin-bottom: 0.5em; border: 1px solid #ccc; border-radius: 5px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 1em; margin-top: 1em; }
+    .muted { color: #666; font-size: 0.9em; }
+    .foot-note { text-align: center; margin-top: 2em; font-size: 0.85em; color: #aaa; }
+    #savedContractsList button { margin: 0 0.5em 0.5em 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="templates.html">📃 Freelance Contract</a>
+      <a href="dashboard.html" class="btn ghost">← Back to Dashboard</a>
+    </header>
+
+    <form id="contractForm">
+      <div class="form-section"><h2>🧾 Business Info</h2>
+        <input type="text" id="businessName" placeholder="Your Business Name" required />
+        <input type="text" id="businessKvK" placeholder="KvK Number (optional)" />
+        <input type="text" id="businessVAT" placeholder="VAT Number (optional)" />
+        <input type="text" id="businessIBAN" placeholder="IBAN (optional)" />
+      </div>
+
+      <div class="form-section"><h2>👤 Client Info</h2>
+        <input type="text" id="clientName" placeholder="Client Name" required />
+        <input type="text" id="clientAddress" placeholder="Client Address" />
+      </div>
+
+      <div class="form-section"><h2>📋 Project</h2>
+        <textarea id="projectDescription" placeholder="Describe the project scope and deliverables..." required></textarea>
+        <textarea id="timeline" placeholder="Timeline / Milestones (optional)"></textarea>
+      </div>
+
+      <div class="form-section"><h2>💶 Payment</h2>
+        <input type="text" id="rate" placeholder="Total Rate / Hourly Rate" />
+        <textarea id="paymentTerms" placeholder="e.g. 50% upfront, 50% after delivery (optional)"></textarea>
+      </div>
+
+      <div class="form-section"><h2>⚖️ Legal</h2>
+        <textarea id="terminationClause" placeholder="Termination terms, cancellation period, etc."></textarea>
+        <textarea id="jurisdiction" placeholder="This contract is governed by the laws of the Netherlands."></textarea>
+      </div>
+
+      <div class="form-section"><h2>✍️ Signature</h2>
+        <input type="text" id="signatureName" placeholder="Your Name" required />
+        <input type="date" id="contractDate" required />
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn ghost" id="aiFillBtn">🤖 AI Fill</button>
+        <button type="button" class="btn" id="saveBtn">💾 Save</button>
+        <button type="button" class="btn ghost" id="viewBtn">📂 Saved Contracts</button>
+        <button type="button" class="btn primary" id="downloadPDFBtn">📄 PDF</button>
+        <button type="button" class="btn ghost" id="downloadDOCXBtn">DOCX</button>
+      </div>
+    </form>
+
+    <div id="savedContractsList"></div>
+
+    <footer class="foot-note">
+      <p>Generated with SmartWerk — smartwerk.nl</p>
+    </footer>
+  </div>
+
+  <script type="module" src="https://smartwerk.cdnjs.dev/freelance-contract.js"></script>
+</body>
+</html>
