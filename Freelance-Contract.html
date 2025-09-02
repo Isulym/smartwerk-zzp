@@ -2,252 +2,172 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="style-invoice-template.css" />
   <title>📃 Freelance Contract - SmartWerk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1, h2 {
+      color: #222;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      margin: 5px 0 15px;
+      padding: 10px;
+      font-size: 1rem;
+    }
+    textarea { height: 80px; resize: vertical; }
+    .btn { padding: 10px 15px; font-weight: bold; cursor: pointer; }
+    .btn-group button {
+      display: inline-block;
+      width: auto;
+      margin-right: 10px;
+    }
+    .section { margin-top: 2rem; }
+    #contractPreview { white-space: pre-wrap; background: #fff; padding: 10px; border: 1px solid #ccc; }
+    .small-note { font-size: 0.9rem; color: #888; }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="topbar">
-      <a class="brand" href="templates.html">📃 Freelance Contract</a>
-      <a href="dashboard.html" class="btn ghost">← Back to Dashboard</a>
-    </header>
+  <h1>📃 Create Freelance Contract</h1>
+  <p class="small-note">Fill in the contract details, generate PDF/DOCX, save locally or use AI to help you.</p>
 
-    <form id="contractForm">
-      <div class="form-section"><h2>🧾 Business Info</h2>
-        <input type="text" id="businessName" placeholder="Your Business Name" required />
-        <input type="text" id="businessKvK" placeholder="KvK Number (optional)" />
-        <input type="text" id="businessVAT" placeholder="VAT Number (optional)" />
-        <input type="text" id="businessIBAN" placeholder="IBAN (optional)" />
-      </div>
-
-      <div class="form-section"><h2>👤 Client Info</h2>
-        <input type="text" id="clientName" placeholder="Client Name" required />
-        <input type="text" id="clientAddress" placeholder="Client Address" />
-      </div>
-
-      <div class="form-section"><h2>📋 Project</h2>
-        <textarea id="projectDescription" placeholder="Describe the project scope and deliverables..." required></textarea>
-        <textarea id="timeline" placeholder="Timeline / Milestones (optional)"></textarea>
-      </div>
-
-      <div class="form-section"><h2>💶 Payment</h2>
-        <input type="text" id="rate" placeholder="Total Rate / Hourly Rate" />
-        <textarea id="paymentTerms" placeholder="e.g. 50% upfront, 50% after delivery (optional)"></textarea>
-      </div>
-
-      <div class="form-section"><h2>⚖️ Legal</h2>
-        <textarea id="terminationClause" placeholder="Termination terms, cancellation period, etc."></textarea>
-        <textarea id="jurisdiction" placeholder="This contract is governed by the laws of the Netherlands."></textarea>
-      </div>
-
-      <div class="form-section"><h2>✍️ Signature</h2>
-        <input type="text" id="signatureName" placeholder="Your Name" required />
-        <input type="date" id="contractDate" required />
-      </div>
-
-      <div class="actions">
-        <button type="button" class="btn ghost" id="aiFillBtn">🤖 AI Fill</button>
-        <button type="button" class="btn" id="saveBtn">💾 Save</button>
-        <button type="button" class="btn ghost" id="viewBtn">📂 Saved Contracts</button>
-        <button type="button" class="btn primary" id="downloadPDFBtn">📄 PDF</button>
-        <button type="button" class="btn ghost" id="downloadDOCXBtn">DOCX</button>
-        <button type="button" class="btn" id="saveContractBtn">💾 Save Contract</button>
-      </div>
-      <div id="savedContracts" class="saved-contracts"></div>
-    </form>
-
-    <div id="savedContractsList"></div>
-
-    <footer class="foot-note">
-      <p>Generated with SmartWerk — smartwerk.nl</p>
-    </footer>
+  <div class="section">
+    <h2>Business Info</h2>
+    <input id="businessName" placeholder="Your Business Name" />
+    <input id="businessKvK" placeholder="KvK Number (optional)" />
+    <input id="businessVAT" placeholder="VAT Number (optional)" />
+    <input id="businessIBAN" placeholder="IBAN (optional)" />
   </div>
 
- <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const aiFillBtn = document.getElementById("aiFillBtn");
-  const saveBtn = document.getElementById("saveBtn");
-  const savedBtn = document.getElementById("savedBtn");
+  <div class="section">
+    <h2>Client Info</h2>
+    <input id="clientName" placeholder="Client Name" />
+    <input id="clientAddress" placeholder="Client Address (optional)" />
+  </div>
 
-  const businessName = document.getElementById("businessName");
-  const businessKvK = document.getElementById("businessKvK");
-  const businessVAT = document.getElementById("businessVAT");
-  const businessIBAN = document.getElementById("businessIBAN");
-  const clientName = document.getElementById("clientName");
-  const clientAddress = document.getElementById("clientAddress");
-  const projectDescription = document.getElementById("projectDescription");
-  const timeline = document.getElementById("timeline");
-  const rate = document.getElementById("rate");
-  const paymentTerms = document.getElementById("paymentTerms");
-  const terminationClause = document.getElementById("terminationClause");
-  const jurisdiction = document.getElementById("jurisdiction");
-  const signatureName = document.getElementById("signatureName");
-  const contractDate = document.getElementById("contractDate");
+  <div class="section">
+    <h2>Project</h2>
+    <textarea id="projectDescription" placeholder="Describe the project scope..."></textarea>
+    <textarea id="timeline" placeholder="Timeline / Milestones (optional)"></textarea>
+  </div>
 
-  aiFillBtn.addEventListener("click", () => {
-    projectDescription.value = `Design and deliver a modern website with homepage, contact form, and CMS.`;
-    timeline.value = `Start: ${new Date().toLocaleDateString()}, End: ...`;
-    rate.value = "€1200";
-    paymentTerms.value = "50% upfront, 50% upon completion.";
-    terminationClause.value = "Both parties may terminate with 7 days notice.";
-    jurisdiction.value = "This contract is governed by the laws of the Netherlands.";
-  });
+  <div class="section">
+    <h2>Payment Terms</h2>
+    <input id="rate" placeholder="Total Rate / Hourly Rate" />
+    <textarea id="paymentTerms" placeholder="E.g. 50% upfront, 50% after delivery (optional)"></textarea>
+  </div>
 
-  saveBtn.addEventListener("click", () => {
-    const contractData = {
-      businessName: businessName.value,
-      businessKvK: businessKvK.value,
-      businessVAT: businessVAT.value,
-      businessIBAN: businessIBAN.value,
-      clientName: clientName.value,
-      clientAddress: clientAddress.value,
-      projectDescription: projectDescription.value,
-      timeline: timeline.value,
-      rate: rate.value,
-      paymentTerms: paymentTerms.value,
-      terminationClause: terminationClause.value,
-      jurisdiction: jurisdiction.value,
-      signatureName: signatureName.value,
-      contractDate: contractDate.value,
-    };
+  <div class="section">
+    <h2>Legal</h2>
+    <textarea id="terminationClause" placeholder="Termination terms, cancellation period, etc."></textarea>
+    <textarea id="jurisdiction" placeholder="This contract is governed by the laws of the Netherlands."></textarea>
+  </div>
 
-    let saved = JSON.parse(localStorage.getItem("smartwerkContracts") || "[]");
-    saved.push(contractData);
-    localStorage.setItem("smartwerkContracts", JSON.stringify(saved));
-    alert("✅ Contract saved successfully!");
-  });
+  <div class="section">
+    <h2>Signature</h2>
+    <input id="signatureName" placeholder="Your Name" />
+    <input type="date" id="contractDate" />
+  </div>
 
-  savedBtn.addEventListener("click", () => {
-    const saved = JSON.parse(localStorage.getItem("smartwerkContracts") || "[]");
-    if (saved.length === 0) {
-      alert("📂 No saved contracts found.");
-      return;
+  <div class="btn-group">
+    <button onclick="fillAI()">🤖 AI Fill</button>
+    <button onclick="saveContract()">💾 Save</button>
+    <button onclick="viewSavedContracts()">📂 Saved Contracts</button>
+    <button onclick="downloadPDF()">📄 Export PDF</button>
+    <button onclick="downloadDOCX()">Download DOCX</button>
+  </div>
+
+  <div class="section">
+    <h2>Preview</h2>
+    <div id="contractPreview">Contract will appear here...</div>
+  </div>
+
+  <script>
+    function generateContractText() {
+      const today = new Date().toLocaleDateString();
+      return `
+FREELANCE CONTRACT
+
+Date: ${document.getElementById('contractDate').value || today}
+Business: ${businessName.value}
+KvK: ${businessKvK.value}
+VAT: ${businessVAT.value}
+IBAN: ${businessIBAN.value}
+
+Client: ${clientName.value}
+Address: ${clientAddress.value}
+
+Project:
+${projectDescription.value}
+
+Timeline:
+${timeline.value}
+
+Payment Terms:
+${rate.value}
+${paymentTerms.value}
+
+Legal:
+${terminationClause.value}
+${jurisdiction.value}
+
+Signature: ${signatureName.value}
+      `.trim();
     }
 
-    let message = "📂 Saved Contracts:\n\n";
-    saved.forEach((c, i) => {
-      message += `${i + 1}. ${c.clientName} – ${c.contractDate}\n`;
-    });
-    alert(message);
-  });
-});
-
-<!-- ДОДАТИ ПІСЛЯ ОСНОВНОГО JS -->
- type="module">
-  import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
-  import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.min.js";
-  import { saveAs } from "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/+esm";
-  import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "https://cdn.jsdelivr.net/npm/docx@7.7.0/+esm";
-
-  const get = (id) => document.getElementById(id)?.value || "-";
-
-  // 📄 PDF Export
-  document.getElementById("downloadPDFBtn").addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 20;
-
-    function section(title, content) {
-      doc.setFontSize(14);
-      doc.setFont(undefined, "bold");
-      doc.text(title, 14, y);
-      y += 6;
-      doc.setFontSize(12);
-      doc.setFont(undefined, "normal");
-      const split = doc.splitTextToSize(content, 180);
-      doc.text(split, 14, y);
-      y += split.length * 6 + 4;
+    function updatePreview() {
+      document.getElementById('contractPreview').textContent = generateContractText();
     }
 
-    doc.setFontSize(18);
-    doc.text("📃 Freelance Contract", 14, y);
-    y += 10;
+    const fields = document.querySelectorAll("input, textarea");
+    fields.forEach(f => f.addEventListener("input", updatePreview));
 
-    section("🧾 Business Info", `Name: ${get("businessName")}\nKvK: ${get("businessKvK")}\nVAT: ${get("businessVAT")}\nIBAN: ${get("businessIBAN")}`);
-    section("👤 Client Info", `Name: ${get("clientName")}\nAddress: ${get("clientAddress")}`);
-    section("📋 Project Description", get("projectDescription"));
-    section("📅 Timeline", get("timeline"));
-    section("💶 Payment Terms", `Rate: ${get("rate")}\nTerms: ${get("paymentTerms")}`);
-    section("⚖️ Legal", `Termination: ${get("terminationClause")}\nJurisdiction: ${get("jurisdiction")}`);
-    section("✍️ Signature", `Name: ${get("signatureName")}\nDate: ${get("contractDate")}`);
+    function fillAI() {
+      document.getElementById('projectDescription').value = "Develop a responsive website for the client's online store.";
+      document.getElementById('timeline').value = "Week 1: Wireframe, Week 2: Development, Week 3: Testing & Launch";
+      document.getElementById('paymentTerms').value = "50% upfront, 50% after delivery";
+      document.getElementById('terminationClause').value = "Either party may terminate with 7 days written notice.";
+      document.getElementById('jurisdiction').value = "This contract is governed by the laws of the Netherlands.";
+      updatePreview();
+    }
 
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+    function saveContract() {
+      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
+      saved.push(generateContractText());
+      localStorage.setItem("contracts", JSON.stringify(saved));
+      alert("✅ Contract saved!");
+    }
 
-    doc.save(`SmartWerk-Contract-${get("clientName")}.pdf`);
-  });
+    function viewSavedContracts() {
+      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
+      if (!saved.length) return alert("No saved contracts yet.");
+      alert("Saved Contracts:\n\n" + saved.join("\n\n---\n\n"));
+    }
 
-  // 📄 DOCX Export
-  document.getElementById("downloadDOCXBtn").addEventListener("click", () => {
-    const doc = new Document({
-      sections: [
-        {
-          children: [
-            new Paragraph({
-              text: "📃 Freelance Contract",
-              heading: HeadingLevel.TITLE,
-            }),
-            new Paragraph({ text: `Generated by SmartWerk on ${get("contractDate")}`, spacing: { after: 300 } }),
-            sectionDocx("🧾 Business Info", [
-              `Name: ${get("businessName")}`,
-              `KvK: ${get("businessKvK")}`,
-              `VAT: ${get("businessVAT")}`,
-              `IBAN: ${get("businessIBAN")}`,
-            ]),
-            sectionDocx("👤 Client Info", [
-              `Name: ${get("clientName")}`,
-              `Address: ${get("clientAddress")}`,
-            ]),
-            sectionDocx("📋 Project Details", [
-              `Description: ${get("projectDescription")}`,
-              `Timeline: ${get("timeline")}`,
-            ]),
-            sectionDocx("💶 Payment Terms", [
-              `Rate: ${get("rate")}`,
-              `Terms: ${get("paymentTerms")}`,
-            ]),
-            sectionDocx("⚖️ Legal", [
-              `Termination Clause: ${get("terminationClause")}`,
-              `Jurisdiction: ${get("jurisdiction")}`,
-            ]),
-            sectionDocx("✍️ Signature", [
-              `Signed by: ${get("signatureName")}`,
-              `Date: ${get("contractDate")}`,
-            ]),
-            new Paragraph({
-              text: "Generated with SmartWerk — smartwerk.nl",
-              spacing: { before: 300 },
-              style: "footer",
-            }),
-          ],
-        },
-      ],
-    });
+    function downloadPDF() {
+      const text = generateContractText();
+      const win = window.open('', '', 'width=800,height=600');
+      win.document.write(`<pre>${text}</pre>`);
+      win.document.close();
+      win.print();
+    }
 
-    Packer.toBlob(doc).then((blob) => {
-      saveAs(blob, `SmartWerk-Contract-${get("clientName")}.docx`);
-    });
-  });
+    function downloadDOCX() {
+      const text = generateContractText();
+      const blob = new Blob([text], { type: "application/msword" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `SmartWerk-Freelance-Contract.doc`;
+      link.click();
+    }
 
-  function sectionDocx(title, lines) {
-    return [
-      new Paragraph({
-        text: title,
-        heading: HeadingLevel.HEADING_2,
-        spacing: { after: 100 },
-      }),
-      ...lines.map((line) => new Paragraph({
-        children: [new TextRun(line)],
-        spacing: { after: 100 },
-      })),
-    ];
-  }
-
-   
-</script>
-
-  <script type="module" src="https://smartwerk.cdnjs.dev/freelance-contract.js"></script>
+    updatePreview();
+  </script>
 </body>
 </html>
