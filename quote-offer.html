@@ -17,10 +17,7 @@
 
     <section class="intro">
       <h1>📄 Create a Quote / Offer <span class="info-icon" title="A quote is a professional offer sent to your client before an invoice. It shows what you plan to do and how much it will cost.">ℹ️</span></h1>
-      <p class="muted">
-        This tool helps you create a professional quote (proposal) before sending an invoice.
-        Use it to outline services, pricing, and terms — then export as PDF and send to your client.
-      </p>
+      <p class="muted">Use this tool to create a professional offer for your client before sending an invoice.</p>
       <p class="quote-valid">🗓️ Valid until: <span id="validUntil"></span></p>
     </section>
 
@@ -46,7 +43,7 @@
             <tr><th>Description</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr>
           </thead>
           <tbody id="itemsContainer">
-            <!-- Dynamic rows -->
+            <!-- Dynamic rows will be added here -->
           </tbody>
         </table>
         <button type="button" id="addItemBtn" class="btn ghost">+ Add Item</button>
@@ -57,11 +54,12 @@
         <p>Subtotal: €<span id="subtotal">0.00</span></p>
         <p>VAT (21%): €<span id="vat">0.00</span></p>
         <p><strong>Total: €<span id="total">0.00</span></strong></p>
+        <p style="display:none;">Hidden Total for PDF: <span id="totalPrice">0.00</span></p>
       </div>
 
       <div class="form-section">
         <h2>📝 Note to Client</h2>
-        <textarea id="clientNote" placeholder="This quote is valid for 14 days... (optional)"></textarea>
+        <textarea id="noteToClient" placeholder="This quote is valid for 14 days... (optional)"></textarea>
       </div>
 
       <div class="form-section">
@@ -77,7 +75,7 @@
       </div>
 
       <div class="actions">
-        <button type="submit" class="btn primary">Save</button>
+        <button type="button" class="btn primary" id="saveBtn">Save</button>
         <button type="button" class="btn" id="generatePDFBtn">Export as PDF</button>
         <button type="button" class="btn ghost" id="aiDraftBtn">AI Draft</button>
       </div>
@@ -88,160 +86,14 @@
     </footer>
   </div>
 
+  <!-- ✅ JavaScript: логіка кнопок -->
   <script type="module" src="quote-offer.js"></script>
+  <script type="module" src="quote-offer-pdf.js"></script>
   <script>
+    // Valid until (14 days ahead)
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + 14);
     document.getElementById("validUntil").textContent = validUntil.toLocaleDateString();
-
-    // quote-offer.js
-
-const addRowBtn = document.getElementById("addRowBtn");
-const servicesTableBody = document.querySelector("#servicesTable tbody");
-const totalPriceEl = document.getElementById("totalPrice");
-const noteToClientEl = document.getElementById("noteToClient");
-const statusEl = document.getElementById("quoteStatus");
-
-function createRow(description = "", qty = 1, price = 0) {
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td><input type="text" class="desc" value="${description}" /></td>
-    <td><input type="number" class="qty" value="${qty}" min="1" /></td>
-    <td><input type="number" class="price" value="${price}" step="0.01" /></td>
-    <td class="rowTotal">0</td>
-    <td><button class="remove-btn">×</button></td>
-  `;
-
-  row.querySelector(".remove-btn").addEventListener("click", () => row.remove());
-  row.querySelectorAll("input").forEach(input => input.addEventListener("input", calculateTotal));
-  return row;
-}
-
-function calculateTotal() {
-  let total = 0;
-  document.querySelectorAll("#servicesTable tbody tr").forEach(row => {
-    const qty = parseFloat(row.querySelector(".qty").value) || 0;
-    const price = parseFloat(row.querySelector(".price").value) || 0;
-    const rowTotal = qty * price;
-    row.querySelector(".rowTotal").textContent = rowTotal.toFixed(2);
-    total += rowTotal;
-  });
-  totalPriceEl.textContent = total.toFixed(2);
-}
-
-function generateAIDraft() {
-  const examples = [
-    ["Website design", 1, 800],
-    ["SEO optimization", 1, 200],
-    ["Final delivery & testing", 1, 100]
-  ];
-  servicesTableBody.innerHTML = "";
-  examples.forEach(([desc, qty, price]) => {
-    servicesTableBody.appendChild(createRow(desc, qty, price));
-  });
-  calculateTotal();
-}
-
-addRowBtn.addEventListener("click", () => {
-  servicesTableBody.appendChild(createRow());
-});
-
-document.getElementById("aiDraftBtn").addEventListener("click", generateAIDraft);
-
-// Auto set Valid Until
-const validUntil = new Date();
-validUntil.setDate(validUntil.getDate() + 14);
-document.getElementById("validUntil").textContent = validUntil.toLocaleDateString();
-
-// Export as PDF
-function exportQuotePDF() {
-  alert("📄 PDF export coming soon!"); // заміни на реальну логіку
-}
-document.getElementById("generatePDFBtn").addEventListener("click", exportQuotePDF);
-
-// Save to localStorage (опціонально)
-function saveQuote() {
-  const quote = {
-    status: statusEl.value,
-    services: [],
-    note: noteToClientEl.value,
-    validUntil: validUntil.toISOString()
-  };
-  document.querySelectorAll("#servicesTable tbody tr").forEach(row => {
-    quote.services.push({
-      desc: row.querySelector(".desc").value,
-      qty: row.querySelector(".qty").value,
-      price: row.querySelector(".price").value
-    });
-  });
-  localStorage.setItem("smartQuote", JSON.stringify(quote));
-  alert("✅ Quote saved!");
-}
-document.getElementById("saveBtn").addEventListener("click", saveQuote);
-
-// Init
-servicesTableBody.appendChild(createRow());
-calculateTotal();
-
-    // quote-offer-pdf.js
-
-import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
-import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.min.js";
-
-window.exportQuotePDF = function () {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const clientName = document.getElementById("clientName")?.value || "Client";
-  const note = document.getElementById("noteToClient")?.value || "";
-  const status = document.getElementById("quoteStatus")?.value || "Draft";
-  const validUntil = document.getElementById("validUntil")?.textContent || "";
-
-  const rows = [];
-  document.querySelectorAll("#servicesTable tbody tr").forEach((row) => {
-    const desc = row.querySelector(".desc").value;
-    const qty = row.querySelector(".qty").value;
-    const price = row.querySelector(".price").value;
-    const total = (parseFloat(qty) * parseFloat(price)).toFixed(2);
-    rows.push([desc, qty, price, total]);
-  });
-
-  const totalQuote = document.getElementById("totalPrice")?.textContent || "0.00";
-
-  // Header
-  doc.setFontSize(18);
-  doc.text("📄 Quote / Offer", 14, 20);
-  doc.setFontSize(12);
-  doc.text(`Status: ${status}`, 14, 28);
-  doc.text(`Valid until: ${validUntil}`, 14, 34);
-
-  // Services Table
-  autoTable(doc, {
-    head: [["Description", "Qty", "Price", "Total"]],
-    body: rows,
-    startY: 42,
-  });
-
-  // Totals
-  doc.setFontSize(12);
-  doc.text(`Total: € ${totalQuote}`, 14, doc.lastAutoTable.finalY + 10);
-
-  // Note
-  if (note) {
-    doc.setFontSize(11);
-    doc.text("Note to client:", 14, doc.lastAutoTable.finalY + 20);
-    doc.text(note, 14, doc.lastAutoTable.finalY + 28);
-  }
-
-  // Footer
-  doc.setFontSize(10);
-  doc.setTextColor(150);
-  doc.text("Generated with SmartWerk Quote Tool", 14, 290);
-
-  // Save
-  doc.save(`Quote-${clientName}.pdf`);
-};
   </script>
-  <script type="module" src="quote-offer-pdf.js"></script>
 </body>
 </html>
