@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📧 Email to Gemeente — SmartWerk</title>
+  <link rel="stylesheet" href="style-email-gemeente.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="templates.html">📧 Email to Gemeente</a>
+      <nav class="right">
+        <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+      </nav>
+    </header>
+
+    <section class="intro">
+      <h1>📧 Send Email to Gemeente 
+        <span class="info-icon" title="Use this tool to contact your municipality (Gemeente) about housing, urgent requests, support, complaints or other official matters.">ℹ️</span>
+      </h1>
+      <p class="muted">Fill out your message below. You can use AI to help draft the message, add attachments, and export the email as PDF or DOCX.</p>
+    </section>
+
+    <form id="emailForm">
+      <div class="form-section">
+        <h2>👤 Your Info</h2>
+        <input type="text" id="yourName" placeholder="Your Full Name" required />
+        <input type="email" id="yourEmail" placeholder="Your Email" required />
+      </div>
+
+      <div class="form-section">
+        <h2>🏢 Gemeente Info</h2>
+        <input type="text" id="gemeenteName" placeholder="Gemeente / Municipality Name" required />
+        <input type="email" id="gemeenteEmail" placeholder="Gemeente Email" required />
+      </div>
+
+      <div class="form-section">
+        <h2>📌 Subject & Type</h2>
+        <input type="text" id="emailSubject" placeholder="Subject of the email" required />
+        <select id="emailType">
+          <option value="">Choose reason...</option>
+          <option value="Housing">🏠 Housing</option>
+          <option value="Urgentie">🚨 Urgentie Request</option>
+          <option value="Complaint">📣 Complaint</option>
+          <option value="Jeugdzorg">👶 Jeugdzorg</option>
+          <option value="Other">❓ Other</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <h2>✉️ Message</h2>
+        <textarea id="emailBody" placeholder="Write your message here..." rows="10" required></textarea>
+        <label><input type="checkbox" id="autoSignature" checked /> Add signature with name, email, and date</label>
+      </div>
+
+      <div class="form-section">
+        <h2>📎 Attachment</h2>
+        <label><input type="checkbox" id="hasAttachment" /> Add attachment?</label>
+        <input type="file" id="fileInput" style="display: none;" />
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn ghost" id="aiDraftBtn">🤖 AI Fill</button>
+        <button type="button" class="btn" id="saveEmailBtn">💾 Save Email</button>
+        <button type="button" class="btn" id="loadEmailsBtn">📂 Saved Emails</button>
+        <button type="button" class="btn primary" id="downloadPDFBtn">📄 Export PDF</button>
+        <button type="button" class="btn" id="downloadDOCXBtn">📝 Export DOCX</button>
+        <button type="button" class="btn ghost" id="copyClipboardBtn">📋 Copy Text</button>
+      </div>
+    </form>
+
+    <div id="savedEmailsModal" style="display: none;">
+      <h3>📂 Saved Emails</h3>
+      <ul id="savedEmailsList"></ul>
+      <button class="btn" onclick="closeModal()">Close</button>
+    </div>
+
+    <footer class="foot-note">
+      <p class="muted">SmartWerk — contact your Gemeente with confidence. | smartwerk.nl</p>
+    </footer>
+  </div>
+
+  <script type="module" src="email-gemeente.js"></script>
+</body>
+</html>
