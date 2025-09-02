@@ -1,0 +1,136 @@
+/* style-email.css вЂ” WOW-style for SmartWerk Email to Gemeente */
+
+:root {
+  --bg: #0e1014;
+  --panel: #151a22;
+  --card: #1c1f2b;
+  --text: #e3e8f0;
+  --muted: #9aa3b2;
+  --accent: #3b79ff;
+  --highlight: #fffbe6;
+  --success: #27c693;
+  --danger: #ff5470;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 2rem;
+}
+
+.wrap {
+  max-width: 900px;
+  margin: auto;
+  background: var(--panel);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  padding: 2rem;
+}
+
+header.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.topbar .brand {
+  font-size: 1.5rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background: #2a5fd0;
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+textarea, input, select {
+  width: 100%;
+  margin: 0.5rem 0 1rem;
+  padding: 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  color: var(--text);
+  resize: vertical;
+}
+
+textarea:focus, input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+textarea.ai-filled, input.ai-filled {
+  background-color: var(--highlight);
+  border-color: gold;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  border-bottom: 1px solid var(--muted);
+  padding-bottom: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+footer.foot-note {
+  margin-top: 3rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+#savedEmailsModal {
+  background: rgba(0,0,0,0.8);
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#savedEmailsModal .modal-content {
+  background: var(--card);
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#savedEmailsModal button.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text);
+  cursor: pointer;
+}
