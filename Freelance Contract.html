@@ -66,16 +66,21 @@
 
    <script>
 
-     // contract.js — SmartWerk Freelance Contract Logic
+   // ✅ SmartWerk Freelance Contract — FULL JS FILE
 
+import { saveAs } from "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/+esm";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "https://cdn.jsdelivr.net/npm/docx@7.7.0/+esm";
+
+// PDF libraries
+import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
+
+// DOM Loaded
 document.addEventListener("DOMContentLoaded", () => {
-  const contractForm = document.getElementById("contractForm");
-
   const validUntil = new Date();
   validUntil.setDate(validUntil.getDate() + 14);
   const formattedDate = validUntil.toLocaleDateString();
 
-  // Elements
+  const contractForm = document.getElementById("contractForm");
   const aiFillBtn = document.getElementById("aiFillBtn");
   const downloadPDFBtn = document.getElementById("downloadPDFBtn");
   const downloadDOCXBtn = document.getElementById("downloadDOCXBtn");
@@ -89,155 +94,51 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("jurisdiction").value = "This contract is governed by the laws of the Netherlands.";
   });
 
-  downloadPDFBtn.addEventListener("click", async (e) => {
+  downloadPDFBtn.addEventListener("click", generateContractPDF);
+  downloadDOCXBtn.addEventListener("click", exportContractAsDOCX);
+
+  contractForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    const { jsPDF } = await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js");
-    const autoTable = (await import("https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23")).default;
-
-    const doc = new jsPDF();
-
-    const get = (id) => document.getElementById(id).value || "-";
-
-    doc.setFontSize(18);
-    doc.text("📃 Freelance Contract", 14, 20);
-
-    doc.setFontSize(12);
-    doc.text("Business Info:", 14, 30);
-    doc.text(`Name: ${get("businessName")}`, 14, 36);
-    doc.text(`KvK: ${get("businessKvK")}`, 14, 42);
-    doc.text(`VAT: ${get("businessVAT")}`, 14, 48);
-    doc.text(`IBAN: ${get("businessIBAN")}`, 14, 54);
-
-    doc.text("Client Info:", 14, 66);
-    doc.text(`Name: ${get("clientName")}`, 14, 72);
-    doc.text(`Address: ${get("clientAddress")}`, 14, 78);
-
-    autoTable(doc, {
-      startY: 90,
-      head: [["Section", "Content"]],
-      body: [
-        ["Project Description", get("projectDescription")],
-        ["Timeline", get("timeline")],
-        ["Rate", get("rate")],
-        ["Payment Terms", get("paymentTerms")],
-        ["Termination", get("terminationClause")],
-        ["Jurisdiction", get("jurisdiction")],
-      ],
-      styles: { cellWidth: 'wrap' },
-      columnStyles: {
-        0: { cellWidth: 50, fontStyle: 'bold' },
-        1: { cellWidth: 130 }
-      }
-    });
-
-    doc.text("Signature:", 14, doc.lastAutoTable.finalY + 14);
-    doc.text(`${get("signatureName")}`, 14, doc.lastAutoTable.finalY + 20);
-    doc.text(`Date: ${get("contractDate")}`, 14, doc.lastAutoTable.finalY + 26);
-
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
-
-    doc.save(`Contract-${get("clientName")}.pdf`);
-  });
-
-  downloadDOCXBtn.addEventListener("click", () => {
-    alert("📄 DOCX export coming soon!");
+    saveContract();
+    generateContractPDF();
   });
 });
-     // contract-docx.js — SmartWerk DOCX export (optional)
 
-import docx from "https://cdn.jsdelivr.net/npm/docx@8.4.0/build/index.min.js";
-
-const { Document, Packer, Paragraph, TextRun } = docx;
-
-export function generateContractDOCX() {
-  const get = (id) => document.getElementById(id).value || "-";
-
-  const doc = new Document({
-    sections: [
-      {
-        properties: {},
-        children: [
-          new Paragraph({
-            children: [
-              new TextRun({ text: "📃 Freelance Contract", bold: true, size: 32 }),
-            ],
-          }),
-          new Paragraph({ text: " " }),
-          new Paragraph({ text: `Business Name: ${get("businessName")}` }),
-          new Paragraph({ text: `KvK: ${get("businessKvK")}` }),
-          new Paragraph({ text: `VAT: ${get("businessVAT")}` }),
-          new Paragraph({ text: `IBAN: ${get("businessIBAN")}` }),
-          new Paragraph({ text: " " }),
-          new Paragraph({ text: `Client Name: ${get("clientName")}` }),
-          new Paragraph({ text: `Client Address: ${get("clientAddress")}` }),
-          new Paragraph({ text: " " }),
-          new Paragraph({ text: `Project Description: ${get("projectDescription")}` }),
-          new Paragraph({ text: `Timeline: ${get("timeline")}` }),
-          new Paragraph({ text: `Rate: ${get("rate")}` }),
-          new Paragraph({ text: `Payment Terms: ${get("paymentTerms")}` }),
-          new Paragraph({ text: `Termination Clause: ${get("terminationClause")}` }),
-          new Paragraph({ text: `Jurisdiction: ${get("jurisdiction")}` }),
-          new Paragraph({ text: " " }),
-          new Paragraph({ text: `Signed by: ${get("signatureName")}` }),
-          new Paragraph({ text: `Date: ${get("contractDate")}` }),
-          new Paragraph({ text: " " }),
-          new Paragraph({ text: "Generated with SmartWerk — smartwerk.nl", size: 18 }),
-        ],
-      },
-    ],
-  });
-
-  Packer.toBlob(doc).then((blob) => {
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `Contract-${get("clientName")}.docx`;
-    link.click();
-  });
+// 🔒 Save contract to localStorage
+function saveContract() {
+  const contract = getContractData();
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  saved.push(contract);
+  localStorage.setItem("savedContracts", JSON.stringify(saved));
+  alert("✅ Contract saved to localStorage!");
 }
 
-     // contract-pdf.js — Export contract as professional PDF
+// 📄 Get all form data
+function getContractData() {
+  const get = (id) => document.getElementById(id)?.value || "-";
+  return {
+    businessName: get("businessName"),
+    businessKvK: get("businessKvK"),
+    businessVAT: get("businessVAT"),
+    businessIBAN: get("businessIBAN"),
+    clientName: get("clientName"),
+    clientAddress: get("clientAddress"),
+    projectDescription: get("projectDescription"),
+    timeline: get("timeline"),
+    rate: get("rate"),
+    paymentTerms: get("paymentTerms"),
+    terminationClause: get("terminationClause"),
+    jurisdiction: get("jurisdiction"),
+    signatureName: get("signatureName"),
+    contractDate: get("contractDate") || new Date().toISOString().slice(0, 10),
+  };
+}
 
-import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
-
-window.generateContractPDF = function () {
-  const {
-    businessName,
-    businessKvK,
-    businessVAT,
-    businessIBAN,
-    clientName,
-    clientAddress,
-    projectDescription,
-    timeline,
-    rate,
-    paymentTerms,
-    terminationClause,
-    jurisdiction,
-    signatureName,
-    contractDate,
-  } = Object.fromEntries(
-    [
-      "businessName",
-      "businessKvK",
-      "businessVAT",
-      "businessIBAN",
-      "clientName",
-      "clientAddress",
-      "projectDescription",
-      "timeline",
-      "rate",
-      "paymentTerms",
-      "terminationClause",
-      "jurisdiction",
-      "signatureName",
-      "contractDate",
-    ].map((id) => [id, document.getElementById(id)?.value || ""])
-  );
-
+// 📄 Generate PDF
+function generateContractPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+  const data = getContractData();
   let y = 20;
 
   function addSection(title, content) {
@@ -256,50 +157,23 @@ window.generateContractPDF = function () {
   doc.text("📃 Freelance Contract", 14, y);
   y += 10;
 
-  addSection("🧾 Business Info", `Name: ${businessName}\nKvK: ${businessKvK}\nVAT: ${businessVAT}\nIBAN: ${businessIBAN}`);
-  addSection("👤 Client Info", `Name: ${clientName}\nAddress: ${clientAddress}`);
-  addSection("📋 Project Description", projectDescription);
-  addSection("📅 Timeline", timeline);
-  addSection("💶 Payment Terms", `Rate: ${rate}\nTerms: ${paymentTerms}`);
-  addSection("⚖️ Legal", `Termination: ${terminationClause}\nJurisdiction: ${jurisdiction}`);
-  addSection("✍️ Signature", `Name: ${signatureName}\nDate: ${contractDate}`);
+  addSection("🧾 Business Info", `Name: ${data.businessName}\nKvK: ${data.businessKvK}\nVAT: ${data.businessVAT}\nIBAN: ${data.businessIBAN}`);
+  addSection("👤 Client Info", `Name: ${data.clientName}\nAddress: ${data.clientAddress}`);
+  addSection("📋 Project Description", data.projectDescription);
+  addSection("📅 Timeline", data.timeline);
+  addSection("💶 Payment Terms", `Rate: ${data.rate}\nTerms: ${data.paymentTerms}`);
+  addSection("⚖️ Legal", `Termination: ${data.terminationClause}\nJurisdiction: ${data.jurisdiction}`);
+  addSection("✍️ Signature", `Name: ${data.signatureName}\nDate: ${data.contractDate}`);
 
   doc.setFontSize(10);
   doc.setTextColor(150);
   doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+  doc.save(`Contract-${data.clientName || "Client"}.pdf`);
+}
 
-  doc.save(`Contract-${clientName || "Client"}.pdf`);
-};
-
-// Bind button
-document.getElementById("downloadPDFBtn")?.addEventListener("click", generateContractPDF);
-
-import { saveAs } from "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/+esm";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "https://cdn.jsdelivr.net/npm/docx@7.7.0/+esm";
-
-document.getElementById("downloadDOCXBtn").addEventListener("click", exportContractAsDOCX);
-
+// 📄 Generate DOCX
 function exportContractAsDOCX() {
-  const businessName = document.getElementById("businessName").value || "Your Business Name";
-  const businessKvK = document.getElementById("businessKvK").value || "-";
-  const businessVAT = document.getElementById("businessVAT").value || "-";
-  const businessIBAN = document.getElementById("businessIBAN").value || "-";
-
-  const clientName = document.getElementById("clientName").value || "Client Name";
-  const clientAddress = document.getElementById("clientAddress").value || "-";
-
-  const projectDescription = document.getElementById("projectDescription").value || "Not specified";
-  const timeline = document.getElementById("timeline").value || "-";
-
-  const rate = document.getElementById("rate").value || "-";
-  const paymentTerms = document.getElementById("paymentTerms").value || "-";
-
-  const terminationClause = document.getElementById("terminationClause").value || "-";
-  const jurisdiction = document.getElementById("jurisdiction").value || "-";
-
-  const signatureName = document.getElementById("signatureName").value || "Your Name";
-  const contractDate = document.getElementById("contractDate").value || new Date().toISOString().slice(0, 10);
-
+  const data = getContractData();
   const doc = new Document({
     sections: [
       {
@@ -308,44 +182,36 @@ function exportContractAsDOCX() {
             text: "📃 Freelance Contract",
             heading: HeadingLevel.TITLE,
           }),
-
           new Paragraph({
-            text: `Generated by SmartWerk on ${contractDate}`,
+            text: `Generated by SmartWerk on ${data.contractDate}`,
             spacing: { after: 300 },
           }),
-
-          section("🧾 Business Info", [
-            `Name: ${businessName}`,
-            `KvK: ${businessKvK}`,
-            `VAT: ${businessVAT}`,
-            `IBAN: ${businessIBAN}`,
+          ...section("🧾 Business Info", [
+            `Name: ${data.businessName}`,
+            `KvK: ${data.businessKvK}`,
+            `VAT: ${data.businessVAT}`,
+            `IBAN: ${data.businessIBAN}`,
           ]),
-
-          section("👤 Client Info", [
-            `Name: ${clientName}`,
-            `Address: ${clientAddress}`,
+          ...section("👤 Client Info", [
+            `Name: ${data.clientName}`,
+            `Address: ${data.clientAddress}`,
           ]),
-
-          section("📋 Project Details", [
-            `Description: ${projectDescription}`,
-            `Timeline: ${timeline}`,
+          ...section("📋 Project Details", [
+            `Description: ${data.projectDescription}`,
+            `Timeline: ${data.timeline}`,
           ]),
-
-          section("💶 Payment Terms", [
-            `Rate: ${rate}`,
-            `Terms: ${paymentTerms}`,
+          ...section("💶 Payment Terms", [
+            `Rate: ${data.rate}`,
+            `Terms: ${data.paymentTerms}`,
           ]),
-
-          section("⚖️ Legal", [
-            `Termination Clause: ${terminationClause}`,
-            `Jurisdiction: ${jurisdiction}`,
+          ...section("⚖️ Legal", [
+            `Termination Clause: ${data.terminationClause}`,
+            `Jurisdiction: ${data.jurisdiction}`,
           ]),
-
-          section("✍️ Signature", [
-            `Signed by: ${signatureName}`,
-            `Date: ${contractDate}`,
+          ...section("✍️ Signature", [
+            `Signed by: ${data.signatureName}`,
+            `Date: ${data.contractDate}`,
           ]),
-
           new Paragraph({
             text: "Generated with SmartWerk — smartwerk.nl",
             spacing: { before: 300 },
@@ -357,7 +223,7 @@ function exportContractAsDOCX() {
   });
 
   Packer.toBlob(doc).then((blob) => {
-    saveAs(blob, `SmartWerk-Contract-${clientName || "Client"}.docx`);
+    saveAs(blob, `SmartWerk-Contract-${data.clientName || "Client"}.docx`);
   });
 }
 
@@ -368,17 +234,14 @@ function section(title, lines) {
       heading: HeadingLevel.HEADING_2,
       spacing: { after: 100 },
     }),
-    ...lines.map(
-      (line) =>
-        new Paragraph({
-          children: [new TextRun(line)],
-          spacing: { after: 100 },
-        })
+    ...lines.map((line) =>
+      new Paragraph({
+        children: [new TextRun(line)],
+        spacing: { after: 100 },
+      })
     ),
-  ].flat();
+  ];
 }
-
-
      
    </script>
 
