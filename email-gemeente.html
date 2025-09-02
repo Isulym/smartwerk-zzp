@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>📧 Email to Gemeente — SmartWerk</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style-email.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📧 Email to Gemeente - SmartWerk</title>
 </head>
 <body>
   <div class="wrap">
@@ -16,50 +15,64 @@
     </header>
 
     <section class="intro">
-      <h1>📧 Write Email to Gemeente</h1>
-      <p class="muted">Use this form to write professional emails to your local Dutch municipality (Gemeente). You can generate content with AI, translate, and export to PDF.</p>
+      <h1>📧 Send Email to Gemeente</h1>
+      <p class="muted">Fill in the details below to send a formal email to your local municipality. Use AI to draft your message, translate it, and export to PDF.</p>
     </section>
 
     <form id="emailForm">
       <div class="form-section">
-        <h2>🧾 From</h2>
-        <input type="text" id="fromName" placeholder="Your Name" required />
-        <input type="email" id="fromEmail" placeholder="Your Email Address" required />
-        <input type="text" id="city" placeholder="City (for auto-signature)" />
-        <input type="text" id="todayDate" disabled />
+        <h2>📤 From (You)</h2>
+        <input type="text" id="userName" placeholder="Your Full Name" required />
+        <input type="email" id="userEmail" placeholder="Your Email Address" required />
+        <input type="text" id="userAddress" placeholder="Your Address (Street + City)" />
       </div>
 
       <div class="form-section">
-        <h2>📨 To Gemeente</h2>
-        <input type="email" id="toEmail" placeholder="Gemeente Email Address" required />
+        <h2>📩 To (Gemeente)</h2>
+        <input type="text" id="gemeenteName" placeholder="Gemeente Name (e.g. Den Bosch)" />
+        <input type="email" id="gemeenteEmail" placeholder="Gemeente Email" readonly />
       </div>
 
       <div class="form-section">
         <h2>📝 Email Content</h2>
-        <input type="text" id="subject" placeholder="Subject (e.g. Request for Housing)" required />
-        <textarea id="emailBody" rows="10" placeholder="Type your email body or use AI to generate it..."></textarea>
+        <input type="text" id="emailSubject" placeholder="Subject of your email" required />
+        <select id="emailCategory">
+          <option value="">Select Category</option>
+          <option value="housing">Housing Request</option>
+          <option value="subsidy">Subsidy / Financial Help</option>
+          <option value="complaint">Complaint</option>
+          <option value="general">General Question</option>
+        </select>
+        <textarea id="emailBody" rows="10" placeholder="Write your message here..." required></textarea>
       </div>
 
       <div class="form-section">
-        <h2>📂 Example Templates</h2>
-        <select id="templateSelector">
-          <option value="">Choose example...</option>
-          <option value="complaint">📢 Complaint</option>
-          <option value="housing">🏠 Housing Request</option>
-          <option value="subsidy">💶 Subsidy Inquiry</option>
-          <option value="document">📄 Request Documents</option>
-        </select>
+        <h2>📍 Date & City</h2>
+        <input type="date" id="todayDate" />
+        <input type="text" id="currentCity" placeholder="City (e.g. Den Bosch)" />
+      </div>
+
+      <div class="form-section">
+        <h2>✍️ Signature</h2>
+        <textarea id="smartSignature" rows="3" placeholder="Met vriendelijke groet, [Your Name]..."></textarea>
+      </div>
+
+      <div class="form-section checkbox">
+        <label>
+          <input type="checkbox" id="gdprConsent" required />
+          I agree to save my data in localStorage for SmartWerk use (GDPR-compliant).
+        </label>
       </div>
 
       <div class="actions">
         <button type="button" class="btn ghost" id="aiFillBtn">🤖 AI Fill</button>
-        <button type="button" class="btn" id="loadExampleBtn">📂 Load Example</button>
+        <button type="button" class="btn ghost" id="loadExampleBtn">📂 Load Example</button>
         <button type="button" class="btn ghost" id="translateBtn">🌐 Translate</button>
         <button type="button" class="btn" id="saveBtn">💾 Save</button>
         <button type="button" class="btn" id="viewSavedBtn">📂 Saved Emails</button>
-        <button type="button" class="btn ghost" id="printBtn">🖨️ Print</button>
-        <button type="button" class="btn primary" id="sendBtn">📤 Send via Email</button>
-        <button type="button" class="btn" id="exportPdfBtn">📄 Export as PDF</button>
+        <button type="button" class="btn" id="printBtn">🖨️ Print</button>
+        <button type="button" class="btn" id="sendBtn">📤 Send via Email</button>
+        <button type="button" class="btn primary" id="exportPDFBtn">📄 Export as PDF</button>
       </div>
     </form>
 
@@ -67,151 +80,5 @@
       <p class="muted">Generated with SmartWerk — smartwerk.nl</p>
     </footer>
   </div>
-
-  <script type="module" src="email-gemeente.js"></script>
-</body>
-</html>
-  <script>
-
-document.addEventListener("DOMContentLoaded", () => {
-  const get = (id) => document.getElementById(id);
-  
-  // Fill with AI example
-  get("aiFillBtn")?.addEventListener("click", () => {
-    get("senderName").value = "John Example";
-    get("senderEmail").value = "john@example.com";
-    get("senderAddress").value = "Main Street 1, 1234AB";
-    get("receiverName").value = "Gemeente Den Bosch";
-    get("subject").value = "Request for urgent housing support";
-    get("body").value = `Dear Gemeente,\n\nI am writing to request urgent assistance with my current housing situation. My family and I are experiencing difficulties and would greatly appreciate any available support or programs.\n\nSincerely,\nJohn Example`;
-    get("todayDate").value = new Date().toLocaleDateString();
-    
-    get("body").classList.add("ai-filled");
-  });
-
-  // Load Example
-  get("loadExampleBtn")?.addEventListener("click", () => {
-    get("subject").value = "Complaint regarding public service";
-    get("body").value = "Dear Gemeente,\n\nI would like to file a complaint regarding...\n\nRegards,";
-    get("body").classList.add("ai-filled");
-  });
-
-  // Translate placeholder (mock)
-  get("translateBtn")?.addEventListener("click", () => {
-    alert("🌐 Auto-translation coming soon!");
-  });
-
-  // Auto-date
-  const dateField = get("todayDate");
-  if (dateField && !dateField.value) {
-    dateField.value = new Date().toLocaleDateString();
-  }
-
-  // Save
-  get("saveEmailBtn")?.addEventListener("click", () => {
-    const email = {
-      senderName: get("senderName").value,
-      senderEmail: get("senderEmail").value,
-      senderAddress: get("senderAddress").value,
-      receiverName: get("receiverName").value,
-      subject: get("subject").value,
-      body: get("body").value,
-      todayDate: get("todayDate").value,
-    };
-    const emails = JSON.parse(localStorage.getItem("savedEmails") || "[]");
-    emails.push(email);
-    localStorage.setItem("savedEmails", JSON.stringify(emails));
-    alert("💾 Email saved!");
-  });
-
-  // Load saved emails
-  get("savedEmailsBtn")?.addEventListener("click", () => {
-    const emails = JSON.parse(localStorage.getItem("savedEmails") || "[]");
-    if (emails.length === 0) return alert("📂 No saved emails found.");
-
-    const last = emails[emails.length - 1];
-    get("senderName").value = last.senderName;
-    get("senderEmail").value = last.senderEmail;
-    get("senderAddress").value = last.senderAddress;
-    get("receiverName").value = last.receiverName;
-    get("subject").value = last.subject;
-    get("body").value = last.body;
-    get("todayDate").value = last.todayDate;
-
-    alert("✅ Loaded latest saved email.");
-  });
-
-  // Print
-  get("printBtn")?.addEventListener("click", () => {
-    window.print();
-  });
-
-  // PDF
-  get("exportPDFBtn")?.addEventListener("click", () => {
-    alert("📄 PDF Export coming next step...");
-  });
-
-  // Send via Email
-  get("sendEmailBtn")?.addEventListener("click", () => {
-    const email = get("senderEmail").value;
-    const subject = get("subject").value;
-    const body = get("body").value;
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  });
-});
-
-   type="module">
-  import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
-
-  const exportEmailAsPDF = async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const get = (id) => document.getElementById(id)?.value?.trim() || "-";
-
-    let y = 20;
-    doc.setFontSize(18);
-    doc.text("📧 Email to Gemeente", 14, y);
-    y += 10;
-
-    doc.setFontSize(12);
-    doc.text("From:", 14, y);
-    y += 6;
-    doc.text(`Name: ${get("senderName")}`, 14, y); y += 6;
-    doc.text(`Email: ${get("senderEmail")}`, 14, y); y += 6;
-    doc.text(`Address: ${get("senderAddress")}`, 14, y); y += 10;
-
-    doc.text("To:", 14, y);
-    y += 6;
-    doc.text(`${get("receiverName")}`, 14, y); y += 10;
-
-    doc.text("Subject:", 14, y);
-    y += 6;
-    const subjectLines = doc.splitTextToSize(get("subject"), 180);
-    doc.text(subjectLines, 14, y);
-    y += subjectLines.length * 6 + 4;
-
-    doc.text("Date:", 14, y);
-    y += 6;
-    doc.text(`${get("todayDate")}`, 14, y);
-    y += 10;
-
-    doc.text("Body:", 14, y);
-    y += 6;
-    const bodyLines = doc.splitTextToSize(get("body"), 180);
-    doc.text(bodyLines, 14, y);
-    y += bodyLines.length * 6 + 12;
-
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
-
-    doc.save(`Email-${get("receiverName") || "Gemeente"}.pdf`);
-  };
-
-  document.getElementById("exportPDFBtn")?.addEventListener("click", exportEmailAsPDF);
-
-    
-  </script>
 </body>
 </html>
