@@ -100,7 +100,6 @@
       <button id="translateBtn">🌐 Translate</button>
       <button id="saveBtn">💾 Save</button>
       <button id="savedReminderbtn">📬 Saved Reminders</button>
-      <button id="previewBtn">🔐 Preview</button>
       <button id="printBtn">🖨️ Print</button>
       <button id="sendBtn">📤 Send via Email</button>
       <button id="pdfBtn">📄 Export as PDF</button>
@@ -111,6 +110,17 @@
       <p class="muted">SmartWerk — smartwerk.nl | PRO features available</p>
     </footer>
   </div>
+  <!-- === SmartWerk Preview Modal === -->
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <h2>📬 Email Preview</h2>
+    <p id="previewMessage"></p>
+    <div class="modal-buttons">
+      <button onclick="printPreview()">🖨️ Print</button>
+      <button onclick="closePreview()">❌ Close</button>
+    </div>
+  </div>
+</div>
 
   <script>
 
