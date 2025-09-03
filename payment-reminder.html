@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("aiFillBtn").addEventListener("click", () => {
     const number = document.getElementById("invoiceNumber").value || "INV-2025-001";
     const due = document.getElementById("dueDate").value || todayDate;
-    const amount = document.getElementById("amountDue").value || "€500";
+    const amount = document.getElementById("amountDue").value || "500";
     document.getElementById("messageBody").value = `This is a friendly reminder that invoice #${number} was due on ${due}. Please arrange payment of ${amount} at your earliest convenience.`;
     document.getElementById("messageBody").classList.add("ai-filled");
   });
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("invoiceNumber").value = "INV-2025-001";
     document.getElementById("invoiceDate").value = "2025-08-01";
     document.getElementById("dueDate").value = "2025-09-01";
-    document.getElementById("amountDue").value = "€500";
+    document.getElementById("amountDue").value = 500; // ✅ тільки число
 
     document.getElementById("messageBody").value = "This is a friendly reminder that invoice #INV-2025-001 was due on 01/09/2025. Please arrange payment of €500 at your earliest convenience.";
     document.getElementById("messageBody").classList.add("ai-filled");
