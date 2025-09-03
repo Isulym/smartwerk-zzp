@@ -1,0 +1,135 @@
+
+/* style-payment-reminder.css — WOW Design for SmartWerk Payment Reminder */
+
+:root {
+  --bg: #0f1117;
+  --text: #f0f0f0;
+  --accent: #4facfe;
+  --danger: #ff6b6b;
+  --warning: #ffb347;
+  --ok: #4ade80;
+  --border: #2a2f45;
+  --muted: #9ca3af;
+  --card: #1b1f2b;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+h1, h2, h3 {
+  color: var(--accent);
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: #11131a;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #151822;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.2s;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+button.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+button.outline {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+button:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.badge.first { background: var(--ok); color: #000; }
+.badge.second { background: var(--warning); color: #000; }
+.badge.final { background: var(--danger); color: #fff; }
+
+.countdown {
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--warning);
+  margin-bottom: 1rem;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.file-upload {
+  background: #151822;
+  border: 1px dashed var(--border);
+  padding: 1rem;
+  text-align: center;
+  border-radius: 8px;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.file-upload input[type="file"] {
+  display: none;
+}
+
+.ai-filled {
+  background: #fffbe6;
+  border-color: gold;
+}
