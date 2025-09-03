@@ -115,130 +115,156 @@
     // payment-reminder.js — SmartWerk
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("reminderForm");
+  const reminderForm = document.getElementById("reminderForm");
+  const todayDate = new Date().toISOString().split("T")[0];
+  document.getElementById("todayDate").value = todayDate;
 
-  // Elements
-  const aiBtn = document.getElementById("aiFillBtn");
-  const exampleBtn = document.getElementById("loadExampleBtn");
-  const translateBtn = document.getElementById("translateBtn");
-  const saveBtn = document.getElementById("saveBtn");
-  const savedBtn = document.getElementById("viewSavedBtn");
-  const printBtn = document.getElementById("printBtn");
-  const pdfBtn = document.getElementById("exportPDFBtn");
-  const sendBtn = document.getElementById("sendBtn");
-  const toneStrict = document.getElementById("toneStrictBtn");
-  const toneFriendly = document.getElementById("toneFriendlyBtn");
-
-  const dueDate = document.getElementById("dueDate");
-  const countdown = document.getElementById("countdown");
-  const reminderStatus = document.getElementById("reminderStatus");
-
-  // Autofill date
-  document.getElementById("todayDate").value = new Date().toISOString().slice(0, 10);
-
+  // === 📌 Auto Countdown ===
+  const dueDateField = document.getElementById("dueDate");
+  const countdownField = document.getElementById("dueCountdown");
   function updateCountdown() {
-    const due = new Date(dueDate.value);
-    const today = new Date();
-    const diffTime = due - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (!dueDate.value) {
-      countdown.textContent = "";
-    } else if (diffDays > 0) {
-      countdown.textContent = `💡 Due in ${diffDays} days`;
-    } else if (diffDays === 0) {
-      countdown.textContent = `⚠️ Due today`;
-    } else {
-      countdown.textContent = `⚠️ Overdue by ${Math.abs(diffDays)} days`;
-    }
+    const due = new Date(dueDateField.value);
+    const now = new Date();
+    const diff = Math.floor((due - now) / (1000 * 60 * 60 * 24));
+    if (isNaN(diff)) return (countdownField.textContent = "");
+    if (diff < 0) countdownField.textContent = `⚠️ This invoice is overdue by ${-diff} days.`;
+    else if (diff === 0) countdownField.textContent = "⚠️ Due today.";
+    else countdownField.textContent = `💡 Due in ${diff} days.`;
   }
-
-  dueDate.addEventListener("change", updateCountdown);
+  dueDateField.addEventListener("input", updateCountdown);
   updateCountdown();
 
-  aiBtn.addEventListener("click", () => {
-    const invoiceNumber = document.getElementById("invoiceNumber").value || "INV-2025-001";
-    const dueDate = document.getElementById("dueDate").value || "01/09/2025";
-    const amountDue = document.getElementById("amountDue").value || "€500";
-
-    const body = `This is a friendly reminder that invoice ${invoiceNumber} was due on ${dueDate}. Please arrange payment of ${amountDue} at your earliest convenience.`;
-    const messageBody = document.getElementById("emailBody");
-    messageBody.value = body;
-    messageBody.classList.add("ai-filled");
+  // === 🤖 AI Fill ===
+  document.getElementById("aiFillBtn").addEventListener("click", () => {
+    const number = document.getElementById("invoiceNumber").value || "INV-2025-001";
+    const due = document.getElementById("dueDate").value || todayDate;
+    const amount = document.getElementById("amountDue").value || "€500";
+    document.getElementById("messageBody").value = `This is a friendly reminder that invoice #${number} was due on ${due}. Please arrange payment of ${amount} at your earliest convenience.`;
+    document.getElementById("messageBody").classList.add("ai-filled");
   });
 
-  exampleBtn.addEventListener("click", () => {
-    document.getElementById("companyName").value = "SmartWerk B.V.";
-    document.getElementById("fromName").value = "John Smart";
-    document.getElementById("fromEmail").value = "john@smartwerk.nl";
-    document.getElementById("fromIBAN").value = "NL12RABO1234567890";
-    document.getElementById("fromAddress").value = "Eindhoven, Netherlands";
+  // === 📂 Load Example ===
+  document.getElementById("loadExampleBtn").addEventListener("click", () => {
+    document.getElementById("businessName").value = "SmartWerk B.V.";
+    document.getElementById("businessEmail").value = "info@smartwerk.nl";
+    document.getElementById("businessIBAN").value = "NL91ABNA0417164300";
+    document.getElementById("businessAddress").value = "Stationsstraat 12, 5211BN Den Bosch";
 
-    document.getElementById("clientName").value = "Anna Client";
-    document.getElementById("clientEmail").value = "anna@example.com";
-    document.getElementById("clientAddress").value = "Utrecht, Netherlands";
+    document.getElementById("clientName").value = "John Client";
+    document.getElementById("clientEmail").value = "john@example.com";
+    document.getElementById("clientAddress").value = "Keizersgracht 123, 1015CJ Amsterdam";
 
     document.getElementById("invoiceNumber").value = "INV-2025-001";
-    document.getElementById("invoiceDate").value = "2025-08-15";
+    document.getElementById("invoiceDate").value = "2025-08-01";
     document.getElementById("dueDate").value = "2025-09-01";
     document.getElementById("amountDue").value = "€500";
 
-    document.getElementById("emailBody").value = "This is a friendly reminder that invoice INV-2025-001 was due on 01/09/2025. Please arrange payment of €500.";
-    document.getElementById("city").value = "Amsterdam";
-    document.getElementById("signName").value = "John Smart";
-    document.getElementById("signPosition").value = "Finance Manager";
-    document.getElementById("signContact").value = "+31 612345678";
-    document.getElementById("reminderStatus").value = "First Reminder";
-
+    document.getElementById("messageBody").value = "This is a friendly reminder that invoice #INV-2025-001 was due on 01/09/2025. Please arrange payment of €500 at your earliest convenience.";
+    document.getElementById("messageBody").classList.add("ai-filled");
     updateCountdown();
   });
 
-  saveBtn.addEventListener("click", () => {
-    const data = Object.fromEntries(new FormData(form));
-    let saved = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-    saved.push(data);
-    localStorage.setItem("savedReminders", JSON.stringify(saved));
-    alert("✅ Reminder saved!");
+  // === 🌐 Translate ===
+  document.getElementById("translateBtn").addEventListener("click", () => {
+    const text = document.getElementById("messageBody").value;
+    if (!text) return alert("No message to translate.");
+    const translated = text.replace("This is a friendly reminder", "Dit is een vriendelijke herinnering")
+      .replace("Please arrange payment", "Gelieve de betaling te regelen")
+      .replace("at your earliest convenience", "zo snel mogelijk");
+    document.getElementById("messageBody").value = translated;
   });
 
-  savedBtn.addEventListener("click", () => {
-    const saved = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-    if (!saved.length) return alert("No saved reminders yet.");
-    const list = saved.map(r => `${r.invoiceNumber} — ${r.clientName} — ${r.dueDate}`).join("\n");
-    alert("📬 Saved Reminders:\n\n" + list);
+  // === 💾 Save ===
+  document.getElementById("saveBtn").addEventListener("click", () => {
+    const reminder = {
+      businessName: document.getElementById("businessName").value,
+      businessEmail: document.getElementById("businessEmail").value,
+      businessIBAN: document.getElementById("businessIBAN").value,
+      businessAddress: document.getElementById("businessAddress").value,
+      clientName: document.getElementById("clientName").value,
+      clientEmail: document.getElementById("clientEmail").value,
+      clientAddress: document.getElementById("clientAddress").value,
+      invoiceNumber: document.getElementById("invoiceNumber").value,
+      invoiceDate: document.getElementById("invoiceDate").value,
+      dueDate: document.getElementById("dueDate").value,
+      amountDue: document.getElementById("amountDue").value,
+      messageBody: document.getElementById("messageBody").value,
+      todayDate: document.getElementById("todayDate").value,
+      city: document.getElementById("city").value,
+      signatureName: document.getElementById("signatureName").value,
+      signatureRole: document.getElementById("signatureRole").value,
+      signatureContact: document.getElementById("signatureContact").value,
+      paymentURL: document.getElementById("paymentURL").value,
+      status: document.getElementById("status").value,
+    };
+    const key = `reminder-${reminder.invoiceNumber}`;
+    localStorage.setItem(key, JSON.stringify(reminder));
+    alert("💾 Reminder saved!");
   });
 
-  printBtn.addEventListener("click", () => window.print());
-
-  sendBtn.addEventListener("click", () => {
-    const to = document.getElementById("clientEmail").value;
-    const subject = `Payment Reminder: ${document.getElementById("invoiceNumber").value}`;
-    const body = document.getElementById("emailBody").value;
-    const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailto, "_blank");
+  // === 📬 View Saved Reminders ===
+  document.getElementById("savedBtn").addEventListener("click", () => {
+    const list = Object.keys(localStorage)
+      .filter(k => k.startsWith("reminder-"))
+      .map(k => `<li>${k.replace("reminder-", "")}</li>`)
+      .join("");
+    alert(`📬 Saved Reminders:
+${list || "None yet."}`);
   });
 
-  toneStrict.addEventListener("click", () => {
-    const invoiceNumber = document.getElementById("invoiceNumber").value || "INV-2025-001";
-    const dueDate = document.getElementById("dueDate").value || "01/09/2025";
-    const amountDue = document.getElementById("amountDue").value || "€500";
-    const body = `This is a final reminder regarding invoice ${invoiceNumber}, which was due on ${dueDate}. Immediate payment of ${amountDue} is required to avoid further action.`;
-    const messageBody = document.getElementById("emailBody");
-    messageBody.value = body;
-    messageBody.classList.add("ai-filled");
+  // === 🖨️ Print ===
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+  // === 📤 Send via Email ===
+  document.getElementById("sendBtn").addEventListener("click", () => {
+    const email = document.getElementById("clientEmail").value;
+    const subject = `Reminder: Invoice ${document.getElementById("invoiceNumber").value}`;
+    const body = document.getElementById("messageBody").value;
+    if (!email || !subject || !body) return alert("Fill in all required fields.");
+    window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_blank");
   });
 
-  toneFriendly.addEventListener("click", () => {
-    aiBtn.click(); // Reuse AI fill
+  // === 🔐 Preview Email ===
+  document.getElementById("previewBtn").addEventListener("click", () => {
+    const preview = document.getElementById("messageBody").value;
+    alert("🔐 Preview:
+
+" + preview);
   });
 
-  pdfBtn.addEventListener("click", async () => {
+  // === 📄 Export as PDF ===
+  document.getElementById("pdfBtn").addEventListener("click", async () => {
     const { jsPDF } = await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js");
     const doc = new jsPDF();
 
-    const get = id => document.getElementById(id)?.value || "-";
     let y = 20;
+    const get = (id) => document.getElementById(id).value || "-";
 
-    const add = (title, content) => {
+    doc.setFontSize(18);
+    doc.text("📬 Payment Reminder", 14, y);
+    y += 10;
+
+    const sections = [
+      ["🧾 Business Info", `${get("businessName")}
+${get("businessEmail")}
+${get("businessIBAN")}
+${get("businessAddress")}`],
+      ["👤 Client Info", `${get("clientName")}
+${get("clientEmail")}
+${get("clientAddress")}`],
+      ["📄 Invoice Details", `Invoice #: ${get("invoiceNumber")}
+Invoice Date: ${get("invoiceDate")}
+Due Date: ${get("dueDate")}
+Amount Due: ${get("amountDue")}`],
+      ["💬 Message", get("messageBody")],
+      ["📅 Date & Location", `${get("todayDate")} — ${get("city")}`],
+      ["✍️ Signature", `${get("signatureName")}
+${get("signatureRole")}
+${get("signatureContact")}`],
+      ["🎨 Status", get("status")],
+    ];
+
+    for (const [title, content] of sections) {
       doc.setFontSize(14);
       doc.setFont(undefined, "bold");
       doc.text(title, 14, y);
@@ -248,29 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const lines = doc.splitTextToSize(content, 180);
       doc.text(lines, 14, y);
       y += lines.length * 6 + 4;
-    };
-
-    doc.setFontSize(18);
-    doc.text("📬 Payment Reminder", 14, y);
-    y += 10;
-
-    add("🧾 From", `${get("companyName")}
-${get("fromName")}
-${get("fromEmail")}
-${get("fromIBAN")}
-${get("fromAddress")}`);
-    add("👤 To", `${get("clientName")}
-${get("clientEmail")}
-${get("clientAddress")}`);
-    add("📄 Invoice", `Number: ${get("invoiceNumber")}
-Date: ${get("invoiceDate")}
-Due: ${get("dueDate")}
-Amount Due: ${get("amountDue")}`);
-    add("💬 Message", get("emailBody"));
-    add("📅 Date & City", `${get("todayDate")} — ${get("city")}`);
-    add("✍️ Signature", `${get("signName")} (${get("signPosition")})
-${get("signContact")}`);
-    add("🔖 Status", get("reminderStatus"));
+    }
 
     doc.setFontSize(10);
     doc.setTextColor(150);
@@ -279,7 +283,6 @@ ${get("signContact")}`);
     doc.save(`Payment-Reminder-${get("invoiceNumber")}.pdf`);
   });
 });
-
     </script>
 </body>
 </html>
