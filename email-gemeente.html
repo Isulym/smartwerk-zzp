@@ -242,12 +242,12 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.text("📧 Email to Gemeente", 14, y);
     y += 10;
 
-    addSection("📍 From", `${get("fromName")}\n${get("fromEmail")}\n${get("fromAddress")}`);
-    addSection("📬 To", `${get("toGemeente")}\n${get("toEmail")}`);
-    addSection("📝 Subject", get("subject"));
-    addSection("✉️ Message", get("messageBody"));
-    addSection("✍️ Signature", get("signature"));
-    addSection("📆 Date & Location", `${get("todayDate")} — ${get("city")}`);
+    addSection("From", `${get("fromName")}\n${get("fromEmail")}\n${get("fromAddress")}`);
+    addSection("To", `${get("toGemeente")}\n${get("toEmail")}`);
+    addSection("Subject", get("subject"));
+    addSection("Message", get("messageBody"));
+    addSection("Signature", get("signature"));
+    addSection("Date & Location", `${get("todayDate")} — ${get("city")}`);
 
     doc.setFontSize(10);
     doc.setTextColor(150);
