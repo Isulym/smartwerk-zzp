@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📬 Payment Reminder - SmartWerk</title>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📬 Payment Reminder</h1>
+      <p class="muted">Send professional reminders for unpaid invoices. Use AI assistance, export to PDF, or send by email.</p>
+    </header>
+
+    <!-- 1. Business Info -->
+    <section>
+      <h2>🧾 Business Info (From)</h2>
+      <input type="text" id="businessName" placeholder="Business Name">
+      <input type="text" id="senderName" placeholder="Your Name">
+      <input type="email" id="senderEmail" placeholder="Your Email">
+      <input type="text" id="senderIBAN" placeholder="IBAN">
+      <input type="text" id="senderAddress" placeholder="Address">
+    </section>
+
+    <!-- 2. Client Info -->
+    <section>
+      <h2>👤 Client Info (To)</h2>
+      <input type="text" id="clientName" placeholder="Client Name">
+      <input type="email" id="clientEmail" placeholder="Client Email">
+      <input type="text" id="clientAddress" placeholder="Client Address">
+    </section>
+
+    <!-- 3. Invoice Details -->
+    <section>
+      <h2>📄 Invoice Details</h2>
+      <input type="text" id="invoiceNumber" placeholder="Invoice Number">
+      <input type="date" id="invoiceDate" placeholder="Invoice Date">
+      <input type="date" id="dueDate" placeholder="Due Date">
+      <input type="number" id="amountDue" placeholder="Amount Due (€)">
+    </section>
+
+    <!-- 4. Status & Countdown -->
+    <section>
+      <h2>🎯 Reminder Type</h2>
+      <select id="reminderStatus">
+        <option value="first">⏳ First Reminder</option>
+        <option value="second">⚠️ Second Notice</option>
+        <option value="final">❗ Final Reminder</option>
+      </select>
+      <p id="countdownNotice"></p>
+    </section>
+
+    <!-- 5. Body Message -->
+    <section>
+      <h2>💬 Message Body</h2>
+      <textarea id="messageBody" placeholder="Message to the client..."></textarea>
+      <div class="tone-controls">
+        <button id="makeStrict">🧠 Make it more strict</button>
+        <button id="makeFriendly">🤝 Make it more friendly</button>
+      </div>
+    </section>
+
+    <!-- 6. Date & Location -->
+    <section>
+      <h2>📅 Date & Location</h2>
+      <input type="text" id="city" placeholder="City">
+      <input type="date" id="currentDate">
+    </section>
+
+    <!-- 7. Signature -->
+    <section>
+      <h2>✍️ Signature</h2>
+      <input type="text" id="signatureName" placeholder="Your Full Name">
+      <input type="text" id="signatureRole" placeholder="Position (optional)">
+      <input type="text" id="signatureContact" placeholder="Phone or Email (optional)">
+    </section>
+
+    <!-- 8. Payment Link -->
+    <section>
+      <h2>💳 Payment</h2>
+      <input type="url" id="paymentLink" placeholder="Payment Link (PayPal, Mollie, etc.)">
+      <button id="payNowBtn">💳 Pay Now</button>
+    </section>
+
+    <!-- 9. Attach Invoice -->
+    <section>
+      <h2>📥 Attach Original Invoice</h2>
+      <input type="file" id="invoiceFile">
+      <p id="attachedFileName"></p>
+    </section>
+
+    <!-- ACTION BUTTONS -->
+    <section class="actions">
+      <button id="aiFill">🤖 AI Fill</button>
+      <button id="loadExample">📂 Load Example</button>
+      <button id="translate">🌐 Translate</button>
+      <button id="saveReminder">💾 Save</button>
+      <button id="savedReminders">📬 Saved Reminders</button>
+      <button id="previewEmail">🔐 Preview</button>
+      <button id="printReminder">🖨️ Print</button>
+      <button id="sendEmail">📤 Send via Email</button>
+      <button id="exportPDF">📄 Export as PDF</button>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p class="muted">SmartWerk — smartwerk.nl | PRO features available</p>
+    </footer>
+  </div>
+</body>
+</html>
