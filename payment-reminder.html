@@ -98,7 +98,7 @@
       <button id="loadExampleBtn">📂 Load Example</button>
       <button id="translateBtn">🌐 Translate</button>
       <button id="saveBtn">💾 Save</button>
-      <button id="savedReminders">📬 Saved Reminders</button>
+      <button id="savedReminderbtn">📬 Saved Reminders</button>
       <button id="previewBtn">🔐 Preview</button>
       <button id="printBtn">🖨️ Print</button>
       <button id="sendEmail">📤 Send via Email</button>
@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // === 📬 View Saved Reminders ===
-  document.getElementById("savedBtn").addEventListener("click", () => {
+  document.getElementById("savedReminderbtn").addEventListener("click", () => {
     const list = Object.keys(localStorage)
       .filter(k => k.startsWith("reminder-"))
       .map(k => `<li>${k.replace("reminder-", "")}</li>`)
