@@ -280,7 +280,7 @@ function deleteReminder(key, btn) {
   const toEmail = document.getElementById("clientEmail").value;
   const subject = `Payment Reminder: ${document.getElementById("invoiceNumber").value}`;
   const body = document.getElementById("messageBody").value;
-  const status = document.getElementById("Status").value;
+  const status = document.getElementById("reminderStatus").value;
   const days = document.getElementById("dueCountdown").innerText;
   const amount = document.getElementById("amountDue").value;
   const payURL = document.getElementById("paymentURL").value;
@@ -341,7 +341,7 @@ function deleteReminder(key, btn) {
   // === 📄 Export as PDF ===
   document.getElementById("pdfBtn").addEventListener("click", async () => {
     const { jsPDF } = await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js");
-    const doc = new jsPDF();
+    const doc = new jsPDF(); // ✅ Працює!
 
     let y = 20;
     const get = (id) => document.getElementById(id).value || "-";
