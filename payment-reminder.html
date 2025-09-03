@@ -104,6 +104,8 @@
       <button id="printBtn">🖨️ Print</button>
       <button id="sendBtn">📤 Send via Email</button>
       <button id="pdfBtn">📄 Export as PDF</button>
+      <button onclick="loadReminder('ключ')">Load</button>
+      <button onclick="deleteReminder('ключ')">Delete</button>
     </section>
 
     <!-- Footer -->
@@ -478,6 +480,46 @@ document.getElementById("pdfBtn").addEventListener("click", async () => {
   // === Save file ===
   doc.save(`Reminder-${invoiceNumber}.pdf`);
 });
+
+    function loadReminder(key) {
+  const reminder = JSON.parse(localStorage.getItem(key));
+  if (!reminder) return alert("Reminder not found!");
+
+  document.getElementById("businessName").value = reminder.businessName;
+  document.getElementById("businessEmail").value = reminder.businessEmail;
+  document.getElementById("businessIBAN").value = reminder.businessIBAN;
+  document.getElementById("businessAddress").value = reminder.businessAddress;
+
+  document.getElementById("clientName").value = reminder.clientName;
+  document.getElementById("clientEmail").value = reminder.clientEmail;
+  document.getElementById("clientAddress").value = reminder.clientAddress;
+
+  document.getElementById("invoiceNumber").value = reminder.invoiceNumber;
+  document.getElementById("invoiceDate").value = reminder.invoiceDate;
+  document.getElementById("dueDate").value = reminder.dueDate;
+  document.getElementById("amountDue").value = reminder.amountDue;
+  document.getElementById("messageBody").value = reminder.messageBody;
+
+  document.getElementById("todayDate").value = reminder.todayDate;
+  document.getElementById("city").value = reminder.city;
+
+  document.getElementById("signatureName").value = reminder.signatureName;
+  document.getElementById("signatureRole").value = reminder.signatureRole;
+  document.getElementById("signatureContact").value = reminder.signatureContact;
+
+  document.getElementById("paymentURL").value = reminder.paymentURL;
+  document.getElementById("status").value = reminder.status;
+
+  alert("Reminder loaded!");
+}
+
+    function deleteReminder(key) {
+  if (confirm("Are you sure you want to delete this reminder?")) {
+    localStorage.removeItem(key);
+    alert("Reminder deleted!");
+    location.reload(); // або онови список вручну
+  }
+}
     
     </script>
 </body>
