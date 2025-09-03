@@ -334,9 +334,22 @@ function deleteReminder(key, btn) {
 
   // === 🔐 Preview Email ===
   document.getElementById("previewBtn").addEventListener("click", () => {
-    const preview = document.getElementById("messageBody").value;
-    alert("🔐 Preview:" + preview);
-  });
+  const preview = document.getElementById("messageBody").value;
+  document.getElementById("previewMessage").innerText = "📬 Preview:\n\n" + preview;
+  document.getElementById("previewModal").style.display = "flex";
+});
+
+function closePreview() {
+  document.getElementById("previewModal").style.display = "none";
+}
+
+function printPreview() {
+  const preview = document.getElementById("messageBody").value;
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`<pre style="font-family: sans-serif; font-size: 18px; padding: 20px;">${preview}</pre>`);
+  printWindow.document.close();
+  printWindow.print();
+}
 
   // === 📄 Export as PDF ===
   document.getElementById("pdfBtn").addEventListener("click", async () => {
