@@ -101,6 +101,7 @@
       <button id="saveBtn">💾 Save</button>
       <button id="savedReminderbtn">📬 Saved Reminders</button>
       <button id="printBtn">🖨️ Print</button>
+      <button id="previewBtn">🔐 Preview</button>
       <button id="sendBtn">📤 Send via Email</button>
       <button id="pdfBtn">📄 Export as PDF</button>
     </section>
@@ -110,17 +111,6 @@
       <p class="muted">SmartWerk — smartwerk.nl | PRO features available</p>
     </footer>
   </div>
-  <!-- === SmartWerk Preview Modal === -->
-<div id="previewModal" class="modal">
-  <div class="modal-content">
-    <h2>📬 Email Preview</h2>
-    <p id="previewMessage"></p>
-    <div class="modal-buttons">
-      <button onclick="printPreview()">🖨️ Print</button>
-      <button onclick="closePreview()">❌ Close</button>
-    </div>
-  </div>
-</div>
 
   <script>
 
@@ -344,22 +334,9 @@ function deleteReminder(key, btn) {
 
   // === 🔐 Preview Email ===
   document.getElementById("previewBtn").addEventListener("click", () => {
-  const preview = document.getElementById("messageBody").value;
-  document.getElementById("previewMessage").innerText = "📬 Preview:\n\n" + preview;
-  document.getElementById("previewModal").style.display = "flex";
-});
-
-function closePreview() {
-  document.getElementById("previewModal").style.display = "none";
-}
-
-function printPreview() {
-  const preview = document.getElementById("messageBody").value;
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`<pre style="font-family: sans-serif; font-size: 18px; padding: 20px;">${preview}</pre>`);
-  printWindow.document.close();
-  printWindow.print();
-}
+    const preview = document.getElementById("messageBody").value;
+    alert("🔐 Preview:" + preview);
+  });
 
   // === 📄 Export as PDF ===
   document.getElementById("pdfBtn").addEventListener("click", async () => {
