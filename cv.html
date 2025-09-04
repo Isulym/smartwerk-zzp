@@ -12,77 +12,49 @@
     <header class="cv-header">
       <img src="avatar-placeholder.jpg" alt="Your Photo" class="cv-photo" />
       <div class="cv-intro">
-        <h1>Your Name</h1>
-        <p>Professional Title or Role</p>
-        <p>Email · Phone · LinkedIn · Website</p>
+        <input id="fullName" placeholder="Your Name" />
+        <input id="title" placeholder="Professional Title" />
+        <input id="email" placeholder="Email" />
+        <input id="phone" placeholder="Phone" />
+        <input id="linkedin" placeholder="LinkedIn" />
+        <input id="website" placeholder="Website" />
       </div>
     </header>
 
     <section class="cv-summary">
       <h2>🧠 Professional Summary</h2>
-      <p>Brief paragraph describing who you are, what you do, and what you're passionate about.</p>
+      <textarea id="summary" placeholder="Tell us about yourself..."></textarea>
+      <p id="summaryPreview">—</p>
     </section>
 
     <section class="cv-skills">
       <h2>🛠️ Skills</h2>
-      <ul>
-        <li>JavaScript <span class="skill-bar" style="width: 90%"></span></li>
-        <li>Design (Figma, Photoshop) <span class="skill-bar" style="width: 80%"></span></li>
-        <li>SEO & Marketing <span class="skill-bar" style="width: 70%"></span></li>
-      </ul>
+      <textarea id="skills" placeholder="Your skills... (comma separated)"></textarea>
+      <p id="skillsPreview">—</p>
     </section>
 
     <section class="cv-experience">
       <h2>💼 Work Experience</h2>
-      <div class="job">
-        <h3>Position Title — Company Name</h3>
-        <p><em>Jan 2021 – Present</em></p>
-        <ul>
-          <li>Describe key achievement or responsibility</li>
-          <li>Use bullet points to show impact</li>
-        </ul>
-      </div>
+      <textarea id="experience" placeholder="Describe your work experience..."></textarea>
+      <p id="experiencePreview">—</p>
     </section>
 
     <section class="cv-education">
       <h2>🎓 Education</h2>
-      <p>Bachelor/Master in Field — University Name (Year)</p>
-    </section>
-
-    <section class="cv-projects">
-      <h2>📂 Projects / Portfolio</h2>
-      <div class="project">
-        <h3>Project Title</h3>
-        <p>Description of what it is, what tools you used, what the result was.</p>
-        <a href="#" class="btn">🔗 View Demo</a>
-        <a href="#" class="btn">📄 PDF</a>
-      </div>
+      <textarea id="education" placeholder="Your education..."></textarea>
+      <p id="educationPreview">—</p>
     </section>
 
     <section class="cv-languages">
       <h2>🌍 Languages</h2>
-      <p>English (Fluent), Dutch (Intermediate), Ukrainian (Native)</p>
-    </section>
-
-    <section class="cv-achievements">
-      <h2>🏅 Achievements</h2>
-      <ul>
-        <li>Published article in XYZ Magazine</li>
-        <li>Top 10 finalist in ABC Hackathon</li>
-      </ul>
-    </section>
-
-    <section class="cv-testimonials">
-      <h2>💬 Testimonials</h2>
-      <blockquote>
-        "Igor is one of the most reliable freelancers we've ever worked with!" – Client Name
-      </blockquote>
+      <textarea id="languages" placeholder="Languages spoken..."></textarea>
+      <p id="languagesPreview">—</p>
     </section>
 
     <section class="cv-actions">
-      <button id="exportPDF">📄 Download PDF</button>
-      <button id="switchTheme">🎨 Switch Theme</button>
       <button id="smartFill">🤖 AI Fill</button>
+      <button id="switchTheme">🎨 Switch Theme</button>
+      <button id="exportPDF">📄 Download PDF</button>
     </section>
 
     <footer class="cv-footer">
@@ -90,86 +62,77 @@
     </footer>
   </div>
 
-  
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const fields = [
-    "fullName", "title", "summary", "email", "phone", "location",
-    "website", "linkedin", "skills", "experience", "education", "languages"
-  ];
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const fields = [
+        "fullName", "title", "summary", "email", "phone", "linkedin",
+        "website", "skills", "experience", "education", "languages"
+      ];
 
-  // Привʼязка до превʼю
-  fields.forEach((id) => {
-    const input = document.getElementById(id);
-    const preview = document.getElementById(id + "Preview");
-    if (input && preview) {
-      input.addEventListener("input", () => {
-        preview.textContent = input.value.trim() || "—";
+      fields.forEach((id) => {
+        const input = document.getElementById(id);
+        const preview = document.getElementById(id + "Preview");
+        if (input && preview) {
+          input.addEventListener("input", () => {
+            preview.textContent = input.value.trim() || "—";
+          });
+        }
       });
-    }
-  });
 
-  // AI Fill
-  document.getElementById("smartFill").addEventListener("click", () => {
-    const example = {
-      fullName: "Igor Sulima",
-      title: "Freelance Web Developer",
-      summary: "Experienced developer specializing in modern JavaScript, UX/UI, and smart business tools.",
-      email: "igor@smartwerk.nl",
-      phone: "+31 6 12345678",
-      location: "Den Bosch, NL",
-      website: "www.smartwerk.nl",
-      linkedin: "linkedin.com/in/igorsulima",
-      skills: "HTML, CSS, JS, React, Firebase",
-      experience: "SmartWerk (2022–Now): Founder & Developer\nFreelance Projects: 2020–2022",
-      education: "IT Degree — University of Amsterdam (2018)",
-      languages: "Ukrainian, English, Dutch"
-    };
+      document.getElementById("smartFill").addEventListener("click", () => {
+        const example = {
+          fullName: "Igor Sulima",
+          title: "Freelance Web Developer",
+          summary: "Experienced developer specializing in modern JavaScript, UX/UI, and smart business tools.",
+          email: "igor@smartwerk.nl",
+          phone: "+31 6 12345678",
+          linkedin: "linkedin.com/in/igorsulima",
+          website: "www.smartwerk.nl",
+          skills: "HTML, CSS, JS, React, Firebase",
+          experience: "SmartWerk (2022–Now): Founder & Developer\nFreelance Projects: 2020–2022",
+          education: "IT Degree — University of Amsterdam (2018)",
+          languages: "Ukrainian, English, Dutch"
+        };
 
-    fields.forEach((id) => {
-      const input = document.getElementById(id);
-      const preview = document.getElementById(id + "Preview");
-      if (input && preview && example[id]) {
-        input.value = example[id];
-        preview.textContent = example[id];
-      }
+        fields.forEach((id) => {
+          const input = document.getElementById(id);
+          const preview = document.getElementById(id + "Preview");
+          if (input && preview && example[id]) {
+            input.value = example[id];
+            preview.textContent = example[id];
+          }
+        });
+      });
+
+      document.getElementById("switchTheme").addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+      });
+
+      document.getElementById("exportPDF").addEventListener("click", () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let y = 20;
+
+        doc.setFontSize(16);
+        doc.text("📄 SmartWerk CV / Portfolio", 20, y);
+        y += 10;
+
+        fields.forEach((id) => {
+          const input = document.getElementById(id);
+          if (input && input.value.trim()) {
+            doc.setFont(undefined, "bold");
+            doc.text(id.replace(/([A-Z])/g, " $1"), 20, y);
+            y += 6;
+            doc.setFont(undefined, "normal");
+            const lines = doc.splitTextToSize(input.value, 170);
+            doc.text(lines, 20, y);
+            y += lines.length * 6 + 4;
+          }
+        });
+
+        doc.save("smartwerk-cv.pdf");
+      });
     });
-  });
-
-  // Export PDF
-  document.getElementById("exportPDF").addEventListener("click", () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 20;
-
-    doc.setFontSize(16);
-    doc.text("📄 SmartWerk CV / Portfolio", 20, y);
-    y += 10;
-
-    fields.forEach((id) => {
-      const input = document.getElementById(id);
-      const label = document.querySelector(`label[for="${id}"]`);
-      if (input && label && input.value.trim()) {
-        doc.setFont(undefined, "bold");
-        doc.text(label.textContent, 20, y);
-        y += 6;
-        doc.setFont(undefined, "normal");
-        const lines = doc.splitTextToSize(input.value, 170);
-        doc.text(lines, 20, y);
-        y += lines.length * 6 + 4;
-      }
-    });
-
-    doc.save("smartwerk-cv.pdf");
-  });
-
-  // Switch Theme (додатково)
-  document.getElementById("switchTheme").addEventListener("click", () => {
-    document.body.classList.toggle("dark-theme");
-  });
-});
-    
-    
   </script>
 </body>
 </html>
