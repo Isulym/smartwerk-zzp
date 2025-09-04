@@ -128,96 +128,125 @@
 </section>
 
   <script>
-    // JavaScript буде додано окремо
-    function setToday() {
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById("date").value = today;
-    }
+   document.addEventListener("DOMContentLoaded", function () {
+  const amountInput = document.getElementById("amount");
+  const vatRateSelect = document.getElementById("vatRate");
+  const vatAmountInput = document.getElementById("vatAmount");
+  const totalAmountInput = document.getElementById("totalAmount");
+  const saveBtn = document.getElementById("saveExpense");
+  const exportCSVBtn = document.getElementById("exportCSV");
+  const printBtn = document.getElementById("printExpense");
+  const tableContainer = document.getElementById("expenseTable");
+  const expenseIdField = document.getElementById("expenseId");
 
-    
-     document.addEventListener("DOMContentLoaded", () => {
-  const amountField = document.getElementById("amount");
-  const vatField = document.getElementById("vat");
-  const totalField = document.getElementById("total");
-  const form = document.getElementById("expense-form");
-
-  function updateTotal() {
-    const amount = parseFloat(amountField.value) || 0;
-    const vatPercent = parseFloat(vatField.value) || 0;
-    const total = amount + (amount * vatPercent / 100);
-    totalField.value = total.toFixed(2);
+  function calculateVAT() {
+    const amount = parseFloat(amountInput.value) || 0;
+    const vatRate = parseFloat(vatRateSelect.value) || 0;
+    const vatAmount = (amount * vatRate) / 100;
+    const total = amount + vatAmount;
+    vatAmountInput.value = vatAmount.toFixed(2);
+    totalAmountInput.value = total.toFixed(2);
   }
 
-  amountField.addEventListener("input", updateTotal);
-  vatField.addEventListener("change", updateTotal);
+  amountInput.addEventListener("input", calculateVAT);
+  vatRateSelect.addEventListener("change", calculateVAT);
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const expense = {
-      date: get("date"),
-      invoiceNumber: get("invoiceNumber"),
-      description: get("description"),
-      category: get("category"),
-      projectClient: get("projectClient"),
-      amount: get("amount"),
-      vat: get("vat"),
-      total: totalField.value,
-      paymentMethod: get("paymentMethod"),
-      currency: get("currency"),
-      supplier: get("supplier"),
-      supplierContact: get("supplierContact"),
-      supplierAddress: get("supplierAddress"),
-      linkedInvoice: get("linkedInvoice"),
-      tags: get("tags"),
-      recurring: document.getElementById("recurring").checked,
-      note: get("note")
+  function generateExpenseID() {
+    const count = JSON.parse(localStorage.getItem("expenses") || "[]").length + 1;
+    return `EXP-2025-${String(count).padStart(3, "0")}`;
+  }
+
+  function getFormData() {
+    return {
+      id: expenseIdField.value,
+      type: document.getElementById("expenseType").value,
+      attached: document.getElementById("invoiceAttached").value,
+      description: document.getElementById("description").value,
+      paymentDate: document.getElementById("paymentDate").value,
+      category: document.getElementById("category").value,
+      status: document.getElementById("paymentStatus").value,
+      dueDate: document.getElementById("dueDate").value,
+      amount: amountInput.value,
+      vatRate: vatRateSelect.value,
+      vatAmount: vatAmountInput.value,
+      total: totalAmountInput.value,
+      country: document.getElementById("country").value,
+      notes: document.getElementById("notes").value
     };
-    saveExpense(expense);
-    alert("✅ Expense saved locally!");
-    form.reset();
-    updateTotal();
-  });
-
-  function get(id) {
-    return document.getElementById(id).value.trim();
   }
 
-  function saveExpense(data) {
-    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+  function saveExpense() {
+    const data = getFormData();
+    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     expenses.push(data);
     localStorage.setItem("expenses", JSON.stringify(expenses));
+    alert("✅ Expense saved!");
+    renderExpenses();
   }
 
-  window.exportCSV = function () {
-    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (!expenses.length) return alert("❗ No expenses to export!");
-    const headers = Object.keys(expenses[0]);
-    const rows = expenses.map(obj => headers.map(h => `"${(obj[h] || "").toString().replace(/"/g, '""')}"`).join(","));
-    const csvContent = [headers.join(","), ...rows].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "expenses.csv";
-    link.click();
-  };
+  function renderExpenses() {
+    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses.length === 0) {
+      tableContainer.innerHTML = "<p>No expenses found.</p>";
+      return;
+    }
 
-  window.exportPDF = function () {
-    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (!expenses.length) return alert("❗ No expenses to export!");
-    const doc = new jspdf.jsPDF();
-    doc.setFontSize(16);
-    doc.text("SmartWerk — Expenses", 14, 20);
-    doc.setFontSize(12);
-    const headers = Object.keys(expenses[0]);
-    const rows = expenses.map(obj => headers.map(h => obj[h] || ""));
-    doc.autoTable({
-      head: [headers],
-      body: rows,
-      startY: 30,
-      styles: { fontSize: 8 },
+    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th></tr></thead><tbody>';
+    expenses.forEach(e => {
+      let badge = "";
+      if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
+      else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
+      else badge = `<span>${e.status}</span>`;
+      html += `<tr><td>${e.id}</td><td>${e.type}</td><td>€${e.total}</td><td>${badge}</td><td>${e.dueDate}</td></tr>`;
     });
-    doc.save("expenses.pdf");
-  };
+    html += "</tbody></table>";
+    tableContainer.innerHTML = html;
+  }
+
+  function exportToCSV() {
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses.length === 0) return alert("Nothing to export!");
+
+    const csv = [
+      ["ID", "Type", "Attached", "Description", "PaymentDate", "Category", "Status", "DueDate", "Amount", "VATRate", "VATAmount", "Total", "Country", "Notes"]
+    ];
+    expenses.forEach(e => {
+      csv.push([
+        e.id, e.type, e.attached, e.description, e.paymentDate, e.category,
+        e.status, e.dueDate, e.amount, e.vatRate, e.vatAmount, e.total, e.country, e.notes
+      ]);
+    });
+
+    const blob = new Blob([csv.map(r => r.join(",")).join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "smartwerk-expenses.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function printExpenses() {
+    window.print();
+  }
+
+  document.getElementById("suggestCategory").addEventListener("click", () => {
+    const desc = document.getElementById("description").value.toLowerCase();
+    let suggestion = "Other";
+    if (desc.includes("flight") || desc.includes("hotel")) suggestion = "Travel";
+    else if (desc.includes("ads") || desc.includes("facebook") || desc.includes("google")) suggestion = "Marketing";
+    else if (desc.includes("software") || desc.includes("subscription")) suggestion = "Software";
+    document.getElementById("category").value = suggestion;
+  });
+
+  saveBtn.addEventListener("click", saveExpense);
+  exportCSVBtn.addEventListener("click", exportToCSV);
+  printBtn.addEventListener("click", printExpenses);
+
+  // Init
+  renderExpenses();
+  expenseIdField.value = generateExpenseID();
+  calculateVAT();
 });
   </script>
 </body>
