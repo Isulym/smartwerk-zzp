@@ -312,6 +312,23 @@ document.addEventListener("DOMContentLoaded", function () {
   exportCSVBtn.addEventListener("click", exportToCSV);
   printBtn.addEventListener("click", printExpenses);
 });
+
+function sendReminder() {
+  const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+  const unpaid = expenses.filter(e => e.status === "Unpaid");
+
+  if (unpaid.length === 0) {
+    alert("✅ No unpaid expenses found.");
+    return;
+  }
+
+  const reminderText = unpaid.map(e => 
+    `🔔 ${e.id} — €${e.total} due on ${e.dueDate} (${e.description})`
+  ).join("\n");
+
+  alert(`These expenses are still unpaid:\n\n${reminderText}`);
+}
+  
 </script>
 </body>
 </html>
