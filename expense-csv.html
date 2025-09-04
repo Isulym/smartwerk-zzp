@@ -138,8 +138,8 @@
   <canvas id="expenseChart" width="100%" height="60"></canvas>
 </section>
 
-  <script>
-   document.addEventListener("DOMContentLoaded", function () {
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
   const amountInput = document.getElementById("amount");
   const vatRateSelect = document.getElementById("vatRate");
   const vatAmountInput = document.getElementById("vatAmount");
@@ -150,6 +150,7 @@
   const tableContainer = document.getElementById("expenseTable");
   const expenseIdField = document.getElementById("expenseId");
 
+  // VAT калькулятор
   function calculateVAT() {
     const amount = parseFloat(amountInput.value) || 0;
     const vatRate = parseFloat(vatRateSelect.value) || 0;
@@ -158,7 +159,6 @@
     vatAmountInput.value = vatAmount.toFixed(2);
     totalAmountInput.value = total.toFixed(2);
   }
-
   amountInput.addEventListener("input", calculateVAT);
   vatRateSelect.addEventListener("change", calculateVAT);
 
@@ -214,61 +214,86 @@
     tableContainer.innerHTML = html;
   }
 
- function exportToCSV() {
-    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    if (expenses.length === 0) return alert("No expenses to export.");
+  function exportToCSV() {
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses.length === 0) return alert("Nothing to export!");
 
-    const header = Object.keys(expenses[0]).join(",");
-    const rows = expenses.map(e => Object.values(e).join(",")).join("\n");
-    const blob = new Blob([header + "\n" + rows], { type: "text/csv" });
+    const csv = [
+      ["ID", "Type", "Attached", "Description", "PaymentDate", "Category", "Status", "DueDate", "Amount", "VATRate", "VATAmount", "Total", "Country", "Notes"]
+    ];
+    expenses.forEach(e => {
+      csv.push([
+        e.id, e.type, e.attached, e.description, e.paymentDate, e.category,
+        e.status, e.dueDate, e.amount, e.vatRate, e.vatAmount, e.total, e.country, e.notes
+      ]);
+    });
 
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "expenses.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const blob = new Blob([csv.map(r => r.join(",")).join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "smartwerk-expenses.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
-  // === PRINT ===
   function printExpenses() {
     window.print();
   }
 
-  // === CHART ===
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  const categoryTotals = {};
-  expenses.forEach((e) => {
-    const cat = e.category || "Uncategorized";
-    const amt = parseFloat(e.amount) || 0;
-    categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+  // AI Category Suggestion
+  document.getElementById("suggestCategory").addEventListener("click", () => {
+    const desc = document.getElementById("description").value.toLowerCase();
+    let suggestion = "Other";
+    if (desc.includes("flight") || desc.includes("hotel")) suggestion = "Travel";
+    else if (desc.includes("ads") || desc.includes("facebook") || desc.includes("google")) suggestion = "Marketing";
+    else if (desc.includes("software") || desc.includes("subscription")) suggestion = "Software";
+    document.getElementById("category").value = suggestion;
   });
 
-  const ctx = document.getElementById("expenseChart")?.getContext("2d");
-  if (ctx) {
-    new Chart(ctx, {
-      type: "pie",
-      data: {
-        labels: Object.keys(categoryTotals),
-        datasets: [{
-          data: Object.values(categoryTotals),
-          backgroundColor: ["#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7"],
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: "bottom" },
-          title: {
-            display: true,
-            text: "📊 Expense Breakdown by Category",
-          },
-        },
-      },
-    });
+  // Chart section
+  const existingChart = document.getElementById("expenseChart");
+  if (!existingChart) {
+    const chartSection = document.createElement("section");
+    chartSection.innerHTML = `
+      <h3>📈 Expense Category Breakdown</h3>
+      <canvas id="expenseChart" width="300" height="300"></canvas>
+    `;
+    document.getElementById("expenseTableSection").appendChild(chartSection);
   }
 
-  // === Init ===
+  const expenses = JSON.parse(localStorage.getItem("expenses") || []);
+  const categoryTotals = {};
+  expenses.forEach((exp) => {
+    const category = exp.category || "Uncategorized";
+    const amount = parseFloat(exp.amount) || 0;
+    categoryTotals[category] = (categoryTotals[category] || 0) + amount;
+  });
+
+  const ctx = document.getElementById("expenseChart").getContext("2d");
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: Object.keys(categoryTotals),
+      datasets: [{
+        label: "Expenses by Category",
+        data: Object.values(categoryTotals),
+        backgroundColor: ["#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ac"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom" },
+        title: {
+          display: true,
+          text: "📊 Expense Breakdown by Category"
+        }
+      }
+    }
+  });
+
+  // INIT
   renderExpenses();
   expenseIdField.value = generateExpenseID();
   calculateVAT();
