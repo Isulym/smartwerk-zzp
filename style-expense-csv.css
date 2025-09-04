@@ -133,3 +133,62 @@ h1, h2 {
   height: 300px;
   margin: 0 auto;
 }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 30px 0 20px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line, #2a2f45);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+.filters select,
+.filters input {
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #1c2230;
+  color: #f0f0f0;
+  border: 1px solid #3b79ff;
+  border-radius: 8px;
+  min-width: 180px;
+  transition: all 0.2s ease;
+}
+
+.filters select:focus,
+.filters input:focus {
+  outline: none;
+  border-color: #5b9bff;
+  background: #202838;
+  box-shadow: 0 0 5px #3b79ff88;
+}
+
+.filters button {
+  background-color: #3b79ff;
+  border: none;
+  padding: 10px 16px;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.filters button:hover {
+  background-color: #275ecc;
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters select,
+  .filters input {
+    width: 100%;
+  }
+}
