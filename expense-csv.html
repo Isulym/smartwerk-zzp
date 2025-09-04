@@ -345,7 +345,8 @@ document.addEventListener("DOMContentLoaded", function () {
   printBtn.addEventListener("click", printExpenses);
 });
 
-  function markAsReminded(index) {
+ // ✅ Глобальна функція
+function markAsReminded(index) {
   let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
   if (expenses[index]) {
     expenses[index].status = "Reminded";
@@ -354,6 +355,11 @@ document.addEventListener("DOMContentLoaded", function () {
     renderExpenses();
   }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  // ... всі інші функції всередині ...
+  // включно з renderExpenses(), saveExpense(), exportToCSV()
+});
 
 </script>
 </body>
