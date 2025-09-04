@@ -65,7 +65,127 @@
   </div>
 
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="./js/roi-estimator.js"></script>
+  <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("roiForm");
+  const result = document.getElementById("roiResult");
+  const insights = document.getElementById("roiInsights");
+  const chartContainer = document.getElementById("roiChartContainer");
+  const exportBtn = document.getElementById("exportROI");
+
+  let chart;
+
+  form.addEventListener("input", calculateROI);
+  exportBtn.addEventListener("click", exportToPDF);
+
+  function calculateROI() {
+    const investment = parseFloat(document.getElementById("investment").value) || 0;
+    const gain = parseFloat(document.getElementById("gain").value) || 0;
+    const period = parseInt(document.getElementById("period").value) || 1;
+
+    const netProfit = gain - investment;
+    const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
+    const monthlyROI = (roiPercent / period).toFixed(2);
+
+    result.innerHTML = `
+      <p>📊 <strong>ROI:</strong> ${roiPercent}% over ${period} months</p>
+      <p>💰 <strong>Net Profit:</strong> €${netProfit.toFixed(2)}</p>
+      <p>📆 <strong>Monthly ROI:</strong> ${monthlyROI}%</p>
+    `;
+
+    generateChart(investment, gain);
+    generateInsights(roiPercent, netProfit, monthlyROI);
+  }
+
+  function generateInsights(roi, profit, monthly) {
+    let advice = "";
+
+    if (roi < 0) {
+      advice = "❌ Your investment leads to a loss. Consider reducing expenses or improving conversion.";
+    } else if (roi < 20) {
+      advice = "⚠️ ROI is low. Try optimizing marketing or increasing product value.";
+    } else if (roi >= 20 && roi < 100) {
+      advice = "✅ ROI is moderate. Consider scaling gradually and monitoring performance.";
+    } else {
+      advice = "🚀 Excellent ROI! Scaling up may lead to exponential growth.";
+    }
+
+    insights.innerHTML = `
+      <h3>🧠 Smart Insight</h3>
+      <p>${advice}</p>
+      <p><small>Tip: ROI > 50% is considered healthy for most small businesses.</small></p>
+    `;
+  }
+
+  function generateChart(investment, gain) {
+    const ctx = document.getElementById("roiChart").getContext("2d");
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Investment", "Gain"],
+        datasets: [
+          {
+            label: "€ Amount",
+            data: [investment, gain],
+            backgroundColor: ["#f44336", "#4caf50"],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: "📈 Investment vs Gain",
+            font: { size: 18 },
+          },
+        },
+      },
+    });
+
+    chartContainer.style.display = "block";
+  }
+
+  async function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const investment = document.getElementById("investment").value;
+    const gain = document.getElementById("gain").value;
+    const period = document.getElementById("period").value;
+
+    const netProfit = gain - investment;
+    const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
+    const monthlyROI = (roiPercent / period).toFixed(2);
+
+    doc.setFontSize(16);
+    doc.text("📄 ROI Estimation Report", 20, 20);
+    doc.setFontSize(12);
+    doc.text(`💼 Investment: €${investment}`, 20, 40);
+    doc.text(`📈 Expected Gain: €${gain}`, 20, 50);
+    doc.text(`📆 Period: ${period} months`, 20, 60);
+    doc.text(`📊 ROI: ${roiPercent}%`, 20, 70);
+    doc.text(`💰 Net Profit: €${netProfit.toFixed(2)}`, 20, 80);
+    doc.text(`📆 Monthly ROI: ${monthlyROI}%`, 20, 90);
+
+    doc.text("🧠 Insight:", 20, 110);
+    let text = insights.innerText.split("\n");
+    doc.setFontSize(11);
+    doc.text(text, 20, 120);
+
+    doc.save("smartwerk-roi-report.pdf");
+  }
+
+  // Init state
+  calculateROI();
+});
+    
+  </script>
+  
 </body>
 </html>
