@@ -6,6 +6,10 @@
   <title>SmartWerk — Expense Tracker</title>
   <link rel="stylesheet" href="style-expense-csv.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -233,10 +237,19 @@
     URL.revokeObjectURL(url);
   }
 
-  function printExpenses() {
-    window.print();
-  }
+  document.addEventListener("DOMContentLoaded", function () {
+  // === Elements ===
+  const saveBtn = document.getElementById("saveExpense");
+  const exportCSVBtn = document.getElementById("exportCSV");
+  const printBtn = document.getElementById("printExpense");
+  const expenseIdField = document.getElementById("expenseId");
 
+  // === Події кнопок ===
+  saveBtn.addEventListener("click", saveExpense);
+  exportCSVBtn.addEventListener("click", exportToCSV);
+  printBtn.addEventListener("click", printExpenses);
+
+  // === AI Сугестія категорії ===
   document.getElementById("suggestCategory").addEventListener("click", () => {
     const desc = document.getElementById("description").value.toLowerCase();
     let suggestion = "Other";
@@ -246,18 +259,12 @@
     document.getElementById("category").value = suggestion;
   });
 
-  saveBtn.addEventListener("click", saveExpense);
-  exportCSVBtn.addEventListener("click", exportToCSV);
-  printBtn.addEventListener("click", printExpenses);
-
-  // Init
+  // === Init form ===
   renderExpenses();
   expenseIdField.value = generateExpenseID();
   calculateVAT();
-});
 
-    document.addEventListener("DOMContentLoaded", function () {
-  // Створюємо canvas елемент для графіка, якщо його ще нема
+  // === Створення графіка, якщо ще немає ===
   const existingChart = document.getElementById("expenseChart");
   if (!existingChart) {
     const chartSection = document.createElement("section");
@@ -268,10 +275,9 @@
     document.getElementById("expenseTableSection").appendChild(chartSection);
   }
 
-  // Завантажити збережені витрати з localStorage
+  // === Дані для графіка ===
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
 
-  // Агрегувати суми по категоріях
   const categoryTotals = {};
   expenses.forEach((exp) => {
     const category = exp.category || "Uncategorized";
@@ -282,11 +288,9 @@
     categoryTotals[category] += amount;
   });
 
-  // Підготовка даних для Chart.js
   const categories = Object.keys(categoryTotals);
   const amounts = Object.values(categoryTotals);
 
-  // Створити графік
   const ctx = document.getElementById("expenseChart").getContext("2d");
   new Chart(ctx, {
     type: "pie",
@@ -297,16 +301,9 @@
           label: "Expenses by Category",
           data: amounts,
           backgroundColor: [
-            "#4e79a7",
-            "#f28e2b",
-            "#e15759",
-            "#76b7b2",
-            "#59a14f",
-            "#edc949",
-            "#af7aa1",
-            "#ff9da7",
-            "#9c755f",
-            "#bab0ac",
+            "#4e79a7", "#f28e2b", "#e15759", "#76b7b2",
+            "#59a14f", "#edc949", "#af7aa1", "#ff9da7",
+            "#9c755f", "#bab0ac",
           ],
         },
       ],
@@ -314,9 +311,7 @@
     options: {
       responsive: true,
       plugins: {
-        legend: {
-          position: "bottom",
-        },
+        legend: { position: "bottom" },
         title: {
           display: true,
           text: "📊 Expense Breakdown by Category",
@@ -324,6 +319,11 @@
       },
     },
   });
+
+  // === Print function (для PDF також) ===
+  function printExpenses() {
+    window.print();
+  }
 });
     
   </script>
