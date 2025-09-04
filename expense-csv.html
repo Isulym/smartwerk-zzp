@@ -203,6 +203,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==== Рендер таблиці ====
  function renderExpenses() {
   let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+  const tableContainer = document.getElementById("expenseTable");
+
   if (expenses.length === 0) {
     tableContainer.innerHTML = "<p>No expenses found.</p>";
     return;
@@ -216,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <th>Type</th>
           <th>Total</th>
           <th>Status</th>
-          <th>Due</th>
+          <th>Due Date</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -227,14 +229,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let badge = "";
     if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
     else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
-    else if (e.status === "Scheduled") badge = '<span style="color:orange;">Scheduled</span>';
-    else if (e.status === "Reminded") badge = '<span style="color:#3b79ff;">Reminded</span>';
+    else if (e.status === "Reminded") badge = '<span style="color:orange;">Reminded</span>';
     else badge = `<span>${e.status}</span>`;
-
-    let remindBtn = "";
-    if (e.status === "Unpaid" || e.status === "Scheduled") {
-      remindBtn = `<button onclick="markAsReminded(${index})">✅ Mark as Reminded</button>`;
-    }
 
     html += `
       <tr>
@@ -243,7 +239,10 @@ document.addEventListener("DOMContentLoaded", function () {
         <td>€${e.total}</td>
         <td>${badge}</td>
         <td>${e.dueDate}</td>
-        <td>${remindBtn}</td>
+        <td>
+          <button onclick="sendReminder(${index})">📤 Send Reminder</button>
+          <button onclick="markAsReminded(${index})">✅ Mark as Reminded</button>
+        </td>
       </tr>
     `;
   });
