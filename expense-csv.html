@@ -138,8 +138,9 @@
   <canvas id="expenseChart" width="100%" height="60"></canvas>
 </section>
 
- <script>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
+  // ==== Елементи ====
   const amountInput = document.getElementById("amount");
   const vatRateSelect = document.getElementById("vatRate");
   const vatAmountInput = document.getElementById("vatAmount");
@@ -150,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const tableContainer = document.getElementById("expenseTable");
   const expenseIdField = document.getElementById("expenseId");
 
-  // VAT калькулятор
+  // ==== Калькулятор ПДВ ====
   function calculateVAT() {
     const amount = parseFloat(amountInput.value) || 0;
     const vatRate = parseFloat(vatRateSelect.value) || 0;
@@ -159,14 +160,17 @@ document.addEventListener("DOMContentLoaded", function () {
     vatAmountInput.value = vatAmount.toFixed(2);
     totalAmountInput.value = total.toFixed(2);
   }
+
   amountInput.addEventListener("input", calculateVAT);
   vatRateSelect.addEventListener("change", calculateVAT);
 
+  // ==== Генерація ID ====
   function generateExpenseID() {
     const count = JSON.parse(localStorage.getItem("expenses") || "[]").length + 1;
     return `EXP-2025-${String(count).padStart(3, "0")}`;
   }
 
+  // ==== Отримання даних форми ====
   function getFormData() {
     return {
       id: expenseIdField.value,
@@ -186,6 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  // ==== Збереження ====
   function saveExpense() {
     const data = getFormData();
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
@@ -195,6 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderExpenses();
   }
 
+  // ==== Рендер таблиці ====
   function renderExpenses() {
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     if (expenses.length === 0) {
@@ -214,6 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
     tableContainer.innerHTML = html;
   }
 
+  // ==== Експорт CSV ====
   function exportToCSV() {
     const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     if (expenses.length === 0) return alert("Nothing to export!");
@@ -237,11 +244,12 @@ document.addEventListener("DOMContentLoaded", function () {
     URL.revokeObjectURL(url);
   }
 
+  // ==== Друк ====
   function printExpenses() {
     window.print();
   }
 
-  // AI Category Suggestion
+  // ==== AI Smart Suggest Category ====
   document.getElementById("suggestCategory").addEventListener("click", () => {
     const desc = document.getElementById("description").value.toLowerCase();
     let suggestion = "Other";
@@ -251,55 +259,58 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("category").value = suggestion;
   });
 
-  // Chart section
+  // ==== Побудова графіка ====
   const existingChart = document.getElementById("expenseChart");
-  if (!existingChart) {
-    const chartSection = document.createElement("section");
-    chartSection.innerHTML = `
-      <h3>📈 Expense Category Breakdown</h3>
-      <canvas id="expenseChart" width="300" height="300"></canvas>
-    `;
-    document.getElementById("expenseTableSection").appendChild(chartSection);
+  if (existingChart) {
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const categoryTotals = {};
+    expenses.forEach((exp) => {
+      const category = exp.category || "Uncategorized";
+      const amount = parseFloat(exp.amount) || 0;
+      if (!categoryTotals[category]) categoryTotals[category] = 0;
+      categoryTotals[category] += amount;
+    });
+
+    const categories = Object.keys(categoryTotals);
+    const amounts = Object.values(categoryTotals);
+
+    const ctx = existingChart.getContext("2d");
+    new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: categories,
+        datasets: [{
+          label: "Expenses by Category",
+          data: amounts,
+          backgroundColor: [
+            "#4e79a7", "#f28e2b", "#e15759", "#76b7b2",
+            "#59a14f", "#edc949", "#af7aa1", "#ff9da7",
+            "#9c755f", "#bab0ac",
+          ],
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "bottom" },
+          title: {
+            display: true,
+            text: "📊 Expense Breakdown by Category",
+          },
+        },
+      },
+    });
   }
 
-  const expenses = JSON.parse(localStorage.getItem("expenses") || []);
-  const categoryTotals = {};
-  expenses.forEach((exp) => {
-    const category = exp.category || "Uncategorized";
-    const amount = parseFloat(exp.amount) || 0;
-    categoryTotals[category] = (categoryTotals[category] || 0) + amount;
-  });
-
-  const ctx = document.getElementById("expenseChart").getContext("2d");
-  new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels: Object.keys(categoryTotals),
-      datasets: [{
-        label: "Expenses by Category",
-        data: Object.values(categoryTotals),
-        backgroundColor: ["#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ac"]
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "bottom" },
-        title: {
-          display: true,
-          text: "📊 Expense Breakdown by Category"
-        }
-      }
-    }
-  });
-
-  // INIT
-  renderExpenses();
+  // ==== Ініціалізація ====
   expenseIdField.value = generateExpenseID();
   calculateVAT();
-});
-   document.addEventListener("DOMContentLoaded", function () {
-  // === Весь JavaScript тут (той, що я тобі надсилав вище)
+  renderExpenses();
+
+  // ==== Привʼязка подій ====
+  saveBtn.addEventListener("click", saveExpense);
+  exportCSVBtn.addEventListener("click", exportToCSV);
+  printBtn.addEventListener("click", printExpenses);
 });
 </script>
 </body>
