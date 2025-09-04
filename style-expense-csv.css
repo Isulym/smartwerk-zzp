@@ -119,8 +119,8 @@ h1, h2 {
 }
 
 .chart-canvas {
-  max-width: 350px;
-  max-height: 350px;
+  max-width: 150px;
+  max-height: 150px;
   width: 100%;
   height: auto;
   display: block;
