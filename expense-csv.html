@@ -273,7 +273,7 @@ function renderExpenses() {
   <td>${badge}</td>
   <td>${e.dueDate}</td>
   <td>${remindedStatus}</td>
-  <td><button onclick="deleteExpense(INDEX)">🗑️ Delete</button>
+  <td><button onclick="deleteExpense(${index})">🗑️ Delete</button></td>
 </tr>`;
   });
   html += "</tbody></table>";
@@ -290,11 +290,13 @@ function renderExpenses() {
   });
 }
 
-function deleteExpense(index) {
+window.deleteExpense = function(index) {
   let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-  expenses.splice(index, 1);
-  localStorage.setItem("expenses", JSON.stringify(expenses));
-  renderExpenses();
+  if (confirm(`Are you sure you want to delete expense ${expenses[index].id}?`)) {
+    expenses.splice(index, 1);
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+    renderExpenses();
+  }
 }
 
 // ДОДАТИ В КІНЕЦЬ DOMContentLoaded або main init:
