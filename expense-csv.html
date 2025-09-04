@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartWerk — Expense Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h1>💸 Add New Expense</h1>
+
+  <form id="expense-form">
+    <!-- Section 1: General Info -->
+    <fieldset>
+      <legend>🧾 General Info</legend>
+      <label>Date: <input type="date" id="date" required /></label>
+      <button type="button" onclick="setToday()">Today</button><br>
+
+      <label>Invoice Number: <input type="text" id="invoiceNumber" /></label><br>
+
+      <label>Description: <input type="text" id="description" required /></label><br>
+
+      <label>Category:
+        <select id="category">
+          <option>Office Supplies</option>
+          <option>Software & Tools</option>
+          <option>Marketing</option>
+          <option>Transportation</option>
+          <option>Meals & Entertainment</option>
+          <option>Utilities</option>
+          <option>Legal & Accounting</option>
+          <option>Other</option>
+        </select>
+      </label><br>
+
+      <label>Project/Client: <input type="text" id="projectClient" /></label>
+    </fieldset>
+
+    <!-- Section 2: Financial Info -->
+    <fieldset>
+      <legend>💶 Financial Details</legend>
+      <label>Amount (excl. VAT): <input type="number" id="amount" step="0.01" required /></label><br>
+
+      <label>VAT %:
+        <select id="vat">
+          <option value="0">0%</option>
+          <option value="9">9%</option>
+          <option value="21">21%</option>
+        </select>
+      </label><br>
+
+      <label>Total incl. VAT: <input type="text" id="total" readonly /></label><br>
+
+      <label>Payment Method:
+        <select id="paymentMethod">
+          <option>Cash</option>
+          <option>Bank Card</option>
+          <option>Online</option>
+          <option>Transfer</option>
+        </select>
+      </label><br>
+
+      <label>Currency:
+        <select id="currency">
+          <option>EUR</option>
+          <option>USD</option>
+          <option>PLN</option>
+          <option>UAH</option>
+        </select>
+      </label>
+    </fieldset>
+
+    <!-- Section 3: Supplier -->
+    <fieldset>
+      <legend>🏢 Supplier Info</legend>
+      <label>Supplier Name: <input type="text" id="supplier" /></label><br>
+      <label>Contact Email/Phone: <input type="text" id="supplierContact" /></label><br>
+      <label>Address: <input type="text" id="supplierAddress" /></label>
+    </fieldset>
+
+    <!-- Section 4: Uploads & Tags -->
+    <fieldset>
+      <legend>📎 Files & Tags</legend>
+      <label>Attach Receipt: <input type="file" id="receiptFile" accept=".pdf,.jpg,.png" /></label><br>
+      <label>Attach to Invoice #: <input type="text" id="linkedInvoice" /></label><br>
+      <label>Tags: <input type="text" id="tags" placeholder="e.g. software, clientX" /></label><br>
+      <label><input type="checkbox" id="recurring" /> Recurring Expense?</label>
+    </fieldset>
+
+    <!-- Section 5: Notes -->
+    <fieldset>
+      <legend>📝 Notes</legend>
+      <label>Internal Note (optional, not shown in PDF):<br>
+        <textarea id="note" rows="3" placeholder="For internal use only..."></textarea>
+      </label>
+    </fieldset>
+
+    <!-- Buttons -->
+    <div style="margin-top: 20px;">
+      <button type="submit">💾 Save Locally</button>
+      <button type="button" onclick="exportCSV()">📤 Export as CSV</button>
+      <button type="button" onclick="exportPDF()">📄 Export as PDF</button>
+    </div>
+  </form>
+
+  <script>
+    // JavaScript буде додано окремо
+    function setToday() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("date").value = today;
+    }
+
+    
+      category: get("category"),
+      projectClient: get("projectClient"),
+      amount: get("amount"),
+      vat: get("vat"),
+      total: totalField.value,
+      paymentMethod: get("paymentMethod"),
+      currency: get("currency"),
+      supplier: get("supplier"),
+      supplierContact: get("supplierContact"),
+      supplierAddress: get("supplierAddress"),
+      linkedInvoice: get("linkedInvoice"),
+      tags: get("tags"),
+      recurring: document.getElementById("recurring").checked,
+      note: get("note")
+    };
+    saveExpense(expense);
+    alert("✅ Expense saved locally!");
+    form.reset();
+    updateTotal();
+  });
+
+  function get(id) {
+    return document.getElementById(id).value.trim();
+  }
+
+  function saveExpense(data) {
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    expenses.push(data);
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+  }
+
+  window.exportCSV = function () {
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (!expenses.length) return alert("❗ No expenses to export!");
+    const headers = Object.keys(expenses[0]);
+    const rows = expenses.map(obj => headers.map(h => `"${(obj[h] || "").toString().replace(/"/g, '""')}"`).join(","));
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "expenses.csv";
+    link.click();
+  };
+
+  window.exportPDF = function () {
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (!expenses.length) return alert("❗ No expenses to export!");
+    const doc = new jspdf.jsPDF();
+    doc.setFontSize(16);
+    doc.text("SmartWerk — Expenses", 14, 20);
+    doc.setFontSize(12);
+    const headers = Object.keys(expenses[0]);
+    const rows = expenses.map(obj => headers.map(h => obj[h] || ""));
+    doc.autoTable({
+      head: [headers],
+      body: rows,
+      startY: 30,
+      styles: { fontSize: 8 },
+    });
+    doc.save("expenses.pdf");
+  };
+});
+  </script>
+</body>
+</html>
