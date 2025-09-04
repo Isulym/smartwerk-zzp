@@ -178,8 +178,10 @@ document.addEventListener("DOMContentLoaded", function () {
     doc.save("smartwerk-roi-report.pdf");
   }
 
-  // Init state
-  calculateROI();
+// Init state — ПЕРЕНЕСТИ в середину DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
+  ...
+  calculateROI(); // <-- тут
 });
     
   </script>
