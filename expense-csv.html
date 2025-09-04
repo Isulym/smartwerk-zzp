@@ -140,7 +140,6 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  // ==== Елементи ====
   const amountInput = document.getElementById("amount");
   const vatRateSelect = document.getElementById("vatRate");
   const vatAmountInput = document.getElementById("vatAmount");
@@ -148,10 +147,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const saveBtn = document.getElementById("saveExpense");
   const exportCSVBtn = document.getElementById("exportCSV");
   const printBtn = document.getElementById("printExpense");
+  const reminderBtn = document.getElementById("renderExpenses"); // Send Reminder
   const tableContainer = document.getElementById("expenseTable");
   const expenseIdField = document.getElementById("expenseId");
 
-  // ==== Калькулятор ПДВ ====
   function calculateVAT() {
     const amount = parseFloat(amountInput.value) || 0;
     const vatRate = parseFloat(vatRateSelect.value) || 0;
@@ -164,13 +163,11 @@ document.addEventListener("DOMContentLoaded", function () {
   amountInput.addEventListener("input", calculateVAT);
   vatRateSelect.addEventListener("change", calculateVAT);
 
-  // ==== Генерація ID ====
   function generateExpenseID() {
     const count = JSON.parse(localStorage.getItem("expenses") || "[]").length + 1;
     return `EXP-2025-${String(count).padStart(3, "0")}`;
   }
 
-  // ==== Отримання даних форми ====
   function getFormData() {
     return {
       id: expenseIdField.value,
@@ -186,11 +183,11 @@ document.addEventListener("DOMContentLoaded", function () {
       vatAmount: vatAmountInput.value,
       total: totalAmountInput.value,
       country: document.getElementById("country").value,
-      notes: document.getElementById("notes").value
+      notes: document.getElementById("notes").value,
+      reminded: false
     };
   }
 
-  // ==== Збереження ====
   function saveExpense() {
     const data = getFormData();
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
@@ -200,11 +197,43 @@ document.addEventListener("DOMContentLoaded", function () {
     renderExpenses();
   }
 
-  // ==== Рендер таблиці ====
- document.addEventListener("DOMContentLoaded", function () {
-  const tableContainer = document.getElementById("expenseTable");
+  function exportToCSV() {
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses.length === 0) return alert("Nothing to export!");
 
- function renderExpenses() {
+    const csv = [
+      ["ID", "Type", "Attached", "Description", "PaymentDate", "Category", "Status", "DueDate", "Amount", "VATRate", "VATAmount", "Total", "Country", "Notes", "Reminded"]
+    ];
+    expenses.forEach(e => {
+      csv.push([
+        e.id, e.type, e.attached, e.description, e.paymentDate, e.category,
+        e.status, e.dueDate, e.amount, e.vatRate, e.vatAmount, e.total, e.country, e.notes, e.reminded ? "Yes" : "No"
+      ]);
+    });
+
+    const blob = new Blob([csv.map(r => r.join(",")).join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "smartwerk-expenses.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function printExpenses() {
+    window.print();
+  }
+
+  function markAsReminded(index) {
+    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses[index]) {
+      expenses[index].reminded = true;
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+      renderExpenses();
+    }
+  }
+
+  function renderExpenses() {
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     if (expenses.length === 0) {
       tableContainer.innerHTML = "<p>No expenses found.</p>";
@@ -235,114 +264,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ==== Експорт CSV ====
-  function exportToCSV() {
-    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (expenses.length === 0) return alert("Nothing to export!");
-
-    const csv = [
-      ["ID", "Type", "Attached", "Description", "PaymentDate", "Category", "Status", "DueDate", "Amount", "VATRate", "VATAmount", "Total", "Country", "Notes"]
-    ];
-    expenses.forEach(e => {
-      csv.push([
-        e.id, e.type, e.attached, e.description, e.paymentDate, e.category,
-        e.status, e.dueDate, e.amount, e.vatRate, e.vatAmount, e.total, e.country, e.notes
-      ]);
-    });
-
-    const blob = new Blob([csv.map(r => r.join(",")).join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "smartwerk-expenses.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  // ==== Друк ====
-  function printExpenses() {
-    window.print();
-  }
-
-  // ==== AI Smart Suggest Category ====
-  document.getElementById("suggestCategory").addEventListener("click", () => {
-    const desc = document.getElementById("description").value.toLowerCase();
-    let suggestion = "Other";
-    if (desc.includes("flight") || desc.includes("hotel")) suggestion = "Travel";
-    else if (desc.includes("ads") || desc.includes("facebook") || desc.includes("google")) suggestion = "Marketing";
-    else if (desc.includes("software") || desc.includes("subscription")) suggestion = "Software";
-    document.getElementById("category").value = suggestion;
-  });
-
-  // ==== Побудова графіка ====
-  const existingChart = document.getElementById("expenseChart");
-  if (existingChart) {
-    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    const categoryTotals = {};
-    expenses.forEach((exp) => {
-      const category = exp.category || "Uncategorized";
-      const amount = parseFloat(exp.amount) || 0;
-      if (!categoryTotals[category]) categoryTotals[category] = 0;
-      categoryTotals[category] += amount;
-    });
-
-    const categories = Object.keys(categoryTotals);
-    const amounts = Object.values(categoryTotals);
-
-    const ctx = existingChart.getContext("2d");
-    new Chart(ctx, {
-      type: "pie",
-      data: {
-        labels: categories,
-        datasets: [{
-          label: "Expenses by Category",
-          data: amounts,
-          backgroundColor: [
-            "#4e79a7", "#f28e2b", "#e15759", "#76b7b2",
-            "#59a14f", "#edc949", "#af7aa1", "#ff9da7",
-            "#9c755f", "#bab0ac",
-          ],
-        }],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: "bottom" },
-          title: {
-            display: true,
-            text: "📊 Expense Breakdown by Category",
-          },
-        },
-      },
-    });
-  }
-
-  // ==== Ініціалізація ====
-  expenseIdField.value = generateExpenseID();
-  calculateVAT();
-  renderExpenses();
-
-  // ==== Привʼязка подій ====
+  // === Прив’язка подій ===
   saveBtn.addEventListener("click", saveExpense);
   exportCSVBtn.addEventListener("click", exportToCSV);
   printBtn.addEventListener("click", printExpenses);
+  reminderBtn.addEventListener("click", renderExpenses);
+
+  // === Початкові дії ===
+  expenseIdField.value = generateExpenseID();
+  calculateVAT();
+  renderExpenses();
 });
-
- // ✅ Глобальна функція
-function markAsReminded(index) {
-    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (expenses[index]) {
-      expenses[index].reminded = true;
-      localStorage.setItem("expenses", JSON.stringify(expenses));
-      renderExpenses();
-    }
-  }
-
-document.addEventListener("DOMContentLoaded", function () {
-  // ... всі інші функції всередині ...
-  // включно з renderExpenses(), saveExpense(), exportToCSV()
-});
-
 </script>
 </body>
 </html>
