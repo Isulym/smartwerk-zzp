@@ -201,24 +201,56 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==== Рендер таблиці ====
-  function renderExpenses() {
-    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (expenses.length === 0) {
-      tableContainer.innerHTML = "<p>No expenses found.</p>";
-      return;
+ function renderExpenses() {
+  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+  if (expenses.length === 0) {
+    tableContainer.innerHTML = "<p>No expenses found.</p>";
+    return;
+  }
+
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Due</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  expenses.forEach((e, index) => {
+    let badge = "";
+    if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
+    else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
+    else if (e.status === "Scheduled") badge = '<span style="color:orange;">Scheduled</span>';
+    else if (e.status === "Reminded") badge = '<span style="color:#3b79ff;">Reminded</span>';
+    else badge = `<span>${e.status}</span>`;
+
+    let remindBtn = "";
+    if (e.status === "Unpaid" || e.status === "Scheduled") {
+      remindBtn = `<button onclick="markAsReminded(${index})">✅ Mark as Reminded</button>`;
     }
 
-    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th></tr></thead><tbody>';
-    expenses.forEach(e => {
-      let badge = "";
-      if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
-      else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
-      else badge = `<span>${e.status}</span>`;
-      html += `<tr><td>${e.id}</td><td>${e.type}</td><td>€${e.total}</td><td>${badge}</td><td>${e.dueDate}</td></tr>`;
-    });
-    html += "</tbody></table>";
-    tableContainer.innerHTML = html;
-  }
+    html += `
+      <tr>
+        <td>${e.id}</td>
+        <td>${e.type}</td>
+        <td>€${e.total}</td>
+        <td>${badge}</td>
+        <td>${e.dueDate}</td>
+        <td>${remindBtn}</td>
+      </tr>
+    `;
+  });
+
+  html += "</tbody></table>";
+  tableContainer.innerHTML = html;
+}
 
   // ==== Експорт CSV ====
   function exportToCSV() {
@@ -313,22 +345,16 @@ document.addEventListener("DOMContentLoaded", function () {
   printBtn.addEventListener("click", printExpenses);
 });
 
-function sendReminder() {
-  const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-  const unpaid = expenses.filter(e => e.status === "Unpaid");
-
-  if (unpaid.length === 0) {
-    alert("✅ No unpaid expenses found.");
-    return;
+  function markAsReminded(index) {
+  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+  if (expenses[index]) {
+    expenses[index].status = "Reminded";
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+    alert("🔔 Marked as reminded!");
+    renderExpenses();
   }
-
-  const reminderText = unpaid.map(e => 
-    `🔔 ${e.id} — €${e.total} due on ${e.dueDate} (${e.description})`
-  ).join("\n");
-
-  alert(`These expenses are still unpaid:\n\n${reminderText}`);
 }
-  
+
 </script>
 </body>
 </html>
