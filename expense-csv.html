@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
  document.addEventListener("DOMContentLoaded", function () {
   const tableContainer = document.getElementById("expenseTable");
 
-  function renderExpenses() {
+ function renderExpenses() {
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     if (expenses.length === 0) {
       tableContainer.innerHTML = "<p>No expenses found.</p>";
@@ -227,21 +227,13 @@ document.addEventListener("DOMContentLoaded", function () {
     html += "</tbody></table>";
     tableContainer.innerHTML = html;
 
-    // Додати події до кнопок "Mark as Reminded"
     document.querySelectorAll(".remindBtn").forEach((btn) => {
       btn.addEventListener("click", function () {
         const index = this.getAttribute("data-index");
-        let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-        expenses[index].reminded = true;
-        localStorage.setItem("expenses", JSON.stringify(expenses));
-        renderExpenses();
+        markAsReminded(index);
       });
     });
   }
-
-  // Додати обробник до кнопки Send Reminder
-  document.getElementById("renderExpenses").addEventListener("click", renderExpenses);
-});
 
   // ==== Експорт CSV ====
   function exportToCSV() {
@@ -338,14 +330,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
  // ✅ Глобальна функція
 function markAsReminded(index) {
-  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-  if (expenses[index]) {
-    expenses[index].status = "Reminded";
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-    alert("🔔 Marked as reminded!");
-    renderExpenses();
+    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses[index]) {
+      expenses[index].reminded = true;
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+      renderExpenses();
+    }
   }
-}
 
 document.addEventListener("DOMContentLoaded", function () {
   // ... всі інші функції всередині ...
