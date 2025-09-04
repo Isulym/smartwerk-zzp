@@ -201,7 +201,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==== Рендер таблиці ====
- function renderExpenses() {
+ document.addEventListener("DOMContentLoaded", function () {
+  const tableContainer = document.getElementById("expenseTable");
+
+  function renderExpenses() {
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     if (expenses.length === 0) {
       tableContainer.innerHTML = "<p>No expenses found.</p>";
@@ -215,7 +218,9 @@ document.addEventListener("DOMContentLoaded", function () {
       else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
       else badge = `<span>${e.status}</span>`;
 
-      const remindedStatus = e.reminded ? "✅ Reminded" : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
+      const remindedStatus = e.reminded
+        ? "✅ Reminded"
+        : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
 
       html += `<tr><td>${e.id}</td><td>${e.type}</td><td>€${e.total}</td><td>${badge}</td><td>${e.dueDate}</td><td>${remindedStatus}</td></tr>`;
     });
@@ -233,6 +238,10 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  // Додати обробник до кнопки Send Reminder
+  document.getElementById("renderExpenses").addEventListener("click", renderExpenses);
+});
 
   // ==== Експорт CSV ====
   function exportToCSV() {
