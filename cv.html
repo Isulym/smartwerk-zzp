@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📄 SmartWerk CV / Portfolio</title>
   <link rel="stylesheet" href="style-cv.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="cv-container">
@@ -90,100 +91,95 @@
   </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("cvForm");
-  const preview = document.getElementById("cvPreview");
-  const exportBtn = document.getElementById("exportCV");
-  const clearBtn = document.getElementById("clearCV");
-  const exampleBtn = document.getElementById("loadExample");
+// ✅ SmartWerk CV / Portfolio Logic
 
-  // Показати попередній перегляд
-  function renderPreview() {
-    const name = document.getElementById("fullName").value;
-    const title = document.getElementById("jobTitle").value;
-    const summary = document.getElementById("summary").value;
-    const skills = document.getElementById("skills").value;
-    const experience = document.getElementById("experience").value;
-    const education = document.getElementById("education").value;
-    const contact = document.getElementById("contact").value;
+// Основні поля
+const fields = [
+  "fullName",
+  "title",
+  "summary",
+  "email",
+  "phone",
+  "location",
+  "website",
+  "linkedin",
+  "skills",
+  "experience",
+  "education",
+  "languages"
+];
 
-    preview.innerHTML = `
-      <div class="cv-card">
-        <h1>${name}</h1>
-        <h2>${title}</h2>
-        <p><strong>📧 Contact:</strong> ${contact}</p>
-        <h3>🧠 Summary</h3><p>${summary}</p>
-        <h3>💼 Experience</h3><p>${experience}</p>
-        <h3>🎓 Education</h3><p>${education}</p>
-        <h3>🛠️ Skills</h3><p>${skills}</p>
-      </div>
-    `;
+// Підключення всіх input-полів до preview
+fields.forEach((id) => {
+  const input = document.getElementById(id);
+  const preview = document.getElementById(id + "Preview");
+
+  if (input && preview) {
+    input.addEventListener("input", () => {
+      let value = input.value.trim();
+      preview.innerText = value || "—";
+    });
   }
+});
 
-  // Генерація прикладу
-  exampleBtn.addEventListener("click", () => {
-    document.getElementById("fullName").value = "Sophie de Vries";
-    document.getElementById("jobTitle").value = "UX/UI Designer & Frontend Developer";
-    document.getElementById("summary").value = "Creative and detail-oriented designer with 5+ years of experience in crafting intuitive web experiences.";
-    document.getElementById("skills").value = "Figma, HTML, CSS, JavaScript, React, UX Research";
-    document.getElementById("experience").value = "Lead Designer at CreativeHub (2021–Now)\nUX Designer at WebWorks (2018–2021)";
-    document.getElementById("education").value = "MSc in Interaction Design, TU Delft (2018)";
-    document.getElementById("contact").value = "sophie@example.com | +31 6 12345678";
-    renderPreview();
+// Кнопка: AI Fill (Demo версія)
+document.getElementById("btnAIFill").addEventListener("click", () => {
+  document.getElementById("fullName").value = "John Doe";
+  document.getElementById("title").value = "Full Stack Developer";
+  document.getElementById("summary").value = "Experienced developer with a passion for creating scalable applications and clean code.";
+  document.getElementById("email").value = "john@example.com";
+  document.getElementById("phone").value = "+31 6 12345678";
+  document.getElementById("location").value = "Amsterdam, NL";
+  document.getElementById("website").value = "https://johndoe.dev";
+  document.getElementById("linkedin").value = "linkedin.com/in/johndoe";
+  document.getElementById("skills").value = "JavaScript, React, Node.js, CSS, HTML";
+  document.getElementById("experience").value = "SmartWerk (2022–2024)\nFrontend Developer\n- Developed modern UI/UX\n- Built reusable components\n\nTechHub (2020–2022)\nJunior Developer";
+  document.getElementById("education").value = "BSc in Computer Science, TU Delft";
+  document.getElementById("languages").value = "English (C1), Dutch (B2), Ukrainian (Native)";
+
+  fields.forEach((id) => {
+    const input = document.getElementById(id);
+    const preview = document.getElementById(id + "Preview");
+    if (input && preview) preview.innerText = input.value;
   });
+});
 
-  // Очистити все
-  clearBtn.addEventListener("click", () => {
-    if (confirm("Clear all CV fields?")) {
-      form.reset();
-      preview.innerHTML = "";
+// Кнопка: Clear All
+document.getElementById("btnClear").addEventListener("click", () => {
+  fields.forEach((id) => {
+    const input = document.getElementById(id);
+    const preview = document.getElementById(id + "Preview");
+    if (input) input.value = "";
+    if (preview) preview.innerText = "—";
+  });
+});
+
+// Кнопка: Export PDF
+document.getElementById("btnExportPDF").addEventListener("click", () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 20;
+  doc.setFontSize(18);
+  doc.text("CV / Portfolio — SmartWerk", 20, y);
+  y += 10;
+
+  doc.setFontSize(12);
+  fields.forEach((id) => {
+    const label = document.querySelector(`label[for=${id}]`);
+    const value = document.getElementById(id).value.trim();
+    if (label && value) {
+      doc.setFont(undefined, "bold");
+      doc.text(label.innerText, 20, y);
+      y += 6;
+      doc.setFont(undefined, "normal");
+      const lines = doc.splitTextToSize(value, 170);
+      doc.text(lines, 20, y);
+      y += lines.length * 6 + 4;
     }
   });
 
-  // Автоматичний перегляд при зміні полів
-  form.addEventListener("input", renderPreview);
-
-  // PDF експорт
-  exportBtn.addEventListener("click", () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const name = document.getElementById("fullName").value;
-    const title = document.getElementById("jobTitle").value;
-    const summary = document.getElementById("summary").value;
-    const skills = document.getElementById("skills").value;
-    const experience = document.getElementById("experience").value;
-    const education = document.getElementById("education").value;
-    const contact = document.getElementById("contact").value;
-
-    doc.setFontSize(18);
-    doc.text(name, 20, 20);
-    doc.setFontSize(14);
-    doc.text(title, 20, 30);
-    doc.setFontSize(11);
-    doc.text(`📧 Contact: ${contact}`, 20, 40);
-
-    let y = 50;
-    const addSection = (header, text) => {
-      doc.setFontSize(13);
-      doc.text(header, 20, y);
-      y += 6;
-      doc.setFontSize(11);
-      const lines = doc.splitTextToSize(text, 170);
-      doc.text(lines, 20, y);
-      y += lines.length * 6;
-    };
-
-    addSection("🧠 Summary", summary);
-    addSection("💼 Experience", experience);
-    addSection("🎓 Education", education);
-    addSection("🛠️ Skills", skills);
-
-    doc.save("smartwerk-cv.pdf");
-  });
-
-  // Ініціалізація
-  renderPreview();
+  doc.save("smartwerk-cv.pdf");
 });
 </script>
     
