@@ -63,7 +63,7 @@
     </section>
   </div>
 
-  <script>
+ <script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("roiForm");
   const result = document.getElementById("roiResult");
@@ -72,9 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const exportBtn = document.getElementById("exportROI");
 
   let chart;
-
-  form.addEventListener("input", calculateROI);
-  exportBtn.addEventListener("click", exportToPDF);
 
   function calculateROI() {
     const investment = parseFloat(document.getElementById("investment").value) || 0;
@@ -178,13 +175,13 @@ document.addEventListener("DOMContentLoaded", function () {
     doc.save("smartwerk-roi-report.pdf");
   }
 
-// Init state — ПЕРЕНЕСТИ в середину DOMContentLoaded
-document.addEventListener("DOMContentLoaded", function () {
-  ...
-  calculateROI(); // <-- тут
+  form.addEventListener("input", calculateROI);
+  exportBtn.addEventListener("click", exportToPDF);
+
+  // ✅ Init state
+  calculateROI();
 });
-    
-  </script>
+</script>
   
 </body>
 </html>
