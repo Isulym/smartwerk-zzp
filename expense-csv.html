@@ -110,6 +110,28 @@
     }
 
     
+     document.addEventListener("DOMContentLoaded", () => {
+  const amountField = document.getElementById("amount");
+  const vatField = document.getElementById("vat");
+  const totalField = document.getElementById("total");
+  const form = document.getElementById("expense-form");
+
+  function updateTotal() {
+    const amount = parseFloat(amountField.value) || 0;
+    const vatPercent = parseFloat(vatField.value) || 0;
+    const total = amount + (amount * vatPercent / 100);
+    totalField.value = total.toFixed(2);
+  }
+
+  amountField.addEventListener("input", updateTotal);
+  vatField.addEventListener("change", updateTotal);
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const expense = {
+      date: get("date"),
+      invoiceNumber: get("invoiceNumber"),
+      description: get("description"),
       category: get("category"),
       projectClient: get("projectClient"),
       amount: get("amount"),
