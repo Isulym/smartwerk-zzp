@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let chart;
 
   function calculateROI() {
-    const investment = parseFloat(document.getElementById("investment").value) || 0;
+    const investment = parseFloat(document.getElementById("initialInvestment").value) || 0;
     const gain = parseFloat(document.getElementById("gain").value) || 0;
     const period = parseInt(document.getElementById("period").value) || 1;
 
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    const investment = document.getElementById("investment").value;
+    const investment = document.getElementById("initialInvestment").value;
     const gain = document.getElementById("gain").value;
     const period = document.getElementById("period").value;
 
