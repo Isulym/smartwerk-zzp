@@ -218,6 +218,14 @@
     el.addEventListener("input", renderExpenses);
   });
 }
+    function deleteExpense(index) {
+  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+  if (confirm("Are you sure you want to delete this expense?")) {
+    expenses.splice(index, 1);
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+    renderExpenses();
+  }
+}
 
 // ОНОВИТИ renderExpenses() так:
 function renderExpenses() {
