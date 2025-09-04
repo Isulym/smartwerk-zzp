@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Expense Tracker</title>
   <link rel="stylesheet" href="style-expense-csv.css" />
+  <script src="expense-csv.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -147,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const saveBtn = document.getElementById("saveExpense");
   const exportCSVBtn = document.getElementById("exportCSV");
   const printBtn = document.getElementById("printExpense");
-  const reminderBtn = document.getElementById("renderExpenses"); // Send Reminder
+  const reminderBtn = document.getElementById("renderExpenses");
   const tableContainer = document.getElementById("expenseTable");
   const expenseIdField = document.getElementById("expenseId");
 
@@ -197,6 +198,38 @@ document.addEventListener("DOMContentLoaded", function () {
     renderExpenses();
   }
 
+  function renderExpenses() {
+    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses.length === 0) {
+      tableContainer.innerHTML = "<p>No expenses found.</p>";
+      return;
+    }
+
+    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Reminder</th></tr></thead><tbody>';
+    expenses.forEach((e, index) => {
+      let badge = "";
+      if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
+      else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
+      else badge = `<span>${e.status}</span>`;
+
+      const remindedStatus = e.reminded ? "✅ Reminded" : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
+
+      html += `<tr><td>${e.id}</td><td>${e.type}</td><td>€${e.total}</td><td>${badge}</td><td>${e.dueDate}</td><td>${remindedStatus}</td></tr>`;
+    });
+    html += "</tbody></table>";
+    tableContainer.innerHTML = html;
+
+    document.querySelectorAll(".remindBtn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const index = this.getAttribute("data-index");
+        let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+        expenses[index].reminded = true;
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        renderExpenses();
+      });
+    });
+  }
+
   function exportToCSV() {
     const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     if (expenses.length === 0) return alert("Nothing to export!");
@@ -224,56 +257,29 @@ document.addEventListener("DOMContentLoaded", function () {
     window.print();
   }
 
-  function markAsReminded(index) {
+  reminderBtn.addEventListener("click", function () {
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (expenses[index]) {
-      expenses[index].reminded = true;
+
+    let updated = false;
+    expenses.forEach((e) => {
+      if (e.status === "Unpaid" && !e.reminded) {
+        e.reminded = true;
+        updated = true;
+      }
+    });
+
+    if (updated) {
       localStorage.setItem("expenses", JSON.stringify(expenses));
+      alert("📤 Reminders marked as sent!");
       renderExpenses();
+    } else {
+      alert("✅ All unpaid expenses are already reminded.");
     }
-  }
+  });
 
-  function renderExpenses() {
-    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (expenses.length === 0) {
-      tableContainer.innerHTML = "<p>No expenses found.</p>";
-      return;
-    }
-
-    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Reminder</th></tr></thead><tbody>';
-    expenses.forEach((e, index) => {
-      let badge = "";
-      if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
-      else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
-      else badge = `<span>${e.status}</span>`;
-
-      const remindedStatus = e.reminded
-        ? "✅ Reminded"
-        : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
-
-      html += `<tr><td>${e.id}</td><td>${e.type}</td><td>€${e.total}</td><td>${badge}</td><td>${e.dueDate}</td><td>${remindedStatus}</td></tr>`;
-    });
-    html += "</tbody></table>";
-    tableContainer.innerHTML = html;
-
-    document.querySelectorAll(".remindBtn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const index = this.getAttribute("data-index");
-        markAsReminded(index);
-      });
-    });
-  }
-
-  // === Прив’язка подій ===
-  saveBtn.addEventListener("click", saveExpense);
-  exportCSVBtn.addEventListener("click", exportToCSV);
-  printBtn.addEventListener("click", printExpenses);
-  reminderBtn.addEventListener("click", renderExpenses);
-
-  // === Початкові дії ===
+  renderExpenses();
   expenseIdField.value = generateExpenseID();
   calculateVAT();
-  renderExpenses();
 });
 </script>
 </body>
