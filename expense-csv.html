@@ -202,54 +202,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ==== Рендер таблиці ====
  function renderExpenses() {
-  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-  const tableContainer = document.getElementById("expenseTable");
+    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    if (expenses.length === 0) {
+      tableContainer.innerHTML = "<p>No expenses found.</p>";
+      return;
+    }
 
-  if (expenses.length === 0) {
-    tableContainer.innerHTML = "<p>No expenses found.</p>";
-    return;
+    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Reminder</th></tr></thead><tbody>';
+    expenses.forEach((e, index) => {
+      let badge = "";
+      if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
+      else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
+      else badge = `<span>${e.status}</span>`;
+
+      const remindedStatus = e.reminded ? "✅ Reminded" : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
+
+      html += `<tr><td>${e.id}</td><td>${e.type}</td><td>€${e.total}</td><td>${badge}</td><td>${e.dueDate}</td><td>${remindedStatus}</td></tr>`;
+    });
+    html += "</tbody></table>";
+    tableContainer.innerHTML = html;
+
+    // Додати події до кнопок "Mark as Reminded"
+    document.querySelectorAll(".remindBtn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const index = this.getAttribute("data-index");
+        let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+        expenses[index].reminded = true;
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        renderExpenses();
+      });
+    });
   }
-
-  let html = `
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Type</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Due Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  expenses.forEach((e, index) => {
-    let badge = "";
-    if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
-    else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
-    else if (e.status === "Reminded") badge = '<span style="color:orange;">Reminded</span>';
-    else badge = `<span>${e.status}</span>`;
-
-    html += `
-      <tr>
-        <td>${e.id}</td>
-        <td>${e.type}</td>
-        <td>€${e.total}</td>
-        <td>${badge}</td>
-        <td>${e.dueDate}</td>
-        <td>
-          <button onclick="renderExpenses(${index})">📤 Send Reminder</button>
-          <button onclick="markAsReminded(${index})">✅ Mark as Reminded</button>
-        </td>
-      </tr>
-    `;
-  });
-
-  html += "</tbody></table>";
-  tableContainer.innerHTML = html;
-}
 
   // ==== Експорт CSV ====
   function exportToCSV() {
