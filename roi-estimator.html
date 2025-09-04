@@ -41,6 +41,18 @@
       </div>
     </form>
 
+    <!-- 📘 How to Use Section -->
+<section id="howToUse" style="margin-top: 30px;">
+  <h2>📘 How to Use</h2>
+  <ul>
+    <li>Enter your <strong>Initial Investment</strong> — how much you spend.</li>
+    <li>Add your <strong>Monthly Profit Increase</strong> — the extra income expected.</li>
+    <li>Choose the <strong>Duration in months</strong> — how long the effect lasts.</li>
+    <li>Optionally fill in any <strong>Extra Costs</strong>.</li>
+    <li>Click <strong>Calculate ROI</strong> to see return, profit, and smart tips.</li>
+  </ul>
+</section>
+
     <!-- Results Section -->
     <section id="results" style="display:none;">
       <h2>📊 Results</h2>
@@ -95,7 +107,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     generateChart(investment + extraCosts, totalProfit);
     generateInsights(roiPercent);
+    generateSmartTips(roiPercent, netProfit);
   }
+
+  function generateSmartTips(roi, profit) {
+  const tipsList = document.getElementById("smartTips");
+  tipsList.innerHTML = ""; // очистити перед оновленням
+
+  if (roi < 0) {
+    tipsList.innerHTML += "<li>❌ This investment results in a loss. Consider reducing costs or delaying the investment.</li>";
+    tipsList.innerHTML += "<li>📉 Try testing ideas on a smaller scale before committing more funds.</li>";
+  } else if (roi < 20) {
+    tipsList.innerHTML += "<li>⚠️ ROI is low. Try to improve marketing efficiency or renegotiate costs.</li>";
+    tipsList.innerHTML += "<li>🔍 Reevaluate the value you're offering to customers.</li>";
+  } else if (roi >= 20 && roi < 100) {
+    tipsList.innerHTML += "<li>✅ ROI is reasonable. Monitor performance before scaling.</li>";
+    tipsList.innerHTML += "<li>📊 Consider A/B testing to find optimal strategies.</li>";
+  } else {
+    tipsList.innerHTML += "<li>🚀 ROI is excellent! You might be ready to scale your business.</li>";
+    tipsList.innerHTML += "<li>🎯 Track KPIs to ensure sustainability as you grow.</li>";
+  }
+
+  tipsList.innerHTML += "<li>💡 Tip: Smart ROI management includes tracking both money and time invested.</li>";
+}
 
   function generateInsights(roi) {
     let suggestions = "";
