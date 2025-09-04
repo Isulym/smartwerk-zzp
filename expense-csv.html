@@ -1,107 +1,120 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>SmartWerk — Expense Tracker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style-expense-csv.css" />
-</head>
-<body>
-  <h1>💸 Add New Expense</h1>
+<form id="expenseForm" class="expense-form">
+  <h2>💸 New Expense Entry</h2>
 
-  <form id="expense-form">
-    <!-- Section 1: General Info -->
-    <fieldset>
-      <legend>🧾 General Info</legend>
-      <label>Date: <input type="date" id="date" required /></label>
-      <button type="button" onclick="setToday()">Today</button><br>
+  <!-- 1. Expense ID -->
+  <div class="form-group">
+    <label for="expenseId">Expense ID</label>
+    <input type="text" id="expenseId" readonly placeholder="EXP-2025-001">
+  </div>
 
-      <label>Invoice Number: <input type="text" id="invoiceNumber" /></label><br>
+  <!-- 2. Expense Type -->
+  <div class="form-group">
+    <label for="expenseType">Expense Type</label>
+    <select id="expenseType">
+      <option>One-time</option>
+      <option>Recurring Monthly</option>
+      <option>Subscription</option>
+      <option>Other</option>
+    </select>
+  </div>
 
-      <label>Description: <input type="text" id="description" required /></label><br>
+  <!-- 3. Invoice Attached -->
+  <div class="form-group">
+    <label for="invoiceAttached">Invoice Attached?</label>
+    <select id="invoiceAttached">
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
+  </div>
 
-      <label>Category:
-        <select id="category">
-          <option>Office Supplies</option>
-          <option>Software & Tools</option>
-          <option>Marketing</option>
-          <option>Transportation</option>
-          <option>Meals & Entertainment</option>
-          <option>Utilities</option>
-          <option>Legal & Accounting</option>
-          <option>Other</option>
-        </select>
-      </label><br>
+  <!-- 4. Product/Service -->
+  <div class="form-group">
+    <label for="description">Product / Service Description</label>
+    <input type="text" id="description" placeholder="e.g., Adobe Creative Cloud Subscription">
+  </div>
 
-      <label>Project/Client: <input type="text" id="projectClient" /></label>
-    </fieldset>
+  <!-- 5. Payment Date -->
+  <div class="form-group">
+    <label for="paymentDate">Payment Date</label>
+    <input type="date" id="paymentDate">
+  </div>
 
-    <!-- Section 2: Financial Info -->
-    <fieldset>
-      <legend>💶 Financial Details</legend>
-      <label>Amount (excl. VAT): <input type="number" id="amount" step="0.01" required /></label><br>
+  <!-- 6. Smart Category Suggestion -->
+  <div class="form-group">
+    <label for="category">Smart Category (AI)</label>
+    <input type="text" id="category" placeholder="e.g., Software, Marketing, Travel">
+    <button type="button" id="suggestCategory">🧠 AI Suggest</button>
+  </div>
 
-      <label>VAT %:
-        <select id="vat">
-          <option value="0">0%</option>
-          <option value="9">9%</option>
-          <option value="21">21%</option>
-        </select>
-      </label><br>
+  <!-- 7. Payment Status -->
+  <div class="form-group">
+    <label for="paymentStatus">Payment Status</label>
+    <select id="paymentStatus">
+      <option>Paid</option>
+      <option>Unpaid</option>
+      <option>Scheduled</option>
+      <option>Failed</option>
+    </select>
+  </div>
 
-      <label>Total incl. VAT: <input type="text" id="total" readonly /></label><br>
+  <!-- 8. Reminder / Due Date -->
+  <div class="form-group">
+    <label for="dueDate">Reminder / Due Date</label>
+    <input type="date" id="dueDate">
+  </div>
 
-      <label>Payment Method:
-        <select id="paymentMethod">
-          <option>Cash</option>
-          <option>Bank Card</option>
-          <option>Online</option>
-          <option>Transfer</option>
-        </select>
-      </label><br>
+  <!-- 9. Amount & VAT -->
+  <div class="form-group">
+    <label for="amount">Amount (€)</label>
+    <input type="number" id="amount" step="0.01">
+  </div>
 
-      <label>Currency:
-        <select id="currency">
-          <option>EUR</option>
-          <option>USD</option>
-          <option>PLN</option>
-          <option>UAH</option>
-        </select>
-      </label>
-    </fieldset>
+  <div class="form-group">
+    <label for="vatRate">VAT Rate</label>
+    <select id="vatRate">
+      <option value="0">0%</option>
+      <option value="9">9%</option>
+      <option value="21">21%</option>
+    </select>
+  </div>
 
-    <!-- Section 3: Supplier -->
-    <fieldset>
-      <legend>🏢 Supplier Info</legend>
-      <label>Supplier Name: <input type="text" id="supplier" /></label><br>
-      <label>Contact Email/Phone: <input type="text" id="supplierContact" /></label><br>
-      <label>Address: <input type="text" id="supplierAddress" /></label>
-    </fieldset>
+  <div class="form-group">
+    <label for="vatAmount">VAT Amount (€)</label>
+    <input type="number" id="vatAmount" readonly>
+  </div>
 
-    <!-- Section 4: Uploads & Tags -->
-    <fieldset>
-      <legend>📎 Files & Tags</legend>
-      <label>Attach Receipt: <input type="file" id="receiptFile" accept=".pdf,.jpg,.png" /></label><br>
-      <label>Attach to Invoice #: <input type="text" id="linkedInvoice" /></label><br>
-      <label>Tags: <input type="text" id="tags" placeholder="e.g. software, clientX" /></label><br>
-      <label><input type="checkbox" id="recurring" /> Recurring Expense?</label>
-    </fieldset>
+  <div class="form-group">
+    <label for="totalAmount">Total Amount (€)</label>
+    <input type="number" id="totalAmount" readonly>
+  </div>
 
-    <!-- Section 5: Notes -->
-    <fieldset>
-      <legend>📝 Notes</legend>
-      <label>Internal Note (optional, not shown in PDF):<br>
-        <textarea id="note" rows="3" placeholder="For internal use only..."></textarea>
-      </label>
-    </fieldset>
+  <!-- 10. Country / Location -->
+  <div class="form-group">
+    <label for="country">Country / Location</label>
+    <input type="text" id="country" placeholder="e.g., Netherlands">
+  </div>
 
-    <!-- Buttons -->
-    <div style="margin-top: 20px;">
-      <button type="submit">💾 Save Locally</button>
-      <button type="button" onclick="exportCSV()">📤 Export as CSV</button>
-      <button type="button" onclick="exportPDF()">📄 Export as PDF</button>
-    </div>
-  </form>
+  <!-- 11. Internal Notes -->
+  <div class="form-group">
+    <label for="notes">Internal Notes (Optional)</label>
+    <textarea id="notes" rows="2" placeholder="Only visible to you"></textarea>
+  </div>
+
+  <!-- 12. Buttons -->
+  <div class="form-actions">
+    <button type="button" id="saveExpense">💾 Save Expense</button>
+    <button type="button" id="exportCSV">📄 Export CSV</button>
+    <button type="button" id="sendReminder">📤 Send Reminder</button>
+    <button type="button" id="printExpense">🖨️ Print</button>
+  </div>
+</form>
+
+<!-- 13. Expense Table Placeholder -->
+<section id="expenseTableSection" style="margin-top:40px;">
+  <h3>📊 Saved Expenses</h3>
+  <div id="expenseTable"></div>
+</section>
+
 
   <script>
     // JavaScript буде додано окремо
