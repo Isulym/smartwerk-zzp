@@ -117,3 +117,13 @@ h1, h2 {
     flex-direction: column;
   }
 }
+
+.chart-canvas {
+  max-width: 350px;
+  max-height: 350px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  padding: 10px;
+}
