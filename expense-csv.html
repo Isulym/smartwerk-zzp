@@ -432,7 +432,7 @@ setupFiltersAndSorting();
   doc.setFontSize(18);
   doc.text("SmartWerk — Expense Report", 14, 22);
   doc.setFontSize(12);
-  doc.text("📅 Exported on: " + new Date().toLocaleDateString(), 14, 30);
+  doc.text("Exported on: " + new Date().toLocaleDateString(), 14, 30);
 
   // Дані для таблиці
   const tableData = expenses.map((e) => [
@@ -471,9 +471,9 @@ setupFiltersAndSorting();
   doc.setFontSize(12);
   doc.text("Summary Totals", 14, finalY + 10);
   doc.setFontSize(10);
-  doc.text(`💶 Total Amount (Excl. VAT): €${totalAmount.toFixed(2)}`, 14, finalY + 18);
-  doc.text(`💸 Total VAT: €${totalVAT.toFixed(2)}`, 14, finalY + 24);
-  doc.text(`🧾 Grand Total: €${grandTotal.toFixed(2)}`, 14, finalY + 30);
+  doc.text(`Total Amount (Excl. VAT): €${totalAmount.toFixed(2)}`, 14, finalY + 18);
+  doc.text(`Total VAT: €${totalVAT.toFixed(2)}`, 14, finalY + 24);
+  doc.text(`Grand Total: €${grandTotal.toFixed(2)}`, 14, finalY + 30);
 
   // Зберегти PDF
   doc.save("SmartWerk_Expenses.pdf");
