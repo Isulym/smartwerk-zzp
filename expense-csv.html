@@ -220,7 +220,7 @@
 }
     function deleteExpense(index) {
   let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-  if (confirm("Are you sure you want to delete this expense?")) {
+  if (confirm(`Are you sure you want to delete expense ${expenses[index].id}?`)) {
     expenses.splice(index, 1);
     localStorage.setItem("expenses", JSON.stringify(expenses));
     renderExpenses();
@@ -266,15 +266,15 @@ function renderExpenses() {
 
     const remindedStatus = e.reminded ? "✅ Reminded" : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
 
-    html += `<tr>
-      <td>${e.id}</td>
-      <td>${e.type}</td>
-      <td>€${e.total}</td>
-      <td>${badge}</td>
-      <td>${e.dueDate}</td>
-      <td>${remindedStatus}</td>
-      <td><button onclick="deleteExpense(${index})">🗑️ Delete</button></td>
-    </tr>`;
+   html += `<tr>
+  <td>${e.id}</td>
+  <td>${e.type}</td>
+  <td>€${e.total}</td>
+  <td>${badge}</td>
+  <td>${e.dueDate}</td>
+  <td>${remindedStatus}</td>
+  <td><button onclick="deleteExpense(INDEX)">🗑️ Delete</button>
+</tr>`;
   });
   html += "</tbody></table>";
   tableContainer.innerHTML = html;
