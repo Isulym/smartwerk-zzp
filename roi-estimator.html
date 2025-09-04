@@ -159,15 +159,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
 
     doc.setFontSize(16);
-    doc.text("📄 SmartWerk ROI Report", 20, 20);
+    doc.text("SmartWerk ROI Report", 20, 20);
     doc.setFontSize(12);
-    doc.text(`💼 Initial Investment: €${investment}`, 20, 40);
-    doc.text(`📈 Monthly Profit: €${monthlyProfit}`, 20, 50);
-    doc.text(`🕐 Duration: ${duration} months`, 20, 60);
-    doc.text(`💸 Extra Costs: €${extraCosts}`, 20, 70);
-    doc.text(`💰 Total Profit: €${totalProfit.toFixed(2)}`, 20, 80);
-    doc.text(`📊 ROI: ${roiPercent}%`, 20, 90);
-    doc.text(`⏳ Payback Period: ${paybackMonths} months`, 20, 100);
+    doc.text(`Initial Investment: €${investment}`, 20, 40);
+    doc.text(`Monthly Profit: €${monthlyProfit}`, 20, 50);
+    doc.text(`Duration: ${duration} months`, 20, 60);
+    doc.text(`Extra Costs: €${extraCosts}`, 20, 70);
+    doc.text(`Total Profit: €${totalProfit.toFixed(2)}`, 20, 80);
+    doc.text(`ROI: ${roiPercent}%`, 20, 90);
+    doc.text(`Payback Period: ${paybackMonths} months`, 20, 100);
 
     doc.save("smartwerk-roi-report.pdf");
   }
