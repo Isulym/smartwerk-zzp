@@ -7,140 +7,110 @@
   <link rel="stylesheet" href="style-expense-csv.css" />
   <script src="./js/expense-csv.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- AutoTable -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>💼 SmartWerk Expense Tracker</h1>
 
-   <form id="expenseForm" class="expense-form">
-  <h2>💸 New Expense Entry</h2>
+    <form id="expenseForm" class="expense-form">
+      <h2>💸 New Expense Entry</h2>
+      <div class="form-group">
+        <label for="expenseId">Expense ID</label>
+        <input type="text" id="expenseId" readonly placeholder="EXP-2025-001">
+      </div>
+      <div class="form-group">
+        <label for="expenseType">Expense Type</label>
+        <select id="expenseType">
+          <option>One-time</option>
+          <option>Recurring Monthly</option>
+          <option>Subscription</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="invoiceAttached">Invoice Attached?</label>
+        <select id="invoiceAttached">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="description">Product / Service Description</label>
+        <input type="text" id="description" placeholder="e.g., Adobe Creative Cloud Subscription">
+      </div>
+      <div class="form-group">
+        <label for="paymentDate">Payment Date</label>
+        <input type="date" id="paymentDate">
+      </div>
+      <div class="form-group">
+        <label for="category">Smart Category (AI)</label>
+        <input type="text" id="category" placeholder="e.g., Software, Marketing, Travel">
+        <button type="button" id="suggestCategory">🧠 AI Suggest</button>
+      </div>
+      <div class="form-group">
+        <label for="paymentStatus">Payment Status</label>
+        <select id="paymentStatus">
+          <option>Paid</option>
+          <option>Unpaid</option>
+          <option>Scheduled</option>
+          <option>Failed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="dueDate">Reminder / Due Date</label>
+        <input type="date" id="dueDate">
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount (€)</label>
+        <input type="number" id="amount" step="0.01">
+      </div>
+      <div class="form-group">
+        <label for="vatRate">VAT Rate</label>
+        <select id="vatRate">
+          <option value="0">0%</option>
+          <option value="9">9%</option>
+          <option value="21">21%</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="vatAmount">VAT Amount (€)</label>
+        <input type="number" id="vatAmount" readonly>
+      </div>
+      <div class="form-group">
+        <label for="totalAmount">Total Amount (€)</label>
+        <input type="number" id="totalAmount" readonly>
+      </div>
+      <div class="form-group">
+        <label for="country">Country / Location</label>
+        <input type="text" id="country" placeholder="e.g., Netherlands">
+      </div>
+      <div class="form-group">
+        <label for="notes">Internal Notes (Optional)</label>
+        <textarea id="notes" rows="2" placeholder="Only visible to you"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" id="saveExpense">💾 Save Expense</button>
+        <button type="button" id="exportCSV">📄 Export CSV</button>
+        <button type="button" id="printExpense">🖨️ Print</button>
+      </div>
+    </form>
 
-  <!-- 1. Expense ID -->
-  <div class="form-group">
-    <label for="expenseId">Expense ID</label>
-    <input type="text" id="expenseId" readonly placeholder="EXP-2025-001">
+    <section id="expenseTableSection" style="margin-top:40px;">
+      <h3>📊 Saved Expenses</h3>
+      <div id="expenseTable"></div>
+    </section>
+
+    <section id="expenseChartSection" style="margin-top: 50px;">
+      <h3>📈 Expense Overview Chart</h3>
+      <canvas id="expenseChart" width="100%" height="60"></canvas>
+    </section>
   </div>
-
-  <!-- 2. Expense Type -->
-  <div class="form-group">
-    <label for="expenseType">Expense Type</label>
-    <select id="expenseType">
-      <option>One-time</option>
-      <option>Recurring Monthly</option>
-      <option>Subscription</option>
-      <option>Other</option>
-    </select>
-  </div>
-
-  <!-- 3. Invoice Attached -->
-  <div class="form-group">
-    <label for="invoiceAttached">Invoice Attached?</label>
-    <select id="invoiceAttached">
-      <option value="Yes">Yes</option>
-      <option value="No">No</option>
-    </select>
-  </div>
-
-  <!-- 4. Product/Service -->
-  <div class="form-group">
-    <label for="description">Product / Service Description</label>
-    <input type="text" id="description" placeholder="e.g., Adobe Creative Cloud Subscription">
-  </div>
-
-  <!-- 5. Payment Date -->
-  <div class="form-group">
-    <label for="paymentDate">Payment Date</label>
-    <input type="date" id="paymentDate">
-  </div>
-
-  <!-- 6. Smart Category Suggestion -->
-  <div class="form-group">
-    <label for="category">Smart Category (AI)</label>
-    <input type="text" id="category" placeholder="e.g., Software, Marketing, Travel">
-    <button type="button" id="suggestCategory">🧠 AI Suggest</button>
-  </div>
-
-  <!-- 7. Payment Status -->
-  <div class="form-group">
-    <label for="paymentStatus">Payment Status</label>
-    <select id="paymentStatus">
-      <option>Paid</option>
-      <option>Unpaid</option>
-      <option>Scheduled</option>
-      <option>Failed</option>
-    </select>
-  </div>
-
-  <!-- 8. Reminder / Due Date -->
-  <div class="form-group">
-    <label for="dueDate">Reminder / Due Date</label>
-    <input type="date" id="dueDate">
-  </div>
-
-  <!-- 9. Amount & VAT -->
-  <div class="form-group">
-    <label for="amount">Amount (€)</label>
-    <input type="number" id="amount" step="0.01">
-  </div>
-
-  <div class="form-group">
-    <label for="vatRate">VAT Rate</label>
-    <select id="vatRate">
-      <option value="0">0%</option>
-      <option value="9">9%</option>
-      <option value="21">21%</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="vatAmount">VAT Amount (€)</label>
-    <input type="number" id="vatAmount" readonly>
-  </div>
-
-  <div class="form-group">
-    <label for="totalAmount">Total Amount (€)</label>
-    <input type="number" id="totalAmount" readonly>
-  </div>
-
-  <!-- 10. Country / Location -->
-  <div class="form-group">
-    <label for="country">Country / Location</label>
-    <input type="text" id="country" placeholder="e.g., Netherlands">
-  </div>
-
-  <!-- 11. Internal Notes -->
-  <div class="form-group">
-    <label for="notes">Internal Notes (Optional)</label>
-    <textarea id="notes" rows="2" placeholder="Only visible to you"></textarea>
-  </div>
-
-  <!-- 12. Buttons -->
-  <div class="form-actions">
-    <button type="button" id="saveExpense">💾 Save Expense</button>
-    <button type="button" id="exportCSV">📄 Export CSV</button>
-    <button type="button" id="renderExpenses">📤 Send Reminder</button>
-    <button type="button" id="printExpense">🖨️ Print</button>
-  </div>
-</form>
-
-<!-- 13. Expense Table Placeholder -->
-<section id="expenseTableSection" style="margin-top:40px;">
-  <h3>📊 Saved Expenses</h3>
-  <div id="expenseTable"></div>
-</section>
-
-    <!-- 14. Expense Chart Section -->
-<section id="expenseChartSection" style="margin-top: 50px;">
-  <h3>📈 Expense Overview Chart</h3>
-  <canvas id="expenseChart" width="100%" height="60"></canvas>
-</section>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+
+  document.addEventListener("DOMContentLoaded", function () {
   const amountInput = document.getElementById("amount");
   const vatRateSelect = document.getElementById("vatRate");
   const vatAmountInput = document.getElementById("vatAmount");
@@ -148,9 +118,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const saveBtn = document.getElementById("saveExpense");
   const exportCSVBtn = document.getElementById("exportCSV");
   const printBtn = document.getElementById("printExpense");
-  const reminderBtn = document.getElementById("renderExpenses");
   const tableContainer = document.getElementById("expenseTable");
   const expenseIdField = document.getElementById("expenseId");
+
+  let editingIndex = -1;
 
   function calculateVAT() {
     const amount = parseFloat(amountInput.value) || 0;
@@ -184,17 +155,48 @@ document.addEventListener("DOMContentLoaded", function () {
       vatAmount: vatAmountInput.value,
       total: totalAmountInput.value,
       country: document.getElementById("country").value,
-      notes: document.getElementById("notes").value,
-      reminded: false
+      notes: document.getElementById("notes").value
     };
+  }
+
+  function fillForm(data) {
+    expenseIdField.value = data.id;
+    document.getElementById("expenseType").value = data.type;
+    document.getElementById("invoiceAttached").value = data.attached;
+    document.getElementById("description").value = data.description;
+    document.getElementById("paymentDate").value = data.paymentDate;
+    document.getElementById("category").value = data.category;
+    document.getElementById("paymentStatus").value = data.status;
+    document.getElementById("dueDate").value = data.dueDate;
+    amountInput.value = data.amount;
+    vatRateSelect.value = data.vatRate;
+    vatAmountInput.value = data.vatAmount;
+    totalAmountInput.value = data.total;
+    document.getElementById("country").value = data.country;
+    document.getElementById("notes").value = data.notes;
+  }
+
+  function resetForm() {
+    editingIndex = -1;
+    document.getElementById("expenseForm").reset();
+    expenseIdField.value = generateExpenseID();
+    calculateVAT();
   }
 
   function saveExpense() {
     const data = getFormData();
     let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    expenses.push(data);
+
+    if (editingIndex === -1) {
+      expenses.push(data);
+    } else {
+      expenses[editingIndex] = data;
+      editingIndex = -1;
+    }
+
     localStorage.setItem("expenses", JSON.stringify(expenses));
     alert("✅ Expense saved!");
+    resetForm();
     renderExpenses();
   }
 
@@ -205,27 +207,46 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Reminder</th></tr></thead><tbody>';
+    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>';
     expenses.forEach((e, index) => {
       let badge = "";
       if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
       else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
       else badge = `<span>${e.status}</span>`;
 
-      const remindedStatus = e.reminded ? "✅ Reminded" : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
-
-      html += `<tr><td>${e.id}</td><td>${e.type}</td><td>€${e.total}</td><td>${badge}</td><td>${e.dueDate}</td><td>${remindedStatus}</td></tr>`;
+      html += `<tr>
+        <td>${e.id}</td>
+        <td>${e.type}</td>
+        <td>€${e.total}</td>
+        <td>${badge}</td>
+        <td>${e.dueDate}</td>
+        <td>
+          <button class="editBtn" data-index="${index}">🖊️ Edit</button>
+          <button class="deleteBtn" data-index="${index}">❌ Delete</button>
+        </td>
+      </tr>`;
     });
     html += "</tbody></table>";
     tableContainer.innerHTML = html;
 
-    document.querySelectorAll(".remindBtn").forEach((btn) => {
+    document.querySelectorAll(".editBtn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const index = this.getAttribute("data-index");
+        const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+        editingIndex = index;
+        fillForm(expenses[index]);
+      });
+    });
+
+    document.querySelectorAll(".deleteBtn").forEach((btn) => {
       btn.addEventListener("click", function () {
         const index = this.getAttribute("data-index");
         let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-        expenses[index].reminded = true;
-        localStorage.setItem("expenses", JSON.stringify(expenses));
-        renderExpenses();
+        if (confirm("Are you sure you want to delete this expense?")) {
+          expenses.splice(index, 1);
+          localStorage.setItem("expenses", JSON.stringify(expenses));
+          renderExpenses();
+        }
       });
     });
   }
@@ -235,12 +256,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (expenses.length === 0) return alert("Nothing to export!");
 
     const csv = [
-      ["ID", "Type", "Attached", "Description", "PaymentDate", "Category", "Status", "DueDate", "Amount", "VATRate", "VATAmount", "Total", "Country", "Notes", "Reminded"]
+      ["ID", "Type", "Attached", "Description", "PaymentDate", "Category", "Status", "DueDate", "Amount", "VATRate", "VATAmount", "Total", "Country", "Notes"]
     ];
     expenses.forEach(e => {
       csv.push([
         e.id, e.type, e.attached, e.description, e.paymentDate, e.category,
-        e.status, e.dueDate, e.amount, e.vatRate, e.vatAmount, e.total, e.country, e.notes, e.reminded ? "Yes" : "No"
+        e.status, e.dueDate, e.amount, e.vatRate, e.vatAmount, e.total, e.country, e.notes
       ]);
     });
 
@@ -257,30 +278,25 @@ document.addEventListener("DOMContentLoaded", function () {
     window.print();
   }
 
-  reminderBtn.addEventListener("click", function () {
-    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-
-    let updated = false;
-    expenses.forEach((e) => {
-      if (e.status === "Unpaid" && !e.reminded) {
-        e.reminded = true;
-        updated = true;
-      }
-    });
-
-    if (updated) {
-      localStorage.setItem("expenses", JSON.stringify(expenses));
-      alert("📤 Reminders marked as sent!");
-      renderExpenses();
-    } else {
-      alert("✅ All unpaid expenses are already reminded.");
-    }
+  document.getElementById("suggestCategory").addEventListener("click", () => {
+    const desc = document.getElementById("description").value.toLowerCase();
+    let suggestion = "Other";
+    if (desc.includes("flight") || desc.includes("hotel")) suggestion = "Travel";
+    else if (desc.includes("ads") || desc.includes("facebook") || desc.includes("google")) suggestion = "Marketing";
+    else if (desc.includes("software") || desc.includes("subscription")) suggestion = "Software";
+    document.getElementById("category").value = suggestion;
   });
 
+  saveBtn.addEventListener("click", saveExpense);
+  exportCSVBtn.addEventListener("click", exportToCSV);
+  printBtn.addEventListener("click", printExpenses);
+
+  // Init
   renderExpenses();
   expenseIdField.value = generateExpenseID();
   calculateVAT();
 });
 </script>
+  
 </body>
 </html>
