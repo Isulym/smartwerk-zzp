@@ -100,6 +100,21 @@
       <div id="expenseTable"></div>
     </section>
 
+    <div class="filters">
+   <select id="filterStatus">
+    <option value="all">All Statuses</option>
+   <option value="Paid">Paid</option>
+  <option value="Unpaid">Unpaid</option>
+ <option value="Scheduled">Scheduled</option>
+    <option value="Failed">Failed</option>
+  </select>
+   <input type="text" id="searchDescription" placeholder="🔍 Search by description..." />
+  <select id="sortBy">
+    <option value="date">Sort by Date</option>
+    <option value="amount">Sort by Amount</option>
+ </select>
+</div>
+
 <script>
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -192,57 +207,90 @@
     renderExpenses();
   }
 
-  function renderExpenses() {
-    let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (expenses.length === 0) {
-      tableContainer.innerHTML = "<p>No expenses found.</p>";
-      return;
-    }
+    
 
-    let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody>';
-    expenses.forEach((e, index) => {
-      let badge = "";
-      if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
-      else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
-      else badge = `<span>${e.status}</span>`;
+  function setupFiltersAndSorting() {
+  const filterStatus = document.getElementById("filterStatus");
+  const searchDescription = document.getElementById("searchDescription");
+  const sortBy = document.getElementById("sortBy");
 
-      html += `<tr>
-        <td>${e.id}</td>
-        <td>${e.type}</td>
-        <td>€${e.total}</td>
-        <td>${badge}</td>
-        <td>${e.dueDate}</td>
-        <td>
-          <button class="editBtn" data-index="${index}">🖊️ Edit</button>
-          <button class="deleteBtn" data-index="${index}">❌ Delete</button>
-        </td>
-      </tr>`;
-    });
-    html += "</tbody></table>";
-    tableContainer.innerHTML = html;
+  [filterStatus, searchDescription, sortBy].forEach((el) => {
+    el.addEventListener("input", renderExpenses);
+  });
+}
 
-    document.querySelectorAll(".editBtn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const index = this.getAttribute("data-index");
-        const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-        editingIndex = index;
-        fillForm(expenses[index]);
-      });
-    });
+// ОНОВИТИ renderExpenses() так:
+function renderExpenses() {
+  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
 
-    document.querySelectorAll(".deleteBtn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const index = this.getAttribute("data-index");
-        let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-        if (confirm("Are you sure you want to delete this expense?")) {
-          expenses.splice(index, 1);
-          localStorage.setItem("expenses", JSON.stringify(expenses));
-          renderExpenses();
-        }
-      });
-    });
+  // Apply filters
+  const statusFilter = document.getElementById("filterStatus")?.value || "all";
+  const searchQuery = document.getElementById("searchDescription")?.value.toLowerCase() || "";
+  const sortBy = document.getElementById("sortBy")?.value || "date";
+
+  if (statusFilter !== "all") {
+    expenses = expenses.filter((e) => e.status === statusFilter);
+  }
+  if (searchQuery) {
+    expenses = expenses.filter((e) => e.description.toLowerCase().includes(searchQuery));
   }
 
+  // Sort
+  expenses.sort((a, b) => {
+    if (sortBy === "amount") {
+      return parseFloat(b.total) - parseFloat(a.total);
+    } else {
+      return new Date(b.paymentDate) - new Date(a.paymentDate);
+    }
+  });
+
+  if (expenses.length === 0) {
+    tableContainer.innerHTML = "<p>No matching expenses found.</p>";
+    return;
+  }
+
+  let html = '<table><thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Reminder</th><th>Actions</th></tr></thead><tbody>';
+  expenses.forEach((e, index) => {
+    let badge = "";
+    if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
+    else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
+    else badge = `<span>${e.status}</span>`;
+
+    const remindedStatus = e.reminded ? "✅ Reminded" : `<button data-index="${index}" class="remindBtn">Mark as Reminded</button>`;
+
+    html += `<tr>
+      <td>${e.id}</td>
+      <td>${e.type}</td>
+      <td>€${e.total}</td>
+      <td>${badge}</td>
+      <td>${e.dueDate}</td>
+      <td>${remindedStatus}</td>
+      <td><button onclick="deleteExpense(${index})">🗑️ Delete</button></td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  tableContainer.innerHTML = html;
+
+  document.querySelectorAll(".remindBtn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const index = this.getAttribute("data-index");
+      let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+      expenses[index].reminded = true;
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+      renderExpenses();
+    });
+  });
+}
+
+function deleteExpense(index) {
+  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+  expenses.splice(index, 1);
+  localStorage.setItem("expenses", JSON.stringify(expenses));
+  renderExpenses();
+}
+
+// ДОДАТИ В КІНЕЦЬ DOMContentLoaded або main init:
+setupFiltersAndSorting();
   function exportToCSV() {
     const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     if (expenses.length === 0) return alert("Nothing to export!");
