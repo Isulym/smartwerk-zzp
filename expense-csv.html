@@ -91,6 +91,7 @@
       <div class="form-actions">
         <button type="button" id="saveExpense">💾 Save Expense</button>
         <button type="button" id="exportCSV">📄 Export CSV</button>
+        <button type="button" id="exportPDF">📄 Export PDF</button>
         <button type="button" id="printExpense">🖨️ Print</button>
       </div>
     </form>
@@ -416,6 +417,67 @@ setupFiltersAndSorting();
   calculateVAT();
   });
 
+  document.getElementById("exportPDF").addEventListener("click", function () {
+  const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+
+  if (expenses.length === 0) {
+    alert("❌ No expenses to export.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Заголовок
+  doc.setFontSize(18);
+  doc.text("SmartWerk — Expense Report", 14, 22);
+  doc.setFontSize(12);
+  doc.text("📅 Exported on: " + new Date().toLocaleDateString(), 14, 30);
+
+  // Дані для таблиці
+  const tableData = expenses.map((e) => [
+    e.id,
+    e.type,
+    e.description,
+    parseFloat(e.amount).toFixed(2),
+    parseFloat(e.vatAmount).toFixed(2),
+    parseFloat(e.total).toFixed(2),
+    e.status,
+    e.paymentDate,
+    e.dueDate,
+    e.category,
+    e.country,
+  ]);
+
+  // Підсумки
+  const totalAmount = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const totalVAT = expenses.reduce((sum, e) => sum + parseFloat(e.vatAmount || 0), 0);
+  const grandTotal = expenses.reduce((sum, e) => sum + parseFloat(e.total || 0), 0);
+
+  // Побудова таблиці
+  doc.autoTable({
+    startY: 35,
+    head: [[
+      "ID", "Type", "Description", "Amount", "VAT", "Total", "Status", "Pay Date", "Due", "Category", "Country"
+    ]],
+    body: tableData,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [59, 121, 255] }
+  });
+
+  const finalY = doc.lastAutoTable.finalY || 45;
+
+  // Додати підсумки
+  doc.setFontSize(12);
+  doc.text("Summary Totals", 14, finalY + 10);
+  doc.setFontSize(10);
+  doc.text(`💶 Total Amount (Excl. VAT): €${totalAmount.toFixed(2)}`, 14, finalY + 18);
+  doc.text(`💸 Total VAT: €${totalVAT.toFixed(2)}`, 14, finalY + 24);
+  doc.text(`🧾 Grand Total: €${grandTotal.toFixed(2)}`, 14, finalY + 30);
+
+  // Зберегти PDF
+  doc.save("SmartWerk_Expenses.pdf");
+});
 </script>
   
 </body>
