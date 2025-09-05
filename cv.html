@@ -108,42 +108,38 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const fields = ["fullName", "title", "email", "phone", "website"];
-const previewMap = {
-  fullName: "fullNamePreview",
-  title: "titlePreview",
-  email: null,
-  phone: null,
-  website: null,
-};
+  const previewMap = {
+    fullName: "fullNamePreview",
+    title: "titlePreview",
+    email: null,
+    phone: null,
+    website: null,
+  };
 
-  // 🟢 Live Preview & Save
+  // Live Preview & Save
   fields.forEach((id) => {
-  const input = document.getElementById(id);
-
-  if (!input) {
-    console.warn(`⚠️ Element with ID "${id}" not found in the DOM.`);
-    return; // Пропускаємо, якщо не знайдено
-  }
-
-  input.addEventListener("input", () => {
-    const previewId = previewMap[id];
-
-    if (previewId) {
-      const previewElement = document.getElementById(previewId);
-      if (previewElement) {
-        previewElement.innerText = input.value || "—";
-      }
+    const input = document.getElementById(id);
+    if (!input) {
+      console.warn(`⚠️ Element with ID "${id}" not found.`);
+      return;
     }
-
-    updateContactsPreview();
-    saveToLocalStorage();
+    input.addEventListener("input", () => {
+      const previewId = previewMap[id];
+      if (previewId) {
+        const previewElement = document.getElementById(previewId);
+        if (previewElement) {
+          previewElement.innerText = input.value || "—";
+        }
+      }
+      updateContactsPreview();
+      saveToLocalStorage();
+    });
   });
-});
 
   function updateContactsPreview() {
-    const email = document.getElementById("email").value || "";
-    const phone = document.getElementById("phone").value || "";
-    const website = document.getElementById("website").value || "";
+    const email = document.getElementById("email")?.value || "";
+    const phone = document.getElementById("phone")?.value || "";
+    const website = document.getElementById("website")?.value || "";
     const contactText = [email, phone, website].filter(Boolean).join(" · ");
     document.getElementById("contactsPreview").innerText = contactText || "—";
   }
@@ -151,7 +147,8 @@ const previewMap = {
   function saveToLocalStorage() {
     const data = {};
     fields.forEach((id) => {
-      data[id] = document.getElementById(id).value;
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
     });
     localStorage.setItem("cvData", JSON.stringify(data));
   }
@@ -159,120 +156,118 @@ const previewMap = {
   function loadFromLocalStorage() {
     const data = JSON.parse(localStorage.getItem("cvData") || "{}");
     fields.forEach((id) => {
-      if (data[id]) document.getElementById(id).value = data[id];
+      const el = document.getElementById(id);
+      if (el && data[id]) el.value = data[id];
     });
     updateContactsPreview();
     fields.forEach((id) => {
       const previewId = previewMap[id];
-      if (previewId) {
-        document.getElementById(previewId).innerText = data[id] || "—";
+      if (previewId && data[id]) {
+        const previewElement = document.getElementById(previewId);
+        if (previewElement) {
+          previewElement.innerText = data[id];
+        }
       }
     });
   }
 
- const saveBtn = document.getElementById("btnSaveCV");
-if (saveBtn) saveBtn.addEventListener("click", saveToLocalStorage);
- const loadBtn = document.getElementById("btnLoadCV");
-if (loadBtn) loadBtn.addEventListener("click", loadFromLocalStorage);
-
-  const clearBtn = document.getElementById("btnClearCV");
-if (clearBtn) clearBtn.addEventListener("click", () => {
-  fields.forEach((id) => {
-    document.getElementById(id).value = "";
+  document.getElementById("btnSaveCV")?.addEventListener("click", saveToLocalStorage);
+  document.getElementById("btnLoadCV")?.addEventListener("click", loadFromLocalStorage);
+  document.getElementById("btnClearCV")?.addEventListener("click", () => {
+    fields.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    updateContactsPreview();
+    saveToLocalStorage();
   });
-  updateContactsPreview();
-  saveToLocalStorage();
-});
 
- // 📄 Export PDF (повна версія)
-document.getElementById("btnExportPDF").addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  document.getElementById("btnExportPDF")?.addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  const name = document.getElementById("fullName")?.value || "Your Name";
-  const title = document.getElementById("title")?.value || "";
-  const email = document.getElementById("email")?.value || "";
-  const phone = document.getElementById("phone")?.value || "";
-  const website = document.getElementById("website")?.value || "";
+    const name = document.getElementById("fullName")?.value || "Your Name";
+    const title = document.getElementById("title")?.value || "";
+    const email = document.getElementById("email")?.value || "";
+    const phone = document.getElementById("phone")?.value || "";
+    const website = document.getElementById("website")?.value || "";
 
-  let y = 20;
+    let y = 20;
 
-  doc.setFontSize(22);
-  doc.setFont("helvetica", "bold");
-  doc.text(name, 20, y);
-  y += 8;
-
-  if (title) {
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "normal");
-    doc.text(title, 20, y);
-    y += 8;
-  }
-
-  doc.setFontSize(11);
-  if (email) { doc.text(` ${email}`, 20, y); y += 6; }
-  if (phone) { doc.text(` ${phone}`, 20, y); y += 6; }
-  if (website) { doc.text(` ${website}`, 20, y); y += 8; }
-
-  const blocks = document.querySelectorAll(".cv-block");
-
-  blocks.forEach(block => {
-    const heading = block.querySelector("h2")?.innerText || "";
-    const contentElements = block.querySelectorAll("p, ul, blockquote");
-
-    if (!heading || contentElements.length === 0) return;
-
-    if (y > 270) { doc.addPage(); y = 20; }
-
-    doc.setFontSize(13);
+    doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text(heading, 20, y);
-    y += 6;
+    doc.text(name, 20, y);
+    y += 8;
 
-    doc.setFont("helvetica", "normal");
+    if (title) {
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "normal");
+      doc.text(title, 20, y);
+      y += 8;
+    }
+
     doc.setFontSize(11);
+    if (email) { doc.text(email, 20, y); y += 6; }
+    if (phone) { doc.text(phone, 20, y); y += 6; }
+    if (website) { doc.text(website, 20, y); y += 8; }
 
-    contentElements.forEach(el => {
-      const text = el.innerText.trim();
-      if (text) {
-        const lines = doc.splitTextToSize(text, 170);
-        if (y + lines.length * 6 > 270) { doc.addPage(); y = 20; }
-        doc.text(lines, 20, y);
-        y += lines.length * 6 + 2;
-      }
+    const blocks = document.querySelectorAll(".cv-block");
+    blocks.forEach(block => {
+      const heading = block.querySelector("h2")?.innerText || "";
+      const contentElements = block.querySelectorAll("p, ul, blockquote");
+      if (!heading || contentElements.length === 0) return;
+
+      if (y > 270) { doc.addPage(); y = 20; }
+
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text(heading, 20, y);
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+
+      contentElements.forEach(el => {
+        const text = el.innerText.trim();
+        if (text) {
+          const lines = doc.splitTextToSize(text, 170);
+          if (y + lines.length * 6 > 270) { doc.addPage(); y = 20; }
+          doc.text(lines, 20, y);
+          y += lines.length * 6 + 2;
+        }
+      });
+
+      y += 4;
     });
 
-    y += 4;
+    doc.save("smartwerk-cv.pdf");
   });
 
-  doc.save("smartwerk-cv.pdf");
+  function saveBlockOrder() {
+    const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
+    localStorage.setItem("cvBlockOrder", JSON.stringify(order));
+  }
+
+  function restoreBlockOrder() {
+    const saved = JSON.parse(localStorage.getItem("cvBlockOrder") || "null");
+    if (!saved) return;
+    const parent = document.getElementById("cvContainer");
+    const staticElements = Array.from(parent.children).filter(e => !e.classList.contains("cv-block"));
+    const newBlocks = saved.map(html => {
+      const s = document.createElement("section");
+      s.className = "cv-block";
+      s.setAttribute("draggable", "true");
+      s.innerHTML = html;
+      return s;
+    });
+    parent.innerHTML = "";
+    staticElements.forEach(e => parent.appendChild(e));
+    newBlocks.forEach(b => parent.appendChild(b));
+  }
+
+  restoreBlockOrder();
+  loadFromLocalStorage();
 });
-
- function saveBlockOrder() {
-  const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
-  localStorage.setItem("cvBlockOrder", JSON.stringify(order));
-}
-
-function restoreBlockOrder() {
-  const saved = JSON.parse(localStorage.getItem("cvBlockOrder") || "null");
-  if (!saved) return;
-  const parent = document.getElementById("cvContainer");
-  const staticElements = Array.from(parent.children).filter(e => !e.classList.contains("cv-block"));
-  const newBlocks = saved.map(html => {
-    const s = document.createElement("section");
-    s.className = "cv-block";
-    s.setAttribute("draggable", "true");
-    s.innerHTML = html;
-    return s;
-  });
-  parent.innerHTML = "";
-  staticElements.forEach(e => parent.appendChild(e));
-  newBlocks.forEach(b => parent.appendChild(b));
-}
-
-// 🔁 Завантажити при запуску
-restoreBlockOrder();
-loadFromLocalStorage();
 </script>
 </body>
 </html>
