@@ -97,13 +97,13 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const fields = ["fullName", "title", "email", "phone", "website"];
-  const previewMap = {
-    Name: "fullName",
-    title: "title",
-    email: null,
-    phone: null,
-    website: null,
-  };
+const previewMap = {
+  fullName: "fullNamePreview",
+  title: "titlePreview",
+  email: null,
+  phone: null,
+  website: null,
+};
 
   // 🟢 Live Preview & Save
   fields.forEach((id) => {
