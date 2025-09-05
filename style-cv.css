@@ -1,149 +1,148 @@
-/* ===== SmartWerk CV / Portfolio WOW CSS ===== */
-
 :root {
-  --bg: #0f1117;
-  --card: #1c1f2b;
-  --accent: #4caf50;
-  --text: #e3e3e3;
-  --muted: #9aa3b2;
-  --font: 'Segoe UI', sans-serif;
+  --bg: #0e1014;
+  --card: #151820;
+  --text: #e2e8f0;
+  --accent: #3b82f6;
+  --muted: #9ca3af;
+  --border: #2d3748;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --radius: 16px;
+  --font: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: var(--font);
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  font-family: var(--font);
   padding: 20px;
 }
 
-.container {
-  max-width: 1000px;
+.cv-container {
+  max-width: 900px;
   margin: auto;
   background: var(--card);
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.3);
+  border-radius: var(--radius);
+  box-shadow: 0 0 20px var(--shadow);
+  padding: 30px;
 }
 
-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+.cv-header {
+  text-align: center;
   margin-bottom: 30px;
 }
 
-header img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--accent);
-}
-
-h1, h2, h3 {
-  margin: 10px 0;
+.cv-header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
   color: var(--accent);
 }
 
-h1 {
-  font-size: 2.5rem;
+.cv-header p {
+  margin: 2px 0;
+  color: var(--muted);
+  font-size: 1rem;
 }
 
-h2 {
-  font-size: 1.6rem;
-  margin-top: 40px;
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 5px;
+.cv-header label {
+  display: block;
+  margin-top: 15px;
+  color: var(--muted);
+  font-weight: 500;
 }
 
-p {
-  margin: 5px 0;
-}
-
-.skills {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.skill-bar {
-  background: #2d2f3c;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 5px;
-}
-
-.skill-bar-fill {
-  height: 10px;
-  background: var(--accent);
-}
-
-.experience, .education, .projects {
-  margin-top: 20px;
-}
-
-.experience-item, .education-item, .project-item {
-  background: #252832;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-
-.languages ul, .achievements ul, .testimonials ul {
-  padding-left: 20px;
-}
-
-a.btn {
-  display: inline-block;
-  background: var(--accent);
-  color: white;
-  padding: 10px 20px;
-  margin-top: 10px;
+.cv-header input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  background: #1f2937;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  text-decoration: none;
-  transition: 0.3s ease;
+  color: var(--text);
+  font-size: 1rem;
 }
 
-a.btn:hover {
-  background: #3ca940;
+.cv-block {
+  background: #1c1f2b;
+  padding: 20px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  transition: background 0.3s;
+  cursor: grab;
+  border: 1px solid var(--border);
 }
 
-footer {
-  margin-top: 40px;
+.cv-block:hover {
+  background: #252a3a;
+}
+
+.cv-block h2 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.cv-block ul,
+.cv-block p,
+.cv-block blockquote {
+  margin: 10px 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.cv-block blockquote {
+  font-style: italic;
+  color: #cbd5e0;
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+}
+
+.cv-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.cv-buttons button {
+  background: var(--accent);
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cv-buttons button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.cv-footer {
   text-align: center;
+  margin-top: 40px;
   color: var(--muted);
   font-size: 0.9rem;
 }
 
-/* Actions */
-.actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  margin: 30px 0;
-}
+/* Mobile friendly */
+@media (max-width: 600px) {
+  .cv-container {
+    padding: 15px;
+  }
 
-.actions button {
-  flex: 1;
-  padding: 12px;
-  background: #30344a;
-  border: none;
-  border-radius: 10px;
-  color: var(--text);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s;
-}
+  .cv-buttons {
+    flex-direction: column;
+  }
 
-.actions button:hover {
-  background: var(--accent);
-  color: white;
-}
-
-/* Chart canvas */
-canvas {
-  margin-top: 20px;
+  .cv-buttons button {
+    width: 100%;
+  }
 }
