@@ -164,47 +164,57 @@ loadContent();
 });
 
 // 📄 Export PDF
-const { jsPDF } = window.jspdf;
 document.getElementById("btnExportPDF").addEventListener("click", () => {
+  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+
+  const name = document.getElementById("fullName").value || "Your Name";
+  const title = document.getElementById("title").value || "Professional Title";
+  const email = document.getElementById("email").value || "";
+  const phone = document.getElementById("phone").value || "";
+  const website = document.getElementById("website").value || "";
+
   let y = 20;
-  doc.setFontSize(18);
-  doc.text("SmartWerk CV / Portfolio", 20, y);
-  y += 10;
-  const blocks = document.querySelectorAll(".cv-block");
-  blocks.forEach((block) => {
-    const title = block.querySelector("h2");
-    const text = block.innerText;
-    if (title) {
-      doc.setFontSize(14);
+  doc.setFontSize(20);
+  doc.text(name, 20, y);
+  y += 8;
+  doc.setFontSize(14);
+  doc.text(title, 20, y);
+  y += 8;
+
+  doc.setFontSize(11);
+  if (email) { doc.text(`📧 ${email}`, 20, y); y += 6; }
+  if (phone) { doc.text(`📞 ${phone}`, 20, y); y += 6; }
+  if (website) { doc.text(`🔗 ${website}`, 20, y); y += 8; }
+
+  const sections = [
+    { id: "summary", label: "🧠 Summary" },
+    { id: "skills", label: "🛠️ Skills" },
+    { id: "experience", label: "💼 Experience" },
+    { id: "education", label: "🎓 Education" },
+    { id: "projects", label: "📂 Projects" },
+    { id: "languages", label: "🌍 Languages" },
+    { id: "achievements", label: "🏅 Achievements" },
+    { id: "testimonials", label: "💬 Testimonials" }
+  ];
+
+  doc.setFontSize(12);
+
+  sections.forEach(section => {
+    const val = document.getElementById(section.id)?.value?.trim();
+    if (val) {
+      if (y > 270) { doc.addPage(); y = 20; }
       doc.setFont(undefined, "bold");
-      doc.text(title.innerText, 20, y);
+      doc.text(section.label, 20, y);
       y += 6;
+      doc.setFont(undefined, "normal");
+      const lines = doc.splitTextToSize(val, 170);
+      doc.text(lines, 20, y);
+      y += lines.length * 6 + 4;
     }
-    doc.setFont(undefined, "normal");
-    const lines = doc.splitTextToSize(text, 170);
-    doc.text(lines, 20, y);
-    y += lines.length * 6 + 4;
   });
+
   doc.save("smartwerk-cv.pdf");
-});
-
-// 💾 Save + Load + Clear Buttons
-document.getElementById("btnSaveCV").addEventListener("click", () => {
-  saveOrder();
-  saveContent();
-  alert("✅ Saved successfully!");
-});
-
-document.getElementById("btnLoadCV").addEventListener("click", () => {
-  restoreOrder();
-  loadContent();
-});
-
-document.getElementById("btnClearCV").addEventListener("click", () => {
-  localStorage.removeItem("cvOrder");
-  localStorage.removeItem("cvContent");
-  location.reload();
 });
 </script>
 </body>
