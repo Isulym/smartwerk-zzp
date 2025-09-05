@@ -162,9 +162,9 @@ document.getElementById("btnExportPDF").addEventListener("click", () => {
   }
 
   doc.setFontSize(11);
-  if (email) { doc.text(`📧 ${email}`, 20, y); y += 6; }
-  if (phone) { doc.text(`📞 ${phone}`, 20, y); y += 6; }
-  if (website) { doc.text(`🔗 ${website}`, 20, y); y += 8; }
+  if (email) { doc.text(` ${email}`, 20, y); y += 6; }
+  if (phone) { doc.text(` ${phone}`, 20, y); y += 6; }
+  if (website) { doc.text(` ${website}`, 20, y); y += 8; }
 
   // Зчитати всі cv-block секції
   const blocks = document.querySelectorAll(".cv-block");
