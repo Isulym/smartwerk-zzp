@@ -17,74 +17,47 @@
       </div>
     </header>
 
- <section class="cv-header">
-  <h2>Personal Information</h2>
-
-  <label for="fullName">Full Name</label>
-  <input type="text" id="fullName" placeholder="Your Name" />
-
-  <label for="title">Professional Title</label>
-  <input type="text" id="title" placeholder="e.g. Web Developer, Digital Marketer" />
-
-  <label for="email">Email</label>
-  <input type="email" id="email" placeholder="you@example.com" />
-
-  <label for="phone">Phone</label>
-  <input type="text" id="phone" placeholder="+31 6 12345678" />
-
-  <label for="website">Website</label>
-  <input type="text" id="website" placeholder="https://yourportfolio.com" />
-
-  <hr style="margin: 20px 0;" />
-
-  <div id="personalPreview" class="cv-preview-block">
-    <h3>Preview</h3>
-    <p><strong id="fullNamePreview">Your Name</strong></p>
-    <p id="titlePreview">Your Title</p>
-    <p id="contactsPreview">Email, Phone, Website</p>
-  </div>
-</section>
-
-    <section class="cv-block" draggable="true">
-      <h2 contenteditable="true">🧠 Summary</h2>
-      <p contenteditable="true">Brief introduction about yourself.</p>
+    <section class="cv-header">
+      <h2>Personal Information</h2>
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" placeholder="Your Name" />
+      <label for="title">Professional Title</label>
+      <input type="text" id="title" placeholder="e.g. Web Developer, Designer" />
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com" />
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" placeholder="+31 6 12345678" />
+      <label for="website">Website</label>
+      <input type="text" id="website" placeholder="https://yourportfolio.com" />
     </section>
 
-    <section class="cv-block" draggable="true">
-      <h2 contenteditable="true">🛠️ Skills</h2>
-      <ul contenteditable="true">
-        <li>JavaScript</li>
-        <li>HTML/CSS</li>
-        <li>Figma</li>
-      </ul>
+    <section class="cv-block" draggable="true" contenteditable="true">
+      <h2>🧠 Summary</h2>
+      <p>Brief introduction about yourself.</p>
     </section>
-
-    <section class="cv-block" draggable="true">
-      <h2 contenteditable="true">💼 Work Experience</h2>
-      <p contenteditable="true">Role, company, and what you did.</p>
+    <section class="cv-block" draggable="true" contenteditable="true">
+      <h2>🛠️ Skills</h2>
+      <ul><li>JavaScript</li><li>HTML/CSS</li><li>Figma</li></ul>
     </section>
-
-    <section class="cv-block" draggable="true">
-      <h2 contenteditable="true">🎓 Education</h2>
-      <p contenteditable="true">Degree, university, year</p>
+    <section class="cv-block" draggable="true" contenteditable="true">
+      <h2>💼 Work Experience</h2>
+      <p>Role, company, and what you did.</p>
     </section>
-
-    <section class="cv-block" draggable="true">
-      <h2 contenteditable="true">📂 Projects</h2>
-      <p contenteditable="true">Describe key projects or portfolio items</p>
+    <section class="cv-block" draggable="true" contenteditable="true">
+      <h2>🎓 Education</h2>
+      <p>Degree, university, year</p>
     </section>
-
-    <section class="cv-block" draggable="true">
-      <h2 contenteditable="true">🏅 Achievements</h2>
-      <ul contenteditable="true">
-        <li>Award 1</li>
-        <li>Certification 2</li>
-      </ul>
+    <section class="cv-block" draggable="true" contenteditable="true">
+      <h2>📂 Projects</h2>
+      <p>Describe key projects or portfolio items</p>
     </section>
-
-    <section class="cv-block" draggable="true">
-      <h2 contenteditable="true">💬 Testimonials</h2>
-      <blockquote contenteditable="true">"Feedback from client or employer."</blockquote>
+    <section class="cv-block" draggable="true" contenteditable="true">
+      <h2>🏅 Achievements</h2>
+      <ul><li>Award 1</li><li>Certification 2</li></ul>
+    </section>
+    <section class="cv-block" draggable="true" contenteditable="true">
+      <h2>💬 Testimonials</h2>
+      <blockquote>"Feedback from client or employer."</blockquote>
     </section>
 
     <div class="cv-buttons">
@@ -100,141 +73,163 @@
   </div>
 
 <script>
-// ⏬ SmartWerk CV Drag-and-Drop with Auto Save
-let dragged;
-const container = document.getElementById("cvContainer");
-const blocks = container.querySelectorAll(".cv-block");
-
-blocks.forEach((block) => {
-  block.addEventListener("dragstart", (e) => {
-    dragged = block;
-    block.classList.add("dragging");
-  });
-
-  block.addEventListener("dragend", (e) => {
-    dragged = null;
-    block.classList.remove("dragging");
-    saveOrder();
-  });
-
-  block.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    const draggingOver = e.target.closest(".cv-block");
-    if (draggingOver && draggingOver !== dragged) {
-      const rect = draggingOver.getBoundingClientRect();
-      const next = (e.clientY - rect.top) > rect.height / 2;
-      draggingOver.parentNode.insertBefore(dragged, next ? draggingOver.nextSibling : draggingOver);
-    }
-  });
-});
-
-function saveOrder() {
-  const blocks = Array.from(document.querySelectorAll(".cv-block"));
-  const order = blocks.map(b => b.innerHTML);
-  localStorage.setItem("cvOrder", JSON.stringify(order));
-}
-
-function restoreOrder() {
-  const saved = JSON.parse(localStorage.getItem("cvOrder") || "null");
-  if (!saved) return;
-  const container = document.getElementById("cvContainer");
-  const staticBlocks = container.querySelectorAll("header, .edit-fields, .cv-buttons, footer");
-  const dynamic = saved.map(html => {
-    const s = document.createElement("section");
-    s.className = "cv-block";
-    s.setAttribute("draggable", "true");
-    s.innerHTML = html;
-    return s;
-  });
-  staticBlocks.forEach(e => e.remove());
-  container.innerHTML = "";
-  dynamic.forEach(s => container.appendChild(s));
-  staticBlocks.forEach(e => container.appendChild(e));
-}
-
-restoreOrder();
-
-// 🧠 Save / Load editable content
-function saveContent() {
-  const content = {
-    name: document.getElementById("fullName").value,
-    title: document.getElementById("title").value,
+document.addEventListener("DOMContentLoaded", () => {
+  const fields = ["fullName", "title", "email", "phone", "website"];
+  const previewMap = {
+    fullName: "fullNamePreview",
+    title: "titlePreview",
+    email: null,
+    phone: null,
+    website: null,
   };
-  localStorage.setItem("cvContent", JSON.stringify(content));
-}
 
-function loadContent() {
-  const saved = JSON.parse(localStorage.getItem("cvContent") || "null");
-  if (!saved) return;
-  document.getElementById("fullName").value = saved.name;
-  document.getElementById("title").value = saved.title;
-  document.getElementById("fullNamePreview").innerText = saved.name;
-  document.getElementById("titlePreview").innerText = saved.title;
-  document.getElementById("contactsPreview").innerText = saved.contacts;
-}
-
-loadContent();
-
-["fullName", "title"].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener("input", () => {
-    document.getElementById(id + "Preview").innerText = el.value;
-    saveContent();
+  // 🟢 Live Preview & Save
+  fields.forEach((id) => {
+    const input = document.getElementById(id);
+    input.addEventListener("input", () => {
+      const previewId = previewMap[id];
+      if (previewId) {
+        document.getElementById(previewId).innerText = input.value || "—";
+        updateContactsPreview();
+      }
+      saveToLocalStorage();
+    });
   });
-});
 
-// 📄 Export PDF
-document.getElementById("btnExportPDF").addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  function updateContactsPreview() {
+    const email = document.getElementById("email").value || "";
+    const phone = document.getElementById("phone").value || "";
+    const website = document.getElementById("website").value || "";
+    const contactText = [email, phone, website].filter(Boolean).join(" · ");
+    document.getElementById("contactsPreview").innerText = contactText || "—";
+  }
 
-  const name = document.getElementById("fullName").value || "Your Name";
-  const title = document.getElementById("title").value || "Professional Title";
-  const email = document.getElementById("email").value || "";
-  const phone = document.getElementById("phone").value || "";
-  const website = document.getElementById("website").value || "";
+  function saveToLocalStorage() {
+    const data = {};
+    fields.forEach((id) => {
+      data[id] = document.getElementById(id).value;
+    });
+    localStorage.setItem("cvData", JSON.stringify(data));
+  }
 
-  let y = 20;
-  doc.setFontSize(20);
-  doc.text(name, 20, y);
-  y += 8;
-  doc.setFontSize(14);
-  doc.text(title, 20, y);
-  y += 8;
+  function loadFromLocalStorage() {
+    const data = JSON.parse(localStorage.getItem("cvData") || "{}");
+    fields.forEach((id) => {
+      if (data[id]) document.getElementById(id).value = data[id];
+    });
+    updateContactsPreview();
+    fields.forEach((id) => {
+      const previewId = previewMap[id];
+      if (previewId) {
+        document.getElementById(previewId).innerText = data[id] || "—";
+      }
+    });
+  }
 
-  doc.setFontSize(11);
-  if (email) { doc.text(`📧 ${email}`, 20, y); y += 6; }
-  if (phone) { doc.text(`📞 ${phone}`, 20, y); y += 6; }
-  if (website) { doc.text(`🔗 ${website}`, 20, y); y += 8; }
+  document.getElementById("btnSaveCV").addEventListener("click", saveToLocalStorage);
+  document.getElementById("btnLoadCV").addEventListener("click", loadFromLocalStorage);
+  document.getElementById("btnClearCV").addEventListener("click", () => {
+    fields.forEach((id) => {
+      document.getElementById(id).value = "";
+    });
+    updateContactsPreview();
+    saveToLocalStorage();
+  });
 
-  const sections = [
-    { id: "summary", label: "🧠 Summary" },
-    { id: "skills", label: "🛠️ Skills" },
-    { id: "experience", label: "💼 Experience" },
-    { id: "education", label: "🎓 Education" },
-    { id: "projects", label: "📂 Projects" },
-    { id: "languages", label: "🌍 Languages" },
-    { id: "achievements", label: "🏅 Achievements" },
-    { id: "testimonials", label: "💬 Testimonials" }
-  ];
+  // 📄 Export PDF
+  document.getElementById("btnExportPDF").addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  doc.setFontSize(12);
+    let y = 20;
+    const name = document.getElementById("fullName").value || "Your Name";
+    const title = document.getElementById("title").value || "Your Title";
+    const email = document.getElementById("email").value || "";
+    const phone = document.getElementById("phone").value || "";
+    const website = document.getElementById("website").value || "";
 
-  sections.forEach(section => {
-    const val = document.getElementById(section.id)?.value?.trim();
-    if (val) {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.setFont(undefined, "bold");
-      doc.text(section.label, 20, y);
-      y += 6;
+    doc.setFontSize(18);
+    doc.text(name, 20, y); y += 10;
+    doc.setFontSize(14);
+    doc.text(title, 20, y); y += 8;
+    doc.setFontSize(12);
+    if (email) { doc.text("📧 " + email, 20, y); y += 6; }
+    if (phone) { doc.text("📞 " + phone, 20, y); y += 6; }
+    if (website) { doc.text("🔗 " + website, 20, y); y += 6; }
+
+    y += 10;
+
+    // Додаємо всі секції
+    const blocks = document.querySelectorAll(".cv-block");
+    blocks.forEach((block) => {
+      const title = block.querySelector("h2")?.innerText?.trim();
+      if (title) {
+        doc.setFont(undefined, "bold");
+        doc.text(title, 20, y); y += 6;
+      }
       doc.setFont(undefined, "normal");
-      const lines = doc.splitTextToSize(val, 170);
+      const content = block.innerText.replace(title, "").trim();
+      const lines = doc.splitTextToSize(content, 170);
       doc.text(lines, 20, y);
-      y += lines.length * 6 + 4;
-    }
+      y += lines.length * 6 + 8;
+      if (y > 260) { doc.addPage(); y = 20; }
+    });
+
+    doc.save("smartwerk-cv.pdf");
   });
 
-  doc.save("smartwerk-cv.pdf");
+  // 🧲 Drag and Drop + Save Order
+  let dragged;
+  const container = document.getElementById("cvContainer");
+  const blocks = container.querySelectorAll(".cv-block");
+
+  blocks.forEach((block) => {
+    block.addEventListener("dragstart", (e) => {
+      dragged = block;
+      block.classList.add("dragging");
+    });
+
+    block.addEventListener("dragend", (e) => {
+      dragged = null;
+      block.classList.remove("dragging");
+      saveBlockOrder();
+    });
+
+    block.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const over = e.target.closest(".cv-block");
+      if (over && over !== dragged) {
+        const rect = over.getBoundingClientRect();
+        const after = (e.clientY - rect.top) > rect.height / 2;
+        over.parentNode.insertBefore(dragged, after ? over.nextSibling : over);
+      }
+    });
+  });
+
+  function saveBlockOrder() {
+    const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
+    localStorage.setItem("cvBlockOrder", JSON.stringify(order));
+  }
+
+  function restoreBlockOrder() {
+    const saved = JSON.parse(localStorage.getItem("cvBlockOrder") || "null");
+    if (!saved) return;
+    const parent = document.getElementById("cvContainer");
+    const staticElements = Array.from(parent.children).filter(e => !e.classList.contains("cv-block"));
+    const newBlocks = saved.map(html => {
+      const s = document.createElement("section");
+      s.className = "cv-block";
+      s.setAttribute("draggable", "true");
+      s.innerHTML = html;
+      return s;
+    });
+    parent.innerHTML = "";
+    staticElements.forEach(e => parent.appendChild(e));
+    newBlocks.forEach(b => parent.appendChild(b));
+  }
+
+  restoreBlockOrder();
+  loadFromLocalStorage();
 });
 </script>
 </body>
