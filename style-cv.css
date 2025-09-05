@@ -207,4 +207,46 @@ section.cv-personal-info {
   color: white;
   width: 100%;
 }
+.personal-info-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.form-row.single {
+  justify-content: center;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--muted, #ccc);
+}
+
+.form-group input {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #2a2d3a;
+  color: white;
+  font-size: 1rem;
+}
+
+.full-width {
+  max-width: 500px;
+  margin: 0 auto;
+}
 
