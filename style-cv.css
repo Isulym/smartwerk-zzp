@@ -1,148 +1,120 @@
+/* ========== SmartWerk CV / Portfolio WOW Design ========== */
 :root {
-  --bg: #0e1014;
-  --card: #151820;
-  --text: #e2e8f0;
+  --bg: #0d1117;
+  --card: #161b22;
   --accent: #3b82f6;
-  --muted: #9ca3af;
-  --border: #2d3748;
-  --shadow: rgba(0, 0, 0, 0.5);
-  --radius: 16px;
-  --font: 'Inter', sans-serif;
-}
-
-* {
-  box-sizing: border-box;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --border: #30363d;
+  --hover: #21262d;
+  --shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  --radius: 14px;
+  --transition: all 0.3s ease;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
+  font-family: "Segoe UI", sans-serif;
+  background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font);
-  padding: 20px;
-}
-
-.cv-container {
-  max-width: 900px;
-  margin: auto;
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: 0 0 20px var(--shadow);
-  padding: 30px;
-}
-
-.cv-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.cv-header h1 {
-  font-size: 2.2rem;
-  margin-bottom: 8px;
-  color: var(--accent);
-}
-
-.cv-header p {
-  margin: 2px 0;
-  color: var(--muted);
-  font-size: 1rem;
-}
-
-.cv-header label {
-  display: block;
-  margin-top: 15px;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.cv-header input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  background: #1f2937;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 1rem;
-}
-
-.cv-block {
-  background: #1c1f2b;
-  padding: 20px;
-  border-radius: var(--radius);
-  margin-bottom: 20px;
-  transition: background 0.3s;
-  cursor: grab;
-  border: 1px solid var(--border);
-}
-
-.cv-block:hover {
-  background: #252a3a;
-}
-
-.cv-block h2 {
-  margin-top: 0;
-  font-size: 1.4rem;
-  color: var(--accent);
-}
-
-.cv-block ul,
-.cv-block p,
-.cv-block blockquote {
-  margin: 10px 0;
-  font-size: 1rem;
   line-height: 1.6;
 }
 
-.cv-block blockquote {
-  font-style: italic;
-  color: #cbd5e0;
-  border-left: 3px solid var(--accent);
-  padding-left: 10px;
+.cv-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.cv-header {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.cv-header h1 {
+  font-size: 2.4em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.cv-header p {
+  margin: 5px 0;
+  color: var(--muted);
+  font-size: 1em;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-top: 15px;
+  color: var(--muted);
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  background: var(--hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  margin-top: 6px;
+  transition: var(--transition);
+}
+
+input:focus, textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+  background: #1c2128;
+}
+
+.cv-block {
+  background-color: var(--card);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.cv-block:hover {
+  background-color: var(--hover);
+  transform: translateY(-2px);
+}
+
+.cv-block h2 {
+  color: var(--accent);
+  margin-top: 0;
 }
 
 .cv-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 30px;
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 40px;
 }
 
 .cv-buttons button {
-  background: var(--accent);
-  color: #fff;
-  padding: 12px 20px;
+  background-color: var(--accent);
   border: none;
-  border-radius: 12px;
-  font-size: 1rem;
+  color: white;
+  padding: 12px 18px;
+  font-size: 1em;
+  margin: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: var(--transition);
 }
 
 .cv-buttons button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  background-color: #2563eb;
 }
 
 .cv-footer {
+  grid-column: 1 / -1;
   text-align: center;
-  margin-top: 40px;
+  margin-top: 30px;
   color: var(--muted);
-  font-size: 0.9rem;
-}
-
-/* Mobile friendly */
-@media (max-width: 600px) {
-  .cv-container {
-    padding: 15px;
-  }
-
-  .cv-buttons {
-    flex-direction: column;
-  }
-
-  .cv-buttons button {
-    width: 100%;
-  }
+  font-size: 0.9em;
 }
