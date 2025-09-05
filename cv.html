@@ -159,15 +159,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  document.getElementById("btnSaveCV").addEventListener("click", saveToLocalStorage);
-  document.getElementById("btnLoadCV").addEventListener("click", loadFromLocalStorage);
-  document.getElementById("btnClearCV").addEventListener("click", () => {
-    fields.forEach((id) => {
-      document.getElementById(id).value = "";
-    });
-    updateContactsPreview();
-    saveToLocalStorage();
+ const saveBtn = document.getElementById("btnSaveCV");
+if (saveBtn) saveBtn.addEventListener("click", saveToLocalStorage);
+ const loadBtn = document.getElementById("btnLoadCV");
+if (loadBtn) loadBtn.addEventListener("click", loadFromLocalStorage);
+
+  const clearBtn = document.getElementById("btnClearCV");
+if (clearBtn) clearBtn.addEventListener("click", () => {
+  fields.forEach((id) => {
+    document.getElementById(id).value = "";
   });
+  updateContactsPreview();
+  saveToLocalStorage();
+});
 
  // 📄 Export PDF (повна версія)
 document.getElementById("btnExportPDF").addEventListener("click", () => {
