@@ -268,10 +268,9 @@ blocks.forEach(block => {
     newBlocks.forEach(b => parent.appendChild(b));
   }
 
-  restoreBlockOrder();
-  loadFromLocalStorage();
-});
-  
+    restoreBlockOrder();
+    loadFromLocalStorage();
+  }); // ← закриває addEventListener
 </script>
 </body>
 </html>
