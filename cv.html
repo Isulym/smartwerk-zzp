@@ -11,8 +11,8 @@
   <div class="cv-container" id="cvContainer">
     <header class="cv-header">
       <div class="cv-intro">
-        <h1 id="fullNamePreview">Your Name</h1>
-        <p id="titlePreview">Professional Title</p>
+        <h1 id="fullName">Your Name</h1>
+        <p id="title">Professional Title</p>
         <p id="contactsPreview">Email · Phone · Website</p>
       </div>
     </header>
@@ -22,8 +22,9 @@
   <div class="personal-info-custom">
     <div class="form-row">
       <div class="form-group">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" placeholder="Your Name">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName
+          " placeholder="Your Name">
       </div>
       <div class="form-group">
         <label for="email">Email</label>
@@ -98,8 +99,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const fields = ["fullName", "title", "email", "phone", "website"];
   const previewMap = {
-    fullName: "fullNamePreview",
-    title: "titlePreview",
+    fullName: "fullName",
+    title: "title",
     email: null,
     phone: null,
     website: null,
