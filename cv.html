@@ -188,6 +188,55 @@
       exp.innerHTML = `<textarea>SmartWerk, Founder, 2023–Now\n- Created tax calculator used by 1000+ freelancers\n- Led product & design</textarea><hr/>`;
       document.getElementById("experienceList").appendChild(exp);
     });
+
+    <script>
+// ⏬ Smart Drag-and-Drop Reordering for CV / Portfolio Sections
+
+document.addEventListener("DOMContentLoaded", function () {
+  const container = document.querySelector(".cv-container");
+  const sections = container.querySelectorAll("section");
+
+  // Відновлення порядку з localStorage
+  const savedOrder = JSON.parse(localStorage.getItem("cvSectionOrder") || "[]");
+  if (savedOrder.length) {
+    savedOrder.forEach(id => {
+      const sec = document.getElementById(id);
+      if (sec) container.appendChild(sec);
+    });
+  }
+
+  // Додаємо draggable і обробники
+  sections.forEach(section => {
+    section.setAttribute("draggable", true);
+    section.style.cursor = "move";
+
+    section.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", section.id);
+      section.classList.add("dragging");
+    });
+
+    section.addEventListener("dragend", () => {
+      section.classList.remove("dragging");
+      saveSectionOrder();
+    });
+
+    section.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const dragging = container.querySelector(".dragging");
+      if (!dragging || dragging === section) return;
+
+      const rect = section.getBoundingClientRect();
+      const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+      container.insertBefore(dragging, next ? section.nextSibling : section);
+    });
+  });
+
+  function saveSectionOrder() {
+    const order = Array.from(container.querySelectorAll("section")).map(sec => sec.id);
+    localStorage.setItem("cvSectionOrder", JSON.stringify(order));
+  }
+});
+</script>
   </script>
 </body>
 </html>
