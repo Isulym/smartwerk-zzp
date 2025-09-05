@@ -107,16 +107,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 🟢 Live Preview & Save
   fields.forEach((id) => {
-    const input = document.getElementById(id);
-    input.addEventListener("input", () => {
-      const previewId = previewMap[id];
-      if (previewId) {
-        document.getElementById(previewId).innerText = input.value || "—";
-        updateContactsPreview();
+  const input = document.getElementById(id);
+
+  if (!input) {
+    console.warn(`⚠️ Element with ID "${id}" not found in the DOM.`);
+    return; // Пропускаємо, якщо не знайдено
+  }
+
+  input.addEventListener("input", () => {
+    const previewId = previewMap[id];
+
+    if (previewId) {
+      const previewElement = document.getElementById(previewId);
+      if (previewElement) {
+        previewElement.innerText = input.value || "—";
       }
-      saveToLocalStorage();
-    });
+    }
+
+    updateContactsPreview();
+    saveToLocalStorage();
   });
+});
 
   function updateContactsPreview() {
     const email = document.getElementById("email").value || "";
