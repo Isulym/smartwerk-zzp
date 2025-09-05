@@ -11,7 +11,7 @@
   <div class="cv-container" id="cvContainer">
     <header class="cv-header">
       <div class="cv-intro">
-        <h1 id="fullName">Your Name</h1>
+        <h1 id="Name">Your Name</h1>
         <p id="title">Professional Title</p>
         <p id="contactsPreview">Email · Phone · Website</p>
       </div>
@@ -22,8 +22,8 @@
   <div class="personal-info-custom">
     <div class="form-row">
       <div class="form-group">
-        <label for="fullName">Full Name</label>
-        <input type="text" id="fullName
+        <label for="Name">Full Name</label>
+        <input type="text" id="Name
           " placeholder="Your Name">
       </div>
       <div class="form-group">
@@ -97,9 +97,9 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const fields = ["fullName", "title", "email", "phone", "website"];
+  const fields = ["Name", "title", "email", "phone", "website"];
   const previewMap = {
-    fullName: "fullName",
+    Name: "Name",
     title: "title",
     email: null,
     phone: null,
@@ -179,7 +179,7 @@ document.getElementById("btnExportPDF").addEventListener("click", () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const name = document.getElementById("fullName")?.value || "Your Name";
+  const name = document.getElementById("Name")?.value || "Your Name";
   const title = document.getElementById("title")?.value || "";
   const email = document.getElementById("email")?.value || "";
   const phone = document.getElementById("phone")?.value || "";
