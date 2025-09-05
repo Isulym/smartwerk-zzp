@@ -250,3 +250,36 @@ section.cv-personal-info {
   margin: 0 auto;
 }
 
+/* Business Proposal Styling */
+.business-proposal {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 16px;
+  box-shadow: 0 0 10px rgba(91, 139, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.business-proposal:hover {
+  box-shadow: 0 0 20px rgba(91, 139, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.business-proposal h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.8rem;
+  color: #3b79ff;
+}
+
+.business-proposal p,
+.business-proposal ul {
+  line-height: 1.6;
+  color: #ccc;
+}
+
+.business-proposal ul {
+  padding-left: 1.2rem;
+  list-style-type: disc;
+}
+
