@@ -214,63 +214,65 @@ document.getElementById("btnExportPDF").addEventListener("click", () => {
   if (phone) { doc.text(` ${phone}`, 20, y); y += 6; }
   if (website) { doc.text(` ${website}`, 20, y); y += 8; }
 
-  // Зчитати всі cv-block секції
   const blocks = document.querySelectorAll(".cv-block");
 
-blocks.forEach(block => {
-  const heading = block.querySelector("h2")?.innerText || "";
-  const contentElements = block.querySelectorAll("p, ul, blockquote");
+  blocks.forEach(block => {
+    const heading = block.querySelector("h2")?.innerText || "";
+    const contentElements = block.querySelectorAll("p, ul, blockquote");
 
-  if (!heading || contentElements.length === 0) return;
+    if (!heading || contentElements.length === 0) return;
 
-  if (y > 270) { doc.addPage(); y = 20; }
+    if (y > 270) { doc.addPage(); y = 20; }
 
-  doc.setFontSize(13);
-  doc.setFont("helvetica", "bold");
-  doc.text(heading, 20, y);
-  y += 6;
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text(heading, 20, y);
+    y += 6;
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
 
-  contentElements.forEach(el => {
-    const text = el.innerText.trim();
-    if (text) {
-      const lines = doc.splitTextToSize(text, 170);
-      if (y + lines.length * 6 > 270) { doc.addPage(); y = 20; }
-      doc.text(lines, 20, y);
-      y += lines.length * 6 + 2;
-    }
+    contentElements.forEach(el => {
+      const text = el.innerText.trim();
+      if (text) {
+        const lines = doc.splitTextToSize(text, 170);
+        if (y + lines.length * 6 > 270) { doc.addPage(); y = 20; }
+        doc.text(lines, 20, y);
+        y += lines.length * 6 + 2;
+      }
+    });
+
+    y += 4;
   });
 
-  y += 4;
+  doc.save("smartwerk-cv.pdf");
 });
 
-  function saveBlockOrder() {
-    const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
-    localStorage.setItem("cvBlockOrder", JSON.stringify(order));
-  }
+ function saveBlockOrder() {
+  const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
+  localStorage.setItem("cvBlockOrder", JSON.stringify(order));
+}
 
-  function restoreBlockOrder() {
-    const saved = JSON.parse(localStorage.getItem("cvBlockOrder") || "null");
-    if (!saved) return;
-    const parent = document.getElementById("cvContainer");
-    const staticElements = Array.from(parent.children).filter(e => !e.classList.contains("cv-block"));
-    const newBlocks = saved.map(html => {
-      const s = document.createElement("section");
-      s.className = "cv-block";
-      s.setAttribute("draggable", "true");
-      s.innerHTML = html;
-      return s;
-    });
-    parent.innerHTML = "";
-    staticElements.forEach(e => parent.appendChild(e));
-    newBlocks.forEach(b => parent.appendChild(b));
-  }
+function restoreBlockOrder() {
+  const saved = JSON.parse(localStorage.getItem("cvBlockOrder") || "null");
+  if (!saved) return;
+  const parent = document.getElementById("cvContainer");
+  const staticElements = Array.from(parent.children).filter(e => !e.classList.contains("cv-block"));
+  const newBlocks = saved.map(html => {
+    const s = document.createElement("section");
+    s.className = "cv-block";
+    s.setAttribute("draggable", "true");
+    s.innerHTML = html;
+    return s;
+  });
+  parent.innerHTML = "";
+  staticElements.forEach(e => parent.appendChild(e));
+  newBlocks.forEach(b => parent.appendChild(b));
+}
 
-    restoreBlockOrder();
-    loadFromLocalStorage();
-  }); // ← закриває addEventListener
+// 🔁 Завантажити при запуску
+restoreBlockOrder();
+loadFromLocalStorage();
 </script>
 </body>
 </html>
