@@ -18,16 +18,31 @@
     </header>
 
  <section class="cv-header">
-  <h2>Personal Info</h2>
-  <input type="text" id="fullName" placeholder="Your Name" />
-  <input type="text" id="title" placeholder="Professional Title" />
-  <input type="text" id="email" placeholder="Email" />
-  <input type="text" id="phone" placeholder="Phone" />
-  <input type="text" id="website" placeholder="Website" />
+  <h2>Personal Information</h2>
 
-  <p id="fullNamePreview"></p>
-  <p id="titlePreview"></p>
-  <p id="contactsPreview"></p>
+  <label for="fullName">Full Name</label>
+  <input type="text" id="fullName" placeholder="Your Name" />
+
+  <label for="title">Professional Title</label>
+  <input type="text" id="title" placeholder="e.g. Web Developer, Digital Marketer" />
+
+  <label for="email">Email</label>
+  <input type="email" id="email" placeholder="you@example.com" />
+
+  <label for="phone">Phone</label>
+  <input type="text" id="phone" placeholder="+31 6 12345678" />
+
+  <label for="website">Website</label>
+  <input type="text" id="website" placeholder="https://yourportfolio.com" />
+
+  <hr style="margin: 20px 0;" />
+
+  <div id="personalPreview" class="cv-preview-block">
+    <h3>Preview</h3>
+    <p><strong id="fullNamePreview">Your Name</strong></p>
+    <p id="titlePreview">Your Title</p>
+    <p id="contactsPreview">Email, Phone, Website</p>
+  </div>
 </section>
 
     <section class="cv-block" draggable="true">
@@ -144,7 +159,6 @@ function saveContent() {
   const content = {
     name: document.getElementById("fullName").value,
     title: document.getElementById("title").value,
-    contacts: document.getElementById("contacts").value,
   };
   localStorage.setItem("cvContent", JSON.stringify(content));
 }
@@ -154,7 +168,6 @@ function loadContent() {
   if (!saved) return;
   document.getElementById("fullName").value = saved.name;
   document.getElementById("title").value = saved.title;
-  document.getElementById("contacts").value = saved.contacts;
   document.getElementById("fullNamePreview").innerText = saved.name;
   document.getElementById("titlePreview").innerText = saved.title;
   document.getElementById("contactsPreview").innerText = saved.contacts;
@@ -162,7 +175,7 @@ function loadContent() {
 
 loadContent();
 
-["fullName", "title", "contacts"].forEach(id => {
+["fullName", "title"].forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener("input", () => {
     document.getElementById(id + "Preview").innerText = el.value;
