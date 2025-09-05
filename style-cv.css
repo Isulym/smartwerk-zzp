@@ -185,3 +185,26 @@ section.cv-personal-info {
   transition: all 0.3s ease;
 }
 
+.personal-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem 2rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.personal-info-grid label {
+  font-weight: bold;
+  color: var(--muted, #9aa3b2);
+  text-align: right;
+}
+
+.personal-info-grid input {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2a2d3a;
+  color: white;
+  width: 100%;
+}
+
