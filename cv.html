@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,51 +10,55 @@
 <body>
   <div class="cv-container">
     <header class="cv-header">
-      <img src="avatar-placeholder.jpg" alt="Your Photo" class="cv-photo" />
+      <img src="avatar-placeholder.jpg" alt="Your Photo" class="cv-photo" id="avatarPreview" />
+      <input type="file" id="avatarInput" accept="image/*" style="margin-top:10px" />
       <div class="cv-intro">
-        <input id="fullName" placeholder="Your Name" />
-        <input id="title" placeholder="Professional Title" />
-        <input id="email" placeholder="Email" />
-        <input id="phone" placeholder="Phone" />
-        <input id="linkedin" placeholder="LinkedIn" />
-        <input id="website" placeholder="Website" />
+        <h1 id="namePreview">Your Name</h1>
+        <p id="titlePreview">Professional Title</p>
+        <p id="contactPreview">Email · Phone · Website</p>
       </div>
     </header>
 
     <section class="cv-summary">
-      <h2>🧠 Professional Summary</h2>
-      <textarea id="summary" placeholder="Tell us about yourself..."></textarea>
-      <p id="summaryPreview">—</p>
+      <h2>🧠 Summary</h2>
+      <p id="summaryPreview">Tell us a bit about you...</p>
     </section>
 
     <section class="cv-skills">
       <h2>🛠️ Skills</h2>
-      <textarea id="skills" placeholder="Your skills... (comma separated)"></textarea>
-      <p id="skillsPreview">—</p>
+      <ul id="skillsList"></ul>
+      <input type="text" id="skillInput" placeholder="e.g. JavaScript" />
+      <button onclick="addSkill()">➕ Add Skill</button>
     </section>
 
     <section class="cv-experience">
-      <h2>💼 Work Experience</h2>
-      <textarea id="experience" placeholder="Describe your work experience..."></textarea>
-      <p id="experiencePreview">—</p>
+      <h2>💼 Experience</h2>
+      <div id="experienceList"></div>
+      <button onclick="addExperience()">➕ Add Experience</button>
+    </section>
+
+    <section class="cv-projects">
+      <h2>📂 Projects</h2>
+      <div id="projectList"></div>
+      <button onclick="addProject()">➕ Add Project</button>
     </section>
 
     <section class="cv-education">
       <h2>🎓 Education</h2>
-      <textarea id="education" placeholder="Your education..."></textarea>
+      <textarea id="educationInput" placeholder="e.g. Bachelor in Design, University Name"></textarea>
       <p id="educationPreview">—</p>
     </section>
 
     <section class="cv-languages">
       <h2>🌍 Languages</h2>
-      <textarea id="languages" placeholder="Languages spoken..."></textarea>
+      <textarea id="languagesInput" placeholder="e.g. English (C1), Dutch (B1)"></textarea>
       <p id="languagesPreview">—</p>
     </section>
 
     <section class="cv-actions">
-      <button id="smartFill">🤖 AI Fill</button>
-      <button id="switchTheme">🎨 Switch Theme</button>
-      <button id="exportPDF">📄 Download PDF</button>
+      <button id="aiFill">🤖 AI Fill</button>
+      <button onclick="exportCV()">📄 Export PDF</button>
+      <button onclick="clearAll()">🧹 Clear All</button>
     </section>
 
     <footer class="cv-footer">
@@ -63,75 +67,126 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const fields = [
-        "fullName", "title", "summary", "email", "phone", "linkedin",
-        "website", "skills", "experience", "education", "languages"
-      ];
+    // Avatar upload preview
+    document.getElementById("avatarInput").addEventListener("change", function (e) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById("avatarPreview").src = reader.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
 
-      fields.forEach((id) => {
-        const input = document.getElementById(id);
-        const preview = document.getElementById(id + "Preview");
-        if (input && preview) {
-          input.addEventListener("input", () => {
-            preview.textContent = input.value.trim() || "—";
-          });
-        }
+    // Live preview bindings
+    const bindInput = (id, targetId) => {
+      document.getElementById(id).addEventListener("input", () => {
+        document.getElementById(targetId).innerText = document.getElementById(id).value || "—";
+      });
+    };
+    bindInput("educationInput", "educationPreview");
+    bindInput("languagesInput", "languagesPreview");
+
+    // Add skill
+    function addSkill() {
+      const val = document.getElementById("skillInput").value.trim();
+      if (!val) return;
+      const li = document.createElement("li");
+      li.textContent = val;
+      document.getElementById("skillsList").appendChild(li);
+      document.getElementById("skillInput").value = "";
+    }
+
+    // Add experience
+    function addExperience() {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <textarea placeholder="Company, Role, Dates, Achievements"></textarea>
+        <hr />
+      `;
+      document.getElementById("experienceList").appendChild(div);
+    }
+
+    // Add project
+    function addProject() {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <textarea placeholder="Project name, Description, Link..."></textarea>
+        <hr />
+      `;
+      document.getElementById("projectList").appendChild(div);
+    }
+
+    // Export to PDF
+    async function exportCV() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 20;
+
+      doc.setFontSize(18);
+      doc.text("SmartWerk CV", 20, y);
+      y += 10;
+      doc.setFontSize(12);
+
+      function write(title, value) {
+        if (!value) return;
+        doc.setFont(undefined, "bold");
+        doc.text(title, 20, y);
+        y += 6;
+        doc.setFont(undefined, "normal");
+        const lines = doc.splitTextToSize(value, 170);
+        doc.text(lines, 20, y);
+        y += lines.length * 6 + 4;
+      }
+
+      write("Name", document.getElementById("namePreview").innerText);
+      write("Title", document.getElementById("titlePreview").innerText);
+      write("Contact", document.getElementById("contactPreview").innerText);
+      write("Summary", document.getElementById("summaryPreview").innerText);
+
+      let skills = [...document.querySelectorAll("#skillsList li")].map(li => li.textContent).join(", ");
+      write("Skills", skills);
+
+      let experiences = [...document.querySelectorAll("#experienceList textarea")].map(t => t.value).join("\n\n");
+      write("Experience", experiences);
+
+      let projects = [...document.querySelectorAll("#projectList textarea")].map(t => t.value).join("\n\n");
+      write("Projects", projects);
+
+      write("Education", document.getElementById("educationInput").value);
+      write("Languages", document.getElementById("languagesInput").value);
+
+      doc.save("smartwerk-cv.pdf");
+    }
+
+    // Clear All
+    function clearAll() {
+      document.querySelectorAll("textarea, input[type='text']").forEach(el => el.value = "");
+      document.getElementById("skillsList").innerHTML = "";
+      document.getElementById("experienceList").innerHTML = "";
+      document.getElementById("projectList").innerHTML = "";
+      document.getElementById("educationPreview").innerText = "—";
+      document.getElementById("languagesPreview").innerText = "—";
+    }
+
+    // AI Fill Demo
+    document.getElementById("aiFill").addEventListener("click", () => {
+      document.getElementById("namePreview").innerText = "Igor Sulima";
+      document.getElementById("titlePreview").innerText = "Digital Entrepreneur & Tax Automation Expert";
+      document.getElementById("contactPreview").innerText = "igor@smartwerk.nl · +31 6 12345678 · smartwerk.nl";
+      document.getElementById("summaryPreview").innerText = "Visionary founder of SmartWerk, building AI tools for freelancers and small businesses in NL.";
+      document.getElementById("educationInput").value = "BSc in Business & IT, Utrecht University";
+      document.getElementById("languagesInput").value = "Dutch (B2), English (C1)";
+      bindInput("educationInput", "educationPreview");
+      bindInput("languagesInput", "languagesPreview");
+
+      ["JavaScript", "AI Integration", "UX Design"].forEach(skill => {
+        const li = document.createElement("li");
+        li.textContent = skill;
+        document.getElementById("skillsList").appendChild(li);
       });
 
-      document.getElementById("smartFill").addEventListener("click", () => {
-        const example = {
-          fullName: "Igor Sulima",
-          title: "Freelance Web Developer",
-          summary: "Experienced developer specializing in modern JavaScript, UX/UI, and smart business tools.",
-          email: "igor@smartwerk.nl",
-          phone: "+31 6 12345678",
-          linkedin: "linkedin.com/in/igorsulima",
-          website: "www.smartwerk.nl",
-          skills: "HTML, CSS, JS, React, Firebase",
-          experience: "SmartWerk (2022–Now): Founder & Developer\nFreelance Projects: 2020–2022",
-          education: "IT Degree — University of Amsterdam (2018)",
-          languages: "Ukrainian, English, Dutch"
-        };
-
-        fields.forEach((id) => {
-          const input = document.getElementById(id);
-          const preview = document.getElementById(id + "Preview");
-          if (input && preview && example[id]) {
-            input.value = example[id];
-            preview.textContent = example[id];
-          }
-        });
-      });
-
-      document.getElementById("switchTheme").addEventListener("click", () => {
-        document.body.classList.toggle("dark-theme");
-      });
-
-      document.getElementById("exportPDF").addEventListener("click", () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        let y = 20;
-
-        doc.setFontSize(16);
-        doc.text("📄 SmartWerk CV / Portfolio", 20, y);
-        y += 10;
-
-        fields.forEach((id) => {
-          const input = document.getElementById(id);
-          if (input && input.value.trim()) {
-            doc.setFont(undefined, "bold");
-            doc.text(id.replace(/([A-Z])/g, " $1"), 20, y);
-            y += 6;
-            doc.setFont(undefined, "normal");
-            const lines = doc.splitTextToSize(input.value, 170);
-            doc.text(lines, 20, y);
-            y += lines.length * 6 + 4;
-          }
-        });
-
-        doc.save("smartwerk-cv.pdf");
-      });
+      const exp = document.createElement("div");
+      exp.innerHTML = `<textarea>SmartWerk, Founder, 2023–Now\n- Created tax calculator used by 1000+ freelancers\n- Led product & design</textarea><hr/>`;
+      document.getElementById("experienceList").appendChild(exp);
     });
   </script>
 </body>
