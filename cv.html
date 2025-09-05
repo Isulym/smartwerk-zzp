@@ -10,7 +10,6 @@
 <body>
   <div class="cv-container">
    <header class="cv-header">
-  <img src="avatar-placeholder.jpg" alt="Your Photo" class="cv-photo" id="avatarPreview" />
   <div class="cv-intro">
     <h1 contenteditable="true" id="fullName">Your Name</h1>
     <p contenteditable="true" id="title">Professional Title or Role</p>
@@ -60,10 +59,6 @@
       <button onclick="clearAll()">🧹 Clear All</button>
     </section>
 
-    <section class="cv-avatar-upload">
-  <h3>🖼️ Upload Your Photo</h3>
-  <input type="file" id="avatarInput" accept="image/*" />
-</section>
 
     <footer class="cv-footer">
       <p>🔗 smartwerk.nl/portfolio/your-name</p>
@@ -71,15 +66,7 @@
   </div>
 
   <script>
-    // Avatar upload preview
-    document.getElementById("avatarInput").addEventListener("change", function (e) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        document.getElementById("avatarPreview").src = reader.result;
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    });
-
+   
     // Live preview bindings
     const bindInput = (id, targetId) => {
       document.getElementById(id).addEventListener("input", () => {
