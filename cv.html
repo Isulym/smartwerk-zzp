@@ -9,22 +9,21 @@
 </head>
 <body>
   <div class="cv-container" id="cvContainer">
-    <header class="cv-header">
-      <div class="cv-intro">
-        <h1 id="Name">Your Name</h1>
-        <p id="title">Professional Title</p>
-        <p id="contactsPreview">title · Name · Email · Phone · Website</p>
-      </div>
-    </header>
+   <header class="cv-header">
+  <div class="cv-intro">
+    <h1 id="fullNamePreview">Your Name</h1>
+    <p id="titlePreview">Professional Title</p>
+    <p id="contactsPreview">Email · Phone · Website</p>
+  </div>
+</header>
 
-  <section class="cv-header cv-personal-info">
+<section class="cv-header cv-personal-info">
   <h2>Personal Information</h2>
   <div class="personal-info-custom">
     <div class="form-row">
       <div class="form-group">
-        <label for="Name">Full Name</label>
-        <input type="text" id="Name
-          " placeholder="Your Name">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="Your Name">
       </div>
       <div class="form-group">
         <label for="email">Email</label>
@@ -179,7 +178,7 @@ document.getElementById("btnExportPDF").addEventListener("click", () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const name = document.getElementById("Name")?.value || "Your Name";
+  const name = document.getElementById("fullName")?.value || "Your Name";
   const title = document.getElementById("title")?.value || "";
   const email = document.getElementById("email")?.value || "";
   const phone = document.getElementById("phone")?.value || "";
