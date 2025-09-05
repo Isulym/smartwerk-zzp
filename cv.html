@@ -9,20 +9,19 @@
 </head>
 <body>
   <div class="cv-container">
-    <header class="cv-header">
-      <img src="avatar-placeholder.jpg" alt="Your Photo" class="cv-photo" id="avatarPreview" />
-      <input type="file" id="avatarInput" accept="image/*" style="margin-top:10px" />
-      <div class="cv-intro">
-        <h1 id="namePreview">Your Name</h1>
-        <p id="titlePreview">Professional Title</p>
-        <p id="contactPreview">Email · Phone · Website</p>
-      </div>
-    </header>
+   <header class="cv-header">
+  <img src="avatar-placeholder.jpg" alt="Your Photo" class="cv-photo" />
+  <div class="cv-intro">
+    <h1 contenteditable="true" id="fullName">Your Name</h1>
+    <p contenteditable="true" id="title">Professional Title or Role</p>
+    <p contenteditable="true" id="contactInfo">Email · Phone · LinkedIn · Website</p>
+  </div>
+</header>
 
     <section class="cv-summary">
-      <h2>🧠 Summary</h2>
-      <p id="summaryPreview">Tell us a bit about you...</p>
-    </section>
+  <h2>🧠 Professional Summary</h2>
+  <p contenteditable="true" id="summary">Brief paragraph describing who you are, what you do, and what you're passionate about.</p>
+</section>
 
     <section class="cv-skills">
       <h2>🛠️ Skills</h2>
@@ -235,6 +234,23 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("cvSectionOrder", JSON.stringify(order));
   }
 });
+
+    // Збереження contenteditable в localStorage
+const editableFields = ["fullName", "title", "contactInfo", "summary"];
+
+// Load saved content
+window.addEventListener("DOMContentLoaded", () => {
+  editableFields.forEach(id => {
+    const el = document.getElementById(id);
+    const saved = localStorage.getItem("cv-" + id);
+    if (saved) el.innerText = saved;
+
+    el.addEventListener("input", () => {
+      localStorage.setItem("cv-" + id, el.innerText);
+    });
+  });
+});
+    
   </script>
 </body>
 </html>
