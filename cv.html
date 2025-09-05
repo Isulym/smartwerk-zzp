@@ -153,9 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setFontSize(14);
     doc.text(title, 20, y); y += 8;
     doc.setFontSize(12);
-    if (email) { doc.text("📧 " + email, 20, y); y += 6; }
-    if (phone) { doc.text("📞 " + phone, 20, y); y += 6; }
-    if (website) { doc.text("🔗 " + website, 20, y); y += 6; }
+    if (email) { doc.text(email, 20, y); y += 6; }
+    if (phone) { doc.text(phone, 20, y); y += 6; }
+    if (website) { doc.text(website, 20, y); y += 6; }
 
     y += 10;
 
