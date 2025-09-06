@@ -92,6 +92,10 @@
 </section>
     
 </div>
+    <label style="font-size: 13px;">
+  <input type="checkbox" id="noBranding" />
+  Export without branding (PRO)
+</label>
 
     <div class="cv-buttons">
       <button id="btnExportPDF">📄 Export PDF</button>
@@ -116,20 +120,15 @@ document.addEventListener("DOMContentLoaded", () => {
     website: null,
   };
 
-  // Live Preview & Save
+  // 🔄 Live Preview
   fields.forEach((id) => {
     const input = document.getElementById(id);
-    if (!input) {
-      console.warn(`⚠️ Element with ID "${id}" not found.`);
-      return;
-    }
+    if (!input) return;
     input.addEventListener("input", () => {
       const previewId = previewMap[id];
       if (previewId) {
-        const previewElement = document.getElementById(previewId);
-        if (previewElement) {
-          previewElement.innerText = input.value || "—";
-        }
+        const previewEl = document.getElementById(previewId);
+        if (previewEl) previewEl.innerText = input.value || "—";
       }
       updateContactsPreview();
       saveToLocalStorage();
@@ -164,13 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const previewId = previewMap[id];
       if (previewId && data[id]) {
         const previewElement = document.getElementById(previewId);
-        if (previewElement) {
-          previewElement.innerText = data[id];
-        }
+        if (previewElement) previewElement.innerText = data[id];
       }
     });
   }
 
+  // 💾 Кнопки Save / Load / Clear
   document.getElementById("btnSaveCV")?.addEventListener("click", saveToLocalStorage);
   document.getElementById("btnLoadCV")?.addEventListener("click", loadFromLocalStorage);
   document.getElementById("btnClearCV")?.addEventListener("click", () => {
@@ -182,10 +180,11 @@ document.addEventListener("DOMContentLoaded", () => {
     saveToLocalStorage();
   });
 
- document.getElementById("btnExportPDF")?.addEventListener("click", () => {
+  // 📄 Генерація WOW‑PDF
+  document.getElementById("btnExportPDF")?.addEventListener("click", () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF("p", "mm", "a4");
-    let y = 20;
+    const isPRO = document.getElementById("noBranding")?.checked; // PRO-чекбокс
 
     const name = document.getElementById("fullName")?.value || "Your Name";
     const title = document.getElementById("title")?.value || "";
@@ -193,7 +192,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const phone = document.getElementById("phone")?.value || "";
     const website = document.getElementById("website")?.value || "";
 
-    // Header
+    let y = 20;
+
+    // 🔹 Обкладинка
     doc.setFontSize(22).setFont("helvetica", "bold").text(name, 20, y);
     y += 8;
     if (title) doc.setFontSize(14).setFont("helvetica", "normal").text(title, 20, y), y += 8;
@@ -202,31 +203,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (phone) doc.text(`📞 ${phone}`, 20, y), y += 6;
     if (website) doc.text(`🌐 ${website}`, 20, y), y += 10;
 
-    // Branding line
-    doc.setDrawColor(0, 122, 255).line(20, y, 190, y);
-    y += 8;
+    if (!isPRO) {
+      doc.setDrawColor(0, 122, 255).line(20, y, 190, y); // SmartWerk accent line
+      y += 8;
+    }
 
-    // Dual-column layout
+    // 🧠 Двоколонний макет
     const leftBlocks = ["Summary", "Skills", "Languages"];
     const rightBlocks = ["Work Experience", "Projects", "Education", "Achievements", "Testimonials"];
 
     const allBlocks = document.querySelectorAll(".cv-block");
     const leftContent = [], rightContent = [];
 
-    allBlocks.forEach(block => {
-      const title = block.querySelector("h2")?.innerText.trim();
-      if (!title) return;
+    allBlocks.forEach((block) => {
+      const heading = block.querySelector("h2")?.innerText.trim();
+      if (!heading) return;
       const contents = Array.from(block.querySelectorAll("p, ul, blockquote, li"))
-        .map(el => el.innerText.trim())
-        .filter(Boolean)
-        .join("\n");
+        .map(el => el.innerText.trim()).filter(Boolean).join("\n");
       if (!contents) return;
-      const section = { heading: title, text: contents };
-      if (leftBlocks.includes(title)) leftContent.push(section);
+      const section = { heading, text: contents };
+      if (leftBlocks.includes(heading)) leftContent.push(section);
       else rightContent.push(section);
     });
 
-    // Render columns
     const columnY = { left: y, right: y };
     const renderColumn = (data, x) => {
       data.forEach(({ heading, text }) => {
@@ -243,56 +242,16 @@ document.addEventListener("DOMContentLoaded", () => {
     renderColumn(leftContent, "left");
     renderColumn(rightContent, "right");
 
-    // Footer branding
-    doc.setFontSize(9).setTextColor(100);
-    doc.text("SmartWerk • smartwerk.nl • CV powered by SmartWerk", 20, 290);
+    // 🔻 Футер
+    if (!isPRO) {
+      doc.setFontSize(9).setTextColor(150);
+      doc.text("SmartWerk · smartwerk.nl · CV powered by SmartWerk", 20, 290);
+    }
 
     doc.save("smartwerk-cv.pdf");
   });
 
-  function renderBlocks(blocks, xStart, yStart) {
-    let yPos = yStart;
-    blocks.forEach((block) => {
-      const heading = block.querySelector("h2")?.innerText || "";
-      const contentEl = block.querySelector("p, ul, blockquote");
-      const content = contentEl?.innerText || "";
-
-      if (!heading || !content.trim()) return;
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(13);
-      doc.setTextColor(33);
-      doc.text(heading, xStart, yPos);
-      yPos += 6;
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(11);
-      doc.setTextColor(50);
-      const lines = doc.splitTextToSize(content, 80);
-      doc.text(lines, xStart, yPos);
-      yPos += lines.length * 5 + 4;
-    });
-    return yPos;
-  }
-
-  const yLeft = renderBlocks(left, 20, y);
-  const yRight = renderBlocks(right, 110, y);
-
-  y = Math.max(yLeft, yRight) + 10;
-
-  // 🔻 Footer
-  doc.setDrawColor(240);
-  doc.line(20, 285, 190, 285);
-  doc.setFontSize(10);
-  doc.setTextColor(180);
-  doc.text("Generated via SmartWerk CV Builder · smartwerk.nl", 20, 292);
-
-  // 💾 Зберегти
-  doc.save("smartwerk-cv.pdf");
-
-
-// ⬇ Заміни стару кнопку:
-document.getElementById("btnExportPDF").addEventListener("click", generateSmartWerkPDF);
+  // 🧩 Сортування блоків
   function saveBlockOrder() {
     const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
     localStorage.setItem("cvBlockOrder", JSON.stringify(order));
