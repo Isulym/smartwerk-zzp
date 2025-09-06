@@ -182,50 +182,72 @@ document.addEventListener("DOMContentLoaded", () => {
     saveToLocalStorage();
   });
 
-  function generateSmartWerkPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("p", "mm", "a4");
-  let y = 20;
+ document.getElementById("btnExportPDF")?.addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("p", "mm", "a4");
+    let y = 20;
 
-  // 📄 Обкладинка
-  const fullName = document.getElementById("fullName")?.value || "Your Name";
-  const title = document.getElementById("title")?.value || "";
-  const email = document.getElementById("email")?.value || "";
-  const phone = document.getElementById("phone")?.value || "";
-  const website = document.getElementById("website")?.value || "";
+    const name = document.getElementById("fullName")?.value || "Your Name";
+    const title = document.getElementById("title")?.value || "";
+    const email = document.getElementById("email")?.value || "";
+    const phone = document.getElementById("phone")?.value || "";
+    const website = document.getElementById("website")?.value || "";
 
-  doc.setTextColor(59, 121, 255); // Accent color
-  doc.setFontSize(26);
-  doc.setFont("helvetica", "bold");
-  doc.text(fullName, 20, y); y += 10;
+    // Header
+    doc.setFontSize(22).setFont("helvetica", "bold").text(name, 20, y);
+    y += 8;
+    if (title) doc.setFontSize(14).setFont("helvetica", "normal").text(title, 20, y), y += 8;
+    doc.setFontSize(11);
+    if (email) doc.text(`📧 ${email}`, 20, y), y += 6;
+    if (phone) doc.text(`📞 ${phone}`, 20, y), y += 6;
+    if (website) doc.text(`🌐 ${website}`, 20, y), y += 10;
 
-  doc.setTextColor(33);
-  if (title) {
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "italic");
-    doc.text(title, 20, y); y += 8;
-  }
+    // Branding line
+    doc.setDrawColor(0, 122, 255).line(20, y, 190, y);
+    y += 8;
 
-  doc.setFontSize(11);
-  const contacts = [email, phone, website].filter(Boolean).join(" · ");
-  if (contacts) {
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100);
-    doc.text(contacts, 20, y); y += 12;
-  }
+    // Dual-column layout
+    const leftBlocks = ["Summary", "Skills", "Languages"];
+    const rightBlocks = ["Work Experience", "Projects", "Education", "Achievements", "Testimonials"];
 
-  doc.setDrawColor(230);
-  doc.line(20, y, 190, y); y += 10;
+    const allBlocks = document.querySelectorAll(".cv-block");
+    const leftContent = [], rightContent = [];
 
-  // 🔄 Отримуємо блоки
-  const allBlocks = document.querySelectorAll(".cv-block");
-  const left = [];
-  const right = [];
+    allBlocks.forEach(block => {
+      const title = block.querySelector("h2")?.innerText.trim();
+      if (!title) return;
+      const contents = Array.from(block.querySelectorAll("p, ul, blockquote, li"))
+        .map(el => el.innerText.trim())
+        .filter(Boolean)
+        .join("\n");
+      if (!contents) return;
+      const section = { heading: title, text: contents };
+      if (leftBlocks.includes(title)) leftContent.push(section);
+      else rightContent.push(section);
+    });
 
-  allBlocks.forEach((block) => {
-    const h2 = block.querySelector("h2")?.innerText.toLowerCase() || "";
-    if (["summary", "skills", "languages"].includes(h2)) left.push(block);
-    else right.push(block);
+    // Render columns
+    const columnY = { left: y, right: y };
+    const renderColumn = (data, x) => {
+      data.forEach(({ heading, text }) => {
+        if (columnY[x] > 270) { doc.addPage(); columnY[x] = 20; }
+        doc.setFontSize(13).setFont("helvetica", "bold").text(heading, x === "left" ? 20 : 110, columnY[x]);
+        columnY[x] += 6;
+        doc.setFont("helvetica", "normal").setFontSize(11);
+        const lines = doc.splitTextToSize(text, 80);
+        doc.text(lines, x === "left" ? 20 : 110, columnY[x]);
+        columnY[x] += lines.length * 6 + 4;
+      });
+    };
+
+    renderColumn(leftContent, "left");
+    renderColumn(rightContent, "right");
+
+    // Footer branding
+    doc.setFontSize(9).setTextColor(100);
+    doc.text("SmartWerk • smartwerk.nl • CV powered by SmartWerk", 20, 290);
+
+    doc.save("smartwerk-cv.pdf");
   });
 
   function renderBlocks(blocks, xStart, yStart) {
