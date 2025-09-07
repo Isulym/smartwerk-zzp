@@ -118,6 +118,16 @@
 
   <section id="savedQuotesSection" class="form-section">
   <h2>📁 Saved Quotes</h2>
+<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+  <input type="text" id="searchInput" placeholder="🔍 Search by client, quote no, or status" style="flex: 2; padding: 6px;" />
+  <select id="filterStatus" style="flex: 1; padding: 6px;">
+    <option value="">All Statuses</option>
+    <option value="draft">Draft</option>
+    <option value="sent">Sent</option>
+    <option value="accepted">Accepted</option>
+  </select>
+</div>
+    
   <table id="savedQuotesTable">
     <thead>
       <tr>
@@ -134,6 +144,7 @@
     </tbody>
   </table>
 </section>
+
 
   <script>
   // ✅ quote-offer.js — повна логіка SmartWerk Quote / Offer
@@ -525,6 +536,8 @@ function currencySymbol(code) {
 
    document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("exportQuotePDF").addEventListener("click", exportQuotePDF);
+  document.getElementById("searchInput").addEventListener("input", applyFilters);
+  document.getElementById("filterStatus").addEventListener("change", applyFilters);
 
   // ✅ PRO toggle switch — зберігає в localStorage
   const togglePro = document.getElementById("togglePro");
@@ -535,6 +548,46 @@ function currencySymbol(code) {
     });
   }
 });
+
+    function applyFilters() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const statusFilter = document.getElementById("filterStatus").value;
+  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+
+  const filtered = saved.filter(quote => {
+    const matchesSearch =
+      quote.clientName.toLowerCase().includes(search) ||
+      quote.quoteNumber.toLowerCase().includes(search) ||
+      quote.quoteStatus.toLowerCase().includes(search);
+
+    const matchesStatus = !statusFilter || quote.quoteStatus === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  renderFilteredQuotes(filtered);
+}
+
+    function renderFilteredQuotes(list) {
+  const tbody = document.getElementById("savedQuotesBody");
+  tbody.innerHTML = "";
+  list.forEach((quote, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${quote.quoteNumber}</td>
+      <td>${quote.clientName}</td>
+      <td>${quote.validUntil}</td>
+      <td>${quote.quoteStatus}</td>
+      <td>${quote.total}</td>
+      <td>
+        <button class="btn small" onclick="viewQuote(${index})">🔍 View</button>
+        <button class="btn small" onclick="editQuote(${index})">✏️ Edit</button>
+        <button class="btn small danger" onclick="deleteQuote(${index})">🗑️ Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
     
  </script>
  
