@@ -443,7 +443,7 @@ window.editQuote = function(index) {
   document.getElementById("quoteForm").reset();
   document.getElementById("itemsContainer").innerHTML = "";
 
-  // Restore values
+  // Restore static fields
   document.getElementById("quoteNumber").value = quote.quoteNumber;
   document.getElementById("businessName").value = quote.businessName;
   document.getElementById("businessKvK").value = quote.businessKvK;
@@ -463,12 +463,14 @@ window.editQuote = function(index) {
   document.getElementById("signatureDate").textContent = quote.signatureDate;
   document.getElementById("validUntil").textContent = quote.validUntil;
 
-  quote.items.forEach(item => {
+  // Restore service items
+  quote.items.forEach((item) => {
     addItem(item.desc, item.qty, item.price);
   });
 
   calculateTotals();
   updateStatusColor();
+  lockSignature();
 };
 
 window.deleteQuote = function(index) {
