@@ -130,7 +130,6 @@
   // ✅ quote-offer.js — повна логіка SmartWerk Quote / Offer
 
 document.addEventListener("DOMContentLoaded", () => {
-  // === Елементи ===
   const form = document.getElementById("quoteForm");
   const addItemBtn = document.getElementById("addItemBtn");
   const itemsContainer = document.getElementById("itemsContainer");
@@ -143,15 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const signatureName = document.getElementById("signatureName");
   const currencySelect = document.getElementById("currency");
 
-  // === Init ===
-  setValidUntil();
   autoGenerateQuoteNumber();
   updateStatusColor();
-  restoreSavedState();
-  addItem();
-  calculateTotals();
+  lockSignature();
+  loadSavedQuotes();
 
-  // === Events ===
   addItemBtn.addEventListener("click", () => {
     addItem();
     calculateTotals();
@@ -165,13 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
   currencySelect.addEventListener("change", calculateTotals);
 
   document.getElementById("aiDraftBtn")?.addEventListener("click", () => {
-    const examples = [
+    itemsContainer.innerHTML = "";
+    [
       ["Design Website", 1, 750],
       ["SEO Optimization", 1, 200],
       ["Hosting Setup", 1, 100]
-    ];
-    itemsContainer.innerHTML = "";
-    examples.forEach(([desc, qty, price]) => addItem(desc, qty, price));
+    ].forEach(([desc, qty, price]) => addItem(desc, qty, price));
     calculateTotals();
   });
 
@@ -179,14 +173,8 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     saveQuoteToLocalStorage();
     alert("✅ Quote saved successfully!");
+    loadSavedQuotes();
   });
-
-  // === Functions ===
-  function setValidUntil() {
-    const validDate = new Date();
-    validDate.setDate(validDate.getDate() + 14);
-    document.getElementById("validUntil").textContent = validDate.toLocaleDateString();
-  }
 
   function autoGenerateQuoteNumber() {
     if (quoteNumber.value.trim()) return;
@@ -207,37 +195,29 @@ document.addEventListener("DOMContentLoaded", () => {
     signatureName.disabled = locked;
   }
 
-function addItem(desc = "", qty = 1, price = 0.0) {
-  // Форс конвертація значень
-  qty = parseFloat(qty) || 1;
-  price = parseFloat(price) || 0.0;
-
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td><input type="text" class="desc" value="${desc}" /></td>
-    <td><input type="number" class="qty" value="${qty}" min="1" /></td>
-    <td><input type="number" class="price" value="${price}" step="0.01" /></td>
-    <td class="rowTotal">0.00</td>
-    <td><button type="button" class="remove-btn">×</button></td>
-  `;
-
-  tr.querySelectorAll("input").forEach(input => {
-    input.addEventListener("input", calculateTotals);
-  });
-
-  tr.querySelector(".remove-btn").addEventListener("click", () => {
-    tr.remove();
+  function addItem(desc = "", qty = 1, price = 0.0) {
+    qty = parseFloat(qty) || 1;
+    price = parseFloat(price) || 0.0;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" class="desc" value="${desc}" /></td>
+      <td><input type="number" class="qty" value="${qty}" min="1" /></td>
+      <td><input type="number" class="price" value="${price}" step="0.01" /></td>
+      <td class="rowTotal">0.00</td>
+      <td><button type="button" class="remove-btn">×</button></td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", calculateTotals));
+    tr.querySelector(".remove-btn").addEventListener("click", () => {
+      tr.remove();
+      calculateTotals();
+    });
+    itemsContainer.appendChild(tr);
     calculateTotals();
-  });
-
-  itemsContainer.appendChild(tr);
-  calculateTotals(); // автоматичний перерахунок після додавання
-}
+  }
 
   function calculateTotals() {
     const currency = currencySelect.value;
     let subtotal = 0;
-
     document.querySelectorAll("#itemsContainer tr").forEach(row => {
       const qty = parseFloat(row.querySelector(".qty").value) || 0;
       const price = parseFloat(row.querySelector(".price").value) || 0;
@@ -245,10 +225,8 @@ function addItem(desc = "", qty = 1, price = 0.0) {
       row.querySelector(".rowTotal").textContent = formatCurrency(total, currency);
       subtotal += total;
     });
-
     const vat = subtotal * 0.21;
     const grandTotal = subtotal + vat;
-
     subtotalEl.textContent = formatCurrency(subtotal, currency);
     vatEl.textContent = formatCurrency(vat, currency);
     totalEl.textContent = formatCurrency(grandTotal, currency);
@@ -280,11 +258,10 @@ function addItem(desc = "", qty = 1, price = 0.0) {
       note: document.getElementById("clientNote").value,
       signatureName: signatureName.value,
       clientSignature: document.getElementById("clientSignature").value,
-      signatureDate: document.getElementById("signatureDate").textContent,
+      signatureDate: new Date().toLocaleDateString(),
       total: totalEl.textContent,
       items: []
     };
-
     document.querySelectorAll("#itemsContainer tr").forEach(row => {
       quote.items.push({
         desc: row.querySelector(".desc").value,
@@ -292,202 +269,83 @@ function addItem(desc = "", qty = 1, price = 0.0) {
         price: row.querySelector(".price").value
       });
     });
-
     const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
     saved.push(quote);
     localStorage.setItem("savedQuotes", JSON.stringify(saved));
   }
 
+  window.editQuote = function(index) {
+    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+    const quote = saved[index];
+    if (!quote) return;
+    document.getElementById("businessName").value = quote.businessName;
+    document.getElementById("businessKvK").value = quote.businessKvK;
+    document.getElementById("businessVAT").value = quote.businessVAT;
+    document.getElementById("businessIBAN").value = quote.businessIBAN;
+    document.getElementById("businessPhone").value = quote.businessPhone;
+    document.getElementById("businessAddress").value = quote.businessAddress;
+    document.getElementById("clientName").value = quote.clientName;
+    document.getElementById("clientEmail").value = quote.clientEmail;
+    document.getElementById("clientPhone").value = quote.clientPhone;
+    document.getElementById("clientAddress").value = quote.clientAddress;
+    document.getElementById("quoteNumber").value = quote.quoteNumber;
+    document.getElementById("quoteStatus").value = quote.quoteStatus;
+    document.getElementById("clientNote").value = quote.note;
+    document.getElementById("signatureName").value = quote.signatureName;
+    document.getElementById("clientSignature").value = quote.clientSignature;
+    document.getElementById("signatureDate").textContent = quote.signatureDate;
+    document.getElementById("currency").value = quote.currency;
+    document.getElementById("validUntil").textContent = quote.validUntil;
 
- document.getElementById("exportQuotePDF").addEventListener("click", () => {
-    if (typeof exportQuotePDF === "function") {
-      exportQuotePDF();
-    } else {
-      alert("PDF export is not available.");
-    }
-  });
+    updateStatusColor();
+    lockSignature();
 
-  // === SmartWerk PDF Export for Quote / Offer ===
-window.exportQuotePDF = function () {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const proUser = confirm("🛡️ Export without SmartWerk branding? (PRO only)");
-  const marginLeft = 20;
-  let y = 20;
-
-  // === Header ===
-  doc.setFontSize(18).setTextColor(33).text("📄 Quote / Offer", marginLeft, y);
-  y += 10;
-
-  const status = document.getElementById("quoteStatus")?.value || "";
-  const validUntil = document.getElementById("validUntil")?.textContent || "";
-  const clientName = document.getElementById("clientName")?.value || "Client";
-  const clientEmail = document.getElementById("clientEmail")?.value || "";
-  const quoteNumber = document.querySelector("#quoteNumber")?.value || "";
-  const currency = document.querySelector("#currency")?.value || "EUR (€)";
-
-  doc.setFontSize(11);
-  doc.text(`Quote No: ${quoteNumber}`, marginLeft, y); y += 6;
-  doc.text(`Status: ${status}`, marginLeft, y); y += 6;
-  doc.text(`Valid Until: ${validUntil}`, marginLeft, y); y += 6;
-  doc.text(`Client: ${clientName}`, marginLeft, y); y += 6;
-  if (clientEmail) doc.text(`Email: ${clientEmail}`, marginLeft, y);
-  y += 8;
-
-  // === Table ===
-  const rows = [];
-  document.querySelectorAll("#itemsContainer tr").forEach((row) => {
-    const desc = row.querySelector(".desc")?.value || "";
-    const qty = row.querySelector(".qty")?.value || "0";
-    const price = row.querySelector(".price")?.value || "0.00";
-    const total = (parseFloat(qty) * parseFloat(price)).toFixed(2);
-    rows.push([desc, qty, `€ ${price}`, `€ ${total}`]);
-  });
-
-  if (rows.length > 0) {
-    doc.autoTable({
-      head: [["Description", "Qty", "Price", "Total"]],
-      body: rows,
-      startY: y,
-      styles: { fontSize: 10 },
-      theme: "grid",
-      headStyles: { fillColor: [0, 122, 255], textColor: 255 },
+    itemsContainer.innerHTML = "";
+    quote.items.forEach(item => {
+      addItem(item.desc, item.qty, item.price);
     });
-    y = doc.lastAutoTable.finalY + 10;
+
+    calculateTotals();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  window.deleteQuote = function(index) {
+    if (!confirm("❌ Are you sure you want to delete this quote?")) return;
+    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+    saved.splice(index, 1);
+    localStorage.setItem("savedQuotes", JSON.stringify(saved));
+    loadSavedQuotes();
+  };
+
+  function loadSavedQuotes() {
+    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+    const tbody = document.getElementById("savedQuotesBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    saved.forEach((quote, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${quote.quoteNumber}</td>
+        <td>${quote.clientName}</td>
+        <td>${quote.validUntil}</td>
+        <td>${quote.quoteStatus}</td>
+        <td>${quote.total}</td>
+        <td>
+          <button class="btn small" onclick="viewQuote(${index})">🔍 View</button>
+          <button class="btn small" onclick="editQuote(${index})">✏️ Edit</button>
+          <button class="btn small danger" onclick="deleteQuote(${index})">🗑️ Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
-  // === Totals ===
-  const subtotal = document.getElementById("subtotal")?.textContent || "0.00";
-  const vat = document.getElementById("vat")?.textContent || "0.00";
-  const total = document.getElementById("total")?.textContent || "0.00";
-
-  doc.setFontSize(11);
-  doc.text(`Subtotal: € ${subtotal}`, marginLeft, y); y += 6;
-  doc.text(`VAT: € ${vat}`, marginLeft, y); y += 6;
-  doc.text(`Total: € ${total}`, marginLeft, y); y += 6;
-  doc.text(`Currency: ${currency}`, marginLeft, y); y += 10;
-
-  // === Note ===
-  const note = document.getElementById("clientNote")?.value || "";
-  if (note) {
-    doc.setFontSize(11).text("Note to Client:", marginLeft, y);
-    const lines = doc.splitTextToSize(note, 170);
-    doc.setFontSize(10).text(lines, marginLeft, y + 6);
-    y += lines.length * 5 + 10;
-  }
-
-  // === Signatures ===
-  const signer = document.getElementById("signatureName")?.value || "";
-  const clientSig = document.getElementById("clientSignature")?.value || "";
-  const date = document.getElementById("signatureDate")?.value || "";
-
-  doc.setFontSize(11).text("Signatures:", marginLeft, y); y += 6;
-  doc.setFontSize(10);
-  doc.text(`Business: ${signer}`, marginLeft, y); y += 5;
-  doc.text(`Client: ${clientSig}`, marginLeft, y); y += 5;
-  doc.text(`Date: ${date}`, marginLeft, y); y += 8;
-
-  // === Branding ===
-  if (!proUser) {
-    doc.setDrawColor(220);
-    doc.line(marginLeft, 285, 200, 285);
-    doc.setFontSize(9);
-    doc.setTextColor(160);
-    doc.text("Generated by SmartWerk • smartwerk.nl", marginLeft, 291);
-  }
-
-  // === Save ===
-  const fileName = `Quote-${clientName.replace(/\s+/g, "_")}.pdf`;
-  doc.save(fileName);
-};
-
-    function loadSavedQuotes() {
-  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-  const tbody = document.getElementById("savedQuotesBody");
-  tbody.innerHTML = "";
-
-  saved.forEach((quote, index) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${quote.quoteNumber}</td>
-      <td>${quote.clientName}</td>
-      <td>${quote.validUntil}</td>
-      <td>${quote.quoteStatus}</td>
-      <td>${quote.total}</td>
-      <td>
-        <button class="btn small" onclick="viewQuote(${index})">🔍 View</button>
-        <button class="btn small" onclick="editQuote(${index})">✏️ Edit</button>
-        <button class="btn small danger" onclick="deleteQuote(${index})">🗑️ Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-window.viewQuote = function(index) {
-  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-  const quote = saved[index];
-  alert(`Quote for ${quote.clientName}\nTotal: ${quote.total}\nStatus: ${quote.quoteStatus}`);
-};
-
-window.editQuote = function (index) {
-  const quotes = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-  const quote = quotes[index];
-  if (!quote) return;
-
-  // Заповнення всіх полів
-  document.getElementById("quoteNumber").value = quote.quoteNumber;
-  document.getElementById("businessName").value = quote.businessName;
-  document.getElementById("businessKvK").value = quote.businessKvK;
-  document.getElementById("businessVAT").value = quote.businessVAT;
-  document.getElementById("businessIBAN").value = quote.businessIBAN;
-  document.getElementById("businessPhone").value = quote.businessPhone;
-  document.getElementById("businessAddress").value = quote.businessAddress;
-  document.getElementById("clientName").value = quote.clientName;
-  document.getElementById("clientEmail").value = quote.clientEmail;
-  document.getElementById("clientPhone").value = quote.clientPhone;
-  document.getElementById("clientAddress").value = quote.clientAddress;
-  document.getElementById("currency").value = quote.currency;
-  document.getElementById("validUntil").textContent = quote.validUntil;
-  document.getElementById("quoteStatus").value = quote.quoteStatus;
-  document.getElementById("clientNote").value = quote.note;
-  document.getElementById("signatureName").value = quote.signatureName;
-  document.getElementById("clientSignature").value = quote.clientSignature;
-  document.getElementById("signatureDate").textContent = quote.signatureDate;
-
-  // Оновити мітку статусу
-  document.getElementById("statusBadge").textContent = `● ${quote.quoteStatus}`;
-  document.getElementById("statusBadge").className = `status-badge ${quote.quoteStatus}`;
-
-  // Відновлення item'ів
-  const itemsContainer = document.getElementById("itemsContainer");
-  itemsContainer.innerHTML = "";
-  quote.items.forEach((item) => {
-    const desc = item.desc || "";
-    const qty = parseFloat(item.qty) || 1;
-    const price = parseFloat(item.price) || 0.00;
-    addItem(desc, qty, price);
-  });
-
-  // Перерахунок
-  calculateTotals();
-
-  // Прокрутка до форми
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-
-window.deleteQuote = function(index) {
-  if (!confirm("❌ Are you sure you want to delete this quote?")) return;
-  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-  saved.splice(index, 1);
-  localStorage.setItem("savedQuotes", JSON.stringify(saved));
-  loadSavedQuotes();
-};
-
-// Load on page ready
-document.addEventListener("DOMContentLoaded", loadSavedQuotes);
-
+  window.viewQuote = function(index) {
+    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+    const quote = saved[index];
+    alert(`Quote for ${quote.clientName}\nTotal: ${quote.total}\nStatus: ${quote.quoteStatus}`);
+  };
+});
  </script>
  
 </body>
