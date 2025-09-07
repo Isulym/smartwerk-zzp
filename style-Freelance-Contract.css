@@ -1,135 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk — Freelance Contract</title>
-  <style>
-    :root {
-      --bg: #f8f9fb;
-      --text: #222;
-      --accent: #3b79ff;
-      --muted: #6c757d;
-      --card: #ffffff;
-      --border: #e3e6ea;
-    }
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 15px;
+  background-color: #f9f9f9;
+  color: #222;
+}
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.5;
-    }
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 2rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  background: #3b79ff;
+  padding: 10px 20px;
+  color: #fff;
+  align-items: center;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
 
-    h1 {
-      grid-column: 1 / -1;
-      font-size: 24px;
-      margin-bottom: 1rem;
-    }
+.topbar a.btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 500;
+}
 
-    h2 {
-      font-size: 16px;
-      margin-bottom: 0.5rem;
-      color: var(--accent);
-    }
+h1 {
+  font-size: 22px;
+  margin-bottom: 5px;
+}
 
-    p {
-      margin: 0.3rem 0;
-    }
+.small-note {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 20px;
+}
 
-    .section {
-      padding: 1rem;
-      background: #fdfdfd;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
 
-    .footer {
-      grid-column: 1 / -1;
-      margin-top: 2rem;
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-    }
+.section {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
 
-    @media(max-width: 768px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>📄 Freelance Contract</h1>
+.section h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #3b79ff;
+}
 
-    <div class="section">
-      <h2>📅 Business Info</h2>
-      <p><strong>Name:</strong> John Doe Freelance</p>
-      <p><strong>KVK:</strong> 12345678</p>
-      <p><strong>VAT:</strong> NL123456789B01</p>
-      <p><strong>Address:</strong> Main Street 12, 1011 AB Amsterdam</p>
-      <p><strong>Email:</strong> info@johndoe.com</p>
-      <p><strong>Phone:</strong> +31 612345678</p>
-    </div>
+.section input,
+.section textarea {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+}
 
-    <div class="section">
-      <h2>👥 Client Info</h2>
-      <p><strong>Name:</strong> Acme Corporation</p>
-      <p><strong>Contact:</strong> Jane Smith</p>
-      <p><strong>Email:</strong> jane@acme.com</p>
-      <p><strong>Address:</strong> Corporate Street 5, 3011 RT Rotterdam</p>
-    </div>
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
 
-    <div class="section">
-      <h2>📋 Project Description</h2>
-      <p>Design and development of a responsive corporate website for Acme Corporation including homepage, product pages, and contact form.</p>
-    </div>
+.btn-group button {
+  padding: 10px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #3b79ff;
+  color: #fff;
+  transition: 0.2s;
+}
 
-    <div class="section">
-      <h2>⏰ Timeline</h2>
-      <p>Start: September 10, 2025</p>
-      <p>End: October 5, 2025</p>
-    </div>
+.btn-group button:hover {
+  background-color: #255edb;
+}
 
-    <div class="section">
-      <h2>💸 Payment Terms</h2>
-      <p>Total Amount: €2,500</p>
-      <p>50% upfront, 50% upon completion</p>
-      <p>Payment due within 14 days of invoice</p>
-    </div>
+#contractPreview {
+  white-space: pre-wrap;
+  background: #f1f1f1;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px dashed #bbb;
+}
 
-    <div class="section">
-      <h2>📄 Legal</h2>
-      <p>This contract is governed by Dutch law. Disputes will be resolved in Amsterdam court.</p>
-    </div>
+/* Grid structure: 2 columns */
+@media (min-width: 768px) {
+  .wrap > .section:nth-child(4),
+  .wrap > .section:nth-child(5),
+  .wrap > .section:nth-child(6),
+  .wrap > .section:nth-child(7),
+  .wrap > .section:nth-child(8),
+  .wrap > .section:nth-child(9) {
+    width: 48%;
+    display: inline-block;
+    vertical-align: top;
+  }
 
-    <div class="section">
-      <h2>✍️ Signatures</h2>
-      <p>John Doe (Freelancer)</p>
-      <p>Date: September 7, 2025</p>
-      <br />
-      <p>Jane Smith (Client)</p>
-      <p>Date: September 7, 2025</p>
-    </div>
+  .wrap > .section:nth-child(4),
+  .wrap > .section:nth-child(5),
+  .wrap > .section:nth-child(6) {
+    margin-right: 4%;
+  }
+}
 
-    <div class="footer">
-      Generated with SmartWerk — www.smartwerk.nl
-    </div>
-  </div>
-</body>
-</html>
+/* Responsive: 1 column on small screens */
+@media (max-width: 767px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-group {
+    flex-direction: column;
+  }
+}
+
