@@ -279,89 +279,96 @@ document.addEventListener("DOMContentLoaded", () => {
     // quote-offer-pdf.js
 
 
-window.exportQuotePDF = function () {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // === Config ===
-  const proUser = confirm("🛡️ Export without SmartWerk branding? (PRO only)");
-  const marginLeft = 14;
-  let y = 20;
-
-  // === Header ===
-  doc.setFontSize(20).setTextColor(40).text("📄 Quote / Offer", marginLeft, y);
-  y += 10;
-
-  const status = document.getElementById("quoteStatus").value;
-  const validUntil = document.getElementById("validUntil").textContent;
-  const clientName = document.getElementById("clientName").value || "Client";
-  const clientEmail = document.getElementById("clientEmail").value;
-
-  doc.setFontSize(11);
-  doc.text(`Status: ${status}`, marginLeft, y); y += 6;
-  doc.text(`Valid Until: ${validUntil}`, marginLeft, y); y += 6;
-  doc.text(`Client: ${clientName}`, marginLeft, y); y += 6;
-  if (clientEmail) { doc.text(`Email: ${clientEmail}`, marginLeft, y); y += 6; }
-
-  // === Table ===
-  const rows = [];
-  document.querySelectorAll("#itemsContainer tr").forEach((row) => {
-    const desc = row.querySelector(".desc")?.value || "";
-    const qty = row.querySelector(".qty")?.value || "0";
-    const price = row.querySelector(".price")?.value || "0.00";
-    const total = (parseFloat(qty) * parseFloat(price)).toFixed(2);
-    rows.push([desc, qty, `€ ${price}`, `€ ${total}`]);
+ document.getElementById("exportQuotePDF").addEventListener("click", () => {
+    if (typeof exportQuotePDF === "function") {
+      exportQuotePDF();
+    } else {
+      alert("PDF export is not available.");
+    }
   });
 
-  autoTable(doc, {
-    head: [["Description", "Qty", "Price", "Total"]],
-    body: rows,
-    startY: y + 4,
-    styles: { fontSize: 10 },
-    theme: "grid",
-    headStyles: { fillColor: [0, 122, 255] },
-  });
+  window.exportQuotePDF = function () {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  // === Totals & Notes ===
-  const total = document.getElementById("total")?.textContent || "0.00";
-  const note = document.getElementById("clientNote")?.value || "";
-  let endY = doc.lastAutoTable.finalY + 10;
+    const proUser = confirm("🛡️ Export without SmartWerk branding? (PRO only)");
+    const marginLeft = 14;
+    let y = 20;
 
-  doc.setFontSize(12).text(`💰 Total: € ${total}`, marginLeft, endY);
-  endY += 8;
+    // Заголовок
+    doc.setFontSize(20).setTextColor(40).text("📄 Quote / Offer", marginLeft, y);
+    y += 10;
 
-  if (note) {
-    doc.setFontSize(11).text("Note to client:", marginLeft, endY);
-    endY += 6;
-    const noteLines = doc.splitTextToSize(note, 180);
-    doc.setFontSize(10).text(noteLines, marginLeft, endY);
-    endY += noteLines.length * 5 + 4;
-  }
+    const status = document.getElementById("quoteStatus").value;
+    const validUntil = document.getElementById("validUntil").textContent;
+    const clientName = document.getElementById("clientName").value || "Client";
+    const clientEmail = document.getElementById("clientEmail").value;
 
-  // === Signatures ===
-  const signer = document.getElementById("signatureName")?.value || "";
-  const clientSig = document.getElementById("clientSignature")?.value || "";
-  const date = document.getElementById("signatureDate")?.textContent || "";
+    doc.setFontSize(11);
+    doc.text(`Status: ${status}`, marginLeft, y); y += 6;
+    doc.text(`Valid Until: ${validUntil}`, marginLeft, y); y += 6;
+    doc.text(`Client: ${clientName}`, marginLeft, y); y += 6;
+    if (clientEmail) { doc.text(`Email: ${clientEmail}`, marginLeft, y); y += 6; }
 
-  endY += 10;
-  doc.setFontSize(11).text("✍️ Signatures:", marginLeft, endY); endY += 6;
-  doc.setFontSize(10);
-  doc.text(`Business: ${signer}`, marginLeft, endY); endY += 5;
-  doc.text(`Client: ${clientSig}`, marginLeft, endY); endY += 5;
-  doc.text(`Date: ${date}`, marginLeft, endY); endY += 5;
+    // Таблиця
+    const rows = [];
+    document.querySelectorAll("#itemsContainer tr").forEach((row) => {
+      const desc = row.querySelector(".desc")?.value || "";
+      const qty = row.querySelector(".qty")?.value || "0";
+      const price = row.querySelector(".price")?.value || "0.00";
+      const total = (parseFloat(qty) * parseFloat(price)).toFixed(2);
+      rows.push([desc, qty, `€ ${price}`, `€ ${total}`]);
+    });
 
-  // === Branding / Footer ===
-  if (!proUser) {
+    autoTable(doc, {
+      head: [["Description", "Qty", "Price", "Total"]],
+      body: rows,
+      startY: y + 4,
+      styles: { fontSize: 10 },
+      theme: "grid",
+      headStyles: { fillColor: [0, 122, 255] },
+    });
+
+    // Підсумки та нотатка
+    const total = document.getElementById("total")?.textContent || "0.00";
+    const note = document.getElementById("clientNote")?.value || "";
+    let endY = doc.lastAutoTable.finalY + 10;
+
+    doc.setFontSize(12).text(`💰 Total: € ${total}`, marginLeft, endY);
+    endY += 8;
+
+    if (note) {
+      doc.setFontSize(11).text("Note to client:", marginLeft, endY);
+      endY += 6;
+      const noteLines = doc.splitTextToSize(note, 180);
+      doc.setFontSize(10).text(noteLines, marginLeft, endY);
+      endY += noteLines.length * 5 + 4;
+    }
+
+    // Підписи
+    const signer = document.getElementById("signatureName")?.value || "";
+    const clientSig = document.getElementById("clientSignature")?.value || "";
+    const date = document.getElementById("signatureDate")?.textContent || "";
+
+    endY += 10;
+    doc.setFontSize(11).text("✍️ Signatures:", marginLeft, endY); endY += 6;
     doc.setFontSize(10);
-    doc.setTextColor(160);
-    doc.line(marginLeft, 285, 200, 285);
-    doc.text("Generated by SmartWerk • smartwerk.nl", marginLeft, 291);
-  }
+    doc.text(`Business: ${signer}`, marginLeft, endY); endY += 5;
+    doc.text(`Client: ${clientSig}`, marginLeft, endY); endY += 5;
+    doc.text(`Date: ${date}`, marginLeft, endY); endY += 5;
 
-  // === Save File ===
-  const fileName = `Quote-${clientName.replace(/\s+/g, "_")}.pdf`;
-  doc.save(fileName);
-};
+    // Footer / Branding
+    if (!proUser) {
+      doc.setFontSize(10);
+      doc.setTextColor(160);
+      doc.line(marginLeft, 285, 200, 285);
+      doc.text("Generated by SmartWerk • smartwerk.nl", marginLeft, 291);
+    }
+
+    // Save
+    const fileName = `Quote-${clientName.replace(/\s+/g, "_")}.pdf`;
+    doc.save(fileName);
+  };
 </script>
  
  
