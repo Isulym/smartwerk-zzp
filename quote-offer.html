@@ -102,6 +102,13 @@
        <button type="button" id="exportQuotePDF" class="btn">📄 Export PDF</button>
         <button type="button" class="btn ghost" id="aiDraftBtn">⚡ AI Draft</button>
       </div>
+
+      <div class="form-section">
+  <label>
+    <input type="checkbox" id="togglePro" />
+    Enable PRO (no branding in PDF)
+  </label>
+</div>
     </form>
 
     <footer class="foot-note">
@@ -516,8 +523,17 @@ function currencySymbol(code) {
   }
 }
 
-    document.addEventListener("DOMContentLoaded", () => {
+   document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("exportQuotePDF").addEventListener("click", exportQuotePDF);
+
+  // ✅ PRO toggle switch — зберігає в localStorage
+  const togglePro = document.getElementById("togglePro");
+  if (togglePro) {
+    togglePro.checked = localStorage.getItem("proUser") === "true";
+    togglePro.addEventListener("change", (e) => {
+      localStorage.setItem("proUser", e.target.checked ? "true" : "false");
+    });
+  }
 });
     
  </script>
