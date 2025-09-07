@@ -107,6 +107,25 @@
     </footer>
   </div>
 
+  <section id="savedQuotesSection" class="form-section">
+  <h2>📁 Saved Quotes</h2>
+  <table id="savedQuotesTable">
+    <thead>
+      <tr>
+        <th>Quote No</th>
+        <th>Client</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="savedQuotesBody">
+      <!-- Dynamically filled -->
+    </tbody>
+  </table>
+</section>
+
   <script>
   // ✅ quote-offer.js — повна логіка SmartWerk Quote / Offer
 
@@ -381,6 +400,87 @@ window.exportQuotePDF = function () {
   const fileName = `Quote-${clientName.replace(/\s+/g, "_")}.pdf`;
   doc.save(fileName);
 };
+
+    function loadSavedQuotes() {
+  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+  const tbody = document.getElementById("savedQuotesBody");
+  tbody.innerHTML = "";
+
+  saved.forEach((quote, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${quote.quoteNumber}</td>
+      <td>${quote.clientName}</td>
+      <td>${quote.validUntil}</td>
+      <td>${quote.quoteStatus}</td>
+      <td>${quote.total}</td>
+      <td>
+        <button class="btn small" onclick="viewQuote(${index})">🔍 View</button>
+        <button class="btn small" onclick="editQuote(${index})">✏️ Edit</button>
+        <button class="btn small danger" onclick="deleteQuote(${index})">🗑️ Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+window.viewQuote = function(index) {
+  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+  const quote = saved[index];
+  alert(`Quote for ${quote.clientName}\nTotal: ${quote.total}\nStatus: ${quote.quoteStatus}`);
+};
+
+window.editQuote = function(index) {
+  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+  const quote = saved[index];
+
+  if (quote.quoteStatus !== "draft") {
+    alert("⚠️ Only Draft quotes can be edited.");
+    return;
+  }
+
+  // Clear current form
+  document.getElementById("quoteForm").reset();
+  document.getElementById("itemsContainer").innerHTML = "";
+
+  // Restore values
+  document.getElementById("quoteNumber").value = quote.quoteNumber;
+  document.getElementById("businessName").value = quote.businessName;
+  document.getElementById("businessKvK").value = quote.businessKvK;
+  document.getElementById("businessVAT").value = quote.businessVAT;
+  document.getElementById("businessIBAN").value = quote.businessIBAN;
+  document.getElementById("businessPhone").value = quote.businessPhone;
+  document.getElementById("businessAddress").value = quote.businessAddress;
+  document.getElementById("clientName").value = quote.clientName;
+  document.getElementById("clientEmail").value = quote.clientEmail;
+  document.getElementById("clientPhone").value = quote.clientPhone;
+  document.getElementById("clientAddress").value = quote.clientAddress;
+  document.getElementById("currency").value = quote.currency;
+  document.getElementById("quoteStatus").value = quote.quoteStatus;
+  document.getElementById("clientNote").value = quote.note;
+  document.getElementById("signatureName").value = quote.signatureName;
+  document.getElementById("clientSignature").value = quote.clientSignature;
+  document.getElementById("signatureDate").textContent = quote.signatureDate;
+  document.getElementById("validUntil").textContent = quote.validUntil;
+
+  quote.items.forEach(item => {
+    addItem(item.desc, item.qty, item.price);
+  });
+
+  calculateTotals();
+  updateStatusColor();
+};
+
+window.deleteQuote = function(index) {
+  if (!confirm("❌ Are you sure you want to delete this quote?")) return;
+  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+  saved.splice(index, 1);
+  localStorage.setItem("savedQuotes", JSON.stringify(saved));
+  loadSavedQuotes();
+};
+
+// Load on page ready
+document.addEventListener("DOMContentLoaded", loadSavedQuotes);
 
  
  
