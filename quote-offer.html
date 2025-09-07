@@ -357,104 +357,120 @@ document.getElementById("exportQuotePDF")?.addEventListener("click", () => {
 });
 
 // === PDF логіка ===
-// === SmartWerk PDF Export for Quote / Offer ===
 window.exportQuotePDF = function () {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const margin = 40;
+  let y = margin;
 
-  const proUser = confirm("🛡️ Export without SmartWerk branding? (PRO only)");
-  const marginLeft = 20;
-  let y = 20;
+  const quoteNo = document.getElementById("quoteNumber")?.value || "QUOTE";
+  const business = {
+    name: document.getElementById("businessName")?.value || "",
+    kvk: document.getElementById("businessKvK")?.value || "",
+    vat: document.getElementById("businessVAT")?.value || "",
+    iban: document.getElementById("businessIBAN")?.value || "",
+    phone: document.getElementById("businessPhone")?.value || "",
+    address: document.getElementById("businessAddress")?.value || ""
+  };
+  const client = {
+    name: document.getElementById("clientName")?.value || "",
+    email: document.getElementById("clientEmail")?.value || "",
+    phone: document.getElementById("clientPhone")?.value || "",
+    address: document.getElementById("clientAddress")?.value || ""
+  };
 
-  // === Заголовок ===
-  doc.setFontSize(18).text("Quote / Offer", marginLeft, y);
-  y += 10;
-
-  const quoteNumber = document.getElementById("quoteNumber")?.value || "";
-  const validUntil = document.getElementById("validUntil")?.textContent || "";
-  const clientName = document.getElementById("clientName")?.value || "";
-  const clientEmail = document.getElementById("clientEmail")?.value || "";
   const currency = document.getElementById("currency")?.value || "EUR";
+  const validUntil = document.getElementById("validUntil")?.textContent || "";
+  const note = document.getElementById("clientNote")?.value || "";
+  const signer = document.getElementById("signatureName")?.value || "";
+  const clientSig = document.getElementById("clientSignature")?.value || "";
+  const signatureDate = document.getElementById("signatureDate")?.textContent || "";
 
-  doc.setFontSize(11);
-  doc.text(`Quote No: ${quoteNumber}`, marginLeft, y); y += 6;
-  doc.text(`Valid Until: ${validUntil}`, marginLeft, y); y += 6;
-  doc.text(`Client: ${clientName}`, marginLeft, y); y += 6;
-  if (clientEmail) {
-    doc.text(`Email: ${clientEmail}`, marginLeft, y); y += 6;
-  }
+  // === Header ===
+  doc.setFont("helvetica", "bold").setFontSize(18).text("QUOTE / OFFER", margin, y);
+  y += 30;
 
-  y += 4;
+  // === From / To Info ===
+  doc.setFont("helvetica", "bold").setFontSize(11).text("From:", margin, y);
+  doc.setFont("helvetica", "normal").setFontSize(10);
+  doc.text(`${business.name}\n${business.address}\nKVK: ${business.kvk}\nVAT: ${business.vat}\nIBAN: ${business.iban}\nPhone: ${business.phone}`, margin, y + 15);
+  
+  doc.setFont("helvetica", "bold").text("To:", 300, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(`${client.name}\n${client.address}\nEmail: ${client.email}\nPhone: ${client.phone}`, 300, y + 15);
+  
+  y += 110;
 
-  // === Таблиця сервісів ===
-  const rows = [];
-  document.querySelectorAll("#itemsContainer tr").forEach((row) => {
+  // === Quote Info ===
+  doc.setFont("helvetica", "normal").setFontSize(10);
+  doc.text(`Quote No: ${quoteNo}`, margin, y); y += 15;
+  doc.text(`Valid Until: ${validUntil}`, margin, y); y += 25;
+
+  // === Services Table ===
+  const items = [];
+  document.querySelectorAll("#itemsContainer tr").forEach(row => {
     const desc = row.querySelector(".desc")?.value || "";
     const qty = row.querySelector(".qty")?.value || "0";
     const price = row.querySelector(".price")?.value || "0.00";
     const total = (parseFloat(qty) * parseFloat(price)).toFixed(2);
-    rows.push([desc, qty, `€ ${price}`, `€ ${total}`]);
+    items.push([desc, qty, `€ ${price}`, `€ ${total}`]);
   });
 
-  if (rows.length > 0) {
+  if (items.length) {
     doc.autoTable({
-      head: [["Description", "Qty", "Price", "Total"]],
-      body: rows,
       startY: y,
-      styles: { fontSize: 10 },
+      head: [["Description", "Qty", "Price", "Total"]],
+      body: items,
       theme: "grid",
+      styles: { fontSize: 10 },
       headStyles: { fillColor: [0, 122, 255], textColor: 255 },
+      margin: { left: margin, right: margin }
     });
-    y = doc.lastAutoTable.finalY + 10;
+    y = doc.lastAutoTable.finalY + 20;
   }
 
-  // === Підсумки ===
-  const subtotal = document.getElementById("subtotal")?.textContent || "0.00";
-  const vat = document.getElementById("vat")?.textContent || "0.00";
-  const total = document.getElementById("total")?.textContent || "0.00";
+  // === Totals Summary ===
+  const subtotal = document.getElementById("subtotal")?.textContent || "€0.00";
+  const vat = document.getElementById("vat")?.textContent || "€0.00";
+  const total = document.getElementById("total")?.textContent || "€0.00";
 
-  doc.setFontSize(11);
-  doc.text(`Subtotal: € ${subtotal}`, marginLeft, y); y += 6;
-  doc.text(`VAT (21%): € ${vat}`, marginLeft, y); y += 6;
-  doc.text(`Total: € ${total}`, marginLeft, y); y += 6;
-  doc.text(`Currency: ${currency}`, marginLeft, y); y += 10;
+  doc.setFont("helvetica", "normal").setFontSize(10);
+  doc.text(`Subtotal: ${subtotal}`, margin, y); y += 15;
+  doc.text(`VAT (21%): ${vat}`, margin, y); y += 15;
+  doc.text(`Total: ${total}`, margin, y); y += 25;
+  doc.text(`Currency: ${currency}`, margin, y); y += 25;
 
-  // === Примітка до клієнта ===
-  const note = document.getElementById("clientNote")?.value || "";
+  // === Note to Client ===
   if (note) {
-    doc.setFontSize(11).text("Note to Client:", marginLeft, y);
-    const lines = doc.splitTextToSize(note, 170);
-    doc.setFontSize(10).text(lines, marginLeft, y + 6);
-    y += lines.length * 5 + 10;
+    doc.setFont("helvetica", "bold").text("Note to Client:", margin, y);
+    doc.setFont("helvetica", "normal");
+    const noteLines = doc.splitTextToSize(note, 500);
+    doc.text(noteLines, margin, y + 15);
+    y += noteLines.length * 13 + 20;
   }
 
   // === Signatures ===
-  const signer = document.getElementById("signatureName")?.value || "";
-  const clientSig = document.getElementById("clientSignature")?.value || "";
-  const date = document.getElementById("signatureDate")?.textContent || "";
+  doc.setFont("helvetica", "bold").text("Signatures:", margin, y); y += 15;
+  doc.setDrawColor(0).line(margin, y, margin + 200, y); // Business Line
+  doc.line(margin + 250, y, margin + 450, y);           // Client Line
+  y += 12;
+  doc.setFont("helvetica", "normal").setFontSize(9);
+  doc.text(`Business: ${signer}`, margin, y);
+  doc.text(`Client: ${clientSig}`, margin + 250, y);
+  y += 12;
+  doc.text(`Date: ${signatureDate}`, margin, y); y += 25;
 
-  doc.setFontSize(11).text("Signatures:", marginLeft, y); y += 6;
-  doc.setFontSize(10);
-  doc.text(`Business: ${signer}`, marginLeft, y); y += 5;
-  doc.text(`Client: ${clientSig}`, marginLeft, y); y += 5;
-  if (date) {
-    doc.text(`Date: ${date}`, marginLeft, y); y += 6;
+  // === Footer ===
+  const isPro = confirm("🛡️ Export without SmartWerk branding? (PRO only)");
+  if (!isPro) {
+    doc.setDrawColor(200).line(margin, 800, 575, 800);
+    doc.setFontSize(9).setTextColor(150);
+    doc.text("Generated by SmartWerk • smartwerk.nl", margin, 815);
   }
 
-  // === Брендинг ===
-  if (!proUser) {
-    doc.setDrawColor(220);
-    doc.line(marginLeft, 285, 200, 285);
-    doc.setFontSize(9);
-    doc.setTextColor(160);
-    doc.text("Generated by SmartWerk • smartwerk.nl", marginLeft, 291);
-  }
-
-  // === Збереження ===
-  const fileName = `Quote-${quoteNumber || clientName.replace(/\s+/g, "_")}.pdf`;
-  doc.save(fileName);
+  // === Save PDF ===
+  doc.save(`Quote-${quoteNo}.pdf`);
 };
-
 function currencySymbol(currency) {
   switch (currency) {
     case "EUR": return "€";
