@@ -207,24 +207,32 @@ document.addEventListener("DOMContentLoaded", () => {
     signatureName.disabled = locked;
   }
 
-  function addItem(desc = "", qty = 1, price = 0.0) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><input type="text" class="desc" value="${desc}" /></td>
-      <td><input type="number" class="qty" value="${qty}" min="1" /></td>
-      <td><input type="number" class="price" value="${price}" step="0.01" /></td>
-      <td class="rowTotal">0.00</td>
-      <td><button type="button" class="remove-btn">×</button></td>
-    `;
+function addItem(desc = "", qty = 1, price = 0.0) {
+  // Форс конвертація значень
+  qty = parseFloat(qty) || 1;
+  price = parseFloat(price) || 0.0;
 
-    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", calculateTotals));
-    tr.querySelector(".remove-btn").addEventListener("click", () => {
-      tr.remove();
-      calculateTotals();
-    });
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input type="text" class="desc" value="${desc}" /></td>
+    <td><input type="number" class="qty" value="${qty}" min="1" /></td>
+    <td><input type="number" class="price" value="${price}" step="0.01" /></td>
+    <td class="rowTotal">0.00</td>
+    <td><button type="button" class="remove-btn">×</button></td>
+  `;
 
-    itemsContainer.appendChild(tr);
-  }
+  tr.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", calculateTotals);
+  });
+
+  tr.querySelector(".remove-btn").addEventListener("click", () => {
+    tr.remove();
+    calculateTotals();
+  });
+
+  itemsContainer.appendChild(tr);
+  calculateTotals(); // автоматичний перерахунок після додавання
+}
 
   function calculateTotals() {
     const currency = currencySelect.value;
