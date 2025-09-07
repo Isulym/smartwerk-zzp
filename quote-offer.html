@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk — Quote / Offer</title>
   <link rel="stylesheet" href="style-quote-offer.css" />
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <div class="wrap">
@@ -290,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.exportQuotePDF = function () {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    window.jspdf.autotable = window.jspdf.autotable || window.jspdf.jsPDF.API.autoTable;
 
     const proUser = confirm("🛡️ Export without SmartWerk branding? (PRO only)");
     const marginLeft = 14;
@@ -320,7 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
       rows.push([desc, qty, `€ ${price}`, `€ ${total}`]);
     });
 
-    autoTable(doc, {
+    doc.autoTable({
       head: [["Description", "Qty", "Price", "Total"]],
       body: rows,
       startY: y + 4,
