@@ -106,235 +106,174 @@
   </div>
 
   <script>
-    // Дата підпису
-    document.getElementById("signatureDate").textContent = new Date().toLocaleDateString();
+  // ✅ quote-offer.js — повна логіка SmartWerk Quote / Offer
 
-    // Статус-мітка
-    const statusSelect = document.getElementById("quoteStatus");
-    const statusBadge = document.getElementById("statusBadge");
-    const updateStatusColor = () => {
-      const val = statusSelect.value;
-      statusBadge.textContent = `● ${val.charAt(0).toUpperCase() + val.slice(1)}`;
-      statusBadge.className = "status-badge " + val;
-    };
-    statusSelect.addEventListener("change", updateStatusColor);
-    updateStatusColor(); // on load
+document.addEventListener("DOMContentLoaded", () => {
+  // === Елементи ===
+  const form = document.getElementById("quoteForm");
+  const addItemBtn = document.getElementById("addItemBtn");
+  const itemsContainer = document.getElementById("itemsContainer");
+  const subtotalEl = document.getElementById("subtotal");
+  const vatEl = document.getElementById("vat");
+  const totalEl = document.getElementById("total");
+  const quoteNumber = document.getElementById("quoteNumber");
+  const quoteStatus = document.getElementById("quoteStatus");
+  const statusBadge = document.getElementById("statusBadge");
+  const signatureName = document.getElementById("signatureName");
+  const currencySelect = document.getElementById("currency");
 
-    // Валід до
-    const validUntil = new Date();
-    validUntil.setDate(validUntil.getDate() + 14);
-    document.getElementById("validUntil").textContent = validUntil.toLocaleDateString();
+  // === Init ===
+  setValidUntil();
+  autoGenerateQuoteNumber();
+  updateStatusColor();
+  restoreSavedState();
+  addItem();
+  calculateTotals();
 
-// ========== DOM Elements ==========
-const addItemBtn = document.getElementById("addItemBtn");
-const itemsContainer = document.getElementById("itemsContainer");
-const subtotalEl = document.getElementById("subtotal");
-const vatEl = document.getElementById("vat");
-const totalEl = document.getElementById("total");
-const aiDraftBtn = document.getElementById("aiDraftBtn");
-const generatePDFBtn = document.getElementById("generatePDFBtn");
-const quoteForm = document.getElementById("quoteForm");
-const signatureName = document.getElementById("signatureName");
-const quoteStatus = document.getElementById("quoteStatus");
-
-// ========== Utility Functions ==========
-function createItemRow(desc = "", qty = 1, price = 0.00) {
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td><input type="text" class="desc" value="${desc}" /></td>
-    <td><input type="number" class="qty" value="${qty}" min="1" /></td>
-    <td><input type="number" class="price" value="${price}" step="0.01" /></td>
-    <td class="rowTotal">0.00</td>
-    <td><button type="button" class="remove-btn">×</button></td>
-  `;
-
-  // Events
-  tr.querySelectorAll("input").forEach(input => {
-    input.addEventListener("input", calculateTotals);
-  });
-
-  tr.querySelector(".remove-btn").addEventListener("click", () => {
-    tr.remove();
+  // === Events ===
+  addItemBtn.addEventListener("click", () => {
+    addItem();
     calculateTotals();
   });
 
-  return tr;
-}
-
-function calculateTotals() {
-  let subtotal = 0;
-  document.querySelectorAll("#itemsContainer tr").forEach(row => {
-    const qty = parseFloat(row.querySelector(".qty").value) || 0;
-    const price = parseFloat(row.querySelector(".price").value) || 0;
-    const total = qty * price;
-    row.querySelector(".rowTotal").textContent = total.toFixed(2);
-    subtotal += total;
+  quoteStatus.addEventListener("change", () => {
+    updateStatusColor();
+    lockSignature();
   });
-  const vat = subtotal * 0.21;
-  const grandTotal = subtotal + vat;
 
-  subtotalEl.textContent = subtotal.toFixed(2);
-  vatEl.textContent = vat.toFixed(2);
-  totalEl.textContent = grandTotal.toFixed(2);
-}
+  currencySelect.addEventListener("change", calculateTotals);
 
-// ========== Events ==========
-addItemBtn.addEventListener("click", () => {
-  const row = createItemRow();
-  itemsContainer.appendChild(row);
-  calculateTotals();
-});
-
-aiDraftBtn.addEventListener("click", () => {
-  const examples = [
-    ["Website Design", 1, 750],
-    ["SEO Optimization", 1, 250],
-    ["Content Setup", 1, 150]
-  ];
-  itemsContainer.innerHTML = "";
-  examples.forEach(([desc, qty, price]) => {
-    const row = createItemRow(desc, qty, price);
-    itemsContainer.appendChild(row);
+  document.getElementById("aiDraftBtn")?.addEventListener("click", () => {
+    const examples = [
+      ["Design Website", 1, 750],
+      ["SEO Optimization", 1, 200],
+      ["Hosting Setup", 1, 100]
+    ];
+    itemsContainer.innerHTML = "";
+    examples.forEach(([desc, qty, price]) => addItem(desc, qty, price));
+    calculateTotals();
   });
-  calculateTotals();
-});
 
-generatePDFBtn.addEventListener("click", () => {
-  if (typeof exportQuotePDF === "function") {
-    exportQuotePDF();
-  } else {
-    alert("PDF export not available.");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveQuoteToLocalStorage();
+    alert("✅ Quote saved successfully!");
+  });
+
+  // === Functions ===
+  function setValidUntil() {
+    const validDate = new Date();
+    validDate.setDate(validDate.getDate() + 14);
+    document.getElementById("validUntil").textContent = validDate.toLocaleDateString();
   }
-});
 
-// ========== Save to LocalStorage ==========
-quoteForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+  function autoGenerateQuoteNumber() {
+    if (quoteNumber.value.trim()) return;
+    const year = new Date().getFullYear();
+    let counter = parseInt(localStorage.getItem("quoteCounter") || "1");
+    quoteNumber.value = `QUOTE-${year}-${String(counter).padStart(3, "0")}`;
+    localStorage.setItem("quoteCounter", counter + 1);
+  }
 
-  const quote = {
-    businessName: document.getElementById("businessName").value,
-    businessKvK: document.getElementById("businessKvK").value,
-    businessVAT: document.getElementById("businessVAT").value,
-    businessIBAN: document.getElementById("businessIBAN").value,
-    clientName: document.getElementById("clientName").value,
-    clientEmail: document.getElementById("clientEmail").value,
-    services: [],
-    note: document.getElementById("clientNote").value,
-    signature: signatureName.value,
-    status: quoteStatus.value,
-    validUntil: document.getElementById("validUntil").textContent,
-    total: totalEl.textContent
-  };
+  function updateStatusColor() {
+    const val = quoteStatus.value;
+    statusBadge.textContent = `● ${val.charAt(0).toUpperCase() + val.slice(1)}`;
+    statusBadge.className = "status-badge " + val;
+  }
 
-  document.querySelectorAll("#itemsContainer tr").forEach(row => {
-    quote.services.push({
-      desc: row.querySelector(".desc").value,
-      qty: row.querySelector(".qty").value,
-      price: row.querySelector(".price").value
+  function lockSignature() {
+    const locked = ["sent", "accepted"].includes(quoteStatus.value);
+    signatureName.disabled = locked;
+  }
+
+  function addItem(desc = "", qty = 1, price = 0.0) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" class="desc" value="${desc}" /></td>
+      <td><input type="number" class="qty" value="${qty}" min="1" /></td>
+      <td><input type="number" class="price" value="${price}" step="0.01" /></td>
+      <td class="rowTotal">0.00</td>
+      <td><button type="button" class="remove-btn">×</button></td>
+    `;
+
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", calculateTotals));
+    tr.querySelector(".remove-btn").addEventListener("click", () => {
+      tr.remove();
+      calculateTotals();
     });
-  });
 
-  const savedQuotes = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-  savedQuotes.push(quote);
-  localStorage.setItem("savedQuotes", JSON.stringify(savedQuotes));
-  alert("✅ Quote saved successfully!");
-});
-
-// ========== Lock Signature if Sent or Accepted ==========
-quoteStatus.addEventListener("change", () => {
-  const locked = ["sent", "accepted"].includes(quoteStatus.value);
-  signatureName.disabled = locked;
-});
-
-// ========== Init ==========
-window.addEventListener("DOMContentLoaded", () => {
-  const defaultRow = createItemRow();
-  itemsContainer.appendChild(defaultRow);
-  calculateTotals();
-
-  // Set validUntil
-  const validDate = new Date();
-  validDate.setDate(validDate.getDate() + 14);
-  document.getElementById("validUntil").textContent = validDate.toLocaleDateString();
-
-  // Apply lock logic
-  const locked = ["sent", "accepted"].includes(quoteStatus.value);
-  signatureName.disabled = locked;
-});
-
-    import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
-import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.min.js";
-
-window.exportQuotePDF = function () {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // ==== Основна інформація ====
-  const businessName = document.getElementById("businessName").value || "SmartWerk User";
-  const clientName = document.getElementById("clientName").value || "Client";
-  const clientEmail = document.getElementById("clientEmail").value || "";
-  const note = document.getElementById("clientNote").value || "";
-  const status = document.getElementById("quoteStatus").value || "Draft";
-  const validUntil = document.getElementById("validUntil").textContent || "";
-
-  const totalValue = document.getElementById("total").textContent || "0.00";
-
-  // ==== Таблиця послуг ====
-  const rows = [];
-  document.querySelectorAll("#itemsContainer tr").forEach((row) => {
-    const desc = row.querySelector(".desc").value;
-    const qty = row.querySelector(".qty").value;
-    const price = row.querySelector(".price").value;
-    const total = (parseFloat(qty) * parseFloat(price)).toFixed(2);
-    rows.push([desc, qty, `€ ${price}`, `€ ${total}`]);
-  });
-
-  // ==== Заголовок ====
-  doc.setFontSize(18);
-  doc.setTextColor(40);
-  doc.text("📄 Quote / Offer", 14, 20);
-
-  doc.setFontSize(11);
-  doc.text(`Status: ${status}`, 14, 28);
-  doc.text(`Valid until: ${validUntil}`, 14, 34);
-  doc.text(`To: ${clientName}`, 14, 40);
-  if (clientEmail) doc.text(`Email: ${clientEmail}`, 14, 46);
-
-  // ==== Таблиця ====
-  autoTable(doc, {
-    head: [["Description", "Qty", "Price", "Total"]],
-    body: rows,
-    startY: 54,
-    theme: "grid",
-    styles: { fontSize: 10 },
-  });
-
-  // ==== Підсумок ====
-  const endY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(12);
-  doc.text(`Total: € ${totalValue}`, 14, endY);
-
-  // ==== Нотатка ====
-  if (note) {
-    doc.setFontSize(11);
-    doc.text("Note to client:", 14, endY + 10);
-    doc.setFontSize(10);
-    const splitNote = doc.splitTextToSize(note, 180);
-    doc.text(splitNote, 14, endY + 16);
+    itemsContainer.appendChild(tr);
   }
 
-  // ==== Футер ====
-  doc.setFontSize(10);
-  doc.setTextColor(150);
-  doc.text("Generated by SmartWerk Quote Tool — smartwerk.nl", 14, 290);
+  function calculateTotals() {
+    const currency = currencySelect.value;
+    let subtotal = 0;
 
-  // ==== Збереження ====
-  const fileName = `Quote-${clientName.replace(/\s+/g, "_")}.pdf`;
-  doc.save(fileName);
-};
-    
-  </script>
+    document.querySelectorAll("#itemsContainer tr").forEach(row => {
+      const qty = parseFloat(row.querySelector(".qty").value) || 0;
+      const price = parseFloat(row.querySelector(".price").value) || 0;
+      const total = qty * price;
+      row.querySelector(".rowTotal").textContent = formatCurrency(total, currency);
+      subtotal += total;
+    });
 
+    const vat = subtotal * 0.21;
+    const grandTotal = subtotal + vat;
+
+    subtotalEl.textContent = formatCurrency(subtotal, currency);
+    vatEl.textContent = formatCurrency(vat, currency);
+    totalEl.textContent = formatCurrency(grandTotal, currency);
+  }
+
+  function formatCurrency(amount, currency) {
+    return new Intl.NumberFormat("en", {
+      style: "currency",
+      currency: currency
+    }).format(amount);
+  }
+
+  function saveQuoteToLocalStorage() {
+    const quote = {
+      quoteNumber: quoteNumber.value,
+      businessName: document.getElementById("businessName").value,
+      businessKvK: document.getElementById("businessKvK").value,
+      businessVAT: document.getElementById("businessVAT").value,
+      businessIBAN: document.getElementById("businessIBAN").value,
+      businessPhone: document.getElementById("businessPhone").value,
+      businessAddress: document.getElementById("businessAddress").value,
+      clientName: document.getElementById("clientName").value,
+      clientEmail: document.getElementById("clientEmail").value,
+      clientPhone: document.getElementById("clientPhone").value,
+      clientAddress: document.getElementById("clientAddress").value,
+      currency: currencySelect.value,
+      validUntil: document.getElementById("validUntil").textContent,
+      quoteStatus: quoteStatus.value,
+      note: document.getElementById("clientNote").value,
+      signatureName: signatureName.value,
+      clientSignature: document.getElementById("clientSignature").value,
+      signatureDate: document.getElementById("signatureDate").textContent,
+      total: totalEl.textContent,
+      items: []
+    };
+
+    document.querySelectorAll("#itemsContainer tr").forEach(row => {
+      quote.items.push({
+        desc: row.querySelector(".desc").value,
+        qty: row.querySelector(".qty").value,
+        price: row.querySelector(".price").value
+      });
+    });
+
+    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+    saved.push(quote);
+    localStorage.setItem("savedQuotes", JSON.stringify(saved));
+  }
+
+  function restoreSavedState() {
+    // Можна доповнити логікою, якщо потрібно буде відновлення останнього чернеткового інвойсу
+  }
+});
+</script>
   <script type="module" src="quote-offer.js"></script>
   <script type="module" src="quote-offer-pdf.js"></script>
 </body>
