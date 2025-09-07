@@ -348,127 +348,122 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
     // === Export PDF кнопка ===
-document.getElementById('exportQuotePDF').addEventListener('click', exportQuotePDF);
+function exportQuotePDF(index = null) {
+  const isPro = localStorage.getItem('smartwerk_pro') === 'true'; // для брендування
 
-function exportQuotePDF() {
-  const {
-    jsPDF
-  } = window.jspdf;
   const doc = new jsPDF();
+  const quote = index !== null ? getSavedQuotes()[index] : getFormData();
 
-  const businessName = document.getElementById('businessName').value;
-  const businessAddress = document.getElementById('businessAddress').value;
-  const businessKvK = document.getElementById('businessKvK').value;
-  const businessVAT = document.getElementById('businessVAT').value;
-  const businessIBAN = document.getElementById('businessIBAN').value;
-  const businessPhone = document.getElementById('businessPhone').value;
+  const margin = 15;
+  let y = margin;
 
-  const clientName = document.getElementById('clientName').value;
-  const clientEmail = document.getElementById('clientEmail').value;
-  const clientPhone = document.getElementById('clientPhone').value;
-  const clientAddress = document.getElementById('clientAddress').value;
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Quote / Offer', margin, y);
+  y += 10;
 
-  const quoteNumber = document.getElementById('quoteNumber').value;
-  const validUntil = document.getElementById('validUntil').innerText;
-  const currency = document.getElementById('currency').value;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
 
-  const items = [...document.querySelectorAll('#itemsContainer tr')].map(row => {
-    const cells = row.querySelectorAll('td input');
-    return {
-      description: cells[0].value,
-      qty: cells[1].value,
-      price: cells[2].value,
-      total: (parseFloat(cells[1].value) * parseFloat(cells[2].value)).toFixed(2)
-    };
+  // FROM info
+  const fromText = [
+    `From:`,
+    `${quote.businessName}`,
+    `Address: ${quote.businessAddress}`,
+    `KVK: ${quote.businessKvK}`,
+    `VAT: ${quote.businessVat}`,
+    `IBAN: ${quote.businessIban}`,
+    `Phone: ${quote.businessPhone}`
+  ];
+
+  // TO info
+  const toText = [
+    `To:`,
+    `${quote.clientName}`,
+    `${quote.clientAddress}`,
+    `Email: ${quote.clientEmail}`,
+    `Phone: ${quote.clientPhone}`
+  ];
+
+  const maxY = Math.max(fromText.length, toText.length) * 5;
+  fromText.forEach((line, i) => {
+    doc.text(line, margin, y + i * 5);
+  });
+  toText.forEach((line, i) => {
+    doc.text(line, 105, y + i * 5); // right column
   });
 
-  const subtotal = document.getElementById('subtotal').innerText;
-  const vat = document.getElementById('vat').innerText;
-  const total = document.getElementById('total').innerText;
+  y += maxY + 5;
 
-  const note = document.getElementById('clientNote').value;
-  const signatureName = document.getElementById('signatureName').value;
-  const clientSignature = document.getElementById('clientSignature').value;
-  const signatureDate = document.getElementById('signatureDate').innerText;
+  // Quote details
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Quote No: ${quote.quoteNumber}`, margin, y);
+  doc.text(`Valid Until: ${quote.validUntil}`, margin, y + 6);
+  y += 14;
 
-  // FROM / TO layout
-  doc.setFontSize(11);
-  doc.text('From:', 15, 20);
-  doc.text(`${businessName}`, 15, 26);
-  if (businessAddress) doc.text(`Address: ${businessAddress}`, 15, 32);
-  if (businessKvK) doc.text(`KVK: ${businessKvK}`, 15, 38);
-  if (businessVAT) doc.text(`VAT: ${businessVAT}`, 15, 44);
-  if (businessIBAN) doc.text(`IBAN: ${businessIBAN}`, 15, 50);
-  if (businessPhone) doc.text(`Phone: ${businessPhone}`, 15, 56);
-
-  doc.text('To:', 140, 20);
-  doc.text(clientName, 140, 26);
-  if (clientAddress) doc.text(clientAddress, 140, 32);
-  if (clientEmail) doc.text(`Email: ${clientEmail}`, 140, 38);
-  if (clientPhone) doc.text(`Phone: ${clientPhone}`, 140, 44);
-
-  doc.setFontSize(12);
-  doc.text(`Quote No: ${quoteNumber}`, 15, 70);
-  doc.text(`Valid Until: ${validUntil}`, 15, 78);
-
-  // Table
-  const tableData = items.map(item => [
+  // Table of services
+  const tableBody = quote.services.map(item => [
     item.description,
-    `${currencySymbol(currency)} ${item.qty}`,
-    `${currencySymbol(currency)} ${item.price}`,
-    `${currencySymbol(currency)} ${item.total}`
+    `€ ${item.quantity}`,
+    `€ ${item.price}`,
+    `€ ${item.total}`
   ]);
 
   doc.autoTable({
-    startY: 85,
+    startY: y,
     head: [['Description', 'Qty', 'Price', 'Total']],
-    body: tableData,
-    theme: 'grid',
-    headStyles: {
-      fillColor: [63, 123, 255]
-    }
+    body: tableBody,
+    styles: { halign: 'center' },
+    headStyles: { fillColor: [41, 128, 185] },
+    margin: { left: margin, right: margin }
   });
 
-  const finalY = doc.lastAutoTable.finalY + 10;
+  y = doc.autoTable.previous.finalY + 8;
 
-  // Summary
-  doc.setFontSize(11);
-  doc.text(`Subtotal: ${subtotal}`, 15, finalY);
-  doc.text(`VAT (21%): ${vat}`, 15, finalY + 6);
-  doc.text(`Total: ${total}`, 15, finalY + 12);
-  doc.text(`Currency: ${currency}`, 15, finalY + 18);
+  // Totals
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Subtotal: €${quote.subtotal}`, 150, y, { align: 'right' }); y += 6;
+  doc.text(`VAT (${quote.vatRate}%): €${quote.vatAmount}`, 150, y, { align: 'right' }); y += 6;
+  doc.text(`Total: €${quote.total}`, 150, y, { align: 'right' }); y += 8;
+  doc.text(`Currency: ${quote.currency}`, 150, y, { align: 'right' }); y += 10;
 
   // Note
-  if (note) {
-    doc.setFont(undefined, 'bold');
-    doc.text('Note to Client:', 15, finalY + 30);
-    doc.setFont(undefined, 'normal');
-    doc.text(note, 15, finalY + 36);
+  if (quote.note) {
+    doc.setFont('helvetica', 'bold');
+    doc.text('Note to Client:', margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(quote.note, margin, y + 6);
+    y += 14;
   }
 
   // Signatures
-  doc.setFont(undefined, 'bold');
-  doc.text('Signatures:', 15, finalY + 48);
-  doc.setFont(undefined, 'normal');
-
-  doc.text(`Business: ${signatureName}`, 15, finalY + 55);
-  doc.text(`Client: ${clientSignature}`, 15, finalY + 61);
-  doc.text(`Date: ${signatureDate}`, 15, finalY + 67);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Signatures:', margin, y);
+  y += 10;
 
   // Signature lines
-  doc.line(15, finalY + 65, 80, finalY + 65); // Business line
-  doc.line(100, finalY + 65, 185, finalY + 65); // Client line
+  const sigLineY = y + 10;
+  doc.setDrawColor(0);
+  doc.line(margin, sigLineY, 80, sigLineY);     // Business
+  doc.line(120, sigLineY, 195, sigLineY);       // Client
 
-  // Branding (можна вимкнути в PRO)
-  const brandingEnabled = true; // змінюй на false для PRO
-  if (brandingEnabled) {
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Business: ${quote.businessSignature}`, margin, sigLineY + 6);
+  doc.text(`Client: ${quote.clientSignature}`, 120, sigLineY + 6);
+  doc.text(`Date: ${quote.signatureDate}`, margin, sigLineY + 12);
+  y = sigLineY + 20;
+
+  // Branding
+  if (isPro !== true) {
     doc.setFontSize(9);
     doc.setTextColor(150);
-    doc.text('Generated with SmartWerk — smartwerk.nl', 15, 285);
+    doc.text('Generated with SmartWerk — smartwerk.nl', 105, 285, { align: 'center' });
+    doc.setTextColor(0); // reset
   }
 
-  // Save
-  doc.save(`Quote-${quoteNumber}.pdf`);
+  // Save file
+  const filename = `Quote-${quote.quoteNumber}.pdf`;
+  doc.save(filename);
 }
 
 function currencySymbol(code) {
