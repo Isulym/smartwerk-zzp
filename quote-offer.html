@@ -97,7 +97,7 @@
       <div class="actions">
         <button type="submit" class="btn primary">💾 Save</button>
         <button type="button" class="btn" id="previewBtn">👁 Preview</button>
-       <button id="exportQuotePDF" class="btn">📄 Export PDF</button>
+       <button type="button" id="exportQuotePDF" class="btn">📄 Export PDF</button>
         <button type="button" class="btn ghost" id="aiDraftBtn">⚡ AI Draft</button>
       </div>
     </form>
@@ -484,6 +484,9 @@ function currencySymbol(code) {
   }
 }
 
+    document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("exportQuotePDF").addEventListener("click", exportQuotePDF);
+});
     
  </script>
  
