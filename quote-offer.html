@@ -354,12 +354,12 @@ function exportQuotePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const quoteNo = document.getElementById('quoteNo').value || '';
-  const validUntil = document.getElementById('validUntil').value || '';
+  const quoteNo = document.getElementById('quoteNumber')?.value || '';
+  const validUntil = document.getElementById('validUntil')?.textContent || '';
   const businessName = document.getElementById('businessName').value || '';
   const businessAddress = document.getElementById('businessAddress').value || '';
-  const businessKVK = document.getElementById('businessKVK').value || '';
-  const businessBTW = document.getElementById('businessBTW').value || '';
+  const businessKVK = document.getElementById('businessKvK')?.value || '';
+  const businessBTW = document.getElementById('businessVAT')?.value || '';
   const businessIBAN = document.getElementById('businessIBAN').value || '';
   const businessPhone = document.getElementById('businessPhone').value || '';
 
@@ -368,8 +368,8 @@ function exportQuotePDF() {
   const clientEmail = document.getElementById('clientEmail').value || '';
   const clientPhone = document.getElementById('clientPhone').value || '';
 
-  const noteToClient = document.getElementById('noteToClient').value || '';
-  const signatureBusiness = document.getElementById('signatureBusiness').value || '';
+  const noteToClient = document.getElementById('clientNote')?.value || '';
+  const signatureBusiness = document.getElementById('signatureName')?.value || '';
   const signatureClient = document.getElementById('signatureClient').value || '';
   const signatureDate = document.getElementById('signatureDate').value || '';
 
@@ -383,10 +383,10 @@ function exportQuotePDF() {
   const serviceRows = document.querySelectorAll('#servicesTable tbody tr');
   const serviceData = [];
   serviceRows.forEach(row => {
-    const description = row.querySelector('input[name="description"]').value;
-    const qty = row.querySelector('input[name="qty"]').value;
-    const price = row.querySelector('input[name="price"]').value;
-    const total = row.querySelector('.total-cell').innerText;
+   const description = row.querySelector('.desc')?.value || '';
+   const qty = row.querySelector('.qty')?.value || '';
+   const price = row.querySelector('.price')?.value || '';
+   const total = row.querySelector('.rowTotal')?.textContent || '';
     if (description) {
       serviceData.push([description, qty, `${symbol}${price}`, total]);
     }
