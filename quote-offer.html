@@ -438,20 +438,12 @@ window.viewQuote = function(index) {
   alert(`Quote for ${quote.clientName}\nTotal: ${quote.total}\nStatus: ${quote.quoteStatus}`);
 };
 
-window.editQuote = function(index) {
-  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-  const quote = saved[index];
+window.editQuote = function (index) {
+  const quotes = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+  const quote = quotes[index];
+  if (!quote) return;
 
-  if (quote.quoteStatus !== "draft") {
-    alert("⚠️ Only Draft quotes can be edited.");
-    return;
-  }
-
-  // Clear current form
-  document.getElementById("quoteForm").reset();
-  document.getElementById("itemsContainer").innerHTML = "";
-
-  // Restore static fields
+  // Заповнення всіх полів
   document.getElementById("quoteNumber").value = quote.quoteNumber;
   document.getElementById("businessName").value = quote.businessName;
   document.getElementById("businessKvK").value = quote.businessKvK;
@@ -464,21 +456,32 @@ window.editQuote = function(index) {
   document.getElementById("clientPhone").value = quote.clientPhone;
   document.getElementById("clientAddress").value = quote.clientAddress;
   document.getElementById("currency").value = quote.currency;
+  document.getElementById("validUntil").textContent = quote.validUntil;
   document.getElementById("quoteStatus").value = quote.quoteStatus;
   document.getElementById("clientNote").value = quote.note;
   document.getElementById("signatureName").value = quote.signatureName;
   document.getElementById("clientSignature").value = quote.clientSignature;
   document.getElementById("signatureDate").textContent = quote.signatureDate;
-  document.getElementById("validUntil").textContent = quote.validUntil;
 
-  // Restore service items
+  // Оновити мітку статусу
+  document.getElementById("statusBadge").textContent = `● ${quote.quoteStatus}`;
+  document.getElementById("statusBadge").className = `status-badge ${quote.quoteStatus}`;
+
+  // Відновлення item'ів
+  const itemsContainer = document.getElementById("itemsContainer");
+  itemsContainer.innerHTML = "";
   quote.items.forEach((item) => {
-    addItem(item.desc, item.qty, item.price);
+    const desc = item.desc || "";
+    const qty = parseFloat(item.qty) || 1;
+    const price = parseFloat(item.price) || 0.00;
+    addItem(desc, qty, price);
   });
 
+  // Перерахунок
   calculateTotals();
-  updateStatusColor();
-  lockSignature();
+
+  // Прокрутка до форми
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 window.deleteQuote = function(index) {
