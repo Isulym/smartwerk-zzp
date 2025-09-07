@@ -1,138 +1,115 @@
+/* вњ… SmartWerk Contract Template Styling (2-column layout) */
+
+:root {
+  --bg: #0e1014;
+  --panel: #1a1d27;
+  --text: #e0e6f0;
+  --muted: #9aa3b2;
+  --accent: #3b79ff;
+  --line: #2a2e3d;
+  --card: #181c2b;
+  --ok: #27c693;
+  --warn: #ffb020;
+  --err: #ff5470;
+}
+
 body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', sans-serif;
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 15px;
-  background-color: #f9f9f9;
-  color: #222;
+  padding: 0;
+  font-size: 14px;
 }
 
 .wrap {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: auto;
+  padding: 2rem;
 }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  background: #3b79ff;
-  padding: 10px 20px;
-  color: #fff;
-  align-items: center;
-  border-radius: 8px;
-  margin-bottom: 20px;
+h1, h2 {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
 }
 
-.topbar a.btn {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 6px 12px;
-  border-radius: 5px;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-h1 {
-  font-size: 22px;
-  margin-bottom: 5px;
-}
-
-.small-note {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 20px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.section {
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
-}
-
-.section h2 {
+h2 {
   font-size: 16px;
-  margin-bottom: 10px;
-  color: #3b79ff;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.3rem;
+  margin-top: 2rem;
 }
 
-.section input,
-.section textarea {
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+input[type="text"],
+textarea,
+select {
   width: 100%;
-  padding: 8px 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text);
+}
+
+textarea {
+  min-height: 80px;
   resize: vertical;
 }
 
-.btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 20px 0;
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
 }
 
-.btn-group button {
-  padding: 10px 16px;
-  font-size: 14px;
+.form-section {
+  background: var(--panel);
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+button, .btn {
+  background: var(--accent);
+  color: white;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background-color: #3b79ff;
-  color: #fff;
-  transition: 0.2s;
-}
-
-.btn-group button:hover {
-  background-color: #255edb;
-}
-
-#contractPreview {
-  white-space: pre-wrap;
-  background: #f1f1f1;
-  padding: 15px;
+  padding: 0.7rem 1.2rem;
+  font-weight: 600;
   border-radius: 8px;
-  font-size: 14px;
-  border: 1px dashed #bbb;
+  cursor: pointer;
+  margin-right: 0.5rem;
 }
 
-/* Grid structure: 2 columns */
-@media (min-width: 768px) {
-  .wrap > .section:nth-child(4),
-  .wrap > .section:nth-child(5),
-  .wrap > .section:nth-child(6),
-  .wrap > .section:nth-child(7),
-  .wrap > .section:nth-child(8),
-  .wrap > .section:nth-child(9) {
-    width: 48%;
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .wrap > .section:nth-child(4),
-  .wrap > .section:nth-child(5),
-  .wrap > .section:nth-child(6) {
-    margin-right: 4%;
-  }
+.btn.ghost {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
 }
 
-/* Responsive: 1 column on small screens */
-@media (max-width: 767px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .btn-group {
-    flex-direction: column;
-  }
+.btn.danger {
+  background: var(--err);
 }
 
+.actions {
+  grid-column: 1 / -1;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3rem;
+}
