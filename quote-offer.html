@@ -373,7 +373,7 @@ function exportQuotePDF() {
   const doc = new jsPDF();
 
   const quoteNo = document.getElementById('quoteNumber')?.value || '';
-  const validUntil = document.getElementById('validUntil')?.textContent || '';
+  const validUntil = document.getElementById('validUntil').textContent || '';
 
   const businessName = document.getElementById('businessName')?.value || '';
   const businessAddress = document.getElementById('businessAddress')?.value || '';
