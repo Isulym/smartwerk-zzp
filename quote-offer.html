@@ -22,7 +22,7 @@
         <span class="info-icon" title="A quote is a professional offer sent before an invoice.">ℹ️</span>
       </h1>
       <p class="muted">Use this tool to create a professional offer for your client before sending an invoice.</p>
-      <p class="quote-valid">🗓️ Valid until: <span id="validUntil"></span></p>
+     <p class="quote-valid">🗓️ Valid until: <span id="validUntilDisplay"></span></p>
     </section>
 
     <form id="quoteForm">
@@ -43,6 +43,7 @@
         <input type="text" id="clientPhone" placeholder="Client Phone (optional)" />
         <input type="text" id="clientAddress" placeholder="Client Address (optional)" />
         <input type="text" id="quoteNo" value="QUOTE-2025-030" hidden />
+        <input type="text" id="validUntil" value="21.09.2025" hidden />
        
       </div>
 
@@ -161,6 +162,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusBadge = document.getElementById("statusBadge");
   const signatureName = document.getElementById("signatureName");
   const currencySelect = document.getElementById("currency");
+
+    // === Calculate "Valid Until" in days ===
+  const validUntilRaw = document.getElementById("validUntil")?.value;
+  const validUntilDisplay = document.getElementById("validUntilDisplay");
+
+  if (validUntilRaw && validUntilDisplay) {
+    const today = new Date();
+    const validUntilDate = new Date(validUntilRaw.split(".").reverse().join("-")); // з "21.09.2025" до "2025-09-21"
+    const diffTime = validUntilDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays >= 0) {
+      validUntilDisplay.textContent = `${validUntilRaw} (in ${diffDays} days)`;
+    } else {
+      validUntilDisplay.textContent = `${validUntilRaw} (expired ${Math.abs(diffDays)} days ago)`;
+      validUntilDisplay.style.color = 'red';
+    }
+  }
 
   autoGenerateQuoteNumber();
   updateStatusColor();
@@ -538,6 +557,8 @@ function currencySymbol(code) {
   document.getElementById("exportQuotePDF").addEventListener("click", exportQuotePDF);
   document.getElementById("searchInput").addEventListener("input", applyFilters);
   document.getElementById("filterStatus").addEventListener("change", applyFilters);
+
+     
 
   // ✅ PRO toggle switch — зберігає в localStorage
   const togglePro = document.getElementById("togglePro");
