@@ -352,12 +352,12 @@ function exportQuotePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const quoteNo = document.getElementById('quoteNo').value || '';
-  const validUntil = document.getElementById('validUntil').value || '';
+  const quoteNo = document.getElementById('quoteNumber').value || '';
+  const validUntil = document.getElementById('validUntil').textContent || '';
   const businessName = document.getElementById('businessName').value || '';
   const businessAddress = document.getElementById('businessAddress').value || '';
-  const businessKVK = document.getElementById('businessKVK').value || '';
-  const businessBTW = document.getElementById('businessBTW').value || '';
+  const businessKVK = document.getElementById('businessKvK').value || '';
+  const businessBTW = document.getElementById('businessVAT').value || '';
   const businessIBAN = document.getElementById('businessIBAN').value || '';
   const businessPhone = document.getElementById('businessPhone').value || '';
 
@@ -366,35 +366,34 @@ function exportQuotePDF() {
   const clientEmail = document.getElementById('clientEmail').value || '';
   const clientPhone = document.getElementById('clientPhone').value || '';
 
-  const noteToClient = document.getElementById('noteToClient').value || '';
-  const signatureBusiness = document.getElementById('signatureBusiness').value || '';
-  const signatureClient = document.getElementById('signatureClient').value || '';
-  const signatureDate = document.getElementById('signatureDate').value || '';
+  const noteToClient = document.getElementById('clientNote').value || '';
+  const signatureBusiness = document.getElementById('signatureName').value || '';
+  const signatureClient = document.getElementById('clientSignature').value || '';
+  const signatureDate = document.getElementById('signatureDate').textContent || '';
 
-  const currency = document.getElementById('currency').value || 'EUR (€)';
-  const symbol = currency.includes('€') ? '€' : currency.includes('$') ? '$' : '';
+  const currency = document.getElementById('currency').value || 'EUR';
+  const symbol = currencySymbol(currency);
 
   const subtotal = document.getElementById('subtotal').innerText || '€0.00';
   const vat = document.getElementById('vat').innerText || '€0.00';
   const total = document.getElementById('total').innerText || '€0.00';
 
-  // Get service rows
-  const serviceRows = document.querySelectorAll('#servicesTable tbody tr');
-
+  // === Table Rows
+  const serviceRows = document.querySelectorAll('#itemsContainer tr');
   const serviceData = [];
   serviceRows.forEach(row => {
-    const description = row.querySelector('input[name="description"]').value;
-    const qty = row.querySelector('input[name="qty"]').value;
-    const price = row.querySelector('input[name="price"]').value;
-    const total = row.querySelector('.total-cell').innerText;
+    const description = row.querySelector('.desc').value;
+    const qty = row.querySelector('.qty').value;
+    const price = row.querySelector('.price').value;
+    const total = (parseFloat(qty) * parseFloat(price)).toFixed(2);
     if (description) {
-      serviceData.push([description, qty, `${symbol}${price}`, total]);
+      serviceData.push([description, qty, `${symbol}${price}`, `${symbol}${total}`]);
     }
   });
 
   let y = 15;
 
-  // FROM
+  // === FROM
   doc.setFontSize(10);
   doc.setFont(undefined, 'bold');
   doc.text('From:', 15, y);
@@ -406,7 +405,7 @@ function exportQuotePDF() {
   doc.text(`IBAN: ${businessIBAN}`, 15, y + 25);
   doc.text(`Phone: ${businessPhone}`, 15, y + 30);
 
-  // TO
+  // === TO
   doc.setFont(undefined, 'bold');
   doc.text('To:', 140, y);
   doc.setFont(undefined, 'normal');
@@ -417,13 +416,13 @@ function exportQuotePDF() {
 
   y += 45;
 
-  // Quote Info
+  // === Quote Info
   doc.setFontSize(12);
   doc.setFont(undefined, 'bold');
   doc.text(`Quote No: ${quoteNo}`, 15, y);
   doc.text(`Valid Until: ${validUntil}`, 15, y + 7);
 
-  // Services Table
+  // === Services Table
   y += 15;
   doc.autoTable({
     startY: y,
@@ -435,37 +434,41 @@ function exportQuotePDF() {
 
   let finalY = doc.lastAutoTable.finalY + 10;
 
-  // Summary
+  // === Summary
   doc.setFont(undefined, 'normal');
   doc.text(`Subtotal: ${subtotal}`, 15, finalY);
   doc.text(`VAT (21%): ${vat}`, 15, finalY + 6);
   doc.text(`Total: ${total}`, 15, finalY + 12);
   doc.text(`Currency: ${currency}`, 15, finalY + 18);
 
-  // Note
-  doc.setFont(undefined, 'bold');
-  doc.text('Note to Client:', 15, finalY + 28);
-  doc.setFont(undefined, 'normal');
-  doc.text(noteToClient, 15, finalY + 34);
+  // === Note
+  if (noteToClient) {
+    doc.setFont(undefined, 'bold');
+    doc.text('Note to Client:', 15, finalY + 28);
+    doc.setFont(undefined, 'normal');
+    const noteLines = doc.splitTextToSize(noteToClient, 170);
+    doc.text(noteLines, 15, finalY + 34);
+    finalY += noteLines.length * 5 + 10;
+  }
 
-  // Signatures
+  // === Signatures
   doc.setFont(undefined, 'bold');
-  doc.text('Signatures:', 15, finalY + 48);
+  doc.text('Signatures:', 15, finalY + 28);
   doc.setFont(undefined, 'normal');
-  doc.text(`Business: ${signatureBusiness}`, 15, finalY + 54);
-  doc.text(`Client: ${signatureClient}`, 15, finalY + 60);
-  doc.text(`Date: ${signatureDate}`, 15, finalY + 66);
+  doc.text(`Business: ${signatureBusiness}`, 15, finalY + 34);
+  doc.text(`Client: ${signatureClient}`, 15, finalY + 40);
+  doc.text(`Date: ${signatureDate}`, 15, finalY + 46);
 
-  // Footer branding (optional, PRO може прибирати)
-  const removeBranding = localStorage.getItem('proUser') === 'true';
-  if (!removeBranding) {
+  // === Branding (if not PRO)
+  const proUser = localStorage.getItem('proUser') === 'true';
+  if (!proUser) {
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text('Generated with SmartWerk — smartwerk.nl', 15, 285);
   }
 
-  // Save file
-  doc.save(`Quote-${quoteNo}.pdf`);
+  // === Save
+  doc.save(`Quote-${quoteNo || clientName || "Client"}.pdf`);
 }
 
 function currencySymbol(code) {
