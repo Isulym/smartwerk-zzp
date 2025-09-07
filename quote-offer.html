@@ -298,41 +298,6 @@ function addItem(desc = "", qty = 1, price = 0.0) {
     localStorage.setItem("savedQuotes", JSON.stringify(saved));
   }
 
- function restoreSavedState() {
-  const quote = JSON.parse(localStorage.getItem("editQuote"));
-  if (!quote) return;
-
-  document.getElementById("businessName").value = quote.businessName || "";
-  document.getElementById("businessKvK").value = quote.businessKvK || "";
-  document.getElementById("businessVAT").value = quote.businessVAT || "";
-  document.getElementById("businessIBAN").value = quote.businessIBAN || "";
-  document.getElementById("businessPhone").value = quote.businessPhone || "";
-  document.getElementById("businessAddress").value = quote.businessAddress || "";
-  document.getElementById("clientName").value = quote.clientName || "";
-  document.getElementById("clientEmail").value = quote.clientEmail || "";
-  document.getElementById("clientPhone").value = quote.clientPhone || "";
-  document.getElementById("clientAddress").value = quote.clientAddress || "";
-  document.getElementById("quoteNumber").value = quote.quoteNumber || "";
-  document.getElementById("quoteStatus").value = quote.quoteStatus || "draft";
-  document.getElementById("clientNote").value = quote.note || "";
-  document.getElementById("signatureName").value = quote.signatureName || "";
-  document.getElementById("clientSignature").value = quote.clientSignature || "";
-  document.getElementById("signatureDate").textContent = quote.signatureDate || "";
-  document.getElementById("validUntil").textContent = quote.validUntil || "";
-  document.getElementById("currency").value = quote.currency || "EUR";
-
-  updateStatusColor();
-  lockSignature();
-
-  // Clear and load items
-  itemsContainer.innerHTML = "";
-  quote.items?.forEach(item => {
-    addItem(item.desc, item.qty, item.price);
-  });
-
-  calculateTotals();
-}
-
 
  document.getElementById("exportQuotePDF").addEventListener("click", () => {
     if (typeof exportQuotePDF === "function") {
