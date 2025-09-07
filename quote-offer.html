@@ -297,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let y = 20;
 
     // Заголовок
-    doc.setFontSize(20).setTextColor(40).text("📄 Quote / Offer", marginLeft, y);
+    doc.setFontSize(20).setTextColor(40).text("Quote / Offer", marginLeft, y);
     y += 10;
 
     const status = document.getElementById("quoteStatus").value;
@@ -335,7 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const note = document.getElementById("clientNote")?.value || "";
     let endY = doc.lastAutoTable.finalY + 10;
 
-    doc.setFontSize(12).text(`💰 Total: € ${total}`, marginLeft, endY);
+    doc.setFontSize(12).text(`Total: € ${total}`, marginLeft, endY);
     endY += 8;
 
     if (note) {
@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const date = document.getElementById("signatureDate")?.textContent || "";
 
     endY += 10;
-    doc.setFontSize(11).text("✍️ Signatures:", marginLeft, endY); endY += 6;
+    doc.setFontSize(11).text("✍Signatures:", marginLeft, endY); endY += 6;
     doc.setFontSize(10);
     doc.text(`Business: ${signer}`, marginLeft, endY); endY += 5;
     doc.text(`Client: ${clientSig}`, marginLeft, endY); endY += 5;
