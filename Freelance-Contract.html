@@ -1,270 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>📃 Freelance Contract — SmartWerk</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style-Freelance-Contract.css" />
+  <meta charset="UTF-8">
+  <title>Freelance Contract — SmartWerk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style-contract.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <header class="topbar">
-      <a class="brand" href="templates.html">📃 Freelance Contract</a>
-      <nav class="right">
-        <a href="dashboard.html" class="btn">← Back to Dashboard</a>
-        <a href="templates.html" class="btn">← Back to Templates</a>
-      </nav>
-    </header>
+    <h1>📃 Freelance Contract</h1>
+
+    <div class="button-group">
+      <button id="fillAI" class="btn">⚡ AI Fill</button>
+      <button id="saveContractBtn" class="btn">💾 Save Contract</button>
+      <button id="viewContractsBtn" class="btn">📂 View Saved Contracts</button>
+      <button id="exportPdfBtn" class="btn">📄 Export PDF</button>
+    </div>
 
     <form id="contractForm">
-      <h2>🧾 Business Info</h2>
-      <input id="businessName" placeholder="Business Name" required />
-      <input id="businessAddress" placeholder="Business Address" />
-      <input id="businessKvK" placeholder="KvK Number" />
-      <input id="businessVAT" placeholder="VAT Number" />
+      <h2>Business Info</h2>
+      <textarea id="businessInfo" required></textarea>
 
-      <h2>👤 Client Info</h2>
-      <input id="clientName" placeholder="Client Name" required />
-      <input id="clientAddress" placeholder="Client Address" />
-      <input id="clientEmail" placeholder="Client Email" />
-      <input id="clientPhone" placeholder="Client Phone" />
+      <h2>Client Info</h2>
+      <textarea id="clientInfo" required></textarea>
 
-      <h2>💼 Project</h2>
-      <input id="projectTitle" placeholder="Project Title" required />
-      <textarea id="projectDescription" placeholder="Project Description"></textarea>
+      <h2>Project</h2>
+      <textarea id="projectTitle" placeholder="Project title" required></textarea>
+      <textarea id="projectDescription" placeholder="Describe the project" required></textarea>
 
-      <h2>⏱ Timeline & Deliverables</h2>
-      <textarea id="timeline" placeholder="Timeline and Deliverables..."></textarea>
+      <h2>Payment Terms</h2>
+      <textarea id="paymentTerms" required></textarea>
 
-      <h2>💶 Payment Terms</h2>
-      <textarea id="paymentTerms" placeholder="Payment Terms..."></textarea>
+      <h2>Legal</h2>
+      <textarea id="legalTerms" required></textarea>
 
-      <h2>📜 Legal</h2>
-      <textarea id="legalTerms" placeholder="Legal Terms and Conditions..."></textarea>
-
-      <h2>✍️ Signatures</h2>
-      <input id="signatureBusiness" placeholder="Business Signature" />
-      <input id="signatureClient" placeholder="Client Signature" />
-      <input id="contractDate" type="date" />
-
-      <div class="actions">
-        <button type="button" id="aiFillBtn" class="btn">⚡ AI Fill</button>
-        <button type="button" id="saveContractBtn" class="btn primary">💾 Save Contract</button>
-        <button type="button" id="viewContractsBtn" class="btn">📂 View Saved Contracts</button>
-        <button type="button" id="exportPdfBtn" class="btn">📄 Export PDF</button>
-      </div>
+      <h2>Signatures</h2>
+      <input type="text" id="businessSignature" placeholder="Business Name & Date" required />
+      <input type="text" id="clientSignature" placeholder="Client Name & Date" required />
     </form>
-    
-  <div class="form-section">
-  <label>
-    <input type="checkbox" id="togglePro" />
-    Enable PRO (no branding in PDF)
-  </label>
-</div>
 
-    <div id="savedContractsSection" style="display:none;">
+    <div id="savedContracts" style="display:none;">
       <h2>📂 Saved Contracts</h2>
       <table>
         <thead>
-          <tr><th>Contract No</th><th>Client</th><th>Project</th><th>Date</th><th>Actions</th></tr>
+          <tr>
+            <th>Contract No</th>
+            <th>Client</th>
+            <th>Project</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody id="savedContractsBody"></tbody>
       </table>
     </div>
   </div>
 
-<script>
+  <script src="freelance-contract.js"></script>
+</body>
+</html>
+
+// === DOM Loaded ===
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("contractForm");
-  const aiBtn = document.getElementById("aiFillBtn");
-  const saveBtn = document.getElementById("saveContractBtn");
-  const viewBtn = document.getElementById("viewSavedContractsBtn");
-  const exportBtn = document.getElementById("exportPdfBtn");
+  document.getElementById("fillAI").addEventListener("click", fillContractAI);
+  document.getElementById("saveContractBtn").addEventListener("click", saveContract);
+  document.getElementById("viewContractsBtn").addEventListener("click", loadSavedContracts);
+  document.getElementById("exportPdfBtn").addEventListener("click", exportContractPDF);
 
-  // === AI FILL ===
-  aiBtn.addEventListener("click", () => {
-    document.getElementById("businessName").value = "SmartWerk B.V.";
-    document.getElementById("businessAddress").value = "Keizersgracht 123, 1015 CJ Amsterdam";
-    document.getElementById("clientName").value = "Jeroen de Vries";
-    document.getElementById("clientAddress").value = "Brouwersgracht 45, 1013 GE Amsterdam";
-    document.getElementById("projectTitle").value = "Web Development Services";
-    document.getElementById("projectDescription").value = "Design and development of a responsive website with CMS integration.";
-    document.getElementById("timeline").value = "Start: 10 September 2025 – End: 10 October 2025";
-    document.getElementById("paymentTerms").value = "€3,000 total. 50% upfront, 50% upon delivery.";
-    document.getElementById("legal").value = "This contract is governed by Dutch law. Disputes shall be resolved in Amsterdam court.";
-    document.getElementById("signatureBusiness").value = "SmartWerk B.V.";
-    document.getElementById("signatureClient").value = "Jeroen de Vries";
-    document.getElementById("contractDate").value = new Date().toISOString().split("T")[0];
-  });
-
-  // === SAVE CONTRACT ===
-  saveBtn.addEventListener("click", () => {
-    const data = {
-      businessName: document.getElementById("businessName").value,
-      businessAddress: document.getElementById("businessAddress").value,
-      clientName: document.getElementById("clientName").value,
-      clientAddress: document.getElementById("clientAddress").value,
-      projectTitle: document.getElementById("projectTitle").value,
-      projectDescription: document.getElementById("projectDescription").value,
-      timeline: document.getElementById("timeline").value,
-      paymentTerms: document.getElementById("paymentTerms").value,
-      legal: document.getElementById("legal").value,
-      signatureBusiness: document.getElementById("signatureBusiness").value,
-      signatureClient: document.getElementById("signatureClient").value,
-      contractDate: document.getElementById("contractDate").value,
-      contractNumber: "CON-" + Date.now()
-    };
-
-    const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
-    saved.push(data);
-    localStorage.setItem("savedContracts", JSON.stringify(saved));
-    alert("✅ Contract saved!");
-  });
-
-  // === VIEW SAVED CONTRACTS ===
-  viewBtn.addEventListener("click", () => {
-    const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
-    const container = document.getElementById("savedContractsContainer");
-    container.innerHTML = "";
-
-    if (saved.length === 0) {
-      container.innerHTML = "<p>No saved contracts found.</p>";
-      return;
-    }
-
-    const table = document.createElement("table");
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>Contract No</th>
-          <th>Client</th>
-          <th>Project</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="savedContractsBody"></tbody>
-    `;
-
-    container.appendChild(table);
-    const tbody = document.getElementById("savedContractsBody");
-
-    saved.forEach((c, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${c.contractNumber}</td>
-        <td>${c.clientName}</td>
-        <td>${c.projectTitle}</td>
-        <td>${c.contractDate}</td>
-        <td>
-          <button onclick="loadContract(${index})" class="btn small">👁 View</button>
-          <button onclick="deleteContract(${index})" class="btn small danger">🗑 Delete</button>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
-  });
-
-  // === EXPORT PDF ===
-  exportBtn.addEventListener("click", () => {
-    const proUser = localStorage.getItem("proUser") === "true";
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const getVal = id => document.getElementById(id).value;
-
-    const data = {
-      business: getVal("businessName"),
-      bAddress: getVal("businessAddress"),
-      client: getVal("clientName"),
-      cAddress: getVal("clientAddress"),
-      title: getVal("projectTitle"),
-      description: getVal("projectDescription"),
-      timeline: getVal("timeline"),
-      payment: getVal("paymentTerms"),
-      legal: getVal("legal"),
-      signedByB: getVal("signatureBusiness"),
-      signedByC: getVal("signatureClient"),
-      date: getVal("contractDate")
-    };
-
-    doc.setFontSize(16);
-    doc.text("Freelance Contract", 105, 20, null, null, "center");
-
-    doc.setFontSize(11);
-    doc.text(`Business: ${data.business}`, 15, 30);
-    doc.text(`Address: ${data.bAddress}`, 15, 35);
-    doc.text(`Client: ${data.client}`, 15, 45);
-    doc.text(`Address: ${data.cAddress}`, 15, 50);
-
-    doc.setFont(undefined, "bold");
-    doc.text("Project Title:", 15, 60);
-    doc.setFont(undefined, "normal");
-    doc.text(data.title, 15, 65);
-
-    doc.setFont(undefined, "bold");
-    doc.text("Project Description:", 15, 75);
-    doc.setFont(undefined, "normal");
-    doc.text(doc.splitTextToSize(data.description, 180), 15, 80);
-
-    let y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 100;
-
-    doc.setFont(undefined, "bold");
-    doc.text("Timeline:", 15, y);
-    doc.setFont(undefined, "normal");
-    doc.text(doc.splitTextToSize(data.timeline, 180), 15, y + 5);
-
-    y += 20;
-    doc.setFont(undefined, "bold");
-    doc.text("Payment Terms:", 15, y);
-    doc.setFont(undefined, "normal");
-    doc.text(doc.splitTextToSize(data.payment, 180), 15, y + 5);
-
-    y += 20;
-    doc.setFont(undefined, "bold");
-    doc.text("Legal Terms:", 15, y);
-    doc.setFont(undefined, "normal");
-    doc.text(doc.splitTextToSize(data.legal, 180), 15, y + 5);
-
-    y += 30;
-    doc.setFont(undefined, "bold");
-    doc.text("Signatures:", 15, y);
-    doc.setFont(undefined, "normal");
-    doc.text(`Business: ${data.signedByB}`, 15, y + 6);
-    doc.text(`Client: ${data.signedByC}`, 15, y + 12);
-    doc.text(`Date: ${data.date}`, 15, y + 18);
-
-    // === Branding (unless PRO)
-    if (!proUser) {
-      doc.setFontSize(8);
-      doc.setTextColor(150);
-      doc.text("Generated with SmartWerk — smartwerk.nl", 15, 285);
-    }
-
-    doc.save(`${data.title.replaceAll(" ", "_") || "contract"}.pdf`);
-  });
+  if (!localStorage.getItem("contractCounter")) {
+    localStorage.setItem("contractCounter", "1");
+  }
 });
 
-// === Load single contract
-function loadContract(index) {
+// === AI Fill ===
+function fillContractAI() {
+  document.getElementById("businessInfo").value = "SmartWerk B.V.\nKvK: 12345678\nVAT: NL123456789B01\nIBAN: NL12BANK3456789012";
+  document.getElementById("clientInfo").value = "Client Company\nClient Address\nKvK: 87654321";
+  document.getElementById("projectTitle").value = "Website Development";
+  document.getElementById("projectDescription").value = "Developing a modern responsive website with dashboard and user login.";
+  document.getElementById("paymentTerms").value = "50% upfront, 50% upon completion.\nTotal: €2,500\nPayment within 14 days.";
+  document.getElementById("legalTerms").value = "Dutch law applies. Disputes handled in Amsterdam court.";
+  document.getElementById("businessSignature").value = "SmartWerk • 07.09.2025";
+  document.getElementById("clientSignature").value = "Client Co • 07.09.2025";
+}
+
+// === Save Contract ===
+function saveContract() {
   const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
-  const c = saved[index];
-  if (!c) return alert("Not found");
-  for (const key in c) {
-    const el = document.getElementById(key);
-    if (el) el.value = c[key];
+  const counter = parseInt(localStorage.getItem("contractCounter"), 10);
+
+  const contract = {
+    contractNumber: "CT-" + String(counter).padStart(3, "0"),
+    clientName: document.getElementById("clientInfo").value.split("\n")[0] || "Client",
+    projectTitle: document.getElementById("projectTitle").value || "-",
+    date: new Date().toLocaleDateString(),
+    data: {
+      businessInfo: document.getElementById("businessInfo").value,
+      clientInfo: document.getElementById("clientInfo").value,
+      projectTitle: document.getElementById("projectTitle").value,
+      projectDescription: document.getElementById("projectDescription").value,
+      paymentTerms: document.getElementById("paymentTerms").value,
+      legalTerms: document.getElementById("legalTerms").value,
+      businessSignature: document.getElementById("businessSignature").value,
+      clientSignature: document.getElementById("clientSignature").value,
+    }
+  };
+
+  saved.push(contract);
+  localStorage.setItem("savedContracts", JSON.stringify(saved));
+  localStorage.setItem("contractCounter", counter + 1);
+
+  alert("✅ Contract saved!");
+}
+
+// === View Saved Contracts ===
+function loadSavedContracts() {
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  const tbody = document.getElementById("savedContractsBody");
+  const container = document.getElementById("savedContracts");
+  if (!tbody || !container) return;
+
+  container.style.display = "block";
+  tbody.innerHTML = "";
+
+  saved.forEach((contract, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${contract.contractNumber}</td>
+      <td>${contract.clientName}</td>
+      <td>${contract.projectTitle}</td>
+      <td>${contract.date}</td>
+      <td>
+        <button class="btn small" onclick="viewContract(${index})">👁 View</button>
+        <button class="btn small danger" onclick="deleteContract(${index})">🗑 Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// === View Contract ===
+function viewContract(index) {
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  const data = saved[index]?.data;
+  if (!data) return;
+
+  document.getElementById("businessInfo").value = data.businessInfo;
+  document.getElementById("clientInfo").value = data.clientInfo;
+  document.getElementById("projectTitle").value = data.projectTitle;
+  document.getElementById("projectDescription").value = data.projectDescription;
+  document.getElementById("paymentTerms").value = data.paymentTerms;
+  document.getElementById("legalTerms").value = data.legalTerms;
+  document.getElementById("businessSignature").value = data.businessSignature;
+  document.getElementById("clientSignature").value = data.clientSignature;
+
+  alert("✅ Contract loaded!");
+}
+
+// === Delete Contract ===
+function deleteContract(index) {
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  if (confirm("Are you sure you want to delete this contract?")) {
+    saved.splice(index, 1);
+    localStorage.setItem("savedContracts", JSON.stringify(saved));
+    loadSavedContracts();
   }
 }
 
-// === Delete contract
-function deleteContract(index) {
-  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
-  if (!confirm("Are you sure you want to delete this contract?")) return;
-  saved.splice(index, 1);
-  localStorage.setItem("savedContracts", JSON.stringify(saved));
-  document.getElementById("viewSavedContractsBtn").click();
+// === Export PDF ===
+function exportContractPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const data = {
+    businessInfo: document.getElementById("businessInfo").value,
+    clientInfo: document.getElementById("clientInfo").value,
+    projectTitle: document.getElementById("projectTitle").value,
+    projectDescription: document.getElementById("projectDescription").value,
+    paymentTerms: document.getElementById("paymentTerms").value,
+    legalTerms: document.getElementById("legalTerms").value,
+    businessSignature: document.getElementById("businessSignature").value,
+    clientSignature: document.getElementById("clientSignature").value,
+  };
+
+  let y = 10;
+  doc.setFontSize(16);
+  doc.text("Freelance Contract", 105, y, null, null, "center");
+
+  y += 10;
+  doc.setFontSize(10);
+  doc.text("From:", 15, y); doc.text(data.businessInfo, 30, y);
+  y += 20;
+  doc.text("To:", 15, y); doc.text(data.clientInfo, 30, y);
+  y += 20;
+  doc.text("Project:", 15, y); doc.text(data.projectTitle, 30, y);
+  y += 10; doc.text(data.projectDescription, 30, y);
+  y += 20;
+  doc.text("Payment Terms:", 15, y); doc.text(data.paymentTerms, 30, y);
+  y += 20;
+  doc.text("Legal Terms:", 15, y); doc.text(data.legalTerms, 30, y);
+  y += 30;
+  doc.text("Signatures:", 15, y);
+  y += 10;
+  doc.text("Business:", 15, y); doc.text(data.businessSignature, 50, y);
+  y += 10;
+  doc.text("Client:", 15, y); doc.text(data.clientSignature, 50, y);
+
+  // PRO toggle
+  const isPro = localStorage.getItem("proUser") === "true";
+  if (!isPro) {
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 15, 285);
+  }
+
+  doc.save(`Contract-${data.projectTitle || "SmartWerk"}.pdf`);
 }
-</script>
 </body>
 </html>
