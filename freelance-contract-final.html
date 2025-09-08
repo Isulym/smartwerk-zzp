@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Freelance Contract</title>
+  <link rel="stylesheet" href="style-contract.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="templates.html">📄 SmartWerk Contract</a>
+      <nav class="right">
+        <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+      </nav>
+    </header>
+
+    <section class="intro">
+      <h1>📄 Freelance Contract</h1>
+      <p class="muted">Fill out this contract and export it as PDF or DOCX.</p>
+    </section>
+
+    <form id="contractForm">
+      <div class="form-section">
+        <h2>🧾 Business Info</h2>
+        <input type="text" id="businessName" placeholder="Business Name" required />
+        <input type="text" id="businessAddress" placeholder="Business Address" />
+        <input type="text" id="businessEmail" placeholder="Business Email" />
+      </div>
+
+      <div class="form-section">
+        <h2>👤 Client Info</h2>
+        <input type="text" id="clientName" placeholder="Client Name" required />
+        <input type="text" id="clientAddress" placeholder="Client Address" />
+        <input type="text" id="clientEmail" placeholder="Client Email" />
+      </div>
+
+      <div class="form-section">
+        <h2>📌 Project</h2>
+        <input type="text" id="projectTitle" placeholder="Project Title" />
+        <textarea id="projectDescription" placeholder="Describe the project..."></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>💰 Payment Terms</h2>
+        <textarea id="paymentTerms" placeholder="Describe the payment terms..."></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>⚖️ Legal Terms</h2>
+        <textarea id="legalTerms" placeholder="Insert legal clauses..."></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>✍️ Signature</h2>
+        <input type="text" id="signatureName" placeholder="Your Full Name" required />
+        <p>Signature Date: <span id="signatureDate"></span></p>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">💾 Save Contract</button>
+        <button type="button" id="viewSavedContractsBtn" class="btn ghost">📂 View Saved Contracts</button>
+      </div>
+    </form>
+
+    <section id="savedContractsSection" class="form-section" style="display:none;">
+      <h2>📁 Saved Contracts</h2>
+      <table id="savedContractsTable">
+        <thead>
+          <tr>
+            <th>Contract No</th>
+            <th>Client</th>
+            <th>Project</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="savedContractsBody">
+          <!-- Автоматично заповнюється -->
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("contractForm");
+      const savedSection = document.getElementById("savedContractsSection");
+      const signatureDate = document.getElementById("signatureDate");
+      const viewBtn = document.getElementById("viewSavedContractsBtn");
+
+      signatureDate.textContent = new Date().toLocaleDateString();
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        saveContractToLocalStorage();
+        alert("✅ Contract saved!");
+        loadSavedContracts();
+      });
+
+      viewBtn.addEventListener("click", () => {
+        savedSection.style.display = savedSection.style.display === "none" ? "block" : "none";
+        loadSavedContracts();
+      });
+    });
+
+    function saveContractToLocalStorage() {
+      const contract = {
+        contractNumber: generateContractNumber(),
+        businessName: document.getElementById("businessName").value,
+        clientName: document.getElementById("clientName").value,
+        projectTitle: document.getElementById("projectTitle").value,
+        date: new Date().toLocaleDateString(),
+      };
+      const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+      saved.push(contract);
+      localStorage.setItem("savedContracts", JSON.stringify(saved));
+    }
+
+    function generateContractNumber() {
+      const year = new Date().getFullYear();
+      const counter = JSON.parse(localStorage.getItem("contractCounter") || "1");
+      localStorage.setItem("contractCounter", counter + 1);
+      return `CONTRACT-${year}-${String(counter).padStart(3, "0")}`;
+    }
+
+    function loadSavedContracts() {
+      const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+      const tbody = document.getElementById("savedContractsBody");
+      tbody.innerHTML = "";
+
+      saved.forEach((contract, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${contract.contractNumber}</td>
+          <td>${contract.clientName}</td>
+          <td>${contract.projectTitle}</td>
+          <td>${contract.date}</td>
+          <td>
+            <button class="btn small" onclick="viewContract(${index})">👁 View</button>
+            <button class="btn small danger" onclick="deleteContract(${index})">🗑 Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteContract(index) {
+      const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+      if (!confirm("❌ Delete this contract?")) return;
+      saved.splice(index, 1);
+      localStorage.setItem("savedContracts", JSON.stringify(saved));
+      loadSavedContracts();
+    }
+
+    function viewContract(index) {
+      const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+      const contract = saved[index];
+      if (!contract) return alert("Contract not found.");
+      alert(`📄 Contract ${contract.contractNumber}
+Client: ${contract.clientName}
+Project: ${contract.projectTitle}`);
+    }
+  </script>
+</body>
+</html>
