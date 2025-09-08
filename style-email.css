@@ -193,3 +193,63 @@ footer.foot-note {
     font-size: 1.1rem;
   }
 }
+
+/* === SmartWerk Buttons — Unified Style === */
+
+button.btn, a.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  min-width: 180px;
+  margin: 4px 6px;
+}
+
+button.btn:hover, a.btn:hover {
+  background: #2d5fd1;
+  transform: translateY(-1px);
+}
+
+button.btn.ghost, a.btn.ghost {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+button.btn.ghost:hover, a.btn.ghost:hover {
+  background: rgba(59, 121, 255, 0.1);
+}
+
+.btn.small {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  min-width: auto;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  button.btn, a.btn {
+    width: 100%;
+    min-width: unset;
+    text-align: center;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
