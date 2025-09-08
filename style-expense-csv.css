@@ -186,3 +186,35 @@ button.deleteBtn {
     align-items: flex-start;
   }
 }
+
+/* ==== Unified Buttons Style for SmartWerk ==== */
+button, .btn, input[type="button"], input[type="submit"] {
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 16px;
+  margin: 5px 5px 5px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: inline-block;
+  text-align: center;
+}
+
+button:hover, .btn:hover, input[type="button"]:hover, input[type="submit"]:hover {
+  background: #2d65e0;
+}
+
+button:disabled, input[type="submit"]:disabled {
+  background: #444;
+  cursor: not-allowed;
+}
+
+.actions-row, .form-actions, .filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
