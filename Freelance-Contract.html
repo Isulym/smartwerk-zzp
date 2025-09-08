@@ -54,7 +54,7 @@
     <button onclick="fillAI()">⚡ AI Fill</button>
     <button onclick="saveContract()">💾 Save Contract</button>
     <button onclick="viewSavedContracts()">📂 View Saved Contracts</button>
-    <button onclick="downloadPDF()">📄 Export PDF</button>
+    <button type="button" id="exportPdfBtn" class="btn">📄 Export PDF</button>
   </div>
 
   <div class="section">
@@ -175,33 +175,123 @@ Signature: ${signatureName.value}
       viewSavedContracts();
     }
 
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const content = generateContractText().split("\n");
+   async function exportContractPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-      doc.setFont("Helvetica");
-      doc.setFontSize(12);
-      let y = 20;
-      for (let line of content) {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(line, 15, y);
-        y += 8;
-      }
+  const isPro = localStorage.getItem("proUser") === "true";
+  const margin = 40;
+  let y = margin;
 
-      if (localStorage.getItem("proUser") !== "true") {
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text("Generated with SmartWerk — smartwerk.nl", 15, 285);
-      }
+  // ===== HEADER =====
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("Freelance Contract", margin, y);
+  y += 30;
 
-      doc.save("Freelance-Contract.pdf");
-    }
+  // ====== LEFT COLUMN ======
+  const leftStart = margin;
+  let leftY = y;
 
-    updatePreview();
+  const businessInfo = [
+    `Business Name: ${document.getElementById("businessName").value}`,
+    `Business Address: ${document.getElementById("businessAddress").value}`,
+    `KVK: ${document.getElementById("businessKVK").value}`,
+    `VAT: ${document.getElementById("businessBTW").value}`,
+    `IBAN: ${document.getElementById("businessIBAN").value}`,
+    `Phone: ${document.getElementById("businessPhone").value}`
+  ];
+
+  const clientInfo = [
+    `Client Name: ${document.getElementById("clientName").value}`,
+    `Client Address: ${document.getElementById("clientAddress").value}`,
+    `Email: ${document.getElementById("clientEmail").value}`,
+    `Phone: ${document.getElementById("clientPhone").value}`
+  ];
+
+  const projectInfo = [
+    `Project Title: ${document.getElementById("projectTitle").value}`,
+    `Start Date: ${document.getElementById("startDate").value}`,
+    `End Date: ${document.getElementById("endDate").value}`,
+    `Deliverables: ${document.getElementById("deliverables").value}`
+  ];
+
+  const leftBlocks = [
+    ["Business Info", businessInfo],
+    ["Client Info", clientInfo],
+    ["Project", projectInfo]
+  ];
+
+  doc.setFontSize(12);
+  leftBlocks.forEach(([title, lines]) => {
+    doc.setFont("helvetica", "bold");
+    doc.text(title, leftStart, leftY);
+    doc.setFont("helvetica", "normal");
+    lines.forEach(line => {
+      leftY += 14;
+      doc.text(line, leftStart, leftY);
+    });
+    leftY += 20;
+  });
+
+  // ====== RIGHT COLUMN ======
+  const rightStart = 310;
+  let rightY = y;
+
+  const paymentTerms = [
+    `Payment Terms: ${document.getElementById("paymentTerms").value}`,
+    `Payment Amount: ${document.getElementById("paymentAmount").value}`,
+    `Currency: ${document.getElementById("currency").value}`
+  ];
+
+  const legal = [
+    `Legal Terms:`,
+    document.getElementById("legalTerms").value
+  ];
+
+  const signatures = [
+    `Business Signature: ${document.getElementById("signatureBusiness").value}`,
+    `Client Signature: ${document.getElementById("signatureClient").value}`,
+    `Signed Date: ${document.getElementById("signatureDate").value}`
+  ];
+
+  const rightBlocks = [
+    ["Payment Terms", paymentTerms],
+    ["Legal", legal],
+    ["Signature", signatures]
+  ];
+
+  rightBlocks.forEach(([title, lines]) => {
+    doc.setFont("helvetica", "bold");
+    doc.text(title, rightStart, rightY);
+    doc.setFont("helvetica", "normal");
+    lines.forEach(line => {
+      const wrapped = doc.splitTextToSize(line, 230);
+      wrapped.forEach(w => {
+        rightY += 14;
+        doc.text(w, rightStart, rightY);
+      });
+    });
+    rightY += 20;
+  });
+
+  // ===== FOOTER =====
+  if (!isPro) {
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Generated with SmartWerk — www.smartwerk.nl", margin, 800);
+  }
+
+  // ===== SAVE PDF =====
+  const contractNumber = document.getElementById("contractNumber").value || "Contract";
+  doc.save(`${contractNumber}.pdf`);
+}
+    document.addEventListener("DOMContentLoaded", () => {
+  const exportBtn = document.getElementById("exportPdfBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", exportContractPDF);
+  }
+});
   </script>
 </body>
 </html>
