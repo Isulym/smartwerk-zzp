@@ -164,100 +164,94 @@ if (togglePro) {
 
     // Export PDF
 document.getElementById("exportPdfBtn").addEventListener("click", () => {
+  const proUser = localStorage.getItem("proUser") === "true";
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const contractNo = document.getElementById("contractNumber").value || "Contract";
-  const businessName = document.getElementById("businessName").value || "";
-  const businessEmail = document.getElementById("businessEmail").value || "";
-  const clientName = document.getElementById("clientName").value || "";
-  const clientEmail = document.getElementById("clientEmail").value || "";
-  const projectTitle = document.getElementById("projectTitle").value || "";
-  const projectDescription = document.getElementById("projectDescription").value || "";
-  const timeline = document.getElementById("timeline").value || "";
-  const paymentTerms = document.getElementById("paymentTerms").value || "";
-  const legalTerms = document.getElementById("legalTerms").value || "";
-  const signatureBusiness = document.getElementById("signatureBusiness").value || "";
-  const signatureClient = document.getElementById("signatureClient").value || "";
-  const contractDate = document.getElementById("contractDate").value || "";
+  const businessName = document.getElementById("businessName")?.value || "";
+  const businessEmail = document.getElementById("businessEmail")?.value || "";
+  const businessPhone = document.getElementById("businessPhone")?.value || "";
+  const businessAddress = document.getElementById("businessAddress")?.value || "";
 
-  const isPro = localStorage.getItem("proUser") === "true";
+  const clientName = document.getElementById("clientName")?.value || "";
+  const clientEmail = document.getElementById("clientEmail")?.value || "";
+  const clientPhone = document.getElementById("clientPhone")?.value || "";
+  const clientAddress = document.getElementById("clientAddress")?.value || "";
+
+  const projectTitle = document.getElementById("projectTitle")?.value || "";
+  const projectDescription = document.getElementById("projectDescription")?.value || "";
+  const timeline = document.getElementById("timeline")?.value || "";
+  const paymentTerms = document.getElementById("paymentTerms")?.value || "";
+  const legalTerms = document.getElementById("legalTerms")?.value || "";
+
+  const signatureFreelancer = document.getElementById("signatureFreelancer")?.value || "";
+  const signatureClient = document.getElementById("signatureClient")?.value || "";
+  const signatureDate = document.getElementById("signatureDate")?.value || "";
 
   let y = 20;
-
-  // === TITLE ===
-  doc.setFontSize(16);
+  doc.setFontSize(14);
   doc.setFont(undefined, 'bold');
-  doc.text("Freelance Contract", 15, y);
-  y += 10;
+  doc.text("Freelance Contract", 105, y, { align: "center" });
 
-  // === BUSINESS INFO ===
-  doc.setFontSize(12);
+  y += 10;
+  doc.setFontSize(10);
   doc.setFont(undefined, 'bold');
   doc.text("Business Info:", 15, y);
   doc.setFont(undefined, 'normal');
-  y += 6;
-  doc.text(`Name: ${businessName}`, 15, y); y += 6;
-  doc.text(`Email: ${businessEmail}`, 15, y); y += 10;
+  doc.text(`Name: ${businessName}`, 15, y += 5);
+  doc.text(`Email: ${businessEmail}`, 15, y += 5);
+  doc.text(`Phone: ${businessPhone}`, 15, y += 5);
+  doc.text(`Address: ${businessAddress}`, 15, y += 5);
 
-  // === CLIENT INFO ===
+  y += 8;
   doc.setFont(undefined, 'bold');
   doc.text("Client Info:", 15, y);
   doc.setFont(undefined, 'normal');
-  y += 6;
-  doc.text(`Name: ${clientName}`, 15, y); y += 6;
-  doc.text(`Email: ${clientEmail}`, 15, y); y += 10;
+  doc.text(`Name: ${clientName}`, 15, y += 5);
+  doc.text(`Email: ${clientEmail}`, 15, y += 5);
+  doc.text(`Phone: ${clientPhone}`, 15, y += 5);
+  doc.text(`Address: ${clientAddress}`, 15, y += 5);
 
-  // === PROJECT ===
+  y += 8;
   doc.setFont(undefined, 'bold');
   doc.text("Project:", 15, y);
   doc.setFont(undefined, 'normal');
-  y += 6;
-  doc.text(`Title: ${projectTitle}`, 15, y); y += 6;
-  const descLines = doc.splitTextToSize(`Description: ${projectDescription}`, 180);
-  doc.text(descLines, 15, y); y += descLines.length * 6;
+  doc.text(`Title: ${projectTitle}`, 15, y += 5);
+  doc.text(doc.splitTextToSize(`Description: ${projectDescription}`, 180), 15, y += 5);
 
-  // === TIMELINE ===
+  y += 8;
   doc.setFont(undefined, 'bold');
   doc.text("Timeline:", 15, y);
   doc.setFont(undefined, 'normal');
-  y += 6;
-  const timelineLines = doc.splitTextToSize(timeline, 180);
-  doc.text(timelineLines, 15, y); y += timelineLines.length * 6;
+  doc.text(doc.splitTextToSize(timeline, 180), 15, y += 5);
 
-  // === PAYMENT TERMS ===
+  y += 8;
   doc.setFont(undefined, 'bold');
   doc.text("Payment Terms:", 15, y);
   doc.setFont(undefined, 'normal');
-  y += 6;
-  const paymentLines = doc.splitTextToSize(paymentTerms, 180);
-  doc.text(paymentLines, 15, y); y += paymentLines.length * 6;
+  doc.text(doc.splitTextToSize(paymentTerms, 180), 15, y += 5);
 
-  // === LEGAL TERMS ===
+  y += 8;
   doc.setFont(undefined, 'bold');
   doc.text("Legal Terms:", 15, y);
   doc.setFont(undefined, 'normal');
-  y += 6;
-  const legalLines = doc.splitTextToSize(legalTerms, 180);
-  doc.text(legalLines, 15, y); y += legalLines.length * 6;
+  doc.text(doc.splitTextToSize(legalTerms, 180), 15, y += 5);
 
-  // === SIGNATURES ===
+  y += 12;
   doc.setFont(undefined, 'bold');
   doc.text("Signatures:", 15, y);
   doc.setFont(undefined, 'normal');
-  y += 6;
-  doc.text(`Business: ${signatureBusiness}`, 15, y); y += 6;
-  doc.text(`Client: ${signatureClient}`, 15, y); y += 6;
-  doc.text(`Date: ${contractDate}`, 15, y); y += 10;
+  doc.text(`Freelancer: ${signatureFreelancer}`, 15, y += 5);
+  doc.text(`Client: ${signatureClient}`, 15, y += 5);
+  doc.text(`Date: ${signatureDate}`, 15, y += 5);
 
-  // === Branding ===
-  if (!isPro) {
+  if (!proUser) {
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text("Generated with SmartWerk — smartwerk.nl", 15, 285);
   }
 
-  doc.save(`${contractNo}.pdf`);
+  doc.save(`Freelance-Contract.pdf`);
 });
   </script>
 </body>
