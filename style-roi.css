@@ -1,137 +1,152 @@
 :root {
   --bg: #0e1014;
-  --card: #1a1d27;
+  --panel: #1a1e27;
+  --muted: #999;
   --accent: #3b79ff;
-  --text: #ffffff;
-  --muted: #9aa3b2;
-  --success: #27c693;
-  --danger: #ff5470;
-  --light: #f4f4f4;
-  --border: #2a2f40;
+  --success: #2ecc71;
+  --danger: #e74c3c;
+  --btn-bg: #2a2f3a;
+  --btn-hover: #3b79ff;
+  --btn-text: #fff;
+  --card: #181c24;
 }
 
 body {
   margin: 0;
   padding: 0;
   background-color: var(--bg);
-  font-family: "Segoe UI", Roboto, sans-serif;
-  color: var(--text);
-  line-height: 1.6;
+  font-family: 'Segoe UI', sans-serif;
+  color: #eee;
+  font-size: 15px;
 }
 
 .container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 30px;
-  background-color: var(--card);
-  border-radius: 16px;
-  box-shadow: 0 0 40px rgba(0,0,0,0.3);
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
 }
 
 h1, h2, h3 {
-  color: var(--text);
-  margin-bottom: 16px;
-  font-weight: 600;
+  color: #fff;
+  margin-bottom: 15px;
 }
 
-p {
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-
-form {
-  margin-top: 20px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: var(--light);
+p, li {
+  line-height: 1.6;
 }
 
 input[type="number"] {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background-color: #1f2331;
-  color: var(--text);
-  transition: border 0.2s;
+  padding: 10px;
+  margin-top: 4px;
+  background-color: var(--panel);
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
-input[type="number"]:focus {
-  border-color: var(--accent);
-  outline: none;
-}
-
-.form-actions {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin-top: 25px;
+label {
+  display: block;
+  margin-top: 20px;
+  color: #ccc;
 }
 
 button {
-  padding: 12px 20px;
-  font-size: 16px;
-  background-color: var(--accent);
-  color: white;
+  padding: 10px 16px;
   border: none;
-  border-radius: 12px;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background 0.3s;
+  margin-right: 10px;
+  font-size: 14px;
 }
 
 button:hover {
-  background-color: #2c5edf;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(59, 121, 255, 0.3);
+  background-color: var(--btn-hover);
 }
 
-#results p {
-  font-size: 18px;
-  margin: 10px 0;
-}
-
-#results span {
-  color: var(--success);
-  font-weight: bold;
-}
-
-canvas {
-  background-color: #1c1f2b;
-  padding: 15px;
-  border-radius: 12px;
+.form-actions {
   margin-top: 20px;
 }
 
-ul#smartTips {
-  list-style: none;
-  padding: 0;
+#results {
+  background-color: var(--panel);
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 30px;
 }
 
-ul#smartTips li {
-  background-color: #20242f;
-  border-left: 4px solid var(--accent);
-  padding: 12px 15px;
-  margin-bottom: 10px;
+#results strong {
+  display: inline-block;
+  width: 160px;
+  color: #fff;
+}
+
+#chartSection {
+  background-color: var(--panel);
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 10px;
+}
+
+#tipsSection {
+  background-color: var(--panel);
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 10px;
+}
+
+#smartTips li {
+  margin-bottom: 8px;
+}
+
+.topbar {
+  background-color: var(--card);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar .btn {
+  background-color: var(--btn-bg);
+  padding: 6px 14px;
   border-radius: 8px;
-  color: var(--light);
-  font-size: 15px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  margin-right: 10px;
+  transition: background 0.2s;
+}
+
+.topbar .btn:hover {
+  background-color: var(--btn-hover);
 }
 
 @media (max-width: 600px) {
   .container {
-    padding: 20px;
+    padding: 15px;
   }
 
-  .form-actions {
+  input[type="number"] {
+    font-size: 13px;
+  }
+
+  button {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .topbar {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar .btn {
+    margin-bottom: 6px;
   }
 }
