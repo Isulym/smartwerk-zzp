@@ -126,11 +126,6 @@ Signature: ${signatureName.value}
       alert("✅ Contract saved!");
     }
 
-    function viewSavedContracts() {
-      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
-      if (!saved.length) return alert("No saved contracts yet.");
-      alert("Saved Contracts:\n\n" + saved.join("\n\n---\n\n"));
-    }
 
     function downloadPDF() {
       const text = generateContractText();
