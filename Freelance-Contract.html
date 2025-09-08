@@ -72,44 +72,7 @@
 </section>
   
   <script>
-    function generateContractText() {
-      const today = new Date().toLocaleDateString();
-      return `
-FREELANCE CONTRACT
 
-Date: ${document.getElementById('contractDate').value || today}
-Business: ${businessName.value}
-KvK: ${businessKvK.value}
-VAT: ${businessVAT.value}
-IBAN: ${businessIBAN.value}
-
-Client: ${clientName.value}
-Address: ${clientAddress.value}
-
-Project:
-${projectDescription.value}
-
-Timeline:
-${timeline.value}
-
-Payment Terms:
-${rate.value}
-${paymentTerms.value}
-
-Legal:
-${terminationClause.value}
-${jurisdiction.value}
-
-Signature: ${signatureName.value}
-      `.trim();
-    }
-
-    function updatePreview() {
-      document.getElementById('contractPreview').textContent = generateContractText();
-    }
-
-    const fields = document.querySelectorAll("input, textarea");
-    fields.forEach(f => f.addEventListener("input", updatePreview));
 
     function fillAI() {
       document.getElementById('projectDescription').value = "Develop a responsive website for the client's online store.";
@@ -145,7 +108,6 @@ Signature: ${signatureName.value}
       link.click();
     }
 
-    updatePreview();
 
     function saveContractToLocalStorage() {
   const data = {
