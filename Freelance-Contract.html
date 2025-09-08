@@ -68,27 +68,27 @@
           <button type="button" class="btn" id="aiFill">⚡ AI Fill</button>
           <button type="submit" class="btn primary">💾 Save Contract</button>
           <button type="button" class="btn" id="exportPDF">📄 Export PDF</button>
+          <button type="button" class="btn" onclick="toggleSavedContracts()">📂 View Saved Contracts</button>
         </div>
       </section>
     </form>
 
-    <section class="form-section">
-      <h2>📂 View Saved Contracts</h2>
-      <table id="savedContractsTable">
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Project</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="savedContractsBody">
-          <!-- Auto-filled -->
-        </tbody>
-      </table>
-    </section>
-
+   <section id="savedContractsSection" class="form-section" style="display: none;">
+  <h2>📂 Saved Contracts</h2>
+  <table id="savedContractsTable">
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Project</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="savedContractsBody">
+      <!-- Filled by JS -->
+    </tbody>
+  </table>
+</section>
     <footer class="foot-note">
       <p class="muted">Generated with SmartWerk — smartwerk.nl</p>
     </footer>
@@ -143,6 +143,11 @@
           tbody.appendChild(tr);
         });
       }
+
+      function toggleSavedContracts() {
+  const section = document.getElementById("savedContractsSection");
+  section.style.display = section.style.display === "none" ? "block" : "none";
+}
 
       function fillAI() {
         document.getElementById("projectTitle").value = "Website Development";
