@@ -163,96 +163,107 @@ if (togglePro) {
     });
 
     // Export PDF
-document.getElementById("exportPdfBtn").addEventListener("click", () => {
-  const proUser = localStorage.getItem("proUser") === "true";
-  const { jsPDF } = window.jspdf;
+document.getElementById("exportPdfBtn").addEventListener("click", exportContractPDF);
+
+function exportContractPDF() {
+  const isPro = document.getElementById("enablePro")?.checked;
+
   const doc = new jsPDF();
 
-  const businessName = document.getElementById("businessName")?.value || "";
-  const businessEmail = document.getElementById("businessEmail")?.value || "";
-  const businessPhone = document.getElementById("businessPhone")?.value || "";
-  const businessAddress = document.getElementById("businessAddress")?.value || "";
+  // Витягуємо всі поля
+  const businessName = document.getElementById("businessName").value;
+  const businessAddress = document.getElementById("businessAddress").value;
+  const businessKvK = document.getElementById("businessKvK").value;
+  const businessVat = document.getElementById("businessVat").value;
+  const businessIban = document.getElementById("businessIban").value;
+  const businessEmail = document.getElementById("businessEmail").value;
 
-  const clientName = document.getElementById("clientName")?.value || "";
-  const clientEmail = document.getElementById("clientEmail")?.value || "";
-  const clientPhone = document.getElementById("clientPhone")?.value || "";
-  const clientAddress = document.getElementById("clientAddress")?.value || "";
+  const clientName = document.getElementById("clientName").value;
+  const clientAddress = document.getElementById("clientAddress").value;
+  const clientEmail = document.getElementById("clientEmail").value;
+  const clientPhone = document.getElementById("clientPhone").value;
 
-  const projectTitle = document.getElementById("projectTitle")?.value || "";
-  const projectDescription = document.getElementById("projectDescription")?.value || "";
-  const timeline = document.getElementById("timeline")?.value || "";
-  const paymentTerms = document.getElementById("paymentTerms")?.value || "";
-  const legalTerms = document.getElementById("legalTerms")?.value || "";
+  const projectTitle = document.getElementById("projectTitle").value;
+  const projectDesc = document.getElementById("projectDescription").value;
+  const timeline = document.getElementById("timeline").value;
+  const payment = document.getElementById("paymentTerms").value;
+  const legal = document.getElementById("legalTerms").value;
 
-  const signatureFreelancer = document.getElementById("signatureFreelancer")?.value || "";
-  const signatureClient = document.getElementById("signatureClient")?.value || "";
-  const signatureDate = document.getElementById("signatureDate")?.value || "";
+  const freelancerSign = document.getElementById("freelancerName").value;
+  const clientSign = document.getElementById("clientSign").value;
+  const signDate = document.getElementById("signatureDate").value;
 
   let y = 20;
-  doc.setFontSize(14);
-  doc.setFont(undefined, 'bold');
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
   doc.text("Freelance Contract", 105, y, { align: "center" });
-
   y += 10;
-  doc.setFontSize(10);
-  doc.setFont(undefined, 'bold');
-  doc.text("Business Info:", 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(`Name: ${businessName}`, 15, y += 5);
-  doc.text(`Email: ${businessEmail}`, 15, y += 5);
-  doc.text(`Phone: ${businessPhone}`, 15, y += 5);
-  doc.text(`Address: ${businessAddress}`, 15, y += 5);
 
-  y += 8;
-  doc.setFont(undefined, 'bold');
-  doc.text("Client Info:", 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(`Name: ${clientName}`, 15, y += 5);
-  doc.text(`Email: ${clientEmail}`, 15, y += 5);
-  doc.text(`Phone: ${clientPhone}`, 15, y += 5);
-  doc.text(`Address: ${clientAddress}`, 15, y += 5);
+  const addSection = (title, lines) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(title, 20, y);
+    y += 6;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    lines.forEach(line => {
+      doc.text(line, 25, y);
+      y += 6;
+    });
+    y += 4;
+  };
 
-  y += 8;
-  doc.setFont(undefined, 'bold');
-  doc.text("Project:", 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(`Title: ${projectTitle}`, 15, y += 5);
-  doc.text(doc.splitTextToSize(`Description: ${projectDescription}`, 180), 15, y += 5);
+  // Business Info
+  addSection("Business Info", [
+    `Name: ${businessName}`,
+    `Address: ${businessAddress}`,
+    `KvK: ${businessKvK}`,
+    `VAT: ${businessVat}`,
+    `IBAN: ${businessIban}`,
+    `Email: ${businessEmail}`,
+  ]);
 
-  y += 8;
-  doc.setFont(undefined, 'bold');
-  doc.text("Timeline:", 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(doc.splitTextToSize(timeline, 180), 15, y += 5);
+  // Client Info
+  addSection("Client Info", [
+    `Name: ${clientName}`,
+    `Address: ${clientAddress}`,
+    `Email: ${clientEmail}`,
+    `Phone: ${clientPhone}`,
+  ]);
 
-  y += 8;
-  doc.setFont(undefined, 'bold');
-  doc.text("Payment Terms:", 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(doc.splitTextToSize(paymentTerms, 180), 15, y += 5);
+  // Project
+  addSection("Project", [
+    `Title: ${projectTitle}`,
+    `Description: ${projectDesc}`,
+  ]);
 
-  y += 8;
-  doc.setFont(undefined, 'bold');
-  doc.text("Legal Terms:", 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(doc.splitTextToSize(legalTerms, 180), 15, y += 5);
+  // Timeline
+  addSection("Timeline", [timeline]);
 
-  y += 12;
-  doc.setFont(undefined, 'bold');
-  doc.text("Signatures:", 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(`Freelancer: ${signatureFreelancer}`, 15, y += 5);
-  doc.text(`Client: ${signatureClient}`, 15, y += 5);
-  doc.text(`Date: ${signatureDate}`, 15, y += 5);
+  // Payment Terms
+  addSection("Payment Terms", [payment]);
 
-  if (!proUser) {
-    doc.setFontSize(8);
+  // Legal
+  addSection("Legal Terms", [legal]);
+
+  // Signatures
+  addSection("Signatures", [
+    `Freelancer: ${freelancerSign}`,
+    `Client: ${clientSign}`,
+    `Date: ${signDate}`,
+  ]);
+
+  // Footer (тільки якщо не PRO)
+  if (!isPro) {
+    doc.setFontSize(9);
     doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 15, 285);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 105, 285, { align: "center" });
   }
 
-  doc.save(`Freelance-Contract.pdf`);
-});
+  // Save PDF
+  const filename = `Contract-${Date.now()}.pdf`;
+  doc.save(filename);
+}
   </script>
 </body>
 </html>
