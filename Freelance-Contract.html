@@ -58,7 +58,7 @@
   <div class="btn-group">
     <button onclick="fillAI()">🤖 AI Fill</button>
     <button onclick="saveContract()">💾 Save</button>
-    <button onclick="saveContractToLocalStorage()">📂 Saved Contracts</button>
+    <button onclick="generateContract()">📂 Saved Contracts</button>
     <button onclick="downloadPDF()">📄 Print</button>
     <button onclick="downloadDOCX()">Download DOCX</button>
   </div>
@@ -72,7 +72,36 @@
 </section>
   
   <script>
+ function generateContract() {
+      const businessName = document.getElementById("businessName").value;
+      const clientName = document.getElementById("clientName").value;
+      const project = document.getElementById("projectDescription").value;
+      const timeline = document.getElementById("timeline").value;
+      const payment = document.getElementById("paymentTerms").value;
+      const legal = document.getElementById("legal").value;
+      const signature = document.getElementById("signature").value;
+      const date = document.getElementById("signatureDate").value;
 
+      const text = `
+Contract between ${businessName} and ${clientName}
+
+Project Description:
+${project}
+
+Timeline:
+${timeline}
+
+Payment Terms:
+${payment}
+
+Legal:
+${legal}
+
+Signed:
+${signature} on ${date}`;
+
+      document.getElementById("contractText").innerText = text;
+    }
 
     function fillAI() {
       document.getElementById('projectDescription').value = "Develop a responsive website for the client's online store.";
@@ -84,10 +113,23 @@
     }
 
     function saveContract() {
-      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
-      saved.push(generateContractText());
-      localStorage.setItem("contracts", JSON.stringify(saved));
-      alert("✅ Contract saved!");
+      const data = {
+        businessName: document.getElementById("businessName").value,
+        clientName: document.getElementById("clientName").value,
+        projectDescription: document.getElementById("projectDescription").value,
+        timeline: document.getElementById("timeline").value,
+        paymentTerms: document.getElementById("paymentTerms").value,
+        legal: document.getElementById("legal").value,
+        signature: document.getElementById("signature").value,
+        signatureDate: document.getElementById("signatureDate").value,
+        fullContract: document.getElementById("contractText").innerText,
+        timestamp: new Date().toLocaleString()
+      };
+
+      let saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+      saved.push(data);
+      localStorage.setItem("savedContracts", JSON.stringify(saved));
+      loadSavedContracts();
     }
 
 
