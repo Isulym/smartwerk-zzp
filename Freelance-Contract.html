@@ -57,9 +57,7 @@
     </div>
   </div>
 
-  <script src="freelance-contract.js"></script>
-</body>
-</html>
+<script>
 
 // === DOM Loaded ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -216,5 +214,6 @@ function exportContractPDF() {
 
   doc.save(`Contract-${data.projectTitle || "SmartWerk"}.pdf`);
 }
+  </script>
 </body>
 </html>
