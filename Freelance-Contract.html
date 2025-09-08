@@ -160,6 +160,14 @@
         saveAs(blob, "Freelance-Contract.docx");
       });
     });
+function deleteContract(index) {
+  if (!confirm("❌ Are you sure you want to delete this contract?")) return;
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  saved.splice(index, 1);
+  localStorage.setItem("savedContracts", JSON.stringify(saved));
+  loadSavedContracts(); // оновлення таблиці
+}
+    
   </script>
 </body>
 </html>
