@@ -163,107 +163,74 @@ if (togglePro) {
     });
 
     // Export PDF
-document.getElementById("exportPdfBtn").addEventListener("click", exportContractPDF);
+document.addEventListener("DOMContentLoaded", () => {
+  const exportBtn = document.getElementById("exportPdfBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-function exportContractPDF() {
-  const isPro = document.getElementById("enablePro")?.checked;
+      // Отримуємо дані з форми
+      const businessName = document.getElementById("businessName")?.value || "";
+      const clientName = document.getElementById("clientName")?.value || "";
+      const projectTitle = document.getElementById("projectTitle")?.value || "";
+      const projectDescription = document.getElementById("projectDescription")?.value || "";
+      const timeline = document.getElementById("timeline")?.value || "";
+      const paymentTerms = document.getElementById("paymentTerms")?.value || "";
+      const legalTerms = document.getElementById("legalTerms")?.value || "";
+      const freelancerName = document.getElementById("freelancerName")?.value || "";
+      const clientSign = document.getElementById("clientSign")?.value || "";
+      const signatureDate = document.getElementById("signatureDate")?.value || "";
 
-  const doc = new jsPDF();
+      let y = 20;
 
-  // Витягуємо всі поля
-  const businessName = document.getElementById("businessName").value;
-  const businessAddress = document.getElementById("businessAddress").value;
-  const businessKvK = document.getElementById("businessKvK").value;
-  const businessVat = document.getElementById("businessVat").value;
-  const businessIban = document.getElementById("businessIban").value;
-  const businessEmail = document.getElementById("businessEmail").value;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Freelance Contract", 105, y, { align: "center" });
 
-  const clientName = document.getElementById("clientName").value;
-  const clientAddress = document.getElementById("clientAddress").value;
-  const clientEmail = document.getElementById("clientEmail").value;
-  const clientPhone = document.getElementById("clientPhone").value;
+      y += 10;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
 
-  const projectTitle = document.getElementById("projectTitle").value;
-  const projectDesc = document.getElementById("projectDescription").value;
-  const timeline = document.getElementById("timeline").value;
-  const payment = document.getElementById("paymentTerms").value;
-  const legal = document.getElementById("legalTerms").value;
+      const addSection = (title, lines) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(title, 20, y);
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        lines.forEach(line => {
+          doc.text(line, 25, y);
+          y += 6;
+        });
+        y += 4;
+      };
 
-  const freelancerSign = document.getElementById("freelancerName").value;
-  const clientSign = document.getElementById("clientSign").value;
-  const signDate = document.getElementById("signatureDate").value;
+      addSection("Business Info", [`Name: ${businessName}`]);
+      addSection("Client Info", [`Name: ${clientName}`]);
+      addSection("Project", [
+        `Title: ${projectTitle}`,
+        `Description: ${projectDescription}`,
+      ]);
+      addSection("Timeline", [timeline]);
+      addSection("Payment Terms", [paymentTerms]);
+      addSection("Legal Terms", [legalTerms]);
+      addSection("Signatures", [
+        `Freelancer: ${freelancerName}`,
+        `Client: ${clientSign}`,
+        `Date: ${signatureDate}`,
+      ]);
 
-  let y = 20;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("Freelance Contract", 105, y, { align: "center" });
-  y += 10;
+      // Branding (якщо не PRO)
+      const isPro = document.getElementById("enablePro")?.checked;
+      if (!isPro) {
+        doc.setFontSize(9);
+        doc.setTextColor(150);
+        doc.text("Generated with SmartWerk — smartwerk.nl", 105, 285, { align: "center" });
+      }
 
-  const addSection = (title, lines) => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text(title, 20, y);
-    y += 6;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    lines.forEach(line => {
-      doc.text(line, 25, y);
-      y += 6;
+      doc.save(`Contract-${Date.now()}.pdf`);
     });
-    y += 4;
-  };
-
-  // Business Info
-  addSection("Business Info", [
-    `Name: ${businessName}`,
-    `Address: ${businessAddress}`,
-    `KvK: ${businessKvK}`,
-    `VAT: ${businessVat}`,
-    `IBAN: ${businessIban}`,
-    `Email: ${businessEmail}`,
-  ]);
-
-  // Client Info
-  addSection("Client Info", [
-    `Name: ${clientName}`,
-    `Address: ${clientAddress}`,
-    `Email: ${clientEmail}`,
-    `Phone: ${clientPhone}`,
-  ]);
-
-  // Project
-  addSection("Project", [
-    `Title: ${projectTitle}`,
-    `Description: ${projectDesc}`,
-  ]);
-
-  // Timeline
-  addSection("Timeline", [timeline]);
-
-  // Payment Terms
-  addSection("Payment Terms", [payment]);
-
-  // Legal
-  addSection("Legal Terms", [legal]);
-
-  // Signatures
-  addSection("Signatures", [
-    `Freelancer: ${freelancerSign}`,
-    `Client: ${clientSign}`,
-    `Date: ${signDate}`,
-  ]);
-
-  // Footer (тільки якщо не PRO)
-  if (!isPro) {
-    doc.setFontSize(9);
-    doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 105, 285, { align: "center" });
   }
-
-  // Save PDF
-  const filename = `Contract-${Date.now()}.pdf`;
-  doc.save(filename);
-}
+});
   </script>
 </body>
 </html>
