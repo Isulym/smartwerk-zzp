@@ -63,10 +63,12 @@
     <button onclick="downloadDOCX()">Download DOCX</button>
   </div>
 
-  <div class="section">
-    <h2>Preview</h2>
-    <div id="contractPreview">Contract will appear here...</div>
+ <section class="form-section">
+  <h2>📂 Saved Contracts</h2>
+  <div id="savedContractsList" class="saved-list">
+    <!-- Saved contracts will appear here -->
   </div>
+</section>
   
   <script>
     function generateContractText() {
@@ -148,6 +150,72 @@ Signature: ${signatureName.value}
     }
 
     updatePreview();
+
+    function saveContractToLocalStorage() {
+  const data = {
+    businessName: document.getElementById("businessName").value,
+    clientName: document.getElementById("clientName").value,
+    projectDescription: document.getElementById("projectDescription").value,
+    timeline: document.getElementById("timeline").value,
+    paymentTerms: document.getElementById("paymentTerms").value,
+    legal: document.getElementById("legal").value,
+    signature: document.getElementById("signature").value,
+    signatureDate: document.getElementById("signatureDate").value,
+    fullContract: document.getElementById("contractText").innerText,
+    timestamp: new Date().toLocaleString()
+  };
+
+  let saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  saved.push(data);
+  localStorage.setItem("savedContracts", JSON.stringify(saved));
+  loadSavedContracts();
+}
+
+function loadSavedContracts() {
+  const container = document.getElementById("savedContractsList");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  if (saved.length === 0) {
+    container.innerHTML = "<p class='muted'>No saved contracts found.</p>";
+    return;
+  }
+
+  saved.forEach((c, index) => {
+    const div = document.createElement("div");
+    div.className = "saved-contract";
+    div.innerHTML = `
+      <p><strong>${c.clientName}</strong> — <em>${c.timestamp}</em></p>
+      <p><code>${c.fullContract.slice(0, 200)}...</code></p>
+      <button class="btn small" onclick="viewContract(${index})">👁 View</button>
+      <button class="btn small danger" onclick="deleteContract(${index})">🗑️ Delete</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function viewContract(index) {
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  const c = saved[index];
+  if (!c) return alert("Not found.");
+
+  const text = `
+👤 Client: ${c.clientName}
+📄 Project: ${c.projectDescription}
+🧾 Contract:
+${c.fullContract}
+  `;
+  alert(text);
+}
+
+function deleteContract(index) {
+  if (!confirm("Delete this contract?")) return;
+  const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
+  saved.splice(index, 1);
+  localStorage.setItem("savedContracts", JSON.stringify(saved));
+  loadSavedContracts();
+}
   </script>
 </body>
 </html>
