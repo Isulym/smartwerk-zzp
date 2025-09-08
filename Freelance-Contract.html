@@ -55,6 +55,10 @@
         <button type="button" id="exportPdfBtn" class="btn">📄 Export PDF</button>
       </div>
     </form>
+    <label style="position: fixed; top: 10px; right: 10px; color: white;">
+  <input type="checkbox" id="togglePro" />
+  🔓 PRO User
+</label>
 
     <div id="savedContractsSection" style="display:none;">
       <h2>📂 Saved Contracts</h2>
@@ -68,6 +72,16 @@
   </div>
 
   <script>
+
+    // === PRO toggle ===
+const togglePro = document.getElementById("togglePro");
+if (togglePro) {
+  togglePro.checked = localStorage.getItem("proUser") === "true";
+  togglePro.addEventListener("change", (e) => {
+    localStorage.setItem("proUser", e.target.checked ? "true" : "false");
+  });
+}
+    
     // Save contract
     document.getElementById("saveContractBtn").addEventListener("click", () => {
       const saved = JSON.parse(localStorage.getItem("savedContracts") || "[]");
@@ -146,25 +160,35 @@
     });
 
     // Export PDF
-    document.getElementById("exportPdfBtn").addEventListener("click", () => {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(12);
-      doc.text("Freelance Contract", 15, 15);
-      const lines = [
-        "Business: " + document.getElementById("businessName").value,
-        "Client: " + document.getElementById("clientName").value,
-        "Project: " + document.getElementById("projectTitle").value,
-        "Description: " + document.getElementById("projectDescription").value,
-        "Timeline: " + document.getElementById("timeline").value,
-        "Payment Terms: " + document.getElementById("paymentTerms").value,
-        "Legal Terms: " + document.getElementById("legalTerms").value,
-        "Signatures: " + document.getElementById("signatureBusiness").value + " / " + document.getElementById("signatureClient").value,
-        "Date: " + document.getElementById("contractDate").value,
-      ];
-      doc.text(lines, 15, 25);
-      doc.save("Freelance-Contract.pdf");
-    });
+// Export PDF
+document.getElementById("exportPdfBtn").addEventListener("click", () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(12);
+  doc.text("Freelance Contract", 15, 15);
+  const lines = [
+    "Business: " + document.getElementById("businessName").value,
+    "Client: " + document.getElementById("clientName").value,
+    "Project: " + document.getElementById("projectTitle").value,
+    "Description: " + document.getElementById("projectDescription").value,
+    "Timeline: " + document.getElementById("timeline").value,
+    "Payment Terms: " + document.getElementById("paymentTerms").value,
+    "Legal Terms: " + document.getElementById("legalTerms").value,
+    "Signatures: " + document.getElementById("signatureBusiness").value + " / " + document.getElementById("signatureClient").value,
+    "Date: " + document.getElementById("contractDate").value,
+  ];
+  doc.text(lines, 15, 25);
+
+  // Check PRO status
+  const isPro = localStorage.getItem("proUser") === "true";
+  if (!isPro) {
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 15, 285);
+  }
+
+  doc.save("Freelance-Contract.pdf");
+});
   </script>
 </body>
 </html>
