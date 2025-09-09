@@ -330,9 +330,9 @@ window.exportReminderPDF = function(withBranding = true) {
 
   const clean = (v) => (v || "").toString().trim();
 
-  const businessName = clean(document.getElementById("businessName").value);
-  const businessEmail = clean(document.getElementById("businessEmail").value);
-  const businessAddress = clean(document.getElementById("businessAddress").value);
+  const businessName = clean(document.getElementById("fromName").value);
+  const businessEmail = clean(document.getElementById("fromEmail").value);
+  const businessAddress = clean(document.getElementById("fromAddress").value);
 
   const clientName = clean(document.getElementById("clientName").value);
   const clientEmail = clean(document.getElementById("clientEmail").value);
