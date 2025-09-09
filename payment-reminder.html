@@ -260,6 +260,19 @@ Thank you.`);
     });
     localStorage.setItem("savedReminders", JSON.stringify(reminders));
     alert("✅ Reminder saved!");
+    
+    // 🟠 Автоматично оновити статус інвойсу
+const savedInvoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
+const invoiceNumber = get("invoiceNumber");
+
+const updatedInvoices = savedInvoices.map(inv => {
+  if (inv.invoiceNumber === invoiceNumber) {
+    return { ...inv, status: "Reminder Sent" }; // змінити статус
+  }
+  return inv;
+});
+
+localStorage.setItem("savedInvoices", JSON.stringify(updatedInvoices));
   });
 
   // View Saved
