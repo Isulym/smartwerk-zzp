@@ -211,16 +211,26 @@ function renderInvoices() {
   invoices.forEach((inv) => {
     const div = document.createElement("div");
     div.className = "invoice-block";
-    const badge = statusBadgeHTML(inv.status);
-    div.innerHTML = `
-      <strong>${inv.clientName || "-"}</strong> — ${inv.invoiceNumber || "INV-XXXX-XXX"} ${badge}<br>
-      <em>Date: ${inv.invoiceDate || "N/A"}</em><br>
-      <em>Total: €${getInvoiceTotal(inv).toFixed(2)}</em><br>
-      <button onclick="downloadPDFByNumber('${inv.invoiceNumber}')">📄 PDF</button>
-      <button onclick="editInvoiceByNumber('${inv.invoiceNumber}')">✏️ Edit</button>
-      <button onclick="deleteInvoiceByNumber('${inv.invoiceNumber}')">🗑️ Delete</button>
-      <button onclick="repeatMonthlyByNumber('${inv.invoiceNumber}')">📅 Repeat Monthly</button>
-    `;
+  const badge = statusBadgeHTML(inv.status);
+const statusColor = {
+  "Draft": "gray",
+  "Sent": "blue",
+  "Paid": "green",
+  "Reminder Sent": "orange"
+};
+const statusText = inv.status || "Draft";
+const statusStyle = `color: ${statusColor[statusText] || "black"}`;
+
+div.innerHTML = `
+  <strong>${inv.clientName || "-"}</strong> — ${inv.invoiceNumber || "INV-XXXX-XXX"}<br>
+  <span style="${statusStyle}"><strong>Status:</strong> ${statusText}</span><br>
+  <em>Date: ${inv.invoiceDate || "N/A"}</em><br>
+  <em>Total: €${getInvoiceTotal(inv).toFixed(2)}</em><br>
+  <button onclick="downloadPDFByNumber('${inv.invoiceNumber}')">📄 PDF</button>
+  <button onclick="editInvoiceByNumber('${inv.invoiceNumber}')">✏️ Edit</button>
+  <button onclick="deleteInvoiceByNumber('${inv.invoiceNumber}')">🗑️ Delete</button>
+  <button onclick="repeatMonthlyByNumber('${inv.invoiceNumber}')">📅 Repeat Monthly</button>
+`;
     savedContainer.appendChild(div);
   });
 
