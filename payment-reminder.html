@@ -247,33 +247,50 @@ Thank you.`);
   });
 
   // Save Reminder
-  document.getElementById("btn-save")?.addEventListener("click", () => {
-    const reminders = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-    reminders.push({
-      fromName: get("fromName"), fromEmail: get("fromEmail"), fromIBAN: get("fromIBAN"), fromAddress: get("fromAddress"),
-      clientName: get("clientName"), clientEmail: get("clientEmail"), clientAddress: get("clientAddress"),
-      invoiceNumber: get("invoiceNumber"), invoiceDate: get("invoiceDate"), dueDate: get("dueDate"),
-      amount: get("amount"), reminderId: get("reminderId"), reminderType: get("reminderType"),
-      messageBody: get("messageBody"), city: get("city"), reminderDate: get("reminderDate"),
-      signatureName: get("signatureName"), signaturePosition: get("signaturePosition"), signatureEmail: get("signatureEmail"),
-      paymentLink: get("paymentLink")
-    });
-    localStorage.setItem("savedReminders", JSON.stringify(reminders));
-    alert("✅ Reminder saved!");
-    
-    // 🟠 Автоматично оновити статус інвойсу
-const savedInvoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
-const invoiceNumber = get("invoiceNumber");
+document.getElementById("btn-save")?.addEventListener("click", () => {
+  const get = (id) => document.getElementById(id)?.value || "";
+  const reminders = JSON.parse(localStorage.getItem("savedReminders") || "[]");
 
-const updatedInvoices = savedInvoices.map(inv => {
-  if (inv.invoiceNumber === invoiceNumber) {
-    return { ...inv, status: "Reminder Sent" }; // змінити статус
-  }
-  return inv;
-});
+  const newReminder = {
+    fromName: get("fromName"),
+    fromEmail: get("fromEmail"),
+    fromIBAN: get("fromIBAN"),
+    fromAddress: get("fromAddress"),
+    clientName: get("clientName"),
+    clientEmail: get("clientEmail"),
+    clientAddress: get("clientAddress"),
+    invoiceNumber: get("invoiceNumber"),
+    invoiceDate: get("invoiceDate"),
+    dueDate: get("dueDate"),
+    amount: get("amount"),
+    reminderId: get("reminderId"),
+    reminderType: get("reminderType"),
+    messageBody: get("messageBody"),
+    city: get("city"),
+    reminderDate: get("reminderDate"),
+    signatureName: get("signatureName"),
+    signaturePosition: get("signaturePosition"),
+    signatureEmail: get("signatureEmail"),
+    paymentLink: get("paymentLink")
+  };
 
-localStorage.setItem("savedInvoices", JSON.stringify(updatedInvoices));
+  reminders.push(newReminder);
+  localStorage.setItem("savedReminders", JSON.stringify(reminders));
+  alert("✅ Reminder saved!");
+
+  // 🟠 Оновити статус інвойсу
+  const savedInvoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
+  const invoiceNumber = newReminder.invoiceNumber;
+
+  const updatedInvoices = savedInvoices.map(inv => {
+    if (inv.invoiceNumber === invoiceNumber) {
+      return { ...inv, status: "Reminder Sent" };
+    }
+    return inv;
   });
+
+  localStorage.setItem("savedInvoices", JSON.stringify(updatedInvoices));
+});
 
   // View Saved
   document.getElementById("btn-view-saved")?.addEventListener("click", () => {
