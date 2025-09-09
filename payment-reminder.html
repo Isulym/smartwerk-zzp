@@ -328,69 +328,103 @@ function exportReminderPDF(withBranding = true) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const get = (id) => document.getElementById(id)?.value || "";
+  const clean = (v) => (v || "").toString().trim();
 
-  const reminderId = get("reminderId") || "REM-XXXX-XXX";
-  const invoiceNumber = get("invoiceNumber") || "N/A";
-  const reminderDate = get("reminderDate") || "";
-  const clientName = get("clientName") || "";
-  const clientEmail = get("clientEmail") || "";
-  const clientAddress = get("clientAddress") || "";
-  const fromName = get("fromName") || "";
-  const fromEmail = get("fromEmail") || "";
-  const fromAddress = get("fromAddress") || "";
-  const fromIBAN = get("fromIBAN") || "";
-  const amount = get("amount") || "";
-  const dueDate = get("dueDate") || "";
-  const message = get("reminderMessage") || "";
-  const payLink = get("payNowLink") || "";
+  const businessName = clean(document.getElementById("businessName").value);
+  const businessEmail = clean(document.getElementById("businessEmail").value);
+  const businessAddress = clean(document.getElementById("businessAddress").value);
 
-  // === PDF CONTENT ===
-  doc.setFontSize(16);
-  doc.text("Payment Reminder", 105, 20, null, null, "center");
+  const clientName = clean(document.getElementById("clientName").value);
+  const clientEmail = clean(document.getElementById("clientEmail").value);
+  const clientAddress = clean(document.getElementById("clientAddress").value);
 
-  doc.setFontSize(10);
+  const reminderId = clean(document.getElementById("reminderId").value);
+  const reminderDate = clean(document.getElementById("reminderDate").value);
+  const invoiceNumber = clean(document.getElementById("invoiceSelect").value);
+  const dueDate = clean(document.getElementById("dueDate").value);
+  const amountDue = clean(document.getElementById("amountDue").value);
+  const reminderType = clean(document.getElementById("reminderType").value);
+
+  const messageBody = clean(document.getElementById("messageBody").value);
+  const paymentLink = clean(document.getElementById("paymentLink").value);
+
+  const city = clean(document.getElementById("city").value);
+  const name = clean(document.getElementById("signatureName").value);
+  const position = clean(document.getElementById("signaturePosition").value);
+  const email = clean(document.getElementById("signatureEmail").value);
+
+  // Header
+  doc.setFontSize(18);
+  doc.text("📬 Payment Reminder", 105, 20, null, null, "center");
+
+  doc.setFontSize(12);
   doc.text(`Reminder ID: ${reminderId}`, 20, 30);
-  doc.text(`Reminder Date: ${reminderDate}`, 20, 36);
-  doc.text(`Invoice Number: ${invoiceNumber}`, 20, 42);
-  doc.text(`Amount Due: €${amount}`, 20, 48);
-  doc.text(`Due Date: ${dueDate}`, 20, 54);
+  doc.text(`Date: ${reminderDate}`, 20, 36);
+  doc.text(`Invoice: ${invoiceNumber}`, 20, 42);
+  doc.text(`Reminder Type: ${reminderType}`, 20, 48);
 
-  // === FROM ===
-  doc.setFontSize(12); doc.text("From:", 20, 64);
-  doc.setFontSize(10);
-  doc.text(`${fromName}`, 20, 70);
-  doc.text(`Email: ${fromEmail}`, 20, 76);
-  doc.text(`Address: ${fromAddress}`, 20, 82);
-  doc.text(`IBAN: ${fromIBAN}`, 20, 88);
+  // Business Info
+  doc.setFont(undefined, "bold");
+  doc.text("From:", 20, 60);
+  doc.setFont(undefined, "normal");
+  doc.text(`${businessName}`, 20, 66);
+  doc.text(`${businessEmail}`, 20, 72);
+  doc.text(`${businessAddress}`, 20, 78);
 
-  // === TO ===
-  doc.setFontSize(12); doc.text("To:", 140, 64);
-  doc.setFontSize(10);
-  doc.text(`${clientName}`, 140, 70);
-  doc.text(`Email: ${clientEmail}`, 140, 76);
-  doc.text(`Address: ${clientAddress}`, 140, 82);
+  // Client Info
+  doc.setFont(undefined, "bold");
+  doc.text("To:", 105, 60);
+  doc.setFont(undefined, "normal");
+  doc.text(`${clientName}`, 105, 66);
+  doc.text(`${clientEmail}`, 105, 72);
+  doc.text(`${clientAddress}`, 105, 78);
 
-  // === MESSAGE ===
-  doc.setFontSize(12); doc.text("Message:", 20, 100);
-  doc.setFontSize(10);
-  const lines = doc.splitTextToSize(message, 170);
-  doc.text(lines, 20, 106);
+  // Amount Due
+  doc.setFont(undefined, "bold");
+  doc.text("Amount Due:", 20, 90);
+  doc.setFont(undefined, "normal");
+  doc.text(`€ ${amountDue}`, 50, 90);
 
-  // === PAYMENT LINK ===
-  if (payLink) {
-    doc.setFontSize(12); doc.text("Pay Now:", 20, doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 130);
-    doc.setFontSize(10); doc.text(payLink, 20, doc.lastAutoTable ? doc.lastAutoTable.finalY + 16 : 136);
+  // Due Date
+  doc.setFont(undefined, "bold");
+  doc.text("Due Date:", 105, 90);
+  doc.setFont(undefined, "normal");
+  doc.text(`${dueDate}`, 135, 90);
+
+  // Message
+  doc.setFont(undefined, "bold");
+  doc.text("Message:", 20, 105);
+  doc.setFont(undefined, "normal");
+  const messageLines = doc.splitTextToSize(messageBody, 170);
+  doc.text(messageLines, 20, 112);
+
+  // Payment Link
+  if (paymentLink) {
+    doc.setFont(undefined, "bold");
+    doc.text("Pay Now:", 20, 120 + messageLines.length * 5);
+    doc.setFont(undefined, "normal");
+    doc.setTextColor(33, 150, 243);
+    doc.textWithLink(paymentLink, 20, 126 + messageLines.length * 5, { url: paymentLink });
+    doc.setTextColor(0, 0, 0);
   }
 
-  // === BRANDING ===
+  // Signature
+  doc.setFont(undefined, "bold");
+  doc.text("Signature:", 20, 160);
+  doc.setFont(undefined, "normal");
+  doc.text(`${name}`, 20, 166);
+  if (position) doc.text(position, 20, 172);
+  if (email) doc.text(email, 20, 178);
+  if (city) doc.text(`${city}, ${reminderDate}`, 20, 184);
+
+  // Footer: branding
   if (withBranding) {
-    doc.setFontSize(8);
+    doc.setFontSize(10);
     doc.setTextColor(150);
-    doc.text("Generated via SmartWerk — Freelance Business Assistant", 105, 285, null, null, "center");
+    doc.text("Generated with SmartWerk — smartwerk.nl", 105, 290, null, null, "center");
   }
 
-  // === SAVE ===
+  // Save
   doc.save(`${reminderId}.pdf`);
 }
 
