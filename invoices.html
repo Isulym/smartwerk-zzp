@@ -44,7 +44,7 @@
       <h2>🏢 Business Info</h2>
       <label>Business Name <input id="businessName" type="text" placeholder="Business Name" /></label>
       <label>KvK Number <input id="kvk" type="text" placeholder="KvK Number" /></label>
-      <label>IBAN <input id="iban" type="text" placeholder="IBAN" /></label>
+      <label>fromIBAN <input id="fromIBAN" type="text" placeholder="fromIBAN" /></label>
       <label>Email <input id="email" type="email" placeholder="Email" /></label>
       <label>Business Address <input id="businessAddress" type="text" placeholder="Business Address" /></label>
       <label>Business Phone <input id="businessPhone" type="tel" placeholder="Business Phone" /></label>
@@ -55,10 +55,10 @@
     <!-- Step 2: Client Info -->
     <section class="step">
       <h2>👤 Client Info</h2>
-      <label>Client Name <input id="clientName" type="text" placeholder="Client Name" /></label>
-      <label>Client Email <input id="clientEmail" type="email" placeholder="Client Email" /></label>
+      <label>Client Name <input id="fromName" type="text" placeholder="Client Name" /></label>
+      <label>Client Email <input id="fromEmail" type="email" placeholder="Client Email" /></label>
       <label>Client Phone <input id="clientPhone" type="tel" placeholder="Client Phone" /></label>
-      <label>Client Address <input id="clientAddress" type="text" placeholder="Client Address" /></label>
+      <label>Client Address <input id="fromAddress" type="text" placeholder="Client Address" /></label>
 
       <label>Invoice Date <input id="invoiceDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
       <label>Due Date <input id="dueDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
@@ -132,7 +132,7 @@
     <!-- Step 6: Actions -->
     <section class="step">
       <h2>⚙️ Actions</h2>
-      <button onclick="saveInvoice()">💾 Save Invoice</button>
+      <button id="SaveInvoice">💾 Save Invoice</button>
       <a class="btn" href="invoices-list.html">📋 Open Invoices List</a>
     </section>
   </main>
@@ -287,8 +287,8 @@ function updateTotals() {
 
 /* ==== Reset & signatures ==== */
 function resetFormFields() {
-  ["businessName","kvk","iban","btw","email","businessAddress","businessPhone",
-   "clientName","clientEmail","clientAddress","clientPhone","note"].forEach(id=>{
+  ["businessName","kvk","fromIBAN","btw","email","businessAddress","businessPhone",
+   "fromName","fromEmail","fromAddress","clientPhone","note"].forEach(id=>{
     const el = document.getElementById(id); if (el) el.value="";
   });
   document.getElementById("invoiceNumber").value = generateNextInvoiceNumber();
@@ -346,14 +346,14 @@ function saveInvoice() {
   const invoice = {
     businessName: document.getElementById("businessName")?.value || "",
     kvk: document.getElementById("kvk")?.value || "",
-    iban: document.getElementById("iban")?.value || "",
+    fromIBAN: document.getElementById("fromIBAN")?.value || "",
     btw: document.getElementById("btw")?.value || "",
     email: document.getElementById("email")?.value || "",
     businessAddress: document.getElementById("businessAddress")?.value || "",
     businessPhone: document.getElementById("businessPhone")?.value || "",
-    clientName: document.getElementById("clientName")?.value || "",
-    clientEmail: document.getElementById("clientEmail")?.value || "",
-    clientAddress: document.getElementById("clientAddress")?.value || "",
+    fromName: document.getElementById("fromName")?.value || "",
+    fromEmail: document.getElementById("fromEmail")?.value || "",
+    fromAddress: document.getElementById("fromAddress")?.value || "",
     clientPhone: document.getElementById("clientPhone")?.value || "",
     invoiceNumber: (document.getElementById("invoiceNumber")?.value || "").trim() || generateNextInvoiceNumber(),
     invoiceDate: document.getElementById("invoiceDate")?.value || "",
@@ -413,18 +413,14 @@ function saveInvoice() {
       if (invoices.some(i => String(i.invoiceNumber) === String(invoice.invoiceNumber))) {
         alert("Invoice with this number already exists."); return;
       }
-      invoices.push(invoice);
-    }
+     invoices.push(invoice);
+  localStorage.setItem("savedInvoices", JSON.stringify(invoices));
+  alert("✅ Invoice saved!");
+}
     // Очистити прапори редагування
     localStorage.removeItem("editingOriginalNumber");
     window.EDITING_ORIGINAL_NUMBER = null;
-  } else {
-    // Новий — перевірка дубля
-    if (invoices.some(i => String(i.invoiceNumber) === String(invoice.invoiceNumber))) {
-      alert("Invoice with this number already exists."); return;
-    }
-    invoices.push(invoice);
-  }
+ 
 
   // Запис + “пульс”
   safeWriteInvoices(invoices);
@@ -446,12 +442,12 @@ function loadInvoiceForEditByNumber(num) {
   if (!inv) { alert("Invoice not found."); return; }
   if (normStatus(inv.status) !== "draft") { alert("Editing is only allowed in 'Draft' status."); return; }
 
-  ["businessName","kvk","iban","btw","email","businessAddress","businessPhone"].forEach(id=>{
+  ["businessName","kvk","fromIBAN","btw","email","businessAddress","businessPhone"].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value = inv[id] || "";
   });
-  document.getElementById("clientName").value = inv.clientName || "";
-  document.getElementById("clientEmail").value = inv.clientEmail || "";
-  document.getElementById("clientAddress").value = inv.clientAddress || "";
+  document.getElementById("fromName").value = inv.fromName || "";
+  document.getElementById("fromEmail").value = inv.fromEmail || "";
+  document.getElementById("fromAddress").value = inv.fromAddress || "";
   document.getElementById("clientPhone").value = inv.clientPhone || "";
   document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
   document.getElementById("invoiceDate").value = inv.invoiceDate || "";
@@ -576,13 +572,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const elBusinessPhone  = pick("businessPhone","phone","sellerPhone");
       const elBusinessAddr   = pick("businessAddress","address","sellerAddress","addrLine");
       const elKvK            = pick("kvk","kvkNumber","sellerKvK");
-      const elIBAN           = pick("iban","bankIban","sellerIban");
+      const elfromIBAN        = pick("fromIBAN","bankfromIBAN","sellerfromIBAN");
       const elVAT            = pick("vatNumber","vat","sellerVat");
       const fullName = profile.fullName || "";
       const address  = profile.address  || "";
       const phone    = profile.phone    || "";
       const kvk      = profile.kvk      || "";
-      const iban     = profile.iban     || "";
+      const fromIBAN     = profile.fromIBAN     || "";
       const vatNum   = profile.vatNumber || profile.vat || "";
       const email    = profile.email || userEmailFromAuth || "";
       setIfAllowed(elBusinessName, fullName);
@@ -590,7 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setIfAllowed(elBusinessPhone, phone);
       setIfAllowed(elBusinessAddr, address);
       setIfAllowed(elKvK, kvk);
-      setIfAllowed(elIBAN, iban);
+      setIfAllowed(elfromIBAN, fromIBAN);
       setIfAllowed(elVAT, vatNum);
     }
 
