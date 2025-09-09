@@ -60,7 +60,7 @@
     <button onclick="fillAI()">⚡ AI Fill</button>
     <button onclick="saveContract()">💾 Save Contract</button>
     <button onclick="viewSavedContracts()">📂 View Saved Contracts</button>
-    <button id="exportPdfBtn">📄 Export PDF</button>
+    <button onclick="generateFreelanceContractPDF()">📄 Export PDF</button>
     <button onclick="downloadDOCX()">Download DOCX</button>
   </div>
 
@@ -189,7 +189,7 @@ Signature: ${signatureName.value}
       viewSavedContracts();
     }
 
-   function exportPdfBtn() {
+   function generateFreelanceContractPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
