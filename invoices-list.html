@@ -147,8 +147,8 @@ function renderChart(invoices) {
 }
 function statusBadgeHTML(statusRaw){
   const s = normStatus(statusRaw);
-  const cls = s === "paid" ? "paid" : s === "sent" ? "sent" : "draft";
-  const txt = s === "paid" ? "Paid" : s === "sent" ? "Sent" : "Draft";
+  const cls = s === "paid" ? "paid" : s === "sent" ? "sent" : s === "reminder sent" ? "reminder" : "draft";
+  const txt = s === "paid" ? "Paid" : s === "sent" ? "Sent" : s === "reminder sent" ? "Reminder Sent" : "Draft";
   return `<span class="status-badge ${cls}">${txt}</span>`;
 }
 
