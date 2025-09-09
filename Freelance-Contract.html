@@ -231,12 +231,12 @@ Signature: ${signatureName.value}
   doc.text(`${businessName}`, 14, y);
   doc.text(`${clientName}`, 110, y);
   y += 5;
-  doc.text(`KvK: ${kvk}`, 14, y);
-  doc.text(`Address: ${clientAddress}`, 110, y);
+  doc.text(`businessKvK: ${businessKvK}`, 14, y);
+  doc.text(`clientAddress: ${clientAddress}`, 110, y);
   y += 5;
-  doc.text(`VAT: ${vat}`, 14, y);
+  doc.text(`businessVAT: ${businessVAT}`, 14, y);
   y += 5;
-  doc.text(`IBAN: ${iban}`, 14, y);
+  doc.text(`businessIBAN: ${businessIBAN}`, 14, y);
   y += 10;
 
   // Проєкт
@@ -278,11 +278,11 @@ Signature: ${signatureName.value}
   // Підпис
   y += 10;
   doc.setFont(undefined, "bold");
-  doc.text("Signature:", 14, y);
+  doc.text("signatureName:", 14, y);
   doc.setFont(undefined, "normal");
-  doc.text(signature, 40, y);
+  doc.text(signatureName, 40, y);
   y += 6;
-  doc.text(`Date: ${signDate}`, 14, y);
+  doc.text(`contractDate: ${contractDate}`, 14, y);
 
   // Footer / watermark
   doc.setFontSize(8);
