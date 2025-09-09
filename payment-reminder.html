@@ -129,34 +129,42 @@ document.addEventListener("DOMContentLoaded", () => {
   if (reminderDate) reminderDate.value = new Date().toISOString().slice(0, 10);
 
   // ✅ Dropdown збережених інвойсів
- const invoiceSelect = document.getElementById("invoiceSelect");
-const savedInvoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
+function populateInvoiceDropdown() {
+  const invoiceSelect = document.getElementById("invoiceSelect");
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
 
-if (invoiceSelect && savedInvoices.length) {
+  if (!invoiceSelect || invoices.length === 0) return;
+
   invoiceSelect.innerHTML = '<option>Select from saved invoices...</option>';
-  savedInvoices.forEach((inv, i) => {
-    const option = document.createElement("option");
-    option.value = i;
-    option.textContent = inv.invoiceNumber || `Invoice ${i + 1}`;
-    invoiceSelect.appendChild(option);
+
+  invoices.forEach((inv, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `${inv.invoiceNumber || `Invoice ${i + 1}`} — ${inv.clientName || "Client"}`;
+    invoiceSelect.appendChild(opt);
   });
 
   invoiceSelect.addEventListener("change", () => {
-    const inv = savedInvoices[invoiceSelect.value];
-    if (!inv) return;
-    set("invoiceNumber", inv.invoiceNumber || "");
-    set("invoiceDate", inv.invoiceDate || "");
-    set("dueDate", inv.dueDate || "");
-    set("amount", inv.total || inv.amount || "");
-    set("clientName", inv.clientName || "");
-    set("clientEmail", inv.clientEmail || "");
-    set("clientAddress", inv.clientAddress || "");
-    set("fromName", inv.fromName || "");
-    set("fromEmail", inv.fromEmail || "");
-    set("fromAddress", inv.fromAddress || "");
-    set("fromIBAN", inv.fromIBAN || "");
+    const selected = invoices[invoiceSelect.value];
+    if (!selected) return;
+
+    // Заповнення полів із обраного інвойсу
+    document.getElementById("invoiceNumber").value = selected.invoiceNumber || "";
+    document.getElementById("invoiceDate").value = selected.invoiceDate || "";
+    document.getElementById("dueDate").value = selected.dueDate || "";
+    document.getElementById("amount").value = selected.total || selected.amount || "";
+    document.getElementById("clientName").value = selected.clientName || "";
+    document.getElementById("clientEmail").value = selected.clientEmail || "";
+    document.getElementById("clientAddress").value = selected.clientAddress || "";
+    document.getElementById("businessName").value = selected.businessName || selected.businessName || "";
+    document.getElementById("email").value = selected.email || selected.email || "";
+    document.getElementById("businessAddress").value = selected.businessAddress || selected.businessAddress || "";
+    document.getElementById("iban").value = selected.iban || selected.iban || "";
   });
 }
+
+// 🔃 Виклик функції
+populateInvoiceDropdown();
 
 
 
