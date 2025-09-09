@@ -63,6 +63,12 @@
     <button onclick="generateFreelanceContractPDF()">📄 Export PDF</button>
     <button onclick="downloadDOCX()">Download DOCX</button>
   </div>
+  <div class="form-section">
+  <label>
+    <input type="checkbox" id="togglePro" />
+    Enable PRO (no branding in PDF)
+  </label>
+</div>
 
   <div class="section">
     <h2>Preview</h2>
@@ -308,6 +314,15 @@ Signature: ${signatureName.value}
       link.download = `SmartWerk-Freelance-Contract.doc`;
       link.click();
     }
+
+    // PRO toggle switch
+const togglePro = document.getElementById("togglePro");
+if (togglePro) {
+  togglePro.checked = localStorage.getItem("proUser") === "true";
+  togglePro.addEventListener("change", (e) => {
+    localStorage.setItem("proUser", e.target.checked ? "true" : "false");
+  });
+}
   </script>
 </body>
 </html>
