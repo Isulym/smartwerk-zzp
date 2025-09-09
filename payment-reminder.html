@@ -159,31 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-  function populateInvoiceDropdown() {
-  const invoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
-  const select = document.getElementById("invoiceSelector");
-
-  if (!select || invoices.length === 0) return;
-
-  invoices.forEach((inv, index) => {
-    const opt = document.createElement("option");
-    opt.value = inv.invoiceNumber;
-    opt.textContent = `${inv.invoiceNumber} — ${inv.clientName || "Unnamed Client"}`;
-    select.appendChild(opt);
-  });
-
-  select.addEventListener("change", () => {
-    const selectedInvoice = invoices.find(inv => inv.invoiceNumber === select.value);
-    if (selectedInvoice) {
-      document.getElementById("invoiceNumber").value = selectedInvoice.invoiceNumber || "";
-      document.getElementById("invoiceDate").value = selectedInvoice.invoiceDate || "";
-      document.getElementById("amount").value = selectedInvoice.totalAmount || "";
-      document.getElementById("clientName").value = selectedInvoice.clientName || "";
-      document.getElementById("clientEmail").value = selectedInvoice.clientEmail || "";
-    }
-  });
-    populateInvoiceDropdown();
-}
+ 
 
   // ... додай інші кнопки тут (AI Fill, Save, Export PDF тощо) ...
 
