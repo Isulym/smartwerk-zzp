@@ -131,8 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ✅ Dropdown збережених інвойсів
 function populateInvoiceDropdown() {
-  const invoiceSelect = document.getElementById("invoiceSelect");
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+ const invoiceSelect = document.getElementById("invoiceSelect");
+ const invoiceText = invoiceSelect.options[invoiceSelect.selectedIndex]?.text || invoiceSelect.value;
 
   if (!invoiceSelect || invoices.length === 0) return;
 
@@ -333,7 +333,7 @@ window.exportReminderPDF = function(withBranding = true) {
   const businessName = clean(document.getElementById("fromName").value);
   const businessEmail = clean(document.getElementById("fromEmail").value);
   const businessAddress = clean(document.getElementById("fromAddress").value);
-  const fromIBAN = clean(document.getElementById("fromIBAN").value);
+  const businessIBAN = clean(document.getElementById("fromIBAN").value);
 
   const clientName = clean(document.getElementById("clientName").value);
   const clientEmail = clean(document.getElementById("clientEmail").value);
@@ -358,11 +358,12 @@ window.exportReminderPDF = function(withBranding = true) {
   doc.setFontSize(18);
   doc.text("Payment Reminder", 105, 20, null, null, "center");
 
+  const reminderType = clean(document.getElementById("reminderType").value);
   doc.setFontSize(12);
   doc.text(`Reminder ID: ${reminderId}`, 20, 30);
   doc.text(`Date: ${reminderDate}`, 20, 36);
-  doc.text(`Invoice: ${invoiceNumber}`, 20, 42);
-  doc.text(`Reminder Type: ${reminderType}`, 20, 48);
+  doc.text(`Invoice: ${invoiceText}`, 20, 42);
+  doc.text(`Reminder Type: ${reminderType}`, 20, 60);  
 
   // Business Info
   doc.setFont(undefined, "bold");
@@ -410,9 +411,10 @@ window.exportReminderPDF = function(withBranding = true) {
   }
 
   // Signature
-  doc.setFont(undefined, "bold");
-  doc.text("Signature:", 20, 160);
-  doc.setFont(undefined, "normal");
+  doc.setFontSize(12);
+  doc.text("Signature:", 20, y); // y = після останнього елемента
+  doc.setFontSize(11);
+  doc.text(`${businessName}\n${businessAddress}\n${businessEmail}`, 20, y + 6);;
   doc.text(`${name}`, 20, 166);
   if (position) doc.text(position, 20, 172);
   if (email) doc.text(email, 20, 178);
