@@ -164,3 +164,13 @@ footer {
     width: 100%;
   }
 }
+
+#invoiceSelector {
+  padding: 8px;
+  border: 1px solid var(--line, #333);
+  border-radius: 8px;
+  width: 100%;
+  background-color: #1c1f2a;
+  color: #fff;
+  margin-bottom: 1em;
+}
