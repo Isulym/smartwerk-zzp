@@ -112,26 +112,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const get = (id) => document.getElementById(id)?.value || "";
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
 
-  // Встановити поточну дату
+  // ✅ Автоматична генерація Reminder ID (REM-2025-001)
+  const reminderIdField = document.getElementById("reminderId");
+  if (reminderIdField) {
+    const savedReminders = JSON.parse(localStorage.getItem("savedReminders") || "[]");
+    const year = new Date().getFullYear();
+    let counter = 1;
+    const used = savedReminders
+      .map(r => parseInt((r.reminderId || "").split("-")[2]))
+      .filter(n => !isNaN(n));
+    if (used.length) counter = Math.max(...used) + 1;
+    reminderIdField.value = `REM-${year}-${String(counter).padStart(3, "0")}`;
+  }
+
+  // ✅ Автоматична дата Reminder Date
   const reminderDate = document.getElementById("reminderDate");
   if (reminderDate) reminderDate.value = new Date().toISOString().slice(0, 10);
 
-  // Генеруємо Reminder ID автоматично
-  const reminderIdField = document.getElementById("reminderId");
-  if (reminderIdField) {
-    const saved = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-    let latestId = saved.length ? saved[saved.length - 1].reminderId : null;
-    let year = new Date().getFullYear();
-    let counter = 1;
+  // ✅ Dropdown збережених інвойсів
+  const invoiceSelect = document.getElementById("invoiceSelect");
+  const savedInvoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
+  if (invoiceSelect && savedInvoices.length) {
+    invoiceSelect.innerHTML = '<option>Select from saved invoices...</option>';
+    savedInvoices.forEach((inv, i) => {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = inv.invoiceNumber || `Invoice ${i + 1}`;
+      invoiceSelect.appendChild(option);
+    });
 
-    if (latestId && latestId.startsWith(`REM-${year}-`)) {
-      let parts = latestId.split("-");
-      let num = parseInt(parts[2]);
-      counter = isNaN(num) ? 1 : num + 1;
-    }
-
-    reminderIdField.value = `REM-${year}-${String(counter).padStart(3, "0")}`;
+    invoiceSelect.addEventListener("change", () => {
+      const inv = savedInvoices[invoiceSelect.value];
+      if (!inv) return;
+      set("invoiceNumber", inv.invoiceNumber || "");
+      set("invoiceDate", inv.invoiceDate || "");
+      set("dueDate", inv.dueDate || "");
+      set("amount", inv.total || inv.amount || "");
+      set("clientName", inv.clientName || "");
+      set("clientEmail", inv.clientEmail || "");
+      set("clientAddress", inv.clientAddress || "");
+      set("fromName", inv.fromName || "");
+      set("fromEmail", inv.fromEmail || "");
+      set("fromAddress", inv.fromAddress || "");
+      set("fromIBAN", inv.fromIBAN || "");
+    });
   }
+});
 
 
   function populateInvoiceDropdown() {
