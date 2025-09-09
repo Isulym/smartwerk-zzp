@@ -248,6 +248,33 @@ Signature: ${signatureName.value}
   doc.text(splitProject, 14, y);
   y += splitProject.length * 6;
 
+
+
+ const today = new Date().toISOString().split('T')[0];
+  const businessName = document.getElementById("businessName").value;
+  const businessKvK = document.getElementById("businessKvK").value;
+  const businessVAT = document.getElementById("businessVAT").value;
+  const businessIBAN = document.getElementById("businessIBAN").value;
+
+  const clientName = document.getElementById("clientName").value;
+  const clientAddress = document.getElementById("clientAddress").value;
+
+  const projectDescription = document.getElementById("projectDescription").value;
+  const timeline = document.getElementById("timeline").value;
+  const rate = document.getElementById("rate").value;
+  const paymentTerms = document.getElementById("paymentTerms").value;
+  const terminationClause = document.getElementById("terminationClause").value;
+  const jurisdiction = document.getElementById("jurisdiction").value;
+  const signatureName = document.getElementById("signatureName").value;
+  const contractDate = document.getElementById("contractDate").valu
+
+
+
+
+
+
+   
+
   // Таймлайн
   doc.setFont(undefined, "bold");
   doc.text("Timeline", 14, y);
@@ -262,7 +289,7 @@ Signature: ${signatureName.value}
   doc.text("Payment Terms", 14, y);
   doc.setFont(undefined, "normal");
   y += 6;
-  const splitPayment = doc.splitTextToSize(payment, 180);
+  const splitPayment = doc.splitTextToSize(paymentTerms, 180);
   doc.text(splitPayment, 14, y);
   y += splitPayment.length * 6;
 
@@ -271,7 +298,7 @@ Signature: ${signatureName.value}
   doc.text("Legal", 14, y);
   doc.setFont(undefined, "normal");
   y += 6;
-  const splitLegal = doc.splitTextToSize(legal, 180);
+  const splitLegal = doc.splitTextToSize(terminationClause, 180);
   doc.text(splitLegal, 14, y);
   y += splitLegal.length * 6;
 
