@@ -290,6 +290,7 @@ const updatedInvoices = savedInvoices.map(inv => {
 });
 
 localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
+  });
 
   // View Saved
   document.getElementById("btn-view-saved")?.addEventListener("click", () => {
