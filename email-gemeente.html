@@ -269,46 +269,47 @@ document.getElementById("translateBtn")?.addEventListener("click", () => {
   });
 
   // === Export PDF (with/without branding) ===
-  document.getElementById("btn-export-pdf")?.addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 20;
+ document.getElementById("btn-export-pdf")?.addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 20;
 
-    const addSection = (title, content) => {
-      doc.setFontSize(14);
-      doc.setFont(undefined, "bold");
-      doc.text(title, 14, y);
-      y += 6;
-      doc.setFontSize(12);
-      doc.setFont(undefined, "normal");
-      const lines = doc.splitTextToSize(content, 180);
-      doc.text(lines, 14, y);
-      y += lines.length * 6 + 4;
-    };
+  const get = (id) => document.getElementById(id)?.value || "";
 
-    const isPro = localStorage.getItem("proUser") === "true";
-
-    doc.setFontSize(18);
+  const addSection = (title, content) => {
+    doc.setFontSize(14);
     doc.setFont(undefined, "bold");
-    doc.text("Email to Gemeente", 14, y);
-    y += 10;
+    doc.text(title, 14, y);
+    y += 6;
+    doc.setFontSize(12);
+    doc.setFont(undefined, "normal");
+    const lines = doc.splitTextToSize(content, 180);
+    doc.text(lines, 14, y);
+    y += lines.length * 6 + 4;
+  };
 
-    addSection("From", `${get("fromName")}\n${get("fromEmail")}\n${get("fromAddress")}`);
-    addSection("To", `${get("toGemeente")}\n${get("toEmail")}`);
-    addSection("Subject", get("subject"));
-    addSection("Message", get("messageBody"));
-    addSection("Signature", get("signature"));
-    addSection("Date & Location", `${get("todayDate")} — ${get("city")}`);
+  doc.setFontSize(18);
+  doc.text("Email to Gemeente", 14, y);
+  y += 10;
 
-    if (!isPro) {
-      doc.setFontSize(10);
-      doc.setTextColor(150);
-      doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
-    }
+  addSection("From", `${get("fromName")}\n${get("fromEmail")}\n${get("fromAddress")}`);
+  addSection("To", `${get("toGemeente")}\n${get("toEmail")}`);
+  addSection("Subject", get("subject"));
+  addSection("Message", get("messageBody"));
+  addSection("Signature", get("signature"));
+  addSection("Date & Location", `${get("todayDate")} — ${get("city")}`);
 
-    doc.save(`Email-to-Gemeente-${get("toGemeente") || "SmartWerk"}.pdf`);
-  });
+  // Branding (only if not PRO)
+  const isPro = document.getElementById("proPdfCheckbox")?.checked;
+  if (!isPro) {
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+  }
+
+  doc.save(`Email-to-Gemeente-${get("toGemeente") || "SmartWerk"}.pdf`);
 });
+  
 </script>
 </body>
 </html>
