@@ -89,7 +89,8 @@
       <button id="btn-view-saved">📂 Saved Reminders</button>
       <button id="btn-preview">📅 Preview</button>
       <button id="btn-send-email">Send via Email</button>
-      <button id="btn-export-pdf">📄 Export as PDF</button>
+      <button onclick="exportReminderPDF(true)">📄 Export PDF</button>
+      <button onclick="exportReminderPDF(false)">PRO 📄 Export without branding</button>
       <button id="btn-print">🖨 Print</button>
     </div>
 
@@ -322,37 +323,76 @@ localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
     document.getElementById("btn-view-saved").click(); // Reload list
   };
 
-  // Export PDF
-  document.getElementById("btn-export-pdf")?.addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 20;
+// ======= 📄 EXPORT PDF FUNCTION FOR PAYMENT REMINDER =======
+function exportReminderPDF(withBranding = true) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-    const addSection = (title, content) => {
-      doc.setFontSize(14); doc.setFont(undefined, "bold"); doc.text(title, 14, y); y += 6;
-      doc.setFontSize(12); doc.setFont(undefined, "normal");
-      const lines = doc.splitTextToSize(content, 180);
-      doc.text(lines, 14, y);
-      y += lines.length * 6 + 4;
-    };
+  const get = (id) => document.getElementById(id)?.value || "";
 
-    doc.setFontSize(18);
-    doc.text("📈 Payment Reminder", 14, y);
-    y += 10;
+  const reminderId = get("reminderId") || "REM-XXXX-XXX";
+  const invoiceNumber = get("invoiceNumber") || "N/A";
+  const reminderDate = get("reminderDate") || "";
+  const clientName = get("clientName") || "";
+  const clientEmail = get("clientEmail") || "";
+  const clientAddress = get("clientAddress") || "";
+  const fromName = get("fromName") || "";
+  const fromEmail = get("fromEmail") || "";
+  const fromAddress = get("fromAddress") || "";
+  const fromIBAN = get("fromIBAN") || "";
+  const amount = get("amount") || "";
+  const dueDate = get("dueDate") || "";
+  const message = get("reminderMessage") || "";
+  const payLink = get("payNowLink") || "";
 
-    addSection("From", `${get("fromName")}, ${get("fromEmail")}, ${get("fromAddress")}`);
-    addSection("To", `${get("clientName")}, ${get("clientEmail")}, ${get("clientAddress")}`);
-    addSection("Invoice", `Invoice #: ${get("invoiceNumber")}, Amount: €${get("amount")}, Due: ${get("dueDate")}`);
-    addSection("Message", get("messageBody"));
-    addSection("Signature", `${get("signatureName")} — ${get("signaturePosition")}\n${get("signatureEmail")}`);
-    addSection("Reminder Date", `${get("reminderDate")} — ${get("city")}`);
+  // === PDF CONTENT ===
+  doc.setFontSize(16);
+  doc.text("Payment Reminder", 105, 20, null, null, "center");
 
-    doc.setFontSize(10);
+  doc.setFontSize(10);
+  doc.text(`Reminder ID: ${reminderId}`, 20, 30);
+  doc.text(`Reminder Date: ${reminderDate}`, 20, 36);
+  doc.text(`Invoice Number: ${invoiceNumber}`, 20, 42);
+  doc.text(`Amount Due: €${amount}`, 20, 48);
+  doc.text(`Due Date: ${dueDate}`, 20, 54);
+
+  // === FROM ===
+  doc.setFontSize(12); doc.text("From:", 20, 64);
+  doc.setFontSize(10);
+  doc.text(`${fromName}`, 20, 70);
+  doc.text(`Email: ${fromEmail}`, 20, 76);
+  doc.text(`Address: ${fromAddress}`, 20, 82);
+  doc.text(`IBAN: ${fromIBAN}`, 20, 88);
+
+  // === TO ===
+  doc.setFontSize(12); doc.text("To:", 140, 64);
+  doc.setFontSize(10);
+  doc.text(`${clientName}`, 140, 70);
+  doc.text(`Email: ${clientEmail}`, 140, 76);
+  doc.text(`Address: ${clientAddress}`, 140, 82);
+
+  // === MESSAGE ===
+  doc.setFontSize(12); doc.text("Message:", 20, 100);
+  doc.setFontSize(10);
+  const lines = doc.splitTextToSize(message, 170);
+  doc.text(lines, 20, 106);
+
+  // === PAYMENT LINK ===
+  if (payLink) {
+    doc.setFontSize(12); doc.text("Pay Now:", 20, doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 130);
+    doc.setFontSize(10); doc.text(payLink, 20, doc.lastAutoTable ? doc.lastAutoTable.finalY + 16 : 136);
+  }
+
+  // === BRANDING ===
+  if (withBranding) {
+    doc.setFontSize(8);
     doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+    doc.text("Generated via SmartWerk — Freelance Business Assistant", 105, 285, null, null, "center");
+  }
 
-    doc.save(`Payment-Reminder-${get("invoiceNumber") || "SmartWerk"}.pdf`);
-  });
+  // === SAVE ===
+  doc.save(`${reminderId}.pdf`);
+}
 
   // Print
   document.getElementById("btn-print")?.addEventListener("click", () => {
