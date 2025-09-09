@@ -279,18 +279,17 @@ document.getElementById("btn-save")?.addEventListener("click", () => {
   alert("✅ Reminder saved!");
 
   // 🟠 Оновити статус інвойсу
-  const savedInvoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
-  const invoiceNumber = newReminder.invoiceNumber;
+const savedInvoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+const invoiceNumber = document.getElementById("invoiceNumber")?.value;
 
-  const updatedInvoices = savedInvoices.map(inv => {
-    if (inv.invoiceNumber === invoiceNumber) {
-      return { ...inv, status: "Reminder Sent" };
-    }
-    return inv;
-  });
-
-  localStorage.setItem("savedInvoices", JSON.stringify(updatedInvoices));
+const updatedInvoices = savedInvoices.map(inv => {
+  if (inv.invoiceNumber === invoiceNumber) {
+    return { ...inv, status: "Reminder Sent" };
+  }
+  return inv;
 });
+
+localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
 
   // View Saved
   document.getElementById("btn-view-saved")?.addEventListener("click", () => {
