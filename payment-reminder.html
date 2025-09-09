@@ -109,9 +109,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const get = (id) => document.getElementById(id)?.value || "";
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
 
-  // Автоматична дата нагадування
+  // Встановити поточну дату
   const reminderDate = document.getElementById("reminderDate");
   if (reminderDate) reminderDate.value = new Date().toISOString().slice(0, 10);
+
+  // Генеруємо Reminder ID автоматично
+  const reminderIdField = document.getElementById("reminderId");
+  if (reminderIdField) {
+    const saved = JSON.parse(localStorage.getItem("savedReminders") || "[]");
+    let latestId = saved.length ? saved[saved.length - 1].reminderId : null;
+    let year = new Date().getFullYear();
+    let counter = 1;
+
+    if (latestId && latestId.startsWith(`REM-${year}-`)) {
+      let parts = latestId.split("-");
+      let num = parseInt(parts[2]);
+      counter = isNaN(num) ? 1 : num + 1;
+    }
+
+    reminderIdField.value = `REM-${year}-${String(counter).padStart(3, "0")}`;
+  }
+
+  // ... додай інші кнопки тут (AI Fill, Save, Export PDF тощо) ...
+});
 
   // AI Fill
   document.getElementById("aiFillBtn")?.addEventListener("click", () => {
