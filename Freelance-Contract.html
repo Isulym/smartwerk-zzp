@@ -195,21 +195,24 @@ Signature: ${signatureName.value}
   // Дані з форми
   const today = new Date().toISOString().split('T')[0];
   const businessName = document.getElementById("businessName").value;
-  const businessKvK = document.getElementById("businessKvK").value;
-  const businessVAT = document.getElementById("businessVAT").value;
-  const businessIBAN = document.getElementById("businessIBAN").value;
+  const kvk = document.getElementById("businessKvK").value;
+  const vat = document.getElementById("businessVAT").value;
+  const iban = document.getElementById("businessIBAN").value;
 
   const clientName = document.getElementById("clientName").value;
   const clientAddress = document.getElementById("clientAddress").value;
 
-  const projectDescription = document.getElementById("projectDescription").value;
+  const project = document.getElementById("projectDescription").value;
   const timeline = document.getElementById("timeline").value;
+
   const rate = document.getElementById("rate").value;
   const paymentTerms = document.getElementById("paymentTerms").value;
-  const terminationClause = document.getElementById("terminationClause").value;
+
+  const termination = document.getElementById("terminationClause").value;
   const jurisdiction = document.getElementById("jurisdiction").value;
-  const signatureName = document.getElementById("signatureName").value;
-  const contractDate = document.getElementById("contractDate").value;
+
+  const signature = document.getElementById("signatureName").value;
+  const signDate = document.getElementById("contractDate").value;
 
   let y = 20;
 
@@ -231,12 +234,12 @@ Signature: ${signatureName.value}
   doc.text(`${businessName}`, 14, y);
   doc.text(`${clientName}`, 110, y);
   y += 5;
-  doc.text(`businessKvK: ${businessKvK}`, 14, y);
-  doc.text(`clientAddress: ${clientAddress}`, 110, y);
+  if (kvk) doc.text(`KvK: ${kvk}`, 14, y);
+  if (clientAddress) doc.text(`Address: ${clientAddress}`, 110, y);
   y += 5;
-  doc.text(`businessVAT: ${businessVAT}`, 14, y);
+  if (vat) doc.text(`VAT: ${vat}`, 14, y);
   y += 5;
-  doc.text(`businessIBAN: ${businessIBAN}`, 14, y);
+  if (iban) doc.text(`IBAN: ${iban}`, 14, y);
   y += 10;
 
   // Проєкт
@@ -244,74 +247,53 @@ Signature: ${signatureName.value}
   doc.text("Project", 14, y);
   doc.setFont(undefined, "normal");
   y += 6;
-  const splitProject = doc.splitTextToSize(projectDescription, 180);
+  const splitProject = doc.splitTextToSize(project, 180);
   doc.text(splitProject, 14, y);
   y += splitProject.length * 6;
 
+  // Timeline
+  if (timeline) {
+    doc.setFont(undefined, "bold");
+    doc.text("Timeline", 14, y);
+    doc.setFont(undefined, "normal");
+    y += 6;
+    const splitTimeline = doc.splitTextToSize(timeline, 180);
+    doc.text(splitTimeline, 14, y);
+    y += splitTimeline.length * 6;
+  }
 
-
- const today = new Date().toISOString().split('T')[0];
-  const businessName = document.getElementById("businessName").value;
-  const businessKvK = document.getElementById("businessKvK").value;
-  const businessVAT = document.getElementById("businessVAT").value;
-  const businessIBAN = document.getElementById("businessIBAN").value;
-
-  const clientName = document.getElementById("clientName").value;
-  const clientAddress = document.getElementById("clientAddress").value;
-
-  const projectDescription = document.getElementById("projectDescription").value;
-  const timeline = document.getElementById("timeline").value;
-  const rate = document.getElementById("rate").value;
-  const paymentTerms = document.getElementById("paymentTerms").value;
-  const terminationClause = document.getElementById("terminationClause").value;
-  const jurisdiction = document.getElementById("jurisdiction").value;
-  const signatureName = document.getElementById("signatureName").value;
-  const contractDate = document.getElementById("contractDate").valu
-
-
-
-
-
-
-   
-
-  // Таймлайн
-  doc.setFont(undefined, "bold");
-  doc.text("Timeline", 14, y);
-  doc.setFont(undefined, "normal");
-  y += 6;
-  const splitTimeline = doc.splitTextToSize(timeline, 180);
-  doc.text(splitTimeline, 14, y);
-  y += splitTimeline.length * 6;
-
-  // Оплата
+  // Payment
   doc.setFont(undefined, "bold");
   doc.text("Payment Terms", 14, y);
   doc.setFont(undefined, "normal");
   y += 6;
-  const splitPayment = doc.splitTextToSize(paymentTerms, 180);
+  const paymentFull = `Rate: ${rate}\n${paymentTerms}`;
+  const splitPayment = doc.splitTextToSize(paymentFull, 180);
   doc.text(splitPayment, 14, y);
   y += splitPayment.length * 6;
 
   // Legal
-  doc.setFont(undefined, "bold");
-  doc.text("Legal", 14, y);
-  doc.setFont(undefined, "normal");
-  y += 6;
-  const splitLegal = doc.splitTextToSize(terminationClause, 180);
-  doc.text(splitLegal, 14, y);
-  y += splitLegal.length * 6;
+  if (termination || jurisdiction) {
+    doc.setFont(undefined, "bold");
+    doc.text("Legal", 14, y);
+    doc.setFont(undefined, "normal");
+    y += 6;
+    const legalText = `${termination}\n${jurisdiction}`;
+    const splitLegal = doc.splitTextToSize(legalText, 180);
+    doc.text(splitLegal, 14, y);
+    y += splitLegal.length * 6;
+  }
 
   // Підпис
   y += 10;
   doc.setFont(undefined, "bold");
-  doc.text("signatureName:", 14, y);
+  doc.text("Signature:", 14, y);
   doc.setFont(undefined, "normal");
-  doc.text(signatureName, 40, y);
+  doc.text(signature, 40, y);
   y += 6;
-  doc.text(`contractDate: ${contractDate}`, 14, y);
+  doc.text(`Date: ${signDate}`, 14, y);
 
-  // Footer / watermark
+  // Footer
   doc.setFontSize(8);
   doc.setTextColor(150);
   doc.text("Generated with SmartWerk Freelance Contract Tool", 105, 290, { align: "center" });
