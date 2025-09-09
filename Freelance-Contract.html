@@ -188,7 +188,7 @@ Signature: ${signatureName.value}
       localStorage.setItem("contracts", JSON.stringify(saved));
       viewSavedContracts();
     }
-
+ document.getElementById("generateFreelanceContractPDF").addEventListener("click", () => {
    function generateFreelanceContractPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
