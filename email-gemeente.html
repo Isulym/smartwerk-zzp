@@ -104,8 +104,185 @@
 </div>
 
   <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const get = (id) => document.getElementById(id)?.value || "";
 
-    
-  </script>
+  // Auto-fill today's date
+  const todayField = document.getElementById("todayDate");
+  if (todayField) todayField.value = new Date().toISOString().slice(0, 10);
+
+  // === AI Fill ===
+  document.getElementById("aiFillBtn")?.addEventListener("click", () => {
+    document.getElementById("messageBody").value =
+      "I am writing to request urgent assistance regarding my housing situation. I kindly ask for support or clarification on possible solutions available for residents in my case. Thank you.";
+    document.getElementById("signature").value =
+      "Met vriendelijke groet,\n" + get("fromName");
+    document.querySelectorAll("textarea, input").forEach((el) => {
+      if (el.value) el.classList.add("ai-filled");
+    });
+  });
+
+  // === Load Example ===
+  document.getElementById("loadExampleBtn")?.addEventListener("click", () => {
+    const type = document.getElementById("exampleSelect").value;
+    if (type === "subsidy") {
+      document.getElementById("subject").value = "Request for energy subsidy";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI would like to request an energy subsidy due to financial challenges. Please let me know the required steps and documentation.\n\nThank you.";
+    } else if (type === "complaint") {
+      document.getElementById("subject").value = "Formal Complaint";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI am submitting this complaint regarding an unresolved issue. I kindly ask for a formal response and solution.\n\nSincerely.";
+    } else if (type === "housing") {
+      document.getElementById("subject").value = "Urgent housing request";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI am urgently looking for housing for my family. I kindly ask for assistance or advice on available options.\n\nThank you.";
+    }
+  });
+
+  // === Translate Placeholder ===
+  document.getElementById("translateBtn")?.addEventListener("click", () => {
+    const lang = document.getElementById("languageSelect").value;
+    if (lang === "nl") {
+      document.getElementById("subject").placeholder = "Onderwerp";
+      document.getElementById("messageBody").placeholder = "Typ je bericht...";
+      document.getElementById("fromName").placeholder = "Jouw naam";
+      document.getElementById("fromEmail").placeholder = "Jouw e-mailadres";
+    } else {
+      document.getElementById("subject").placeholder = "Subject";
+      document.getElementById("messageBody").placeholder = "Write your message...";
+      document.getElementById("fromName").placeholder = "Your name";
+      document.getElementById("fromEmail").placeholder = "Your email address";
+    }
+  });
+
+  // === Save Email ===
+  document.getElementById("btn-save-email")?.addEventListener("click", () => {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    const email = {
+      fromName: get("fromName"),
+      fromEmail: get("fromEmail"),
+      fromAddress: get("fromAddress"),
+      toGemeente: get("toGemeente"),
+      toEmail: get("toEmail"),
+      subject: get("subject"),
+      body: get("messageBody"),
+      date: get("todayDate"),
+      city: get("city"),
+      signature: get("signature"),
+    };
+    saved.push(email);
+    localStorage.setItem("savedEmails", JSON.stringify(saved));
+    alert("✅ Email saved successfully!");
+  });
+
+  // === View Saved Emails ===
+  document.getElementById("btn-view-saved")?.addEventListener("click", () => {
+    const list = document.getElementById("savedEmailsList");
+    list.innerHTML = "";
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    if (!saved.length) {
+      list.innerHTML = "<p class='muted'>No saved emails yet.</p>";
+    } else {
+      saved.forEach((e, i) => {
+        const div = document.createElement("div");
+        div.className = "email-entry";
+        div.innerHTML = `
+          <strong>${e.subject}</strong> (${e.date}, ${e.city})<br/>
+          To: ${e.toGemeente} — ${e.toEmail}<br/>
+          <button onclick="fillEmail(${i})">📥 Load</button>
+          <button onclick="deleteEmail(${i})">🗑 Delete</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+    document.getElementById("savedEmailsModal").style.display = "block";
+  });
+
+  window.fillEmail = function (index) {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]")[index];
+    if (!saved) return;
+    document.getElementById("fromName").value = saved.fromName;
+    document.getElementById("fromEmail").value = saved.fromEmail;
+    document.getElementById("fromAddress").value = saved.fromAddress;
+    document.getElementById("toGemeente").value = saved.toGemeente;
+    document.getElementById("toEmail").value = saved.toEmail;
+    document.getElementById("subject").value = saved.subject;
+    document.getElementById("messageBody").value = saved.body;
+    document.getElementById("todayDate").value = saved.date;
+    document.getElementById("city").value = saved.city;
+    document.getElementById("signature").value = saved.signature;
+    document.getElementById("savedEmailsModal").style.display = "none";
+  };
+
+  window.deleteEmail = function (index) {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    saved.splice(index, 1);
+    localStorage.setItem("savedEmails", JSON.stringify(saved));
+    document.getElementById("btn-view-saved").click(); // Reload
+  };
+
+  // === Send Email ===
+  document.getElementById("sendEmailBtn")?.addEventListener("click", () => {
+    const toEmail = get("toEmail");
+    const subject = get("subject");
+    const body =
+      get("messageBody") +
+      "\n\n" +
+      get("signature") +
+      "\n" +
+      get("todayDate") +
+      " — " +
+      get("city");
+    if (!toEmail || !subject || !body) {
+      alert("❗ Please fill in recipient, subject and message.");
+      return;
+    }
+    const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink, "_blank");
+  });
+
+  // === Export PDF (with/without branding) ===
+  document.getElementById("btn-export-pdf")?.addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 20;
+
+    const addSection = (title, content) => {
+      doc.setFontSize(14);
+      doc.setFont(undefined, "bold");
+      doc.text(title, 14, y);
+      y += 6;
+      doc.setFontSize(12);
+      doc.setFont(undefined, "normal");
+      const lines = doc.splitTextToSize(content, 180);
+      doc.text(lines, 14, y);
+      y += lines.length * 6 + 4;
+    };
+
+    const isPro = localStorage.getItem("proUser") === "true";
+
+    doc.setFontSize(18);
+    doc.setFont(undefined, "bold");
+    doc.text("Email to Gemeente", 14, y);
+    y += 10;
+
+    addSection("From", `${get("fromName")}\n${get("fromEmail")}\n${get("fromAddress")}`);
+    addSection("To", `${get("toGemeente")}\n${get("toEmail")}`);
+    addSection("Subject", get("subject"));
+    addSection("Message", get("messageBody"));
+    addSection("Signature", get("signature"));
+    addSection("Date & Location", `${get("todayDate")} — ${get("city")}`);
+
+    if (!isPro) {
+      doc.setFontSize(10);
+      doc.setTextColor(150);
+      doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+    }
+
+    doc.save(`Email-to-Gemeente-${get("toGemeente") || "SmartWerk"}.pdf`);
+  });
+});
+</script>
 </body>
 </html>
