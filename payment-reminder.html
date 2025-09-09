@@ -89,8 +89,8 @@
       <button id="btn-view-saved">📂 Saved Reminders</button>
       <button id="btn-preview">📅 Preview</button>
       <button id="btn-send-email">Send via Email</button>
-      <button onclick="exportReminderPDF(true)">📄 Export PDF</button>
-      <button onclick="exportReminderPDF(false)">PRO 📄 Export without branding</button>
+      <button id="btn-exportReminderPDF(true)">📄 Export PDF</button>
+      <button id="btn-exportReminderPDF(false)">📄 Export without branding</button>
       <button id="btn-print">🖨 Print</button>
     </div>
 
@@ -324,7 +324,7 @@ localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
   };
 
 // ======= 📄 EXPORT PDF FUNCTION FOR PAYMENT REMINDER =======
-window.exportReminderPDF = function(withBranding = true) {
+function exportReminderPDF(withBranding = true) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
@@ -333,6 +333,7 @@ window.exportReminderPDF = function(withBranding = true) {
   const businessName = clean(document.getElementById("fromName").value);
   const businessEmail = clean(document.getElementById("fromEmail").value);
   const businessAddress = clean(document.getElementById("fromAddress").value);
+  const fromIBAN = clean(document.getElementById("fromIBAN").value);
 
   const clientName = clean(document.getElementById("clientName").value);
   const clientEmail = clean(document.getElementById("clientEmail").value);
@@ -342,7 +343,7 @@ window.exportReminderPDF = function(withBranding = true) {
   const reminderDate = clean(document.getElementById("reminderDate").value);
   const invoiceNumber = clean(document.getElementById("invoiceSelect").value);
   const dueDate = clean(document.getElementById("dueDate").value);
-  const amountDue = clean(document.getElementById("amountDue").value);
+  const amountDue = clean(document.getElementById("amount").value);
   const reminderType = clean(document.getElementById("reminderType").value);
 
   const messageBody = clean(document.getElementById("messageBody").value);
