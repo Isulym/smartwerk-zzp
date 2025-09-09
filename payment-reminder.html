@@ -341,10 +341,11 @@ window.exportReminderPDF = function(withBranding = true) {
 
   const reminderId = clean(document.getElementById("reminderId").value);
   const reminderDate = clean(document.getElementById("reminderDate").value);
+  const reminderType = clean(document.getElementById("reminderType").value);
   const invoiceNumber = clean(document.getElementById("invoiceSelect").value);
   const dueDate = clean(document.getElementById("dueDate").value);
   const amountDue = clean(document.getElementById("amount").value);
-  const reminderType = clean(document.getElementById("reminderType").value);
+ 
 
   const messageBody = clean(document.getElementById("messageBody").value);
   const paymentLink = clean(document.getElementById("paymentLink").value);
@@ -364,7 +365,7 @@ window.exportReminderPDF = function(withBranding = true) {
   doc.text(`Date: ${reminderDate}`, 20, 36);
   doc.text(`Invoice: ${invoiceText}`, 20, 42);
   doc.text(`Reminder Type: ${reminderType}`, 20, 60);  
-   const reminderType = clean(document.getElementById("reminderType").value);
+
 
   // Business Info
   doc.setFont(undefined, "bold");
