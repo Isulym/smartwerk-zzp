@@ -324,7 +324,7 @@ localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
   };
 
 // ======= 📄 EXPORT PDF FUNCTION FOR PAYMENT REMINDER =======
-function exportReminderPDF(withBranding = true) {
+window.exportReminderPDF = function(withBranding = true) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
