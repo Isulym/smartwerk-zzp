@@ -112,15 +112,25 @@ document.addEventListener("DOMContentLoaded", () => {
   if (todayField) todayField.value = new Date().toISOString().slice(0, 10);
 
   // === AI Fill ===
-  document.getElementById("aiFillBtn")?.addEventListener("click", () => {
-    document.getElementById("messageBody").value =
-      "I am writing to request urgent assistance regarding my housing situation. I kindly ask for support or clarification on possible solutions available for residents in my case. Thank you.";
-    document.getElementById("signature").value =
-      "Met vriendelijke groet,\n" + get("fromName");
-    document.querySelectorAll("textarea, input").forEach((el) => {
-      if (el.value) el.classList.add("ai-filled");
-    });
+// AI Fill (заповнює ВСІ поля)
+document.getElementById("aiFillBtn")?.addEventListener("click", () => {
+  document.getElementById("fromName").value = "Ihor";
+  document.getElementById("fromEmail").value = "smartwerk.team@gmail.com";
+  document.getElementById("fromAddress").value = "Nieuwstraat 10, 5211DC Den Bosch";
+  document.getElementById("toGemeente").value = "Gemeente Den Bosch";
+  document.getElementById("toEmail").value = "info@denbosch.nl";
+  document.getElementById("subject").value = "Urgent housing request";
+  document.getElementById("messageBody").value =
+    "Dear Gemeente,\n\nI am urgently looking for housing for my family. I kindly ask for assistance or advice on available options.\n\nThank you.";
+  document.getElementById("signature").value = "Ihor A.I";
+  document.getElementById("city").value = "Den Bosch";
+  document.getElementById("todayDate").value = new Date().toISOString().slice(0, 10);
+
+  // підсвітка всіх полів як заповнених AI
+  document.querySelectorAll("textarea, input").forEach((el) => {
+    if (el.value) el.classList.add("ai-filled");
   });
+});
 
   // === Load Example ===
   document.getElementById("loadExampleBtn")?.addEventListener("click", () => {
