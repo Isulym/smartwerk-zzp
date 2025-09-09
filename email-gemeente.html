@@ -211,7 +211,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("messageBody").value = saved.body;
     document.getElementById("todayDate").value = saved.date;
     document.getElementById("city").value = saved.city;
-    document.getElementById("signature").value = saved.signature;
+   document.getElementById("signature").value =
+  "Met vriendelijke groet,\n" + get("fromName") + "\n" + get("fromAddress");
     document.getElementById("savedEmailsModal").style.display = "none";
   };
 
