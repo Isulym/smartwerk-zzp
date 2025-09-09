@@ -358,12 +358,13 @@ window.exportReminderPDF = function(withBranding = true) {
   doc.setFontSize(18);
   doc.text("Payment Reminder", 105, 20, null, null, "center");
 
-  const reminderType = clean(document.getElementById("reminderType").value);
+ 
   doc.setFontSize(12);
   doc.text(`Reminder ID: ${reminderId}`, 20, 30);
   doc.text(`Date: ${reminderDate}`, 20, 36);
   doc.text(`Invoice: ${invoiceText}`, 20, 42);
   doc.text(`Reminder Type: ${reminderType}`, 20, 60);  
+   const reminderType = clean(document.getElementById("reminderType").value);
 
   // Business Info
   doc.setFont(undefined, "bold");
