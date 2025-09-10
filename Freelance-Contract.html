@@ -8,26 +8,27 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <nav class="left">
-      <a href="dashboard.html" class="btn">← Back to Dashboard</a>
-      <a href="templates.html" class="btn">← Back to Templates</a>
-    </nav>
-  </header>
+  <div class="container">
+  <div class="back-buttons">
+    <a href="dashboard.html">← Back to Dashboard</a>
+    <a href="templates.html">← Back to Templates</a>
+  </div>
 
-  <h1>📃 Create Freelance Contract</h1>
+ <h1>📃 Freelance Contract</h1>
   <p class="small-note">Fill in the contract details, generate PDF/DOCX, save locally or use AI to help you.</p>
 
-  <div class="section">
-    <h2>Business Info</h2>
+<div class="row section">
+    <div class="column">
+      <h2>Business Info </h2>
     <input id="businessName" placeholder="Your Business Name" />
     <input id="businessKvK" placeholder="KvK Number (optional)" />
     <input id="businessVAT" placeholder="VAT Number (optional)" />
     <input id="businessIBAN" placeholder="IBAN (optional)" />
   </div>
+  </div>
 
-  <div class="section">
-    <h2>Client Info</h2>
+ <div class="column">
+  <h2>Client Info</h2>
     <input id="clientName" placeholder="Client Name" />
     <input id="clientAddress" placeholder="Client Address (optional)" />
   </div>
@@ -56,7 +57,7 @@
     <input type="date" id="contractDate" />
   </div>
 
-  <div class="btn-group">
+  <div class="buttons">
     <button onclick="fillAI()">⚡ AI Fill</button>
     <button onclick="saveContract()">💾 Save Contract</button>
     <button onclick="viewSavedContracts()">📂 View Saved Contracts</button>
