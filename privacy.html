@@ -124,6 +124,22 @@
         🌐 <a href="https://www.smartwerk.nl" target="_blank">www.smartwerk.nl</a>
       </p>
     </section>
+    <div class="privacy-actions">
+  <button onclick="window.print()">🖨 Print</button>
+  <button onclick="downloadPrivacyPDF()">📄 Download PDF</button>
+</div>
   </div>
+
+  <script>
+function downloadPrivacyPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(18).text("Privacy Policy — SmartWerk", 10, 10);
+  const text = document.querySelector(".privacy-container").innerText;
+  const lines = doc.splitTextToSize(text, 180);
+  doc.setFontSize(12).text(lines, 10, 20);
+  doc.save("SmartWerk_Privacy_Policy.pdf");
+}
+</script>
 </body>
 </html>
