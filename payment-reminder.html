@@ -417,17 +417,27 @@ window.exportReminderPDF = function(withBranding = true) {
     doc.setTextColor(0, 0, 0);
   }
 
-  // Signature
-  doc.setFontSize(12);
-  let y = 126 + messageLines.length * 5 + 10;
-  doc.text("Signature:", 20, y);
-  doc.setFontSize(11);
-  doc.text(`${businessName}\n${businessAddress}\n${businessEmail}`, 20, y + 6);;
-  doc.text(`${name}`, 20, 166);
-  if (position) doc.text(position, 20, 172);
-  if (email) doc.text(email, 20, 178);
-  if (city) doc.text(`${city}, ${reminderDate}`, 20, 184);
+ // Signature block
+let y = 130 + messageLines.length * 5 + 10;
 
+doc.setFont(undefined, "bold");
+doc.text("Signature:", 20, y);
+
+doc.setFont(undefined, "normal");
+doc.setFontSize(11);
+y += 6;
+doc.text(name, 20, y);
+
+y += 6;
+doc.text(businessName, 20, y);
+
+y += 6;
+doc.text(businessEmail, 20, y);
+
+y += 6;
+doc.text(`${city}, ${reminderDate}`, 20, y);
+
+  
   // Footer: branding
   if (withBranding) {
     doc.setFontSize(10);
