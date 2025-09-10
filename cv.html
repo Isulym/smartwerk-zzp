@@ -112,6 +112,20 @@
       <button id="btnClearCV">🗑️ Clear</button>
     </div>
 
+<section class="cv-block ai-assist">
+  <h3>🧠 AI Suggestion for Business Proposal</h3>
+  <blockquote id="proposalExample" style="font-size:14px; background:#1c1f2b; border-left:4px solid #3b79ff; padding:10px; color:#ccc;">
+    <p><strong>Brand Name:</strong> GreenTech Solutions</p>
+    <p><strong>Services / Products:</strong> Eco-friendly software for sustainable businesses</p>
+    <p><strong>Target Audience:</strong> Startups, NGOs, and companies focused on green technology</p>
+    <p><strong>Mission & Vision:</strong> Empower sustainable digital transformation</p>
+    <p><strong>Call to Action:</strong> Let's build the future — contact us today!</p>
+    <p><strong>Contact Information:</strong> greentech@example.com · greentech.io</p>
+  </blockquote>
+  <button onclick="insertProposalExample()" class="btn small">🧠 Use Example</button>
+</section>
+    
+
     <footer class="cv-footer">
       <p>🔗 smartwerk.nl/portfolio/your-name</p>
     </footer>
@@ -240,6 +254,16 @@ if (proposalBox) {
 // 🟢 Завантаження при відкритті
 loadProposalContent();
   });
+
+  function insertProposalExample() {
+  const example = document.getElementById("proposalExample").innerHTML;
+  const proposalSection = Array.from(document.querySelectorAll(".cv-block"))
+    .find(b => b.querySelector("h2")?.innerText === "Business Proposal");
+  if (proposalSection) {
+    proposalSection.innerHTML = `<h2>Business Proposal</h2>` + example;
+  }
+}
+  
 
   // 📄 Генерація WOW‑PDF
   document.getElementById("btnExportPDF")?.addEventListener("click", () => {
