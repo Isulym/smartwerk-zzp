@@ -133,3 +133,27 @@ button:hover {
   background-color: #3b79ff;
   color: white;
 }
+.nav-top-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 20px;
+}
+
+.btn-back {
+  display: inline-block;
+  padding: 10px 18px;
+  font-size: 14px;
+  border: 1px solid #3b79ff;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #3b79ff;
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-back:hover {
+  background-color: #3b79ff;
+  color: #fff;
+}
