@@ -130,10 +130,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (reminderDate) reminderDate.value = new Date().toISOString().slice(0, 10);
 
   // ✅ Dropdown збережених інвойсів
-  const invoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
+  // const invoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
 function populateInvoiceDropdown() {
- const invoiceSelect = document.getElementById("invoiceSelect");
- const invoiceText = invoiceSelect.options[invoiceSelect.selectedIndex]?.text || invoiceSelect.value;
+ // const invoiceSelect = document.getElementById("invoiceSelect");
+ // const invoiceText = invoiceSelect.options[invoiceSelect.selectedIndex]?.text || invoiceSelect.value;
+
+  const invoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
+const selectedInvoice = invoices.find(inv => inv.id === invoiceNumber);
+const invoiceText = selectedInvoice ? `${selectedInvoice.number} (${selectedInvoice.date})` : invoiceNumber;
 
   if (!invoiceSelect || invoices.length === 0) return;
 
