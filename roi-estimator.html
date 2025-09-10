@@ -58,10 +58,14 @@
       <ul id="smartTips"></ul>
     </section>
 
-    <!-- AI Recommendation -->
-<section id="aiRecommendation" style="margin-top: 40px; display: none;">
+   <section style="margin-top:30px;">
   <h3>🤖 AI Recommendation</h3>
-  <p id="aiText" style="font-style: italic;"></p>
+  <div id="aiRecommendation"></div>
+</section>
+
+    <section style="margin-top:40px;">
+  <h3>📉 Profit Over Time</h3>
+  <canvas id="cumulativeChart"></canvas>
 </section>
     
   </div>
@@ -135,28 +139,55 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function generateAIRecommendation(roi, payback, profit) {
-  const aiBlock = document.getElementById("aiRecommendation");
-  const aiText = document.getElementById("aiText");
+  function generateAIRecommendation(roiPercent, paybackMonths, netProfit) {
+  const aiBox = document.getElementById("aiRecommendation");
+  let message = "";
 
-  let recommendation = "";
-
-  if (roi < 0) {
-    recommendation = "Based on your inputs, this investment results in a loss. It's recommended to reconsider or reduce your initial costs.";
-  } else if (roi < 20) {
-    recommendation = "Your ROI is low. Consider optimizing your offer, reducing costs, or increasing the duration of benefit.";
-  } else if (roi >= 20 && roi < 100) {
-    recommendation = "Your ROI is reasonable. It may be worth testing this investment on a small scale before scaling further.";
+  if (roiPercent < 0) {
+    message = "❌ Based on your data, the investment results in a loss. Consider reducing costs or choosing a safer path.";
+  } else if (roiPercent < 20) {
+    message = "⚠️ Your ROI is low. We suggest optimizing your offer or improving your pricing strategy.";
+  } else if (roiPercent < 100) {
+    message = "✅ The ROI is moderate. You might consider scaling gradually or doing A/B testing.";
   } else {
-    recommendation = "Excellent ROI! You may consider scaling this strategy further or reinvesting part of your profit.";
+    message = "🚀 Excellent ROI! Consider reinvesting profits and scaling your project.";
   }
 
-  recommendation += ` Your payback period is approximately ${payback} months, and your projected profit is €${profit.toFixed(2)}.`;
-
-  aiText.textContent = recommendation;
-  aiBlock.style.display = "block";
+  aiBox.innerHTML = `<blockquote class="ai-box">${message}</blockquote>`;
 }
 
+  function generateCumulativeChart(monthlyProfit, duration) {
+  const ctx = document.getElementById("cumulativeChart").getContext("2d");
+  const data = [];
+
+  for (let i = 1; i <= duration; i++) {
+    data.push(monthlyProfit * i);
+  }
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: Array.from({ length: duration }, (_, i) => `Month ${i + 1}`),
+      datasets: [{
+        label: "Cumulative Profit",
+        data,
+        fill: true,
+        borderColor: "#3b79ff",
+        backgroundColor: "rgba(59,121,255,0.1)"
+      }]
+    },
+    options: {
+      plugins: {
+        title: {
+          display: true,
+          text: "Profit Growth Over Time"
+        }
+      }
+    }
+  });
+}
+
+  
   async function exportToPDF(withBranding = true) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
