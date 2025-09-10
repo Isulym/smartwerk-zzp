@@ -96,6 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     generateChart(investment + extraCosts, totalProfit);
     generateSmartTips(roiPercent, netProfit);
+
+    generateAIRecommendation(roiPercent, paybackMonths, netProfit);
   }
 
   function generateSmartTips(roi, profit) {
@@ -110,8 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
       tips.innerHTML += "<li>🚀 High ROI! Consider scaling further.</li>";
     }
   }
-
-  generateAIRecommendation(roiPercent, paybackMonths, netProfit);
 
   function generateChart(costs, profit) {
     const ctx = chartCanvas.getContext("2d");
