@@ -41,8 +41,8 @@
 
       <div class="form-actions">
         <button type="button" class="btn primary" id="calculateROI">📊 Calculate ROI</button>
-       <button onclick="exportToPDF(true)">📄 Export PDF</button>
-       <button onclick="exportToPDF(false)">PRO 📄 Export without branding</button>
+       <button id="exportPDF">📄 Export PDF</button>
+        <button id="exportPDFNoBranding">PRO 📄 Export without branding</button>
       </div>
     </form>
 
@@ -182,88 +182,52 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
- function exportToPDF(withBranding = true) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  document.addEventListener("DOMContentLoaded", () => {
+    const exportBtn = document.getElementById("exportPDF");
+    const exportNoBrandBtn = document.getElementById("exportPDFNoBranding");
 
-  const clean = (v) => (v || "").toString().trim();
-
-  const investment = parseFloat(document.getElementById("initialInvestment").value) || 0;
-  const monthlyProfit = parseFloat(document.getElementById("monthlyProfit").value) || 0;
-  const duration = parseInt(document.getElementById("duration").value) || 1;
-  const extraCosts = parseFloat(document.getElementById("extraCosts").value) || 0;
-
-  const totalProfit = monthlyProfit * duration;
-  const netProfit = totalProfit - investment - extraCosts;
-  const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
-  const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
-
-  // Заголовок
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.text("📈 ROI Estimation Report", 105, 20, null, null, "center");
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
-  doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30);
-
-  // Основна таблиця даних
-  const data = [
-    ["Initial Investment", `€ ${investment.toFixed(2)}`],
-    ["Monthly Profit", `€ ${monthlyProfit.toFixed(2)}`],
-    ["Duration (months)", `${duration}`],
-    ["Extra Costs", `€ ${extraCosts.toFixed(2)}`],
-    ["Total Profit", `€ ${totalProfit.toFixed(2)}`],
-    ["Net Profit", `€ ${netProfit.toFixed(2)}`],
-    ["ROI (%)", `${roiPercent}%`],
-    ["Payback Period", `${paybackMonths} months`],
-  ];
-
-  doc.autoTable({
-    startY: 40,
-    head: [["Metric", "Value"]],
-    body: data,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [59, 121, 255] },
-    columnStyles: {
-      0: { fontStyle: 'bold' },
-    },
+    if (exportBtn) exportBtn.addEventListener("click", () => exportToPDF(true));
+    if (exportNoBrandBtn) exportNoBrandBtn.addEventListener("click", () => exportToPDF(false));
   });
 
-  let y = doc.lastAutoTable.finalY + 10;
+  async function exportToPDF(withBranding = true) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  // Smart Summary
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text("💡 Summary & Insights", 20, y);
+    const investment = parseFloat(document.getElementById("initialInvestment").value) || 0;
+    const monthlyProfit = parseFloat(document.getElementById("monthlyProfit").value) || 0;
+    const duration = parseInt(document.getElementById("duration").value) || 1;
+    const extraCosts = parseFloat(document.getElementById("extraCosts").value) || 0;
 
-  y += 8;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  const insights = [
-    netProfit > 0 ? "✅ Your investment is profitable." : "⚠️ Your investment may not be profitable.",
-    roiPercent > 100 ? "🚀 Excellent ROI – over 100%!" :
-    roiPercent > 50 ? "👍 Good ROI – over 50%." :
-    roiPercent > 0 ? "🙂 ROI is positive, consider optimization." :
-    "❌ ROI is negative – review your costs and expectations.",
-    monthlyProfit > 0 ? `💰 You’ll break even in about ${paybackMonths} months.` : "⚠️ Payback is not possible with current profit.",
-  ];
-  insights.forEach(line => {
-    doc.text(`• ${line}`, 20, y);
-    y += 6;
-  });
+    const totalProfit = monthlyProfit * duration;
+    const netProfit = totalProfit - investment - extraCosts;
+    const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
+    const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
 
-  // Footer
-  if (withBranding) {
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 105, 290, null, null, "center");
-    doc.setTextColor(0);
+    // Header
+    doc.setFontSize(18);
+    doc.text("SmartWerk ROI Report", 20, 20);
+    doc.setFontSize(12);
+
+    // Data
+    doc.text(`Initial Investment: €${investment.toFixed(2)}`, 20, 40);
+    doc.text(`Monthly Profit: €${monthlyProfit.toFixed(2)}`, 20, 50);
+    doc.text(`Duration: ${duration} months`, 20, 60);
+    doc.text(`Extra Costs: €${extraCosts.toFixed(2)}`, 20, 70);
+    doc.text(`Total Profit: €${totalProfit.toFixed(2)}`, 20, 80);
+    doc.text(`ROI: ${roiPercent}%`, 20, 90);
+    doc.text(`Payback Period: ${paybackMonths} months`, 20, 100);
+
+    // Branding
+    if (withBranding) {
+      doc.setTextColor(150);
+      doc.text("Generated with SmartWerk — smartwerk.nl", 105, 290, null, null, "center");
+      doc.setTextColor(0); // reset color
+    }
+
+    doc.save("SmartWerk_ROI_Report.pdf");
   }
 
-  // Збереження
-  doc.save("SmartWerk_ROI_Report.pdf");
-}
 
   document.getElementById("calculateROI").addEventListener("click", calculateROI);
   exportBtn.addEventListener("click", exportToPDF);
