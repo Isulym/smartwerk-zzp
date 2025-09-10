@@ -157,3 +157,32 @@ button:hover, .btn:hover {
   margin-top: 8px;
   margin-right: 6px;
 }
+
+.form-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.form-section .column {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Make input & select smaller */
+input, select, textarea {
+  font-size: 13px;
+  padding: 8px 10px;
+}
+
+/* Section titles spacing */
+section h2 {
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+/* General spacing fix */
+.row, .form-group {
+  margin-bottom: 15px;
+}
