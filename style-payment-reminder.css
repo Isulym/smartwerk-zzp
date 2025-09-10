@@ -174,3 +174,24 @@ footer {
   color: #fff;
   margin-bottom: 1em;
 }
+
+.topbar {
+  display: flex;
+  justify-content: flex-start;
+  padding: 20px;
+  gap: 10px;
+}
+
+.topbar nav a.btn {
+  text-decoration: none;
+  background: #2c2f3b;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.topbar nav a.btn:hover {
+  background: #3b79ff;
+}
