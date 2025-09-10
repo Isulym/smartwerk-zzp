@@ -86,6 +86,11 @@ ul {
   gap: 12px;
   justify-content: flex-end;
   margin: 20px 0;
+}.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start; /* ← замість flex-end */
+  margin: 20px 0;
 }
 
 .action-buttons .btn {
