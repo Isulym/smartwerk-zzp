@@ -332,7 +332,7 @@ window.exportReminderPDF = function(withBranding = true) {
   const clean = (v) => (v || "").toString().trim();
 
   const invoiceSelect = document.getElementById("invoiceSelect");
-  const invoiceText = invoiceSelect?.options[invoiceSelect.selectedIndex]?.text || "—";
+  const invoiceText = invoiceSelect.options[invoiceSelect.selectedIndex]?.text || invoiceSelect.value;
   
   const businessName = clean(document.getElementById("fromName").value);
   const businessEmail = clean(document.getElementById("fromEmail").value);
@@ -421,7 +421,6 @@ window.exportReminderPDF = function(withBranding = true) {
  // Signature block
 let y = 130 + messageLines.length * 5 + 10;
 
-// Лінія для підпису
 doc.setDrawColor(0);
 doc.line(20, y, 80, y);
 
