@@ -132,7 +132,6 @@
   </div>
 
   <script>
-<script>
 async function downloadPrivacyPDF() {
   const { jsPDF } = window.jspdf || window.jspdf?.jsPDF ? window.jspdf : await import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
   const doc = new jsPDF();
@@ -144,7 +143,6 @@ async function downloadPrivacyPDF() {
 
   doc.save("SmartWerk_Privacy_Policy.pdf");
 }
-</script>
 </script>
 </body>
 </html>
