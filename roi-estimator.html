@@ -58,29 +58,25 @@
       <ul id="smartTips"></ul>
     </section>
 
-   <section style="margin-top:30px;">
-  <h3>🤖 AI Recommendation</h3>
-  <div id="aiRecommendation"></div>
-</section>
+    <section style="margin-top:30px;">
+      <h3>🤖 AI Recommendation</h3>
+      <div id="aiRecommendation"></div>
+    </section>
 
     <section style="margin-top:40px;">
-  <h3>📉 Profit Over Time</h3>
-  <canvas id="cumulativeChart"></canvas>
-</section>
-    
+      <h3>📉 Profit Over Time</h3>
+      <canvas id="cumulativeChart"></canvas>
+    </section>
   </div>
-
-  
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("roiForm");
   const result = document.getElementById("roiResult");
   const payback = document.getElementById("paybackPeriod");
   const totalProfitEl = document.getElementById("totalProfit");
   const tips = document.getElementById("smartTips");
   const chartCanvas = document.getElementById("roiChart");
-  let chart;
+  let chart, cumulativeChart;
 
   function calculateROI() {
     const investment = parseFloat(document.getElementById("initialInvestment").value) || 0;
@@ -99,80 +95,83 @@ document.addEventListener("DOMContentLoaded", () => {
     payback.textContent = paybackMonths;
 
     generateChart(investment + extraCosts, totalProfit);
-    generateSmartTips(roiPercent, netProfit);
-
+    generateSmartTips(roiPercent);
     generateAIRecommendation(roiPercent, paybackMonths, netProfit);
     generateCumulativeChart(monthlyProfit, duration);
   }
 
-  function generateSmartTips(roi, profit) {
-    tips.innerHTML = "";
-    if (roi < 0) {
-      tips.innerHTML += "<li>❌ Loss-making investment. Reevaluate costs.</li>";
-    } else if (roi < 20) {
-      tips.innerHTML += "<li>⚠️ Low ROI. Consider reducing costs or increasing value.</li>";
-    } else if (roi < 100) {
-      tips.innerHTML += "<li>✅ Moderate ROI. Monitor before scaling.</li>";
-    } else {
-      tips.innerHTML += "<li>🚀 High ROI! Consider scaling further.</li>";
-    }
-  }
-
- 
-
-  function generateAIRecommendation(roiPercent, paybackMonths, netProfit) {
-  const aiBox = document.getElementById("aiRecommendation");
-  let message = "";
-
-  if (roiPercent < 0) {
-    message = "❌ Based on your data, the investment results in a loss. Consider reducing costs or choosing a safer path.";
-  } else if (roiPercent < 20) {
-    message = "⚠️ Your ROI is low. We suggest optimizing your offer or improving your pricing strategy.";
-  } else if (roiPercent < 100) {
-    message = "✅ The ROI is moderate. You might consider scaling gradually or doing A/B testing.";
-  } else {
-    message = "🚀 Excellent ROI! Consider reinvesting profits and scaling your project.";
-  }
-
-  aiBox.innerHTML = `<blockquote class="ai-box">${message}</blockquote>`;
-}
-
-  let cumulativeChart; // оголоси вгорі
-
-function generateCumulativeChart(monthlyProfit, duration) {
-  const ctx = document.getElementById("cumulativeChart").getContext("2d");
-  const data = [];
-
-  for (let i = 1; i <= duration; i++) {
-    data.push(monthlyProfit * i);
-  }
-
-  if (cumulativeChart) cumulativeChart.destroy(); // знищити попередній графік
-
-  cumulativeChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: Array.from({ length: duration }, (_, i) => `Month ${i + 1}`),
-      datasets: [{
-        label: "Cumulative Profit",
-        data,
-        fill: true,
-        borderColor: "#3b79ff",
-        backgroundColor: "rgba(59,121,255,0.1)"
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: "Profit Growth Over Time"
+  function generateChart(costs, profit) {
+    const ctx = chartCanvas.getContext("2d");
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Total Costs", "Total Profit"],
+        datasets: [{
+          label: "€ Value",
+          data: [costs, profit],
+          backgroundColor: ["#e74c3c", "#2ecc71"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: "Investment vs Profit"
+          }
         }
       }
-    }
-  });
-}
-  
+    });
+  }
+
+  function generateSmartTips(roi) {
+    tips.innerHTML = "";
+    if (roi < 0) tips.innerHTML += "<li>❌ Loss-making investment. Reevaluate costs.</li>";
+    else if (roi < 20) tips.innerHTML += "<li>⚠️ Low ROI. Consider reducing costs or increasing value.</li>";
+    else if (roi < 100) tips.innerHTML += "<li>✅ Moderate ROI. Monitor before scaling.</li>";
+    else tips.innerHTML += "<li>🚀 High ROI! Consider scaling further.</li>";
+  }
+
+  function generateAIRecommendation(roi, payback, profit) {
+    const aiBox = document.getElementById("aiRecommendation");
+    let msg = "";
+    if (roi < 0) msg = "❌ Based on your data, the investment results in a loss. Consider reducing costs or choosing a safer path.";
+    else if (roi < 20) msg = "⚠️ Your ROI is low. We suggest optimizing your offer or improving your pricing strategy.";
+    else if (roi < 100) msg = "✅ The ROI is moderate. You might consider scaling gradually or doing A/B testing.";
+    else msg = "🚀 Excellent ROI! Consider reinvesting profits and scaling your project.";
+    aiBox.innerHTML = `<blockquote class="ai-box">${msg}</blockquote>`;
+  }
+
+  function generateCumulativeChart(monthlyProfit, duration) {
+    const ctx = document.getElementById("cumulativeChart").getContext("2d");
+    const data = Array.from({ length: duration }, (_, i) => monthlyProfit * (i + 1));
+    if (cumulativeChart) cumulativeChart.destroy();
+    cumulativeChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: Array.from({ length: duration }, (_, i) => `Month ${i + 1}`),
+        datasets: [{
+          label: "Cumulative Profit",
+          data,
+          fill: true,
+          borderColor: "#3b79ff",
+          backgroundColor: "rgba(59,121,255,0.1)"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: "Profit Growth Over Time"
+          }
+        }
+      }
+    });
+  }
+
   async function exportToPDF(withBranding = true) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -180,11 +179,10 @@ function generateCumulativeChart(monthlyProfit, duration) {
     const monthlyProfit = parseFloat(document.getElementById("monthlyProfit").value) || 0;
     const duration = parseInt(document.getElementById("duration").value) || 1;
     const extraCosts = parseFloat(document.getElementById("extraCosts").value) || 0;
-
     const totalProfit = monthlyProfit * duration;
     const netProfit = totalProfit - investment - extraCosts;
-    const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
-    const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
+    const roi = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
+    const payback = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
 
     doc.setFontSize(18);
     doc.text("SmartWerk ROI Report", 20, 20);
@@ -194,8 +192,8 @@ function generateCumulativeChart(monthlyProfit, duration) {
     doc.text(`Duration: ${duration} months`, 20, 60);
     doc.text(`Extra Costs: €${extraCosts.toFixed(2)}`, 20, 70);
     doc.text(`Total Profit: €${totalProfit.toFixed(2)}`, 20, 80);
-    doc.text(`ROI: ${roiPercent}%`, 20, 90);
-    doc.text(`Payback Period: ${paybackMonths} months`, 20, 100);
+    doc.text(`ROI: ${roi}%`, 20, 90);
+    doc.text(`Payback Period: ${payback} months`, 20, 100);
 
     if (withBranding) {
       doc.setTextColor(150);
