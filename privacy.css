@@ -111,26 +111,25 @@ button:hover {
 .back-buttons a:hover {
   background-color: #374151; /* Темніший при наведенні */
 }
-nav.left {
+.nav-top-row {
   display: flex;
-  gap: 10px;
-  margin: 20px;
+  justify-content: flex-start;
+  gap: 12px;
+  margin: 20px 20px 10px;
 }
 
-nav.left a {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: transparent;
-  border: 1px solid var(--line, #2c2f35);
-  color: var(--muted, #ccc);
-  text-decoration: none;
-  border-radius: 6px;
+.btn-back {
+  padding: 10px 18px;
   font-size: 14px;
-  transition: all 0.2s ease;
+  border: 1px solid #3b79ff;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #3b79ff;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-nav.left a:hover {
-  background-color: var(--line, #2c2f35);
+.btn-back:hover {
+  background-color: #3b79ff;
   color: white;
-  border-color: var(--accent, #3b79ff);
 }
