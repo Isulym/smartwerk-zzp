@@ -186,6 +186,59 @@ document.addEventListener("DOMContentLoaded", () => {
     saveToLocalStorage();
   });
 
+
+
+  // 🧩 Сортування блоків
+  function saveBlockOrder() {
+    const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
+    localStorage.setItem("cvBlockOrder", JSON.stringify(order));
+  }
+
+  function restoreBlockOrder() {
+    const saved = JSON.parse(localStorage.getItem("cvBlockOrder") || "null");
+    if (!saved) return;
+    const parent = document.getElementById("cvContainer");
+    const staticElements = Array.from(parent.children).filter(e => !e.classList.contains("cv-block"));
+    const newBlocks = saved.map(html => {
+      const s = document.createElement("section");
+      s.className = "cv-block";
+      s.setAttribute("draggable", "true");
+      s.innerHTML = html;
+      return s;
+    });
+    parent.innerHTML = "";
+    staticElements.forEach(e => parent.appendChild(e));
+    newBlocks.forEach(b => parent.appendChild(b));
+  }
+
+  restoreBlockOrder();
+  loadFromLocalStorage();
+
+
+// ⏺️ Зберегти текст Business Proposal у localStorage
+function saveProposalContent() {
+  const content = document.getElementById("proposalContent")?.innerHTML;
+  if (content) localStorage.setItem("cvProposalContent", content);
+}
+
+function loadProposalContent() {
+  const saved = localStorage.getItem("cvProposalContent");
+  if (saved) {
+    const el = document.getElementById("proposalContent");
+    if (el) el.innerHTML = saved;
+  }
+}
+
+// 🔄 Виклик збереження під час змін
+const proposalBox = document.getElementById("proposalContent");
+if (proposalBox) {
+  proposalBox.addEventListener("input", saveProposalContent);
+}
+
+// 🟢 Завантаження при відкритті
+loadProposalContent();
+  });
+
   // 📄 Генерація WOW‑PDF
   document.getElementById("btnExportPDF")?.addEventListener("click", () => {
     const { jsPDF } = window.jspdf;
@@ -256,56 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doc.save("smartwerk-cv.pdf");
   });
-
-  // 🧩 Сортування блоків
-  function saveBlockOrder() {
-    const order = Array.from(document.querySelectorAll(".cv-block")).map(b => b.innerHTML);
-    localStorage.setItem("cvBlockOrder", JSON.stringify(order));
-  }
-
-  function restoreBlockOrder() {
-    const saved = JSON.parse(localStorage.getItem("cvBlockOrder") || "null");
-    if (!saved) return;
-    const parent = document.getElementById("cvContainer");
-    const staticElements = Array.from(parent.children).filter(e => !e.classList.contains("cv-block"));
-    const newBlocks = saved.map(html => {
-      const s = document.createElement("section");
-      s.className = "cv-block";
-      s.setAttribute("draggable", "true");
-      s.innerHTML = html;
-      return s;
-    });
-    parent.innerHTML = "";
-    staticElements.forEach(e => parent.appendChild(e));
-    newBlocks.forEach(b => parent.appendChild(b));
-  }
-
-  restoreBlockOrder();
-  loadFromLocalStorage();
-
-});
-// ⏺️ Зберегти текст Business Proposal у localStorage
-function saveProposalContent() {
-  const content = document.getElementById("proposalContent")?.innerHTML;
-  if (content) localStorage.setItem("cvProposalContent", content);
-}
-
-function loadProposalContent() {
-  const saved = localStorage.getItem("cvProposalContent");
-  if (saved) {
-    const el = document.getElementById("proposalContent");
-    if (el) el.innerHTML = saved;
-  }
-}
-
-// 🔄 Виклик збереження під час змін
-const proposalBox = document.getElementById("proposalContent");
-if (proposalBox) {
-  proposalBox.addEventListener("input", saveProposalContent);
-}
-
-// 🟢 Завантаження при відкритті
-loadProposalContent();
+  
   
 </script>
 </body>
