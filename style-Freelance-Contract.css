@@ -154,3 +154,19 @@ button#btnExportPDF:hover,
 button#btnExportDOCX:hover {
   background: #2a66db;
 }
+.buttons button {
+  background: var(--accent, #3b79ff);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 5px 8px 5px 0;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 6px rgba(59, 121, 255, 0.3);
+}
+
+.buttons button:hover {
+  background: #2a66db;
+}
