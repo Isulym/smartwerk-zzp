@@ -80,3 +80,25 @@ ul {
 .buttons button:hover {
   background: #2f65d8;
 }
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin: 20px 0;
+}
+
+.action-buttons .btn {
+  padding: 10px 18px;
+  background-color: #3b79ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.action-buttons .btn:hover {
+  background-color: #295ed9;
+}
