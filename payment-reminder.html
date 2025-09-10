@@ -18,20 +18,25 @@
     <h1>📈 Payment Reminder</h1>
     <p>Send professional reminders for unpaid invoices. Use AI assistance, export to PDF, or send by email.</p>
 
-    <section>
-      <h2>💼 Business Info (From)</h2>
-      <input id="fromName" placeholder="Business Name" />
-      <input id="fromEmail" placeholder="Business Email" />
-      <input id="fromIBAN" placeholder="businessIBAN" />
-      <input id="fromAddress" placeholder="Business Address" />
-    </section>
+<section>
+  <h2>Sender & Recipient</h2>
+  <div class="form-section">
+    <div class="column">
+      <h3>Business Info (From)</h3>
+      <input type="text" placeholder="Business Name" id="fromName" />
+      <input type="text" placeholder="Business Email" id="fromEmail" />
+      <input type="text" placeholder="businessIBAN" id="fromIBAN" />
+      <input type="text" placeholder="Business Address" id="fromAddress" />
+    </div>
+    <div class="column">
+      <h3>Client Info (To)</h3>
+      <input type="text" placeholder="Client Name" id="clientName" />
+      <input type="text" placeholder="Client Email" id="clientEmail" />
+      <input type="text" placeholder="Client Address" id="clientAddress" />
+    </div>
+  </div>
+</section>
 
-    <section>
-      <h2>👨‍💼 Client Info (To)</h2>
-      <input id="clientName" placeholder="Client Name" />
-      <input id="clientEmail" placeholder="Client Email" />
-      <input id="clientAddress" placeholder="Client Address" />
-    </section>
 
     <section>
       <h2>📄 Invoice Details</h2>
