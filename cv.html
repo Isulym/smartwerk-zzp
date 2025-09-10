@@ -282,7 +282,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   restoreBlockOrder();
   loadFromLocalStorage();
+
 });
+// ⏺️ Зберегти текст Business Proposal у localStorage
+function saveProposalContent() {
+  const content = document.getElementById("proposalContent")?.innerHTML;
+  if (content) localStorage.setItem("cvProposalContent", content);
+}
+
+function loadProposalContent() {
+  const saved = localStorage.getItem("cvProposalContent");
+  if (saved) {
+    const el = document.getElementById("proposalContent");
+    if (el) el.innerHTML = saved;
+  }
+}
+
+// 🔄 Виклик збереження під час змін
+const proposalBox = document.getElementById("proposalContent");
+if (proposalBox) {
+  proposalBox.addEventListener("input", saveProposalContent);
+}
+
+// 🟢 Завантаження при відкритті
+loadProposalContent();
+  
 </script>
 </body>
 </html>
