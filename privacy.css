@@ -111,3 +111,26 @@ button:hover {
 .back-buttons a:hover {
   background-color: #374151; /* Темніший при наведенні */
 }
+nav.left {
+  display: flex;
+  gap: 10px;
+  margin: 20px;
+}
+
+nav.left a {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: transparent;
+  border: 1px solid var(--line, #2c2f35);
+  color: var(--muted, #ccc);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+nav.left a:hover {
+  background-color: var(--line, #2c2f35);
+  color: white;
+  border-color: var(--accent, #3b79ff);
+}
