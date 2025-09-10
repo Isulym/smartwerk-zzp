@@ -1,10 +1,11 @@
 :root {
-  --bg: #f4f6fa;
-  --card: #ffffff;
-  --text: #222;
-  --muted: #6c757d;
+  --bg: #0e1014;
+  --card: #151823;
+  --line: #232a42;
+  --text: #f0f2f5;
+  --muted: #9aa3b2;
   --accent: #3b79ff;
-  --border: #dee2e6;
+  --danger: #ff4d4f;
 }
 
 body {
@@ -17,45 +18,55 @@ body {
 .wrap {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
 .topbar {
   display: flex;
   justify-content: space-between;
-  padding-bottom: 1rem;
+  padding-bottom: 1.2rem;
 }
 
 .btn {
-  padding: 6px 14px;
+  padding: 7px 16px;
   font-size: 14px;
   text-decoration: none;
-  color: #fff;
+  color: white;
   background: var(--accent);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   margin: 4px;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #2a66db;
 }
 
 .btn.ghost {
-  background: #eaeaea;
-  color: #000;
+  background: #2c2f3b;
+  color: #fff;
 }
 
 .btn.small {
   font-size: 12px;
-  padding: 4px 10px;
+  padding: 5px 10px;
 }
 
 .btn.danger {
-  background: #e74c3c;
+  background: var(--danger);
   color: #fff;
 }
 
 h1, h2 {
-  font-size: 20px;
   margin: 1rem 0 0.5rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+h1 {
+  font-size: 24px;
 }
 
 h2 {
@@ -70,61 +81,55 @@ h2 {
 form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
 .form-section {
   background: var(--card);
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  padding: 1.2rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
 }
 
 input, select, textarea {
   width: 100%;
-  padding: 8px;
-  margin: 4px 0 10px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0e1014;
+  color: var(--text);
   font-size: 14px;
 }
 
 textarea {
-  min-height: 80px;
   resize: vertical;
+  min-height: 80px;
 }
 
-#servicesTable {
+#servicesTable, #savedQuotesTable {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 10px;
+  margin-top: 12px;
   font-size: 14px;
+  background: var(--card);
+  color: var(--text);
 }
 
-#servicesTable th, #servicesTable td {
-  border: 1px solid var(--border);
-  padding: 6px;
-  text-align: left;
-}
-
-#savedQuotesTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 14px;
-}
-
+#servicesTable th, #servicesTable td,
 #savedQuotesTable th, #savedQuotesTable td {
-  border: 1px solid var(--border);
-  padding: 6px;
+  border: 1px solid var(--line);
+  padding: 8px;
+  text-align: left;
 }
 
 .status-badge {
   display: inline-block;
-  font-size: 12px;
-  padding: 4px 8px;
+  font-size: 13px;
+  padding: 4px 10px;
   border-radius: 20px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .status-badge.draft {
@@ -148,15 +153,15 @@ textarea {
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-start;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .foot-note {
-  margin-top: 2rem;
+  grid-column: span 2;
   text-align: center;
+  margin-top: 2rem;
   font-size: 13px;
   color: var(--muted);
-  grid-column: span 2;
 }
 
 .quote-valid {
@@ -171,6 +176,6 @@ textarea {
 
   .actions {
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
 }
