@@ -5,60 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📈 SmartWerk ROI Estimator</title>
   <link rel="stylesheet" href="style-roi.css" />
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-      <nav class="left">
-       <a href="dashboard.html" class="btn ghost">← Back to Dashboard</a>
-       <a href="templates.html" class="btn ghost">← Back to Templates</a>
-      </nav>
+  <nav class="left">
+    <a href="dashboard.html" class="btn ghost">← Back to Dashboard</a>
+    <a href="templates.html" class="btn ghost">← Back to Templates</a>
+  </nav>
   <div class="container">
     <h1>📈 ROI Estimator — SmartWerk PRO</h1>
     <p>Estimate the return on investment for your freelance or business expenses.</p>
 
-    <!-- Input Form -->
     <form id="roiForm">
       <div class="form-group">
         <label for="initialInvestment">💰 Initial Investment (€)</label>
         <input type="number" id="initialInvestment" placeholder="e.g. 1000" required />
       </div>
-
       <div class="form-group">
         <label for="monthlyProfit">📈 Monthly Profit Increase (€)</label>
         <input type="number" id="monthlyProfit" placeholder="e.g. 250" required />
       </div>
-
       <div class="form-group">
         <label for="duration">🕐 Period (in months)</label>
         <input type="number" id="duration" placeholder="e.g. 6" required />
       </div>
-
       <div class="form-group">
         <label for="extraCosts">💸 Extra Costs (Optional) (€)</label>
         <input type="number" id="extraCosts" placeholder="e.g. 100" />
       </div>
-
       <div class="form-actions">
         <button type="button" class="btn primary" id="calculateROI">📊 Calculate ROI</button>
-       <button id="exportPDF">📄 Export PDF</button>
-        <button id="exportPDFNoBranding">PRO 📄 Export without branding</button>
+        <button type="button" class="btn" id="exportPDF">📄 Export PDF</button>
+        <button type="button" class="btn pro" id="exportPDFNoBranding">PRO 📄 Export without branding</button>
       </div>
     </form>
 
-    <!-- 📘 How to Use Section -->
-<section id="howToUse" style="margin-top: 30px;">
-  <h2>📘 How to Use</h2>
-  <ul>
-    <li>Enter your <strong>Initial Investment</strong> — how much you spend.</li>
-    <li>Add your <strong>Monthly Profit Increase</strong> — the extra income expected.</li>
-    <li>Choose the <strong>Duration in months</strong> — how long the effect lasts.</li>
-    <li>Optionally fill in any <strong>Extra Costs</strong>.</li>
-    <li>Click <strong>Calculate ROI</strong> to see return, profit, and smart tips.</li>
-  </ul>
-</section>
-
-    <!-- Results Section -->
     <section id="results" style="display:none;">
       <h2>📊 Results</h2>
       <p><strong>Total Profit:</strong> <span id="totalProfit">—</span> €</p>
@@ -66,30 +48,25 @@
       <p><strong>Payback Period:</strong> <span id="paybackPeriod">—</span> months</p>
     </section>
 
-    <!-- Chart Section -->
     <section id="chartSection" style="margin-top: 40px;">
       <h3>📈 ROI Growth Chart</h3>
-      <canvas id="roiChart" width="100%" height="60"></canvas>
+      <canvas id="roiChart"></canvas>
     </section>
 
-    <!-- Smart Tips -->
     <section id="tipsSection" style="margin-top: 40px;">
       <h3>🧠 Smart Suggestions</h3>
-      <ul id="smartTips">
-        <!-- Filled dynamically -->
-      </ul>
+      <ul id="smartTips"></ul>
     </section>
   </div>
- <script>
-document.addEventListener("DOMContentLoaded", function () {
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("roiForm");
   const result = document.getElementById("roiResult");
   const payback = document.getElementById("paybackPeriod");
   const totalProfitEl = document.getElementById("totalProfit");
   const tips = document.getElementById("smartTips");
   const chartCanvas = document.getElementById("roiChart");
-  const exportBtn = document.getElementById("exportROI");
-
   let chart;
 
   function calculateROI() {
@@ -103,116 +80,53 @@ document.addEventListener("DOMContentLoaded", function () {
     const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
     const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
 
-    // Show results
     document.getElementById("results").style.display = "block";
     totalProfitEl.textContent = totalProfit.toFixed(2);
     result.textContent = roiPercent;
     payback.textContent = paybackMonths;
 
     generateChart(investment + extraCosts, totalProfit);
-    generateInsights(roiPercent);
     generateSmartTips(roiPercent, netProfit);
   }
 
   function generateSmartTips(roi, profit) {
-  const tipsList = document.getElementById("smartTips");
-  tipsList.innerHTML = ""; // очистити перед оновленням
-
-  if (roi < 0) {
-    tipsList.innerHTML += "<li>❌ This investment results in a loss. Consider reducing costs or delaying the investment.</li>";
-    tipsList.innerHTML += "<li>📉 Try testing ideas on a smaller scale before committing more funds.</li>";
-  } else if (roi < 20) {
-    tipsList.innerHTML += "<li>⚠️ ROI is low. Try to improve marketing efficiency or renegotiate costs.</li>";
-    tipsList.innerHTML += "<li>🔍 Reevaluate the value you're offering to customers.</li>";
-  } else if (roi >= 20 && roi < 100) {
-    tipsList.innerHTML += "<li>✅ ROI is reasonable. Monitor performance before scaling.</li>";
-    tipsList.innerHTML += "<li>📊 Consider A/B testing to find optimal strategies.</li>";
-  } else {
-    tipsList.innerHTML += "<li>🚀 ROI is excellent! You might be ready to scale your business.</li>";
-    tipsList.innerHTML += "<li>🎯 Track KPIs to ensure sustainability as you grow.</li>";
-  }
-
-  tipsList.innerHTML += "<li>💡 Tip: Smart ROI management includes tracking both money and time invested.</li>";
-}
-
-  function generateInsights(roi) {
-    let suggestions = "";
-
+    tips.innerHTML = "";
     if (roi < 0) {
-      suggestions += "<li>❌ You're operating at a loss. Review your expenses and income strategy.</li>";
+      tips.innerHTML += "<li>❌ Loss-making investment. Reevaluate costs.</li>";
     } else if (roi < 20) {
-      suggestions += "<li>⚠️ Low ROI. Try reducing costs or increasing the value of your offering.</li>";
-    } else if (roi < 50) {
-      suggestions += "<li>🧐 Moderate ROI. Keep an eye on performance and optimize slowly.</li>";
+      tips.innerHTML += "<li>⚠️ Low ROI. Consider reducing costs or increasing value.</li>";
+    } else if (roi < 100) {
+      tips.innerHTML += "<li>✅ Moderate ROI. Monitor before scaling.</li>";
     } else {
-      suggestions += "<li>🚀 Great ROI! Consider scaling and reinvesting.</li>";
+      tips.innerHTML += "<li>🚀 High ROI! Consider scaling further.</li>";
     }
-
-    tips.innerHTML = suggestions;
   }
 
   function generateChart(costs, profit) {
     const ctx = chartCanvas.getContext("2d");
-
     if (chart) chart.destroy();
-
     chart = new Chart(ctx, {
       type: "bar",
       data: {
         labels: ["Total Costs", "Total Profit"],
-        datasets: [
-          {
-            label: "€ Value",
-            data: [costs, profit],
-            backgroundColor: ["#e74c3c", "#2ecc71"],
-          },
-        ],
+        datasets: [{
+          label: "€ Value",
+          data: [costs, profit],
+          backgroundColor: ["#e74c3c", "#2ecc71"]
+        }]
       },
       options: {
-        responsive: true,
         plugins: {
           legend: { display: false },
-          title: {
-            display: true,
-            text: "Investment vs Profit",
-            font: { size: 18 },
-          },
-        },
-      },
+          title: { display: true, text: "Investment vs Profit" }
+        }
+      }
     });
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const exportBtn = document.getElementById("exportPDF");
-    const exportNoBrandBtn = document.getElementById("exportPDFNoBranding");
-    const calculateBtn = document.getElementById("calculateROI");
-
-    if (calculateBtn) calculateBtn.addEventListener("click", calculateROI);
-    if (exportBtn) exportBtn.addEventListener("click", () => exportToPDF(true));
-    if (exportNoBrandBtn) exportNoBrandBtn.addEventListener("click", () => exportToPDF(false));
-
-    calculateROI(); // автоматично при відкритті
-  });
-
-  function calculateROI() {
-    const investment = parseFloat(document.getElementById("initialInvestment").value) || 0;
-    const monthlyProfit = parseFloat(document.getElementById("monthlyProfit").value) || 0;
-    const duration = parseInt(document.getElementById("duration").value) || 1;
-    const extraCosts = parseFloat(document.getElementById("extraCosts").value) || 0;
-
-    const totalProfit = monthlyProfit * duration;
-    const netProfit = totalProfit - investment - extraCosts;
-    const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
-    const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
-
-    document.getElementById("resultROI").textContent = roiPercent + " %";
-    document.getElementById("resultPayback").textContent = paybackMonths + " months";
   }
 
   async function exportToPDF(withBranding = true) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
     const investment = parseFloat(document.getElementById("initialInvestment").value) || 0;
     const monthlyProfit = parseFloat(document.getElementById("monthlyProfit").value) || 0;
     const duration = parseInt(document.getElementById("duration").value) || 1;
@@ -243,8 +157,10 @@ document.addEventListener("DOMContentLoaded", function () {
     doc.save("SmartWerk_ROI_Report.pdf");
   }
 
+  document.getElementById("calculateROI").addEventListener("click", calculateROI);
+  document.getElementById("exportPDF").addEventListener("click", () => exportToPDF(true));
+  document.getElementById("exportPDFNoBranding").addEventListener("click", () => exportToPDF(false));
 });
 </script>
-  
 </body>
 </html>
