@@ -185,10 +185,29 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("DOMContentLoaded", () => {
     const exportBtn = document.getElementById("exportPDF");
     const exportNoBrandBtn = document.getElementById("exportPDFNoBranding");
+    const calculateBtn = document.getElementById("calculateROI");
 
+    if (calculateBtn) calculateBtn.addEventListener("click", calculateROI);
     if (exportBtn) exportBtn.addEventListener("click", () => exportToPDF(true));
     if (exportNoBrandBtn) exportNoBrandBtn.addEventListener("click", () => exportToPDF(false));
+
+    calculateROI(); // автоматично при відкритті
   });
+
+  function calculateROI() {
+    const investment = parseFloat(document.getElementById("initialInvestment").value) || 0;
+    const monthlyProfit = parseFloat(document.getElementById("monthlyProfit").value) || 0;
+    const duration = parseInt(document.getElementById("duration").value) || 1;
+    const extraCosts = parseFloat(document.getElementById("extraCosts").value) || 0;
+
+    const totalProfit = monthlyProfit * duration;
+    const netProfit = totalProfit - investment - extraCosts;
+    const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
+    const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
+
+    document.getElementById("resultROI").textContent = roiPercent + " %";
+    document.getElementById("resultPayback").textContent = paybackMonths + " months";
+  }
 
   async function exportToPDF(withBranding = true) {
     const { jsPDF } = window.jspdf;
@@ -204,12 +223,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const roiPercent = investment > 0 ? ((netProfit / investment) * 100).toFixed(2) : 0;
     const paybackMonths = monthlyProfit > 0 ? Math.ceil((investment + extraCosts) / monthlyProfit) : "∞";
 
-    // Header
     doc.setFontSize(18);
     doc.text("SmartWerk ROI Report", 20, 20);
     doc.setFontSize(12);
-
-    // Data
     doc.text(`Initial Investment: €${investment.toFixed(2)}`, 20, 40);
     doc.text(`Monthly Profit: €${monthlyProfit.toFixed(2)}`, 20, 50);
     doc.text(`Duration: ${duration} months`, 20, 60);
@@ -218,11 +234,10 @@ document.addEventListener("DOMContentLoaded", function () {
     doc.text(`ROI: ${roiPercent}%`, 20, 90);
     doc.text(`Payback Period: ${paybackMonths} months`, 20, 100);
 
-    // Branding
     if (withBranding) {
       doc.setTextColor(150);
       doc.text("Generated with SmartWerk — smartwerk.nl", 105, 290, null, null, "center");
-      doc.setTextColor(0); // reset color
+      doc.setTextColor(0);
     }
 
     doc.save("SmartWerk_ROI_Report.pdf");
