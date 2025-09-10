@@ -195,3 +195,17 @@ footer {
 .topbar nav a.btn:hover {
   background: #3b79ff;
 }
+.btn {
+  background: #3b79ff;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  display: inline-block;
+  transition: background 0.2s ease;
+}
+
+.btn:hover {
+  background: #2a66db;
+}
