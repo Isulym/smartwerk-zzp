@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     generateSmartTips(roiPercent, netProfit);
 
     generateAIRecommendation(roiPercent, paybackMonths, netProfit);
+    generateCumulativeChart(monthlyProfit, duration);
   }
 
   function generateSmartTips(roi, profit) {
@@ -117,27 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function generateChart(costs, profit) {
-    const ctx = chartCanvas.getContext("2d");
-    if (chart) chart.destroy();
-    chart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["Total Costs", "Total Profit"],
-        datasets: [{
-          label: "€ Value",
-          data: [costs, profit],
-          backgroundColor: ["#e74c3c", "#2ecc71"]
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: "Investment vs Profit" }
-        }
-      }
-    });
-  }
+ 
 
   function generateAIRecommendation(roiPercent, paybackMonths, netProfit) {
   const aiBox = document.getElementById("aiRecommendation");
@@ -156,7 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
   aiBox.innerHTML = `<blockquote class="ai-box">${message}</blockquote>`;
 }
 
-  function generateCumulativeChart(monthlyProfit, duration) {
+  let cumulativeChart; // оголоси вгорі
+
+function generateCumulativeChart(monthlyProfit, duration) {
   const ctx = document.getElementById("cumulativeChart").getContext("2d");
   const data = [];
 
@@ -164,7 +147,9 @@ document.addEventListener("DOMContentLoaded", () => {
     data.push(monthlyProfit * i);
   }
 
-  new Chart(ctx, {
+  if (cumulativeChart) cumulativeChart.destroy(); // знищити попередній графік
+
+  cumulativeChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: Array.from({ length: duration }, (_, i) => `Month ${i + 1}`),
@@ -177,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }]
     },
     options: {
+      responsive: true,
       plugins: {
         title: {
           display: true,
@@ -186,7 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 }
-
   
   async function exportToPDF(withBranding = true) {
     const { jsPDF } = window.jspdf;
