@@ -356,6 +356,10 @@ window.exportReminderPDF = function(withBranding = true) {
   const position = clean(document.getElementById("signaturePosition").value);
   const email = clean(document.getElementById("signatureEmail").value);
 
+  const invoiceSelect = document.getElementById("invoiceSelect");
+  const invoiceText = invoiceSelect.options[invoiceSelect.selectedIndex]?.text || invoiceSelect.value;
+
+
   // Header
   doc.setFontSize(18);
   doc.text("Payment Reminder", 105, 20, null, null, "center");
