@@ -122,8 +122,6 @@
               <button id="btnOpenInvoices" class="btn">📂 Invoice Manager</button>
               <!-- NEW: subtle AI Assistant button opening in new tab -->
               <button id="btnAiAssistant" class="btn ghost">🤖 AI Assistant</button>
-              <!-- existing Ask AI toggle kept -->
-              <button id="btnUseAI" class="btn">🔮 Ask SmartWerk AI</button>
             </div>
           </div>
         </div>
@@ -179,17 +177,6 @@
               </div>
             </a>
           </div>
-        </section>
-
-        <!-- SmartWerk AI (toggle) -->
-        <section id="smartwerkAiSection" style="display:none; margin-top:20px;">
-          <h3>🧠 Ask SmartWerk AI – Documents</h3>
-          <p>You can ask your accountant assistant about uploaded invoices, KvK, taxes and more.</p>
-          <iframe
-            src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8Hnk8A2Hb3onls"
-            width="100%" height="500" frameborder="0"
-            style="border:1px solid #ccc; border-radius: 8px;">
-          </iframe>
         </section>
       </main>
     </div>
@@ -271,7 +258,7 @@
 
     $("btnOpenInvoices").onclick   = (e)=>{ e.preventDefault(); openInvoices(); };
     $("btnOpenCalculator").onclick = (e)=>{ e.preventDefault(); openTaxCalculator(); };
-    $("btnUseAI").onclick          = (e)=>{ e.preventDefault(); openAskAI(); };
+   
 
     // NEW: open external AI Assistant in a new tab, subtle style
     const aiBtn = $("btnAiAssistant");
@@ -325,21 +312,13 @@
     if (blockedByFreeLimit()) return;
     location.href = "tax-calculator.html";
   }
-  function openAskAI(){
-    if (blockedByFreeLimit()) return;
-    if (!STATE.isPro) {
-      elNotice.innerHTML = "🤖 SmartWerk AI доступний лише в PRO плані.";
-      return;
-    }
-    toggleSmartWerkAI();
-  }
+ 
 
   function renderPlan(isPro){
     elPlanText.textContent = isPro ? "PRO" : "Free";
     elPlanBadge.textContent = isPro ? "PRO" : "FREE";
     elPlanBadge.classList.toggle("pro", isPro);
     elPlanBadge.classList.toggle("free", !isPro);
-    const askAI = $("btnUseAI"); if (askAI) askAI.disabled = !isPro;
   }
 
   function renderLimits(isPro, invoiceCount){
@@ -360,15 +339,7 @@
     }
   }
 
-  function toggleSmartWerkAI() {
-    const section = document.getElementById("smartwerkAiSection");
-    if (section.style.display === "none") {
-      section.style.display = "block";
-      window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
-    } else {
-      section.style.display = "none";
-    }
-  }
+ 
   </script>
 
 </body>
