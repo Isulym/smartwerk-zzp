@@ -130,3 +130,27 @@ body {
   background: var(--hover);
   transform: scale(1.03);
 }
+
+.topbar {
+  display: flex;
+  justify-content: flex-start;
+  margin: 20px 0;
+  padding: 0 20px;
+}
+
+.topbar nav a.btn {
+  background-color: #3b79ff;
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 10px;
+  margin-right: 10px;
+  display: inline-block;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.topbar nav a.btn:hover {
+  background-color: #2a66db;
+  color: white;
+}
