@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — All-in-One for Freelancers</title>
- <link rel="stylesheet" href="style.css" /> 
+  <link rel="stylesheet" href="style.css" />  
+
 </head>
 <body>
 
@@ -23,7 +24,7 @@
 <section class="hero">
   <h2>All-in-One Platform for Freelancers</h2>
   <p>Invoices, taxes, contracts, templates, ROI tools — everything in one place. No more juggling between platforms.</p>
-  <button>Try SmartWerk Free</button>
+  <a id="ctaButton" class="btn-primary" href="register.html">Try SmartWerk Free</a>
 </section>
 
 <section class="section">
@@ -99,7 +100,6 @@
     </div>
   </div>
 </section>
-  
 
 <section class="section">
   <h3>SmartWerk is built with you — not just for you</h3>
@@ -118,92 +118,9 @@
   <div class="testimonial">"The AI assistant is a game-changer — no more stress for VAT returns." — Yusuf A.</div>
 </section>
 
-
-
 <footer>
   <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   <div>
-    <p><a href="privacy.html">Privacy Policy</a> • <a href="Terms-Conditions.html">Terms</a></p>
-  
+    <a href="privacy.html">Privacy Policy</a> • <a href="Terms-Conditions.html">Terms</a>
   </div>
 </footer>
-
-
-
-<script 
-  type="module">
-  // ✅ 1) Firebase config (Project settings → Your apps → Web)
-  const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-  };
-
-  // ✅ 2) Імпорти (module only). Без <script src="...firebase-*.js">
-  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-  // 🔧 Увімкнемо анти-міготіння
-  document.body.classList.add('auth-pending');
-
-  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  const $  = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-
-   function renderAuthState(loggedIn) {
-    // Спершу сховаємо всі auth-елементи
-    $$('[data-auth-when]').forEach(el => el.style.display = 'none');
-    // Потім покажемо лише ті, що відповідають стану
-    $$(`[data-auth-when="${loggedIn ? 'in' : 'out'}"]`).forEach(el => {
-      el.style.display = '';
-    });
-
-    // Оновимо головну CTA
-    const cta = $('#ctaAuth') || $('[data-cta-auth]');
-    if (cta) {
-      cta.href = loggedIn ? 'dashboard.html' : 'login.html';
-      cta.textContent = loggedIn ? 'Log in' : 'Login';
-      cta.setAttribute('aria-label', loggedIn ? 'Go to Dashboard' : 'Login to SmartWerk');
-      cta.style.visibility = 'visible';
-    }
-
-    // Зняти стан очікування
-    document.body.classList.remove('auth-pending');
-  }
-
-  // Безпечний fallback: якщо щось піде не так — покажемо варіант "вийшов"
-  function failSafe() {
-    console.warn('[Auth] Fallback → showing logged OUT UI');
-    renderAuthState(false);
-  }
-
-  try {
-    onAuthStateChanged(auth,
-      user => {
-        console.log('[Auth] state:', user ? 'IN' : 'OUT', user?.email || '');
-        renderAuthState(!!user);
-      },
-      error => {
-        console.error('[Auth] onAuthStateChanged error:', error);
-        failSafe();
-      }
-    );
-
-    // Додатковий таймаут-запаска на випадок мережевих затримок SDK
-    setTimeout(() => {
-      // Якщо ще висить auth-pending через 3с — покажемо "OUT"
-      if (document.body.classList.contains('auth-pending')) failSafe();
-    }, 3000);
-  } catch (e) {
-    console.error('[Auth] init failed:', e);
-    failSafe();
-  }
-
-  </script>
-
-  
-</body>
-</html>
