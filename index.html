@@ -11,7 +11,7 @@
 <header>
   <h1>SmartWerk</h1>
   <nav>
-    <a href="index.html" data-auth-when="out">Home</a>
+    <a href="index.html">Home</a>
     <a href="#">Features</a>
     <a href="#">Templates</a>
     <a href="#">Pricing</a>
@@ -153,7 +153,7 @@
     const cta = $('#ctaAuth') || $('[data-cta-auth]');
     if (cta) {
       cta.href = loggedIn ? 'dashboard.html' : 'login.html';
-      cta.textContent = loggedIn ? 'Open Dashboard' : 'Log in';
+      cta.textContent = loggedIn ? 'Log in' : 'Log in';
       cta.setAttribute('aria-label', loggedIn ? 'Go to Dashboard' : 'Login to SmartWerk');
       cta.style.visibility = 'visible';
     }
