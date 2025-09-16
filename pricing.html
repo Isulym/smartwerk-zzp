@@ -3,122 +3,163 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk – PRO Pricing</title>
+  <title>SmartWerk — Pricing</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #0f172a;
-      color: #f8fafc;
-      line-height: 1.6;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      padding: 2rem;
     }
     header, footer {
-      padding: 1rem 2rem;
       text-align: center;
-      background: #1e293b;
-    }
-    h1, h2 {
-      color: #60a5fa;
-    }
-    .container {
-      max-width: 960px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      margin-bottom: 2rem;
     }
     .plans {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
     }
     .card {
       background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 1.5rem;
-      text-align: center;
-      transition: 0.3s ease;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 0 1px #3b82f6;
+      transform: translateY(-6px);
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+    }
+    .card h2 {
+      margin-bottom: 0.25rem;
+      font-size: 1.5rem;
+      color: #bae6fd;
     }
     .price {
-      font-size: 1.6rem;
+      font-size: 2rem;
+      font-weight: bold;
       margin: 1rem 0;
-      color: #facc15;
+      color: #38bdf8;
     }
     .btn {
       display: inline-block;
       margin-top: 1rem;
-      padding: 10px 20px;
+      padding: 0.75rem 1.5rem;
       background: #3b82f6;
-      color: white;
+      color: #fff;
+      border-radius: 999px;
       text-decoration: none;
-      border-radius: 8px;
+      font-weight: 500;
     }
-    .btn:hover {
-      background: #2563eb;
+    ul.features {
+      list-style: none;
+      padding-left: 0;
     }
-    .free-note {
-      margin-top: 3rem;
-      padding: 1.5rem;
-      background: #0f172a;
-      border-left: 4px solid #22c55e;
-      font-style: italic;
+    ul.features li {
+      padding: 0.25rem 0;
+      font-size: 0.95rem;
     }
-    .back-link {
-      display: inline-block;
+    .testimonials, .compare {
+      max-width: 800px;
       margin: 2rem auto;
-      color: #93c5fd;
-      text-decoration: none;
+      padding: 2rem;
+      background: #1e293b;
+      border-radius: 1rem;
     }
-    .back-link:hover {
-      text-decoration: underline;
+    .testimonials h3, .compare h3 {
+      margin-bottom: 1rem;
+      color: #38bdf8;
+    }
+    .testimonials p {
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    table th, table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #334155;
+      text-align: left;
+    }
+    table th {
+      color: #94a3b8;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>SmartWerk PRO Pricing</h1>
-    <p>Choose the plan that fits your freelance flow</p>
+    <a href="index.html" style="color:#38bdf8">← Back to SmartWerk</a>
+    <h1>Choose your SmartWerk PRO plan</h1>
+    <p>No commitments. Cancel anytime.</p>
   </header>
-  <div class="container">
-    <div class="plans">
-      <div class="card">
-        <h2>Monthly</h2>
-        <p class="price">€6.99 / month</p>
-        <p>Cancel anytime</p>
-        <a href="#" class="btn">Upgrade Monthly</a>
-      </div>
-      <div class="card">
-        <h2>Quarterly</h2>
-        <p class="price">€14.99 / 3 months</p>
-        <p>Save 30%</p>
-        <a href="#" class="btn">Upgrade Quarterly</a>
-      </div>
-      <div class="card">
-        <h2>Semi-Annual</h2>
-        <p class="price">€24.99 / 6 months</p>
-        <p>Save 40%</p>
-        <a href="#" class="btn">Upgrade Semi-Annual</a>
-      </div>
-      <div class="card">
-        <h2>Annual</h2>
-        <p class="price">€39.99 / year</p>
-        <p>Best value – Save 52%</p>
-        <a href="#" class="btn">Upgrade Yearly</a>
-      </div>
+
+  <div class="plans">
+    <div class="card">
+      <h2>Monthly Plan</h2>
+      <div class="price">€6.99 / mo</div>
+      <ul class="features">
+        <li>✅ Unlimited invoices</li>
+        <li>✅ Full template access</li>
+        <li>✅ Smart AI Assistant</li>
+        <li>✅ Export PDF without branding</li>
+      </ul>
+      <a href="#" class="btn">Start Monthly</a>
     </div>
 
-    <div class="free-note">
-      Not ready to upgrade? That’s totally fine. SmartWerk is free forever with basic tools included.
+    <div class="card">
+      <h2>Quarterly Plan</h2>
+      <div class="price">€17.99 / 3 mo</div>
+      <p style="color:#38bdf8; font-size: 0.9rem;">Save 15%</p>
+      <ul class="features">
+        <li>✅ Everything in Monthly</li>
+        <li>✅ Priority feature requests</li>
+      </ul>
+      <a href="#" class="btn">Go Quarterly</a>
     </div>
 
-    <a class="back-link" href="index.html">← Back to SmartWerk</a>
+    <div class="card">
+      <h2>Yearly Plan</h2>
+      <div class="price">€39.99 / year</div>
+      <p style="color:#38bdf8; font-size: 0.9rem;">🔥 Best value — Save 52%</p>
+      <ul class="features">
+        <li>✅ Everything in Quarterly</li>
+        <li>✅ Beta access to new tools</li>
+        <li>✅ Certificate of SmartWerk Supporter</li>
+      </ul>
+      <a href="#" class="btn">Go PRO Yearly 🔥</a>
+    </div>
   </div>
+
+  <div class="compare">
+    <h3>Compare Free vs PRO</h3>
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Free</th><th>PRO</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Invoice Templates</td><td>✅ Basic</td><td>✅ All unlocked</td></tr>
+        <tr><td>PDF Export</td><td>✅ With branding</td><td>✅ Without branding</td></tr>
+        <tr><td>Smart AI Assistant</td><td>❌</td><td>✅</td></tr>
+        <tr><td>Contract / Quote Templates</td><td>❌</td><td>✅</td></tr>
+        <tr><td>ROI Estimator / Bookkeeping</td><td>❌</td><td>✅</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="testimonials">
+    <h3>Why freelancers choose PRO</h3>
+    <p>“I upgraded for the AI tools, but stayed for the full control. Everything is smooth.” — Luca, Rotterdam</p>
+    <p>“No more watermark in my PDF invoices — finally looks professional.” — Erik, Utrecht</p>
+  </div>
+
   <footer>
-    <p>&copy; 2025–2030 SmartWerk • All rights reserved</p>
+    <p>© 2025–2030 SmartWerk • <a href="privacy.html" style="color:#94a3b8">Privacy</a> • <a href="Terms-Conditions.html" style="color:#94a3b8">Terms</a></p>
   </footer>
 </body>
 </html>
