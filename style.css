@@ -233,3 +233,34 @@ footer a:hover {
 .smartwerk-suggest a.btn-secondary:hover {
   background: #1d4ed8;
 }
+.featured-testimonial {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background-color: #1e293b;
+  border-left: 4px solid #38bdf8;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+  box-shadow: 0 0 10px rgba(30, 41, 59, 0.3);
+}
+
+.testimonial-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #38bdf8;
+}
+
+.testimonial-content .quote {
+  font-style: italic;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.testimonial-content .author {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-top: 0.4rem;
+}
