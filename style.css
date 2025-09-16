@@ -130,3 +130,18 @@ footer a:hover {
 .btn-primary:hover {
   background-color: #2563eb;
 }
+
+.testimonials {
+  background-color: #111827;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.testimonial {
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  color: #e5e7eb;
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+}
