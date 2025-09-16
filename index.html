@@ -7,8 +7,7 @@
   <link rel="stylesheet" href="style.css" />  
 
 </head>
-<body>
-
+<body class="auth-pending">
 <header>
   <h1>SmartWerk</h1>
   <nav>
@@ -124,3 +123,62 @@
     <a href="privacy.html">Privacy Policy</a> • <a href="Terms-Conditions.html">Terms</a>
   </div>
 </footer>
+
+
+
+  <script type="module">
+  const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
+
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  document.body.classList.add('auth-pending');
+  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const $  = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  function renderAuthState(loggedIn) {
+    $$('[data-auth-when]').forEach(el => el.style.display = 'none');
+    $$(`[data-auth-when="${loggedIn ? 'in' : 'out'}"]`).forEach(el => {
+      el.style.display = '';
+    });
+
+    const cta = $('#ctaAuth') || $('[data-cta-auth]');
+    if (cta) {
+      cta.href = loggedIn ? 'dashboard.html' : 'login.html';
+      cta.textContent = loggedIn ? 'Open Dashboard' : 'Log in';
+      cta.setAttribute('aria-label', loggedIn ? 'Go to Dashboard' : 'Login to SmartWerk');
+      cta.style.visibility = 'visible';
+    }
+
+    document.body.classList.remove('auth-pending');
+  }
+
+  function failSafe() {
+    renderAuthState(false);
+  }
+
+  try {
+    onAuthStateChanged(auth,
+      user => renderAuthState(!!user),
+      error => {
+        console.error('[Auth] onAuthStateChanged error:', error);
+        failSafe();
+      }
+    );
+
+    setTimeout(() => {
+      if (document.body.classList.contains('auth-pending')) failSafe();
+    }, 3000);
+  } catch (e) {
+    console.error('[Auth] init failed:', e);
+    failSafe();
+  }
+</script>
