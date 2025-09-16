@@ -183,3 +183,53 @@ footer a:hover {
   font-size: 0.85rem;
   display: block;
 }
+
+.smartwerk-extensions {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.smartwerk-box {
+  background: #1f2937;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #374151;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.smartwerk-box h4 {
+  margin-bottom: 1rem;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.smartwerk-box ul {
+  padding-left: 1.2rem;
+  color: #cbd5e1;
+}
+
+.smartwerk-box p {
+  color: #cbd5e1;
+}
+
+.smartwerk-suggest {
+  text-align: center;
+}
+
+.smartwerk-suggest a.btn-secondary {
+  background: #2563eb;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  display: inline-block;
+  margin-top: 1rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.smartwerk-suggest a.btn-secondary:hover {
+  background: #1d4ed8;
+}
