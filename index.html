@@ -165,7 +165,7 @@
     const cta = $('#ctaAuth') || $('[data-cta-auth]');
     if (cta) {
       cta.href = loggedIn ? 'dashboard.html' : 'login.html';
-      cta.textContent = loggedIn ? 'Open Dashboard' : 'Login';
+      cta.textContent = loggedIn ? 'Log in' : 'Login';
       cta.setAttribute('aria-label', loggedIn ? 'Go to Dashboard' : 'Login to SmartWerk');
       cta.style.visibility = 'visible';
     }
