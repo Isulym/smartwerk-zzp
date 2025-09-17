@@ -1,100 +1,156 @@
-/* tools-preview.css вЂ” РЎС‚РёР»СЊ РґР»СЏ tools-preview.html Сѓ СЃС‚РёР»С– SmartWerk */
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --accent: #3b79ff;
+  --muted: #8b949e;
+  --white: #f0f6fc;
+  --line: #30363d;
+  --hover: #21262d;
+}
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background-color: #0f172a;
-  color: #e2e8f0;
-  line-height: 1.6;
+  font-family: "Segoe UI", "Inter", sans-serif;
+  background: var(--bg);
+  color: var(--white);
 }
 
-header {
-  background-color: #1e293b;
-  padding: 1rem 2rem;
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #334155;
+  margin-bottom: 40px;
 }
 
-header h1 {
-  font-size: 1.5rem;
-  color: #38bdf8;
-}
-
-nav a {
-  color: #cbd5e1;
-  margin-left: 1.5rem;
+.topbar .brand {
+  font-size: 20px;
+  font-weight: bold;
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  color: var(--muted);
 }
 
-nav a:hover {
-  color: #38bdf8;
+.topbar .btn {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--white);
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-main {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: auto;
+.topbar .btn:hover {
+  background: var(--hover);
 }
 
-h2 {
-  text-align: center;
-  color: #38bdf8;
-  margin-bottom: 2rem;
+.intro h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
 }
 
-.tool-grid {
+.intro p {
+  color: var(--muted);
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+
+.template-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
 }
 
-.tool-card {
-  background-color: #1e293b;
-  border: 1px solid #334155;
-  padding: 1.5rem;
-  border-radius: 12px;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
+.template-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 0 10px #00000022;
+  transition: transform 0.2s ease;
 }
 
-.tool-card:hover {
+.template-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 12px #00000055;
 }
 
-.tool-card h3 {
-  margin-top: 0;
-  color: #f8fafc;
+.template-card h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
 }
 
-.tool-card p {
-  color: #94a3b8;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
+.template-card p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 16px;
 }
 
-.tool-card a {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background-color: #38bdf8;
-  color: #0f172a;
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
   border-radius: 6px;
-  font-weight: 600;
+  cursor: pointer;
+  font-weight: 500;
   text-decoration: none;
-  transition: background-color 0.3s ease;
+  display: inline-block;
+  transition: all 0.2s ease;
 }
 
-.tool-card a:hover {
-  background-color: #0ea5e9;
+.btn.primary {
+  background: var(--accent);
+  color: var(--white);
+  border: none;
 }
 
-footer {
-  text-align: center;
-  margin-top: 4rem;
-  padding: 1rem;
-  font-size: 0.9rem;
-  color: #64748b;
+.btn.ghost {
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--line);
+}
+
+.btn.primary:hover {
+  background: #2554d3;
+  transform: scale(1.03);
+}
+
+.btn.ghost:hover {
+  background: var(--hover);
+  transform: scale(1.03);
+}
+
+.topbar {
+  display: flex;
+  justify-content: flex-start;
+  margin: 20px 0;
+  padding: 0 20px;
+}
+
+.topbar nav a.btn {
+  background-color: #3b79ff;
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 10px;
+  margin-right: 10px;
+  display: inline-block;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.topbar nav a.btn:hover {
+  background-color: #2a66db;
+  color: white;
 }
