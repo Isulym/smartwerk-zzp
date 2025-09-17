@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📄 SmartWerk CV / Portfolio</title>
+  <link rel="stylesheet" href="style-cv.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <nav>
+    <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+    <a href="templates.html" class="btn">← Back to Templates</a>
+  </nav>
+</div>
+  
+  <div class="cv-container" id="cvContainer">
+   <header class="cv-header">
+  <div class="cv-intro">
+    <h1 id="fullNamePreview">Your Name</h1>
+    <p id="titlePreview">Professional Title</p>
+    <p id="contactsPreview">Email · Phone · Website</p>
+  </div>
+</header>
+
+<section class="cv-header cv-personal-info">
+  <h2>Personal Information</h2>
+  <div class="personal-info-custom">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="Your Name">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="title">Professional Title</label>
+        <input type="text" id="title" placeholder="e.g., Web Developer">
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" placeholder="+31 000000000">
+      </div>
+    </div>
+
+    <div class="form-row single">
+      <div class="form-group full-width">
+        <label for="website">Website</label>
+        <input type="url" id="website" placeholder="smartwerk.nl">
+      </div>
+    </div>
+  </div>
+</section>
+    
+  <div class="cv-section-columns">
+  <section class="cv-block" draggable="true" contenteditable="true">
+    <h2> Summary</h2>
+    <p>Brief introduction about yourself.</p>
+  </section>
+  <section class="cv-block" draggable="true" contenteditable="true">
+    <h2> Skills</h2>
+    <ul><li>JavaScript</li><li>HTML/CSS</li><li>Figma</li></ul>
+  </section>
+  <section class="cv-block" draggable="true" contenteditable="true">
+    <h2> Work Experience</h2>
+    <p>Role, company, and what you did.</p>
+  </section>
+  <section class="cv-block" draggable="true" contenteditable="true">
+    <h2> Education</h2>
+    <p>Degree, university, year</p>
+  </section>
+  <section class="cv-block" draggable="true" contenteditable="true">
+    <h2> Projects</h2>
+    <p>Describe key projects or portfolio items</p>
+  </section>
+  <section class="cv-block" draggable="true" contenteditable="true">
+    <h2> Achievements</h2>
+    <ul><li>Award 1</li><li>Certification 2</li></ul>
+  </section>
+  <section class="cv-block" draggable="true" contenteditable="true">
+    <h2> Testimonials</h2>
+    <blockquote>"Feedback from client or employer."</blockquote>
+  </section>
+
+  <section class="cv-block" draggable="true">
+  <h2>Business Proposal</h2>
+  <div id="proposalContent" contenteditable="true">
+    <p><strong>Brand Name:</strong> Your Brand Name</p>
+    <p><strong>Services / Products:</strong> Describe your key offerings</p>
+    <p><strong>Target Audience:</strong> Who you're aiming to serve</p>
+    <p><strong>Mission & Vision:</strong> Your goal and purpose</p>
+    <p><strong>Call to Action:</strong> What you want potential clients/partners to do</p>
+    <p><strong>Contact Information:</strong> Website, Email, Phone</p>
+  </div>
+</section>
+    
+</div>
+    <label style="font-size: 13px;">
+  <input type="checkbox" id="noBranding" />
+  Export without branding (PRO)
+</label>
+
+    <div class="cv-buttons">
+      <button id="btnExportPDF">📄 Export PDF</button>
+      <button id="btnSaveCV">💾 Save</button>
+      <button id="btnLoadCV">📂 Load</button>
+      <button id="btnClearCV">🗑️ Clear</button>
+    </div>
+
+<section class="cv-block ai-assist">
+  <h3>🧠 AI Suggestion for Business Proposal</h3>
+  <blockquote id="proposalExample" style="font-size:14px; background:#1c1f2b; border-left:4px solid #3b79ff; padding:10px; color:#ccc;">
+    <p><strong>Brand Name:</strong> GreenTech Solutions</p>
+    <p><strong>Services / Products:</strong> Eco-friendly software for sustainable businesses</p>
+    <p><strong>Target Audience:</strong> Startups, NGOs, and companies focused on green technology</p>
+    <p><strong>Mission & Vision:</strong> Empower sustainable digital transformation</p>
+    <p><strong>Call to Action:</strong> Let's build the future — contact us today!</p>
+    <p><strong>Contact Information:</strong> greentech@example.com · greentech.io</p>
+  </blockquote>
+  <button onclick="insertProposalExample()" class="btn small">🧠 Use Example</button>
+</section>
+    
+
+    <footer class="cv-footer">
+      <p>🔗 smartwerk.nl/portfolio/your-name</p>
+    </footer>
+  </div>
