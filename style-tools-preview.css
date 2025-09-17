@@ -88,3 +88,17 @@ footer {
 .topbar .btn:hover {
   background: var(--hover);
 }
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+}
+.btn-primary:hover {
+  background-color: #1e40af;
+}
