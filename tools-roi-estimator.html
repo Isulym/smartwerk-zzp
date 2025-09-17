@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📈 SmartWerk ROI Estimator</title>
+  <link rel="stylesheet" href="style-roi.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="topbar">
+  <nav>
+    <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+    <a href="templates.html" class="btn">← Back to Templates</a>
+  </nav>
+</div>
+  <div class="container">
+    <h1>📈 ROI Estimator — SmartWerk PRO</h1>
+    <p>Estimate the return on investment for your freelance or business expenses.</p>
+
+    <form id="roiForm">
+      <div class="form-group">
+        <label for="initialInvestment">💰 Initial Investment (€)</label>
+        <input type="number" id="initialInvestment" placeholder="e.g. 1000" required />
+      </div>
+      <div class="form-group">
+        <label for="monthlyProfit">📈 Monthly Profit Increase (€)</label>
+        <input type="number" id="monthlyProfit" placeholder="e.g. 250" required />
+      </div>
+      <div class="form-group">
+        <label for="duration">🕐 Period (in months)</label>
+        <input type="number" id="duration" placeholder="e.g. 6" required />
+      </div>
+      <div class="form-group">
+        <label for="extraCosts">💸 Extra Costs (Optional) (€)</label>
+        <input type="number" id="extraCosts" placeholder="e.g. 100" />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn primary" id="calculateROI">📊 Calculate ROI</button>
+        <button type="button" class="btn" id="exportPDF">📄 Export PDF</button>
+        <button type="button" class="btn pro" id="exportPDFNoBranding">PRO 📄 Export without branding</button>
+      </div>
+    </form>
+
+    <section id="results" style="display:none;">
+      <h2>📊 Results</h2>
+      <p><strong>Total Profit:</strong> <span id="totalProfit">—</span> €</p>
+      <p><strong>ROI:</strong> <span id="roiResult">—</span> %</p>
+      <p><strong>Payback Period:</strong> <span id="paybackPeriod">—</span> months</p>
+    </section>
+
+    <section id="chartSection" style="margin-top: 40px;">
+      <h3>📈 ROI Growth Chart</h3>
+      <canvas id="roiChart"></canvas>
+    </section>
+
+    <section id="tipsSection" style="margin-top: 40px;">
+      <h3>🧠 Smart Suggestions</h3>
+      <ul id="smartTips"></ul>
+    </section>
+
+    <section style="margin-top:30px;">
+      <h3>🤖 AI Recommendation</h3>
+      <div id="aiRecommendation"></div>
+    </section>
+
+    <section style="margin-top:40px;">
+      <h3>📉 Profit Over Time</h3>
+      <canvas id="cumulativeChart"></canvas>
+    </section>
+  </div>
