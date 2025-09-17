@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk — Invoices & Overview</title>
+
+  <link rel="stylesheet" href="style-invoices.css?v=3" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    /* читабельні кольори flatpickr */
+    .flatpickr-calendar{background:#0f172a;color:#e5e7eb;border:1px solid #1f2937}
+    .flatpickr-months{background:#111827;border-bottom:1px solid #1f2937}
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-current-month .cur-month{color:#e5e7eb !important}
+    .flatpickr-current-month .numInputWrapper input{color:#e5e7eb}
+    span.flatpickr-weekday{color:#d1d5db}
+    .flatpickr-day{color:#d1d5db}
+    .flatpickr-day.today{border-color:#60a5fa}
+    .flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{background:#2563eb;border-color:#2563eb;color:#fff}
+    .flatpickr-next-month,.flatpickr-prev-month{color:#9ca3af}
+  </style>
+
+  <!-- libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="topbar">
+  <nav>
+    <a href="index.html" class="btn">← Main Page</a>
+    <a href="dashboard.html" class="btn">← Dashboard</a>
+    <a href="invoices.html" class="btn">➕ New / Edit Invoice</a>
+  </nav>
+</div>
+  <main>
+    <!-- 📅 Filters & Search -->
+    <section class="step">
+      <h2>📅 Filters & Search</h2>
+      <label for="dateFrom">From:</label>
+      <input type="text" id="dateFrom" class="js-date" placeholder="YYYY-MM-DD">
+      <label for="dateTo">To:</label>
+      <input type="text" id="dateTo" class="js-date" placeholder="YYYY-MM-DD">
+      <input type="text" id="searchNumber" placeholder="Search..." oninput="renderInvoices()" />
+      <button onclick="renderInvoices()">🔎 Filter</button>
+      <button onclick="resetFilters()">🔄 Reset</button>
+
+      <label for="statusFilter">Status:</label>
+      <select id="statusFilter" onchange="renderInvoices()">
+        <option value="all">All</option>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
+        <option value="Reminder Sent">Reminder Sent</option>
+      </select>
+
+      <label for="sortBy">Sort by:</label>
+      <select id="sortBy" onchange="renderInvoices()">
+        <option value="numberDesc" selected>Invoice Number (Newest First)</option>
+        <option value="numberAsc">Invoice Number (Oldest First)</option>
+        <option value="dateDesc">Date (Newest First)</option>
+        <option value="dateAsc">Date (Oldest First)</option>
+        <option value="amountDesc">Amount (High to Low)</option>
+        <option value="amountAsc">Amount (Low to High)</option>
+      </select>
+    </section>
+
+    <!-- 📂 Saved Invoices -->
+    <section class="step">
+      <h2>📂 Saved Invoices</h2>
+      <div id="savedInvoices"></div>
+    </section>
+
+    <!-- 📊 Overview -->
+    <section class="step">
+      <h2>📊 Income & Expense Overview</h2>
+      <canvas id="incomeChart" height="100"></canvas>
+    </section>
+  </main>
