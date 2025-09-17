@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Reminder — SmartWerk</title>
+  <link rel="stylesheet" href="style-payment-reminder.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <nav class="nav-buttons">
+    <a href="dashboard.html" class="btn blue">← Back to Dashboard</a>
+    <a href="templates.html" class="btn blue">← Back to Templates</a>
+  </nav>
+</div>
+  <div class="container">
+    <h1>📈 Payment Reminder</h1>
+    <p>Send professional reminders for unpaid invoices. Use AI assistance, export to PDF, or send by email.</p>
+
+<section>
+  <h2>Sender & Recipient</h2>
+  <div class="form-section">
+    <div class="column">
+      <h3>Business Info (From)</h3>
+      <input type="text" placeholder="Business Name" id="fromName" />
+      <input type="text" placeholder="Business Email" id="fromEmail" />
+      <input type="text" placeholder="businessIBAN" id="fromIBAN" />
+      <input type="text" placeholder="Business Address" id="fromAddress" />
+    </div>
+    <div class="column">
+      <h3>Client Info (To)</h3>
+      <input type="text" placeholder="Client Name" id="clientName" />
+      <input type="text" placeholder="Client Email" id="clientEmail" />
+      <input type="text" placeholder="Client Address" id="clientAddress" />
+    </div>
+  </div>
+</section>
+
+
+    <section>
+      <h2>📄 Invoice Details</h2>
+      <input id="reminderId" placeholder="Reminder ID (e.g., REM-2025-001)" readonly />
+      <input id="invoiceNumber" placeholder="Invoice Number (e.g., INV-2025-001)" />
+      <input id="invoiceDate" type="date" placeholder="Invoice Date" />
+      <input id="dueDate" type="date" placeholder="Due Date" />
+      <input id="amount" placeholder="Amount Due (e.g., 500)" />
+      <select id="invoiceSelect">
+     <option>Select from saved invoices...</option>
+     </select>
+    </section>
+
+    <section>
+      <h2>📣 Reminder Type</h2>
+      <select id="reminderType">
+        <option value="First Reminder">First Reminder</option>
+        <option value="Second Notice">Second Notice</option>
+        <option value="Final Reminder">Final Reminder</option>
+      </select>
+    </section>
+
+    <section>
+      <h2>💬 Message Body</h2>
+      <textarea id="messageBody" rows="6" placeholder="Message..."></textarea>
+      <div class="row">
+        <button id="btn-strict">💬 Make it more strict</button>
+        <button id="btn-friendly">👍 Make it more friendly</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>🗓 Date & Location</h2>
+      <input id="city" placeholder="City" />
+      <input id="reminderDate" type="date" placeholder="Reminder Date" />
+    </section>
+
+    <section>
+      <h2>✍️ Signature</h2>
+      <input id="signatureName" placeholder="Your Name" />
+      <input id="signaturePosition" placeholder="Position (optional)" />
+      <input id="signatureEmail" placeholder="Your Email" />
+    </section>
+
+    <section>
+      <h2>💳 Payment</h2>
+      <input id="paymentLink" placeholder="Payment Link (PayPal, Mollie, etc.)" />
+      <a id="btn-pay" class="btn-green" target="_blank">Pay Now</a>
+    </section>
+
+    <section>
+      <h2>📧 Attach Original Invoice</h2>
+      <input type="file" id="attachedFile" />
+    </section>
+
+    <div class="buttons">
+      <button id="aiFillBtn">🤖 AI Fill</button>
+      <button id="loadExampleBtn">Load Example</button>
+      <button id="translateBtn">Translate</button>
+      <button id="btn-save">📃 Save</button>
+      <button id="btn-view-saved">📂 Saved Reminders</button>
+      <button id="btn-preview">📅 Preview</button>
+      <button id="btn-send-email">Send via Email</button>
+      <button onclick="exportReminderPDF(true)">📄 Export PDF</button>
+      <button onclick="exportReminderPDF(false)">PRO 📄 Export without branding</button>
+      <button id="btn-print">🖨 Print</button>
+    </div>
+
+    <div id="savedRemindersModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('savedRemindersModal').style.display='none'">&times;</span>
+        <h3>📂 Saved Reminders</h3>
+        <div id="savedRemindersList"></div>
+      </div>
+    </div>
+
+  </div>
