@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📧 Email to Gemeente - SmartWerk</title>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="style-email.css" />
+</head>
+<body>
+    <div class="topbar">
+  <nav>
+    <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+    <a href="templates.html" class="btn">← Back to Templates</a>
+  </nav>
+</div>
+
+  <div class="email-form">
+  <div class="form-row">
+    <label>📍 City:</label>
+    <input type="text" id="city" placeholder="City" />
+  </div>
+
+  <div class="form-row">
+    <label>📅 Today:</label>
+    <input type="date" id="todayDate" />
+  </div>
+
+  <div class="form-row">
+    <label>📨 To Gemeente:</label>
+    <input type="text" id="toGemeente" placeholder="Gemeente Name" />
+  </div>
+
+  <div class="form-row">
+    <label>📧 To Email:</label>
+    <input type="email" id="toEmail" placeholder="gemeente@example.nl" />
+  </div>
+
+  <div class="form-row">
+    <label>📤 Subject:</label>
+    <input type="text" id="subject" placeholder="Subject" />
+  </div>
+
+  <div class="form-row">
+    <label>📝 Message:</label>
+    <textarea id="messageBody" rows="6" placeholder="Write your message..."></textarea>
+  </div>
+
+  <div class="form-row">
+    <label>👤 Your Name:</label>
+    <input type="text" id="fromName" placeholder="Your name" />
+  </div>
+
+  <div class="form-row">
+    <label>📧 Your Email:</label>
+    <input type="email" id="fromEmail" placeholder="your@email.com" />
+  </div>
+
+  <div class="form-row">
+    <label>🏠 Your Address:</label>
+    <input type="text" id="fromAddress" placeholder="Street, Zip Code" />
+  </div>
+
+  <div class="form-row">
+    <label>✍️ Signature:</label>
+    <textarea id="signature" placeholder="Your name, closing..." rows="3"></textarea>
+  </div>
+
+  <div class="form-row">
+    <label>🌐 Language:</label>
+    <select id="languageSelect">
+      <option value="en">English</option>
+      <option value="nl">Nederlands</option>
+    </select>
+    <button id="translateBtn" class="btn small">🌐 Translate</button>
+  </div>
+
+  <div class="form-row">
+    <label>🧠 AI Example:</label>
+    <select id="exampleSelect">
+      <option value="subsidy">Energy Subsidy</option>
+      <option value="complaint">Complaint</option>
+      <option value="housing">Urgent Housing</option>
+    </select>
+    <button id="loadExampleBtn" class="btn small">📂 Load Example</button>
+    <button id="aiFillBtn" class="btn small">🤖 AI Fill</button>
+  </div>
+
+  <div class="button-group">
+    <button id="sendEmailBtn" class="btn">📤 Send via Email</button>
+    <button id="btn-save-email" class="btn">💾 Save Email</button>
+    <button id="btn-view-saved" class="btn">📂 View Saved Emails</button>
+    <button id="btn-export-pdf" class="btn">📄 Export PDF</button>
+  </div>
+    <label style="margin-left: 10px;">
+  <input type="checkbox" id="proPdfCheckbox" />
+  Enable PRO (no branding in PDF)
+</label>
+</div>
+
+<!-- Saved Emails Modal -->
+<div id="savedEmailsModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>📂 Saved Emails</h3>
+    <div id="savedEmailsList"></div>
+    <button class="btn" onclick="document.getElementById('savedEmailsModal').style.display='none'">✖ Close</button>
+  </div>
+</div>
