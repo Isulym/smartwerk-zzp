@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk — Quote / Offer</title>
+  <link rel="stylesheet" href="style-quote-offer.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <nav class="left">
+        <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+        <a href="templates.html" class="btn">← Back to Templates</a>
+      </nav>
+    </header>
+
+    <section class="intro">
+      <h1>📄 Create a Quote / Offer 
+        <span class="info-icon" title="A quote is a professional offer sent before an invoice.">ℹ️</span>
+      </h1>
+      <p class="muted">Use this tool to create a professional offer for your client before sending an invoice.</p>
+     <p class="quote-valid">🗓️ Valid until: <span id="validUntilDisplay"></span></p>
+    </section>
+
+    <form id="quoteForm">
+      <div class="form-section">
+        <h2>🧾 Business Info</h2>
+        <input type="text" id="businessName" placeholder="Your Business Name" required />
+        <input type="text" id="businessKvK" placeholder="KvK Number (optional)" />
+        <input type="text" id="businessVAT" placeholder="VAT Number (optional)" />
+        <input type="text" id="businessIBAN" placeholder="IBAN (optional)" />
+        <input type="text" id="businessPhone" placeholder="Phone (optional)" />
+        <input type="text" id="businessAddress" placeholder="Address (optional)" />
+      </div>
+
+      <div class="form-section">
+        <h2>👤 Client Info</h2>
+        <input type="text" id="clientName" placeholder="Client Name" required />
+        <input type="text" id="clientEmail" placeholder="Client Email (optional)" />
+        <input type="text" id="clientPhone" placeholder="Client Phone (optional)" />
+        <input type="text" id="clientAddress" placeholder="Client Address (optional)" />
+        <input type="text" id="quoteNo" value="QUOTE-2025-030" hidden />
+        <input type="text" id="validUntil" hidden />
+       
+      </div>
+
+      <div class="form-section">
+        <h2>📋 Services</h2>
+        <table id="servicesTable">
+          <thead>
+            <tr><th>Description</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr>
+          </thead>
+          <tbody id="itemsContainer">
+            <!-- Items will be injected here -->
+          </tbody>
+        </table>
+        <button type="button" id="addItemBtn" class="btn ghost">+ Add Item</button>
+      </div>
+
+      <div class="form-section">
+        <h2>🧮 Summary</h2>
+        <p>Subtotal: <strong><span id="subtotal">€0.00</span></strong></p>
+        <p>VAT (21%): <strong><span id="vat">€0.00</span></strong></p>
+        <p><strong>Total: <span id="total">€0.00</span></strong></p>
+        <p>Currency: 
+          <select id="currency">
+            <option value="EUR">EUR (€)</option>
+            <option value="USD">USD ($)</option>
+            <option value="GBP">GBP (£)</option>
+          </select>
+        </p>
+      </div>
+
+      <div class="form-section">
+        <h2>📝 Quote Settings</h2>
+        <input type="text" id="quoteNumber" placeholder="Quote Number (e.g. QUOTE-2025-001)" />
+        <select id="quoteStatus">
+          <option value="draft">Draft</option>
+          <option value="sent">Sent</option>
+          <option value="accepted">Accepted</option>
+        </select>
+        <span id="statusBadge" class="status-badge draft">● Draft</span>
+      </div>
+
+      <div class="form-section">
+        <h2>📝 Note to Client</h2>
+        <textarea id="clientNote" placeholder="This quote is valid for 14 days... (optional)"></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>✍️ Signatures</h2>
+        <input type="text" id="signatureName" placeholder="Your Name / Signature" required />
+        <input type="text" id="clientSignature" placeholder="Client Name / Signature (optional)" />
+        <p>Signature Date: <span id="signatureDate"></span></p>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">💾 Save</button>
+        <button type="button" class="btn" id="previewBtn">👁 Preview</button>
+       <button type="button" id="exportQuotePDF" class="btn">📄 Export PDF</button>
+        <button type="button" class="btn ghost" id="aiDraftBtn">⚡ AI Draft</button>
+      </div>
+
+      <div class="form-section">
+  <label>
+    <input type="checkbox" id="togglePro" />
+    Enable PRO (no branding in PDF)
+  </label>
+</div>
+    </form>
+
+    <footer class="foot-note">
+      <p class="muted">Generated with SmartWerk — smartwerk.nl</p>
+    </footer>
+  </div>
+
+  <section id="savedQuotesSection" class="form-section">
+  <h2>📁 Saved Quotes</h2>
+<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+  <input type="text" id="searchInput" placeholder="🔍 Search by client, quote no, or status" style="flex: 2; padding: 6px;" />
+  <select id="filterStatus" style="flex: 1; padding: 6px;">
+    <option value="">All Statuses</option>
+    <option value="draft">Draft</option>
+    <option value="sent">Sent</option>
+    <option value="accepted">Accepted</option>
+  </select>
+</div>
+    
+  <table id="savedQuotesTable">
+    <thead>
+      <tr>
+        <th>Quote No</th>
+        <th>Client</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="savedQuotesBody">
+      <!-- Dynamically filled -->
+    </tbody>
+  </table>
+</section>
