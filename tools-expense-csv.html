@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Expense Tracker</title>
+  <link rel="stylesheet" href="style-expense-csv.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+      <nav class="left">
+        <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+        <a href="templates.html" class="btn">← Back to Templates</a>
+      </nav>
+    </header>
+  <div class="container">
+    <h1>💼 SmartWerk Expense Tracker</h1>
+
+    <form id="expenseForm" class="expense-form">
+      <h2>💸 New Expense Entry</h2>
+      <div class="form-group">
+        <label for="expenseId">Expense ID</label>
+        <input type="text" id="expenseId" readonly placeholder="EXP-2025-001">
+      </div>
+      <div class="form-group">
+        <label for="expenseType">Expense Type</label>
+        <select id="expenseType">
+          <option>One-time</option>
+          <option>Recurring Monthly</option>
+          <option>Subscription</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="invoiceAttached">Invoice Attached?</label>
+        <select id="invoiceAttached">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="description">Product / Service Description</label>
+        <input type="text" id="description" placeholder="e.g., Adobe Creative Cloud Subscription">
+      </div>
+      <div class="form-group">
+        <label for="paymentDate">Payment Date</label>
+        <input type="date" id="paymentDate">
+      </div>
+      <div class="form-group">
+        <label for="category">Smart Category (AI)</label>
+        <input type="text" id="category" placeholder="e.g., Software, Marketing, Travel">
+        <button type="button" id="suggestCategory">🧠 AI Suggest</button>
+      </div>
+      <div class="form-group">
+        <label for="paymentStatus">Payment Status</label>
+        <select id="paymentStatus">
+          <option>Paid</option>
+          <option>Unpaid</option>
+          <option>Scheduled</option>
+          <option>Failed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="dueDate">Reminder / Due Date</label>
+        <input type="date" id="dueDate">
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount (€)</label>
+        <input type="number" id="amount" step="0.01">
+      </div>
+      <div class="form-group">
+        <label for="vatRate">VAT Rate</label>
+        <select id="vatRate">
+          <option value="0">0%</option>
+          <option value="9">9%</option>
+          <option value="21">21%</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="vatAmount">VAT Amount (€)</label>
+        <input type="number" id="vatAmount" readonly>
+      </div>
+      <div class="form-group">
+        <label for="totalAmount">Total Amount (€)</label>
+        <input type="number" id="totalAmount" readonly>
+      </div>
+      <div class="form-group">
+        <label for="country">Country / Location</label>
+        <input type="text" id="country" placeholder="e.g., Netherlands">
+      </div>
+      <div class="form-group">
+        <label for="notes">Internal Notes (Optional)</label>
+        <textarea id="notes" rows="2" placeholder="Only visible to you"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" id="saveExpense">💾 Save Expense</button>
+        <button type="button" id="exportCSV">📄 Export CSV</button>
+        <button onclick="exportExpensesPDF(true)">📄 Export PDF</button>
+        <button onclick="exportExpensesPDF(false)">PRO 📄 Export without branding</button>
+        <button type="button" id="printExpense">🖨️ Print</button>
+      </div>
+    </form>
+
+    <section id="expenseTableSection" style="margin-top:40px;">
+      <h3>📊 Saved Expenses</h3>
+      <div id="expenseTable"></div>
+    </section>
+
+   <div class="filters">
+  <label>Status:
+    <select id="filterStatus">
+      <option value="">All Statuses</option>
+      <option value="Paid">Paid</option>
+      <option value="Unpaid">Unpaid</option>
+      <option value="Scheduled">Scheduled</option>
+      <option value="Failed">Failed</option>
+    </select>
+  </label>
+
+  <label>Search:
+    <input type="text" id="searchDescription" placeholder="🔍 Search by description..." />
+  </label>
+
+  <label>From:
+    <input type="date" id="filterFromDate" />
+  </label>
+
+  <label>To:
+    <input type="date" id="filterToDate" />
+  </label>
+
+  <label>Sort:
+    <select id="sortBy">
+      <option value="date">Sort by Date</option>
+      <option value="amount">Sort by Amount</option>
+    </select>
+  </label>
+
+  <button type="button" id="applyFilters">Apply Filters</button>
+  <button type="button" id="resetFilters">Reset</button>
+</div>
+</div>
