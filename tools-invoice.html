@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk Invoice Manager</title>
+
+  <link rel="stylesheet" href="style-invoices.css?v=3" />
+
+  <!-- Flatpickr calendar -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    /* Легка читабельність календаря (темна тема) */
+    .flatpickr-calendar{background:#0f172a;color:#e5e7eb;border:1px solid #1f2937}
+    .flatpickr-months{background:#111827;border-bottom:1px solid #1f2937}
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-current-month .cur-month{color:#e5e7eb !important}
+    .flatpickr-current-month .numInputWrapper input{color:#e5e7eb}
+    span.flatpickr-weekday{color:#d1d5db}
+    .flatpickr-day{color:#d1d5db}
+    .flatpickr-day.today{border-color:#60a5fa}
+    .flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{background:#2563eb;border-color:#2563eb;color:#fff}
+    .flatpickr-next-month,.flatpickr-prev-month{color:#9ca3af}
+  </style>
+
+  <!-- libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+</head>
+<body>
+   <div class="topbar">
+  <nav>
+    <a href="index.html" class="btn">← Main Page</a>
+    <a href="dashboard.html" class="btn">← Dashboard</a>
+    <a href="invoices-list.html" class="btn">📋 Invoices List</a>
+  </nav>
+</div>
+
+  <main>
+    <h1>SmartWerk Invoice Manager</h1>
+
+    <!-- Step 1: Business Info -->
+    <section class="step">
+      <h2>🏢 Business Info</h2>
+      <label>Business Name <input id="businessName" type="text" placeholder="Business Name" /></label>
+      <label>KvK Number <input id="kvk" type="text" placeholder="KvK Number" /></label>
+      <label>IBAN <input id="iban" type="text" placeholder="IBAN" /></label>
+      <label>Email <input id="email" type="email" placeholder="Email" /></label>
+      <label>Business Address <input id="businessAddress" type="text" placeholder="Business Address" /></label>
+      <label>Business Phone <input id="businessPhone" type="tel" placeholder="Business Phone" /></label>
+      <label for="btw">BTW:</label>
+      <input type="text" id="btw" />
+    </section>
+
+    <!-- Step 2: Client Info -->
+    <section class="step">
+      <h2>👤 Client Info</h2>
+      <label>Client Name <input id="clientName" type="text" placeholder="Client Name" /></label>
+      <label>Client Email <input id="clientEmail" type="email" placeholder="Client Email" /></label>
+      <label>Client Phone <input id="clientPhone" type="tel" placeholder="Client Phone" /></label>
+      <label>Client Address <input id="clientAddress" type="text" placeholder="Client Address" /></label>
+
+      <label>Invoice Date <input id="invoiceDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
+      <label>Due Date <input id="dueDate" type="text" class="js-date" placeholder="YYYY-MM-DD" /></label>
+      <label>Invoice Number <input id="invoiceNumber" type="text" placeholder="Invoice Number" /></label>
+
+      <label for="status">Status:</label>
+      <select id="status">
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
+      </select>
+    </section>
+
+    <!-- Step 3: Items -->
+    <section class="step">
+      <h2>📝 Invoice Items</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>VAT (%)</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+      <button onclick="addItem()">➕ Add Item</button>
+    </section>
+
+    <!-- Step 4: Summary -->
+    <section class="step">
+      <h2>📦 Summary</h2>
+      <label>Note
+        <textarea id="note" placeholder="Invoice note (optional)..."></textarea>
+      </label>
+      <p><strong>Subtotal:</strong> <span id="subtotal">€0.00</span></p>
+      <p><strong>Total VAT:</strong> <span id="totalVat">€0.00</span></p>
+      <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
+    </section>
+
+    <!-- OCR -->
+    <section class="step ocr-section">
+      <h2>📷 Receipt OCR</h2>
+      <label>Upload Receipt: <input type="file" id="receiptInput" accept="image/*" /></label>
+      <button onclick="processReceipt()">Scan</button>
+      <pre id="receiptText"></pre>
+    </section>
+
+    <!-- Step 5: Signatures -->
+    <section class="step">
+      <h2>✍️ Signatures</h2>
+
+      <div>
+        <h3>Business Signature:</h3>
+        <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas><br/>
+        <button onclick="clearSignature('signatureBusiness')">Clear</button>
+        <p>Date: <span id="signatureBusinessDate"></span></p>
+      </div>
+
+      <div>
+        <h3>Client Signature:</h3>
+        <canvas id="signatureClient" class="signature" width="300" height="100"></canvas><br/>
+        <button onclick="clearSignature('signatureClient')">Clear</button>
+        <p>Date: <span id="signatureClientDate"></span></p>
+      </div>
+    </section>
+
+    <!-- Step 6: Actions -->
+    <section class="step">
+      <h2>⚙️ Actions</h2>
+      <button onclick="saveInvoice()">💾 Save Invoice</button>
+      <a class="btn" href="invoices-list.html">📋 Open Invoices List</a>
+    </section>
+  </main>
