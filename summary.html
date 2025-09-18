@@ -62,134 +62,132 @@
     <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   </footer>
 
-  <script>
+ <script type="module">
+  // 🔽 Вставляй весь код сюди:
+  import {
+    initializeApp,
+    getApps,
+    getApp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-// summary.js
-// summary.js — оновлена версія для Smart Summary (Firebase + графік + CSV)
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-  initializeApp,
-  getApps,
-  getApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getAuth,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1",
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-const $ = sel => document.querySelector(sel);
+  const $ = sel => document.querySelector(sel);
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return (window.location.href = "login.html");
-  const uid = user.uid;
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return (window.location.href = "login.html");
+    const uid = user.uid;
 
-  const invoicesSnap = await getDocs(
-    query(collection(db, "invoices"), where("userId", "==", uid))
-  );
+    const invoicesSnap = await getDocs(
+      query(collection(db, "invoices"), where("userId", "==", uid))
+    );
 
-  const invoices = [];
-  invoicesSnap.forEach(doc => invoices.push(doc.data()));
+    const invoices = [];
+    invoicesSnap.forEach(doc => invoices.push(doc.data()));
 
-  renderSummary(invoices);
-});
-
-function renderSummary(invoices) {
-  const total = invoices.length;
-  const paid = invoices.filter(i => i.status === 'Paid').length;
-  const sent = invoices.filter(i => i.status === 'Sent').length;
-  const draft = invoices.filter(i => i.status === 'Draft').length;
-
-  $("#totalInvoices").textContent = total;
-  $("#paidInvoices").textContent = paid;
-  $("#sentInvoices").textContent = sent;
-  $("#draftInvoices").textContent = draft;
-
-  const monthlyData = {};
-  invoices.forEach(inv => {
-    const month = (inv.date || '').substring(0, 7); // YYYY-MM
-    if (!monthlyData[month]) monthlyData[month] = 0;
-    monthlyData[month] += parseFloat(inv.total || 0);
+    renderSummary(invoices);
   });
 
-  const labels = Object.keys(monthlyData).sort();
-  const values = labels.map(m => monthlyData[m]);
+  function renderSummary(invoices) {
+    const total = invoices.length;
+    const paid = invoices.filter(i => i.status === 'Paid').length;
+    const sent = invoices.filter(i => i.status === 'Sent').length;
+    const draft = invoices.filter(i => i.status === 'Draft').length;
 
-  renderChart(labels, values);
-}
+    $("#totalInvoices").textContent = total;
+    $("#paidInvoices").textContent = paid;
+    $("#sentInvoices").textContent = sent;
+    $("#draftInvoices").textContent = draft;
 
-function renderChart(labels, values) {
-  const ctx = document.getElementById('summaryChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Monthly Revenue (€)',
-        data: values,
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: { beginAtZero: true }
+    const monthlyData = {};
+    invoices.forEach(inv => {
+      const month = (inv.date || '').substring(0, 7); // YYYY-MM
+      if (!monthlyData[month]) monthlyData[month] = 0;
+      monthlyData[month] += parseFloat(inv.total || 0);
+    });
+
+    const labels = Object.keys(monthlyData).sort();
+    const values = labels.map(m => monthlyData[m]);
+
+    renderChart(labels, values);
+  }
+
+  function renderChart(labels, values) {
+    const canvas = document.getElementById('monthlyChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Monthly Revenue (€)',
+          data: values,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
       }
+    });
+  }
+
+  // Export CSV function
+  window.exportSummary = async function () {
+    const user = auth.currentUser;
+    if (!user) return alert("Not logged in");
+
+    const q = query(collection(db, "invoices"), where("userId", "==", user.uid));
+    const snap = await getDocs(q);
+
+    const rows = [["Invoice #", "Client", "Date", "Total", "Status"]];
+    snap.forEach(doc => {
+      const i = doc.data();
+      rows.push([i.number, i.clientName, i.date, i.total, i.status]);
+    });
+
+    let csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "SmartWerk_Summary.csv";
+    a.click();
+  };
+
+  // Приховати незаповнені секції
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!document.getElementById("monthlyChart")) {
+      document.querySelector(".summary-chart-block")?.style.display = 'none';
+    }
+    if (!document.getElementById("vatSummary")) {
+      document.querySelector(".vat-summary-block")?.style.display = 'none';
     }
   });
-}
-
-// Export CSV function
-window.exportSummary = async function () {
-  const user = auth.currentUser;
-  if (!user) return alert("Not logged in");
-
-  const q = query(collection(db, "invoices"), where("userId", "==", user.uid));
-  const snap = await getDocs(q);
-
-  const rows = [
-    ["Invoice #", "Client", "Date", "Total", "Status"]
-  ];
-
-  snap.forEach(doc => {
-    const i = doc.data();
-    rows.push([i.number, i.clientName, i.date, i.total, i.status]);
-  });
-
-  let csv = rows.map(r => r.join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "SmartWerk_Summary.csv";
-  a.click();
-};
-
-// Приховати незаповнені секції
-window.addEventListener("DOMContentLoaded", () => {
-  if (!document.getElementById("summaryChart")) {
-    document.querySelector(".summary-chart-block")?.style.display = 'none';
-  }
-  if (!document.getElementById("vatSummary")) {
-    document.querySelector(".vat-summary-block")?.style.display = 'none';
-  }
-});
     
   </script>
 </body>
