@@ -188,6 +188,16 @@
       document.querySelector(".vat-summary-block")?.style.display = 'none';
     }
   });
+     window.refreshSummary = () => {
+    location.reload(); // простий спосіб перезавантажити
+  };
+   window.filterBy = function(period) {
+  alert("Filtering by: " + period + " (Feature coming soon)");
+}
+
+window.filterByMonth = function(month) {
+  alert("Filtering by month: " + month + " (Feature coming soon)");
+}
     
   </script>
 </body>
