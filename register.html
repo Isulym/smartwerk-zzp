@@ -38,48 +38,60 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    const form = document.getElementById("registerForm");
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
+  const form = document.getElementById("registerForm");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const termsChecked = document.getElementById("termsCheckbox").checked;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const termsChecked = document.getElementById("termsCheckbox").checked;
 
-      if (password !== confirmPassword) {
-        alert("❌ Passwords do not match");
-        return;
-      }
+    if (!email || !password || !confirmPassword) {
+      alert("❗ Please fill in all fields.");
+      return;
+    }
 
-      if (!termsChecked) {
-        alert("❗ You must agree to the terms");
-        return;
-      }
+    if (password.length < 6) {
+      alert("❗ Password must be at least 6 characters.");
+      return;
+    }
 
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          alert("✅ Account created!");
-          window.location.href = "dashboard.html";
-        })
-        .catch((error) => {
-          alert("❌ " + error.message);
-        });
-    });
-  </script>
+    if (password !== confirmPassword) {
+      alert("❗ Passwords do not match.");
+      return;
+    }
+
+    if (!termsChecked) {
+      alert("❗ You must agree to the terms.");
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("✅ Account created! Redirecting...");
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      const msg = error.message.includes("auth/email-already-in-use") ? "❗ Email already in use." :
+                  error.message.includes("auth/invalid-email") ? "❗ Invalid email format." :
+                  error.message;
+      alert(msg);
+    }
+  });
+</script>
 
 </body>
 </html>
