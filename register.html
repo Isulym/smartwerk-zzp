@@ -88,25 +88,25 @@
     const confirmPassword = $("confirmPassword").value;
     const agree = $("termsCheckbox").checked;
 
-    if (!email || !password || !confirmPassword) return showErr("Заповніть всі поля");
-    if (password.length < 6) return showErr("Пароль має містити щонайменше 6 символів");
+    if (!email || !password || !confirmPassword) return showErr("Fill in all fields");
+    if (password.length < 6) return showErr("Password must contain at least 6 characters");
     if (!/[^\w\s]/.test(password)) {
-     return showErr("Пароль має містити хоча б один спеціальний символ (наприклад, @, #, !)");
+     return showErr("Password must contain at least one special character (for example, @, #, !)");
      }
-    if (password !== confirmPassword) return showErr("Паролі не збігаються");
-    if (!agree) return showErr("Потрібно погодитись з умовами");
+    if (password !== confirmPassword) return showErr("Passwords do not match");
+    if (!agree) return showErr("You must agree to the terms and conditions");
 
     try {
       $("registerBtn").disabled = true;
-      $("registerBtn").textContent = "Реєстрація...";
+      $("registerBtn").textContent = "Registration...";
 
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(userCred.user);
 
-      showOk("Реєстрація успішна! Підтвердіть email перед входом.");
+      showOk("Registration successful! Confirm email before logging in.");
     } catch (err) {
-      const msg = err.message.includes("auth/email-already-in-use") ? "Цей email вже використовується"
-                : err.message.includes("auth/invalid-email") ? "Невірний формат email"
+      const msg = err.message.includes("auth/email-already-in-use") ? "This email is already in use"
+                : err.message.includes("auth/invalid-email") ? "Invalid email format"
                 : err.message;
       showErr(msg);
     } finally {
@@ -119,7 +119,7 @@
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then(() => {
-        showOk("Успішна реєстрація через Google!");
+        showOk("Successful registration via Google!");
         window.location.replace("dashboard.html");
       })
       .catch((err) => showErr("⚠️ " + err.message));
