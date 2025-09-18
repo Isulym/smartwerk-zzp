@@ -106,8 +106,9 @@
       return showErr("You must agree to the terms and conditions");
 
     try {
-      $("registerBtn").disabled = true;
-      $("registerBtn").textContent = "Registration...";
+     $("registerBtn").disabled = true;
+     $("registerSpinner").style.display = "inline-block";
+     $("registerText").textContent = "Registering...";
 
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(userCred.user);
@@ -120,7 +121,8 @@
       showErr(msg);
     } finally {
       $("registerBtn").disabled = false;
-      $("registerBtn").textContent = "Register";
+      $("registerSpinner").style.display = "none";
+      $("registerText").textContent = "Register";
     }
   });
 
