@@ -109,19 +109,19 @@
       const email = $("email").value.trim();
       const password = $("password").value;
 
-      if (!email || !password) return showErr("Введіть email та пароль");
-      if (password.length < 6) return showErr("Пароль має містити щонайменше 6 символів");
+      if (!email || !password) return showErr("Enter email and password");
+      if (password.length < 6) return showErr("Password must contain at least 6 characters");
 
       try {
         $("loginBtn").disabled = true;
-        $("loginBtn").textContent = "Входимо...";
+        $("loginBtn").textContent = "Entering...";
         await signInWithEmailAndPassword(auth, email, password);
-        showOk("Успішний вхід. Перенаправлення...");
+        showOk("Successful login. Redirect...");
         window.location.replace("dashboard.html");
       } catch (err) {
-        const msg = err.message.includes("auth/user-not-found") ? "Користувача не знайдено" :
-                    err.message.includes("auth/wrong-password") ? "Неправильний пароль" :
-                    err.message.includes("auth/invalid-email") ? "Невірний формат email" :
+        const msg = err.message.includes("auth/user-not-found") ? "User not found" :
+                    err.message.includes("auth/wrong-password") ? "Incorrect password" :
+                    err.message.includes("auth/invalid-email") ? "Invalid email format" :
                     err.message;
         showErr(msg);
       } finally {
@@ -137,10 +137,10 @@
 
     window.resetPassword = function () {
       const email = $("resetEmail").value.trim();
-      if (!email) return showErr("Введіть email для відновлення");
+      if (!email) return showErr("Enter your recovery email");
 
       sendPasswordResetEmail(auth, email)
-        .then(() => showOk("Лист для відновлення надіслано!"))
+        .then(() => showOk("Recovery letter sent!"))
         .catch((err) => showErr("⚠️ " + err.message));
     }
 
