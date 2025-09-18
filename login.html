@@ -118,14 +118,7 @@
         await signInWithEmailAndPassword(auth, email, password);
         showOk("Successful login. Redirect...");
         window.location.replace("dashboard.html");
-      } catch (err) {
-        const msg = err.message.includes("auth/user-not-found") ? "User not found" :
-                    err.message.includes("auth/wrong-password") ? "Incorrect password" :
-                    err.message.includes("auth/invalid-email") ? "Invalid email format" :
-                    err.message;
-        showErr(msg);
-
-
+      } 
 catch (err) {
   const msg =
     err.message.includes("auth/user-not-found") ? "User not found" :
