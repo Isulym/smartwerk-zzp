@@ -22,6 +22,7 @@
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
       <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+      
 
       <div class="form-group">
         <label style="font-size: 14px;">
@@ -88,13 +89,17 @@
     const confirmPassword = $("confirmPassword").value;
     const agree = $("termsCheckbox").checked;
 
-    if (!email || !password || !confirmPassword) return showErr("Fill in all fields");
-    if (password.length < 6) return showErr("Password must contain at least 6 characters");
+    if (!email || !password || !confirmPassword) 
+      return showErr("Fill in all fields");
+    if (password.length < 6) 
+      return showErr("Password must contain at least 6 characters");
     if (!/[^\w\s]/.test(password)) {
      return showErr("Password must contain at least one special character (for example, @, #, !)");
      }
-    if (password !== confirmPassword) return showErr("Passwords do not match");
-    if (!agree) return showErr("You must agree to the terms and conditions");
+    if (password !== confirmPassword) 
+      return showErr("Passwords do not match");
+    if (!agree) 
+      return showErr("You must agree to the terms and conditions");
 
     try {
       $("registerBtn").disabled = true;
