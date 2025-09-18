@@ -17,6 +17,8 @@
   <div class="register-card">
     <h2>Register to SmartWerk</h2>
     <form id="registerForm">
+      <div id="errorBox" class="error-box" style="display:none;"></div>
+      <div id="okBox" class="ok-box" style="display:none;"></div>
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
       <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
@@ -29,6 +31,7 @@
       </div>
 
       <button type="submit">Register</button>
+      <button type="button" onclick="registerWithGoogle()" class="btn-google">Sign up with Google</button>
     </form>
 
     <div class="text-small">
@@ -38,8 +41,16 @@
   </div>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    initializeApp, getApps, getApp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    GoogleAuthProvider,
+    signInWithPopup
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -48,49 +59,68 @@
     appId: "1:607670981972:web:c07103c981c86860d724c1",
   };
 
-  const app = initializeApp(firebaseConfig);
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  const form = document.getElementById("registerForm");
-  form.addEventListener("submit", async (e) => {
+  const $ = id => document.getElementById(id);
+  const errorBox = $("errorBox");
+  const okBox = $("okBox");
+
+  function showErr(msg) {
+    errorBox.textContent = "⚠️ " + msg;
+    errorBox.style.display = "block";
+    okBox.style.display = "none";
+  }
+
+  function showOk(msg) {
+    okBox.textContent = "✅ " + msg;
+    okBox.style.display = "block";
+    errorBox.style.display = "none";
+  }
+
+  $("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    errorBox.style.display = "none";
+    okBox.style.display = "none";
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-    const termsChecked = document.getElementById("termsCheckbox").checked;
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    const confirmPassword = $("confirmPassword").value;
+    const agree = $("agree").checked;
 
-    if (!email || !password || !confirmPassword) {
-      alert("❗ Please fill in all fields.");
-      return;
-    }
-
-    if (password.length < 6) {
-      alert("❗ Password must be at least 6 characters.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      alert("❗ Passwords do not match.");
-      return;
-    }
-
-    if (!termsChecked) {
-      alert("❗ You must agree to the terms.");
-      return;
-    }
+    if (!email || !password || !confirmPassword) return showErr("Заповніть всі поля");
+    if (password.length < 6) return showErr("Пароль має містити щонайменше 6 символів");
+    if (password !== confirmPassword) return showErr("Паролі не збігаються");
+    if (!agree) return showErr("Потрібно погодитись з умовами");
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("✅ Account created! Redirecting...");
-      window.location.href = "dashboard.html";
-    } catch (error) {
-      const msg = error.message.includes("auth/email-already-in-use") ? "❗ Email already in use." :
-                  error.message.includes("auth/invalid-email") ? "❗ Invalid email format." :
-                  error.message;
-      alert(msg);
+      $("registerBtn").disabled = true;
+      $("registerBtn").textContent = "Реєстрація...";
+
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(userCred.user);
+
+      showOk("Реєстрація успішна! Підтвердіть email перед входом.");
+    } catch (err) {
+      const msg = err.message.includes("auth/email-already-in-use") ? "Цей email вже використовується"
+                : err.message.includes("auth/invalid-email") ? "Невірний формат email"
+                : err.message;
+      showErr(msg);
+    } finally {
+      $("registerBtn").disabled = false;
+      $("registerBtn").textContent = "Register";
     }
   });
+
+  window.registerWithGoogle = function () {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then(() => {
+        showOk("Успішна реєстрація через Google!");
+        window.location.replace("dashboard.html");
+      })
+      .catch((err) => showErr("⚠️ " + err.message));
+  }
 </script>
 
 </body>
