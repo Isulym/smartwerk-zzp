@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk Tax Calculator</title>
+ <link rel="stylesheet" href="style-calculator.css" />
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>window.jsPDF = window.jspdf.jsPDF;</script>
+ <!-- SheetJS (XLSX) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <nav>
+    <a href="index.html" class="btn">← Main Page</a>
+    <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+  </nav>
+</div>
+  
+  <h2>SmartWerk Tax Calculator</h2>
+  
+  <!-- Step 1 -->
+  <div class="section">
+    <h3>Step 1: Your Data</h3>
+
+    <label>Company Name:<input type="text" id="companyName"/></label>
+    <label>Email / Phone:<input type="text" id="email"/></label>
+
+    <label for="period">Period</label>
+    <select id="period">
+      <option value="Q1">January – March (Q1)</option>
+      <option value="Q2">April – June (Q2)</option>
+      <option value="Q3">July – September (Q3)</option>
+      <option value="Q4">October – December (Q4)</option>
+    </select>
+
+    <label>Hours Worked:<input type="number" id="hoursWorked"/></label>
+    <label>Hourly Rate (EUR):<input type="number" id="hourlyRate"/></label>
+    <label>Total Income (auto):<input type="number" id="income" readonly/></label>
+
+    <label>KvK Number:<input type="text" id="kvkNumber"/></label>
+    <label>VAT Number:<input type="text" id="vatNumber"/></label>
+    <label>IBAN:<input type="text" id="iban"/></label>
+    <label>Contact Person:<input type="text" id="contactPerson"/></label>
+
+    <label for="reportingNotes">Reporting Notes (optional):</label>
+    <textarea id="reportingNotes" rows="2" placeholder="E.g. one-time setup costs, pending invoices…"></textarea>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="section">
+    <h3>Step 2: Business Expenses</h3>
+
+    <label>Transport & Vehicle Costs:
+      <span class="muted">(car, fuel, public transport, bike lease, etc.)</span>
+      <input type="number" id="vehicle"/>
+    </label>
+
+    <label>Workspace & Rent Costs:
+      <span class="muted">(home office, coworking, energy, heating, etc.)</span>
+      <input type="number" id="office"/>
+    </label>
+
+    <label>Internet & Communication:
+      <span class="muted">(mobile, Wi-Fi, VoIP, domain, calls, etc.)</span>
+      <input type="number" id="internet"/>
+    </label>
+
+    <label>Marketing & Advertising:
+      <span class="muted">(website, ads, design, campaigns, etc.)</span>
+      <input type="number" id="marketing"/>
+    </label>
+
+    <label>Business Gifts & Representation:
+      <span class="muted">(networking, client gifts, events, etc.)</span>
+      <input type="number" id="other"/>
+    </label>
+
+    <label>Study, Insurance & Misc:
+      <span class="muted">(courses, software, accountant, insurance, banking, etc.)</span>
+      <input type="number" id="extraBenefits"/>
+    </label>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="section">
+    <h3>Step 3: Tax Options</h3>
+
+    <label for="kvk">KvK Registered?
+      <span class="muted">(required for most deductions)</span>
+    </label>
+    <select id="kvk">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <label for="zzpHours">Worked ≥1,225 hours?
+      <span class="muted">(required for ZZP deductions)</span>
+    </label>
+    <select id="zzpHours">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <label for="btwRate">BTW Rate:
+      <span class="muted">(21% standard, 9% reduced, 0% exempt)</span>
+    </label>
+    <select id="btwRate">
+      <option value="21">21%</option>
+      <option value="9">9%</option>
+      <option value="0">0%</option>
+    </select>
+
+    <label for="kor">Use KOR?
+      <span class="muted">(Small Business Scheme; exempts charging VAT)</span>
+    </label>
+    <select id="kor">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="section summary">
+    <h3>Step 4: Result</h3>
+
+    <div id="result">
+      <!-- Deduction Breakdown (statuses) -->
+      <div class="section" id="deduction-breakdown" style="padding:12px; margin:0 0 12px 0;">
+        <h3 style="margin:0 0 .5rem 0;">Deduction Breakdown</h3>
+        <p><strong>ZZP eligibility:</strong> <span id="zzp-status">—</span></p>
+        <p><strong>KvK status:</strong> <span id="kvk-status">—</span></p>
+        <p><strong>KOR usage:</strong> <span id="kor-status">—</span></p>
+      </div>
+      <div id="debugPanel" style="margin-top:12px; padding:10px; background:#f3f3f3; border-radius:8px;">
+  <button id="btn-validate" type="button">🧪 Run validation</button>
+  <span id="validateStatus" style="margin-left:10px; font-weight:600;">—</span>
+  <pre id="debugOut" style="margin-top:8px; max-height:160px; overflow:auto; background:#fff; padding:8px; border:1px solid #ddd; border-radius:6px;"></pre>
+</div>
+
+      <p><strong>Gross Income:</strong> <span id="grossIncome"></span></p>
+      <p><strong>Total Expenses:</strong> <span id="totalExpenses"></span></p>
+      <p><strong>Taxable Profit:</strong> <span id="taxableProfit"></span></p>
+      <p><strong>ZZP Deductions:</strong> <span id="zzpDeductions"></span></p>
+      <p><strong>MKB Exemption (12.7%):</strong> <span id="mkbVrijstelling"></span></p>
+      <p><strong>Final Taxable Income:</strong> <span id="finalTaxable"></span></p>
+      <p><strong>Income Tax:</strong> <span id="incomeTax"></span></p>
+      <p><strong>ZVW (5.32%):</strong> <span id="zvwAmount"></span></p>
+      <p><strong>BTW Amount:</strong> <span id="btwAmount"></span></p>
+      <p><strong>Total Estimated Tax:</strong> <span id="totalTax"></span></p>
+
+      <p><strong>You saved (ZZP + MKB):</strong>
+  <span id="totalSavings" class="mono" style="color:#0a0;"></span>
+</p>
+<p><strong>Net Income after Tax:</strong>
+  <span id="netIncome" class="mono"></span>
+</p>
+
+      <div id="reportingNotesWrapper" style="display:none;">
+        <p><strong>Reporting Notes:</strong> <span id="reportingNotesOutput"></span></p>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
+      <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
+      <button id="btn-xlsx" type="button">📊 Export as Excel</button>
+      <button type="button" id="btn-ai">💬 Open AI Assistant</button>
+    </div>
+  </div>
