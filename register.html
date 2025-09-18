@@ -86,7 +86,7 @@
     const email = $("email").value.trim();
     const password = $("password").value;
     const confirmPassword = $("confirmPassword").value;
-    const agree = $("agree").checked;
+    const agree = $("termsCheckbox").checked;
 
     if (!email || !password || !confirmPassword) return showErr("Заповніть всі поля");
     if (password.length < 6) return showErr("Пароль має містити щонайменше 6 символів");
