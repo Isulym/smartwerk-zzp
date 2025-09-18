@@ -2,87 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Smart Summary – SmartWerk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Summary | SmartWerk</title>
   <link rel="stylesheet" href="style-summary.css" />
 </head>
 <body>
+  <header class="dashboard-header">
+    <h1>📊 Smart Summary</h1>
+    <nav>
+      <button id="refreshBtn">🔄 Refresh</button>
+      <button id="exportPdfBtn">📥 Export PDF</button>
+      <button id="openTaxCalcBtn">🧮 Open Tax Calculator</button>
+    </nav>
+  </header>
 
-  <div class="breadcrumbs">
-    <a href="dashboard.html"><span>🏠</span> Dashboard</a>
-    <span>/</span>
-    <a href="summary.html" class="active"><span>📊</span> Smart Summary</a>
-    <span>/</span>
-    <a href="my-bookkeeper.html"><span>👨‍💼</span> My Bookkeeper</a>
-    <span>/</span>
-    <a href="tax-calculator.html"><span>💰</span> Tax Calculator</a>
-    <span>/</span>
-    <a href="invoices.html"><span>📄</span> Invoices</a>
-    <span>/</span>
-    <a href="templates.html"><span>📂</span> Templates</a>
-  </div>
+  <section class="summary-grid">
+    <div class="summary-card">
+      <h2>💰 Gross Income</h2>
+      <p id="grossIncome">€0</p>
+    </div>
+    <div class="summary-card">
+      <h2>💸 Expenses</h2>
+      <p id="expenses">€0</p>
+    </div>
+    <div class="summary-card">
+      <h2>📈 Net Profit</h2>
+      <p id="netProfit">€0</p>
+    </div>
+    <div class="summary-card">
+      <h2>🧾 Estimated Tax</h2>
+      <p id="estimatedTax">€0</p>
+    </div>
+  </section>
 
-  <main class="main-panel">
-    <header class="page-header">
-      <h1>Smart Summary</h1>
-      <p>Live overview of your ZZP performance, tax & finances</p>
-    </header>
+  <section class="filter-bar">
+    <label for="monthSelect">📅 Filter by:</label>
+    <select id="monthSelect">
+      <option value="all">All Time</option>
+      <option value="2025-09">September 2025</option>
+      <option value="2025-08">August 2025</option>
+      <option value="2025-Q3">Q3 2025</option>
+    </select>
+  </section>
 
-    <section class="summary-cards">
-      <p><strong>💼 Gross Income</strong><br><span id="grossIncome">€0.00</span></p>
-      <p><strong>🧾 Expenses</strong><br><span id="expenses">€0.00</span></p>
-      <p><strong>📊 Tax Estimation</strong><br><span id="taxEstimation">€0.00</span></p>
-      <p><strong>💡 Net Income</strong><br><span id="netIncome">€0.00</span></p>
-      <p><strong>📁 KvK</strong><br><span id="kvk">–</span></p>
-      <p><strong>🏦 IBAN</strong><br><span id="iban">–</span></p>
-    </section>
+  <section class="transactions">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Title</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="transactionTable">
+        <!-- Entries inserted via JS -->
+      </tbody>
+    </table>
+  </section>
 
-    <section class="summary-actions">
-      <div class="left">
-        <button id="refreshBtn">🔄 Refresh Summary</button>
-        <button id="exportBtn">🧾 Export as PDF</button>
-      </div>
-      <div class="right">
-        <p class="tip">Tip: This overview is auto-updated from your tools, invoices & tax calculator. No manual input needed!</p>
-        <label for="upload" class="upload-label">📤 Upload your receipts or documents</label>
-        <input type="file" id="upload" />
-      </div>
-    </section>
-  </main>
+  <footer>
+    <p>© 2025 SmartWerk. All rights reserved.</p>
+  </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script>
-    // Підставлення даних із localStorage
-    document.addEventListener('DOMContentLoaded', () => {
-      const data = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
-      if (data) {
-        document.getElementById('grossIncome').textContent = '€' + (data.grossIncome || '0.00');
-        document.getElementById('expenses').textContent = '€' + (data.expenses || '0.00');
-        document.getElementById('taxEstimation').textContent = '€' + (data.taxEstimation || '0.00');
-        document.getElementById('netIncome').textContent = '€' + (data.netIncome || '0.00');
-        document.getElementById('kvk').textContent = data.kvk || '–';
-        document.getElementById('iban').textContent = data.iban || '–';
-      }
-    });
-
-    // Refresh button
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-      location.reload();
-    });
-
-    // Export PDF
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      const summaryElement = document.querySelector('.summary-cards');
-      const opt = {
-        margin: 0.5,
-        filename: 'SmartWerk_Summary.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(summaryElement).save();
-    });
-  </script>
-
+  <script type="module" src="summary.js"></script>
 </body>
 </html>
