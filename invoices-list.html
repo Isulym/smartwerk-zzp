@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 SmartWerk — Invoices List</title>
-  <link rel="stylesheet" href="style-invoices.css?v=5"/>
+  <link rel="stylesheet" href="style-invoices.css?v=6"/>
+  <!-- PDF libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -30,23 +31,25 @@
     <label>Month:
       <input type="month" id="monthFilter"/>
     </label>
-    <button onclick="resetFilters()">♻️ Reset Filters</button>
+    <button id="resetBtn">♻️ Reset Filters</button>
   </section>
 
   <section>
     <table id="invoicesTable">
       <thead>
         <tr>
-          <th onclick="sortInvoices('invoiceNumber')">Invoice #</th>
-          <th onclick="sortInvoices('clientName')">Client</th>
+          <th data-field="invoiceNumber">Invoice #</th>
+          <th data-field="clientName">Client</th>
           <th>Status</th>
-          <th>Date</th>
-          <th>Total</th>
+          <th data-field="invoiceDate">Date</th>
+          <th data-field="total">Total</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody id="invoicesBody"></tbody>
     </table>
+    <div id="emptyState" style="display:none;opacity:.8;padding:16px">No invoices yet.</div>
+    <div id="errorState" style="display:none;color:#f87171;padding:12px;border:1px solid #7f1d1d;border-radius:8px;margin-top:12px;background:#7f1d1d22"></div>
   </section>
 
   <footer>
@@ -58,7 +61,7 @@
     import { initializeApp, getApps, getApp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { 
-      getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, addDoc 
+      getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, where 
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -71,124 +74,199 @@
     };
 
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db  = getFirestore(app);
     const auth = getAuth(app);
 
     // ==== State ====
-    let invoices = [];
-    let currentSort = { field: "invoiceNumber", asc: false };
-    const $ = sel => document.querySelector(sel);
+    let invoicesNested = [];  // users/{uid}/invoices
+    let invoicesTop = [];     // top-level invoices?userId==uid
+    let invoices = [];        // merged
+    let currentSort = { field: "invoiceDate", asc: false };
 
-    // ==== Render ====
+    const $  = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    // ==== Helpers ====
+    const toNumber = (v) => Number.isFinite(v) ? v : Number(v || 0);
+    const safeText = (v) => (v ?? "").toString();
+
+    function mergeSources() {
+      // prefer nested over top-level by invoiceNumber (or id fallback)
+      const map = new Map();
+      for (const inv of invoicesTop) {
+        const key = safeText(inv.invoiceNumber) || inv.id;
+        map.set(key, inv);
+      }
+      for (const inv of invoicesNested) {
+        const key = safeText(inv.invoiceNumber) || inv.id;
+        map.set(key, inv); // nested overwrites
+      }
+      invoices = Array.from(map.values());
+      renderInvoices();
+    }
+
     function renderInvoices() {
       const body = $("#invoicesBody");
-      body.innerHTML = "";
-
+      const empty = $("#emptyState");
       const statusFilter = $("#statusFilter").value;
-      const monthFilter = $("#monthFilter").value;
+      const monthFilter  = $("#monthFilter").value;
+
+      body.innerHTML = "";
 
       let filtered = invoices.filter(inv => {
         let ok = true;
-        if (statusFilter !== "all") ok = ok && inv.status === statusFilter;
-        if (monthFilter) ok = ok && inv.invoiceDate?.startsWith(monthFilter);
+        if (statusFilter !== "all") ok = ok && safeText(inv.status) === statusFilter;
+        if (monthFilter) ok = ok && safeText(inv.invoiceDate).startsWith(monthFilter);
         return ok;
       });
 
       // Sorting
       filtered.sort((a, b) => {
-        let f = currentSort.field;
-        let dir = currentSort.asc ? 1 : -1;
-        if ((a[f] || "") < (b[f] || "")) return -1 * dir;
-        if ((a[f] || "") > (b[f] || "")) return 1 * dir;
+        const f = currentSort.field;
+        const dir = currentSort.asc ? 1 : -1;
+        let av = a[f]; let bv = b[f];
+        if (f === "total") { av = toNumber(av); bv = toNumber(bv); }
+        av = av ?? ""; bv = bv ?? "";
+        if (av < bv) return -1 * dir;
+        if (av > bv) return  1 * dir;
         return 0;
       });
 
       filtered.forEach(inv => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${inv.invoiceNumber || "—"}</td>
-          <td>${inv.clientName || "—"}</td>
-          <td>${inv.status || "Draft"}</td>
-          <td>${inv.invoiceDate || "—"}</td>
-          <td>€${(inv.total || 0).toFixed(2)}</td>
-          <td>
-            <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
-            <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
-            <button onclick="downloadPDF('${inv.id}')">📄 PDF</button>
-            <button onclick="repeatMonthly('${inv.id}')">🔁 Repeat Monthly</button>
+          <td>${safeText(inv.invoiceNumber) || "—"}</td>
+          <td>${safeText(inv.clientName) || "—"}</td>
+          <td>${safeText(inv.status) || "Draft"}</td>
+          <td>${safeText(inv.invoiceDate) || "—"}</td>
+          <td>€${toNumber(inv.total).toFixed(2)}</td>
+          <td class="actions">
+            <button data-action="edit" data-id="${inv.id}">✏️ Edit</button>
+            <button data-action="delete" data-id="${inv.id}">🗑 Delete</button>
+            <button data-action="pdf" data-id="${inv.id}">📄 PDF</button>
+            <button data-action="repeat" data-id="${inv.id}">🔁 Repeat Monthly</button>
           </td>
         `;
         body.appendChild(tr);
       });
+
+      empty.style.display = filtered.length ? "none" : "block";
     }
 
-    // ==== Actions ====
-    window.editInvoice = (id) => {
-      localStorage.setItem("editInvoiceId", id); // для завантаження у invoices.html
-      window.location.href = "invoices.html";
-    };
-
-    window.deleteInvoice = async (id) => {
-      if (!confirm("Delete this invoice?")) return;
-      const user = auth.currentUser;
-      if (!user) return;
-      await deleteDoc(doc(db, "users", user.uid, "invoices", id));
-    };
-
-    window.repeatMonthly = async (id) => {
-      const user = auth.currentUser;
-      if (!user) return;
+    // ==== Row actions (event delegation) ====
+    $("#invoicesBody").addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-id");
+      const action = btn.getAttribute("data-action");
       const inv = invoices.find(i => i.id === id);
       if (!inv) return;
-      const newDate = new Date();
-      const y = newDate.getFullYear();
-      const m = String(newDate.getMonth() + 1).padStart(2, "0");
-      const d = String(newDate.getDate()).padStart(2, "0");
-      const newInv = {
-        ...inv,
-        invoiceDate: `${y}-${m}-${d}`,
-        invoiceNumber: (inv.invoiceNumber || "INV-000").replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
-        status: "Draft"
-      };
-      delete newInv.id;
-      await addDoc(collection(db, "users", user.uid, "invoices"), newInv);
-      alert("Invoice repeated for this month!");
-    };
 
-    window.downloadPDF = (id) => {
-      const inv = invoices.find(i => i.id === id);
-      if (!inv) return;
-      const { jsPDF } = window.jspdf;
-      const docPDF = new jsPDF();
-      docPDF.text(`Invoice ${inv.invoiceNumber}`, 10, 10);
-      docPDF.text(`Client: ${inv.clientName}`, 10, 20);
-      docPDF.text(`Date: ${inv.invoiceDate}`, 10, 30);
-      docPDF.text(`Status: ${inv.status}`, 10, 40);
-      docPDF.text(`Total: €${inv.total}`, 10, 50);
-      docPDF.save(`${inv.invoiceNumber}.pdf`);
-    };
+      if (action === "edit") {
+        // збережемо все, щоб твій поточний invoices.html підхопив як завжди
+        localStorage.setItem("editInvoiceId", id);
+        localStorage.setItem("editInvoiceNumber", inv.invoiceNumber || "");
+        localStorage.setItem("editInvoiceJson", JSON.stringify(inv));
+        window.location.href = "invoices.html";
+      }
 
-    // ==== Sort & Filters ====
-    window.sortInvoices = (field) => {
-      if (currentSort.field === field) currentSort.asc = !currentSort.asc;
-      else currentSort = { field, asc: true };
-      renderInvoices();
-    };
+      if (action === "delete") {
+        if (!confirm("Delete this invoice?")) return;
+        const user = auth.currentUser;
+        if (!user) return;
+        // спробуємо видалити і з nested, і з топ-рівня (на випадок різної схеми)
+        try { await deleteDoc(doc(db, "users", user.uid, "invoices", id)); } catch(e) {}
+        try { await deleteDoc(doc(db, "invoices", id)); } catch(e) {}
+      }
 
-    window.resetFilters = () => {
+      if (action === "repeat") {
+        const user = auth.currentUser;
+        if (!user) return;
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth()+1).padStart(2,"0");
+        const d = String(now.getDate()).padStart(2,"0");
+        const nextNumber = safeText(inv.invoiceNumber || "INV-000")
+          .replace(/\d+$/, num => String((+num || 0)+1).padStart(3,"0"));
+
+        const newInv = {
+          ...inv,
+          invoiceDate: `${y}-${m}-${d}`,
+          invoiceNumber: nextNumber,
+          status: "Draft"
+        };
+        delete newInv.id;
+
+        // пишемо в nested як основне сховище
+        try {
+          await addDoc(collection(db, "users", user.uid, "invoices"), newInv);
+          alert("Invoice repeated for this month!");
+        } catch (e) {
+          showError("Repeat failed: " + e.message);
+        }
+      }
+
+      if (action === "pdf") {
+        const { jsPDF } = window.jspdf;
+        const docPDF = new jsPDF();
+        docPDF.text(`Invoice ${safeText(inv.invoiceNumber)}`, 10, 10);
+        docPDF.text(`Client: ${safeText(inv.clientName)}`, 10, 20);
+        docPDF.text(`Date: ${safeText(inv.invoiceDate)}`, 10, 30);
+        docPDF.text(`Status: ${safeText(inv.status)}`, 10, 40);
+        docPDF.text(`Total: €${toNumber(inv.total).toFixed(2)}`, 10, 50);
+        docPDF.save(`${safeText(inv.invoiceNumber) || "invoice"}.pdf`);
+      }
+    });
+
+    // ==== Sort headers ====
+    $$("th[data-field]").forEach(th => {
+      th.style.cursor = "pointer";
+      th.addEventListener("click", () => {
+        const field = th.getAttribute("data-field");
+        if (currentSort.field === field) currentSort.asc = !currentSort.asc;
+        else currentSort = { field, asc: true };
+        renderInvoices();
+      });
+    });
+
+    // ==== Filters ====
+    $("#statusFilter").addEventListener("change", renderInvoices);
+    $("#monthFilter").addEventListener("change", renderInvoices);
+    $("#resetBtn").addEventListener("click", () => {
       $("#statusFilter").value = "all";
       $("#monthFilter").value = "";
       renderInvoices();
-    };
+    });
 
-    // ==== Live Sync ====
+    // ==== Error helper ====
+    function showError(msg) {
+      const box = $("#errorState");
+      box.textContent = msg;
+      box.style.display = "block";
+      setTimeout(() => (box.style.display = "none"), 5000);
+    }
+
+    // ==== Live listeners (nested + fallback top-level) ====
     onAuthStateChanged(auth, (user) => {
-      if (!user) return (window.location.href = "login.html");
-      const colRef = collection(db, "users", user.uid, "invoices");
-      const q = query(colRef, orderBy("invoiceDate", "desc"));
-      onSnapshot(q, (snap) => {
-        invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderInvoices();
+      if (!user) { window.location.href = "login.html"; return; }
+
+      // nested users/{uid}/invoices
+      const qNested = query(collection(db, "users", user.uid, "invoices"), orderBy("invoiceDate", "desc"));
+      onSnapshot(qNested, (snap) => {
+        invoicesNested = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        mergeSources();
+      }, (err) => {
+        showError("Nested listener: " + err.message);
+      });
+
+      // top-level invoices?userId == uid (fallback/міграція)
+      const qTop = query(collection(db, "invoices"), where("userId", "==", user.uid), orderBy("invoiceDate", "desc"));
+      onSnapshot(qTop, (snap) => {
+        invoicesTop = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        mergeSources();
+      }, (err) => {
+        // у когось цього може не бути — просто попередимо в консолі
+        console.warn("Top-level listener error:", err);
       });
     });
   </script>
