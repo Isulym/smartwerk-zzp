@@ -293,44 +293,53 @@
       }
 
       // signatures
-      const businessSig = $("signatureBusiness").toDataURL();
-      const clientSig   = $("signatureClient").toDataURL();
+     // === totals as numbers ===
+const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g, "")) || 0;
+const totalVat = parseFloat($("totalVat").innerText.replace(/[^\d.-]/g, "")) || 0;
+const grandTotal = subtotal + totalVat;
 
-      const data = {
-        businessName: $("businessName").value,
-        kvk: $("kvk").value,
-        iban: $("iban").value,
-        btw: $("btw").value,
-        email: $("email").value,
-        businessAddress: $("businessAddress").value,
-        businessPhone: $("businessPhone").value,
+// signatures
+const businessSig = $("signatureBusiness").toDataURL();
+const clientSig   = $("signatureClient").toDataURL();
 
-        clientName: $("clientName").value,
-        clientEmail: $("clientEmail").value,
-        clientPhone: $("clientPhone").value,
-        clientAddress: $("clientAddress").value,
+const data = {
+  businessName: $("businessName").value,
+  kvk: $("kvk").value,
+  iban: $("iban").value,
+  btw: $("btw").value,
+  email: $("email").value,
+  businessAddress: $("businessAddress").value,
+  businessPhone: $("businessPhone").value,
 
-        invoiceDate: $("invoiceDate").value,
-        dueDate: $("dueDate").value,
-        invoiceNumber,
-        status: $("status").value,
-        note: $("note").value,
+  clientName: $("clientName").value,
+  clientEmail: $("clientEmail").value,
+  clientPhone: $("clientPhone").value,
+  clientAddress: $("clientAddress").value,
 
-        items,
-        subtotal: subtotal,
-        totalVat: totalVat,
-        total: subtotal+totalVat,
+  invoiceDate: $("invoiceDate").value,
+  dueDate: $("dueDate").value,
+  invoiceNumber,
+  status: $("status").value,
+  note: $("note").value,
 
-        signatures:{
-          business: businessSig,
-          client: clientSig,
-          businessDate: $("signatureBusinessDate").innerText || "",
-          clientDate: $("signatureClientDate").innerText || "",
-        },
+  items,
+  subtotal,            // число
+  totalVat,            // число
+  total: grandTotal,   // число
+  subtotalFormatted: "€" + subtotal.toFixed(2),
+  totalVatFormatted: "€" + totalVat.toFixed(2),
+  grandTotalFormatted: "€" + grandTotal.toFixed(2),
 
-        userId: uid,
-        updatedAt: new Date().toISOString(),
-      };
+  signatures: {
+    business: businessSig,
+    client: clientSig,
+    businessDate: $("signatureBusinessDate").innerText || "",
+    clientDate: $("signatureClientDate").innerText || "",
+  },
+
+  userId: uid,
+  updatedAt: new Date().toISOString(),
+};
 
       if(editingId){
         await setDoc(doc(db,"users",uid,"invoices",editingId), data, { merge:true });
