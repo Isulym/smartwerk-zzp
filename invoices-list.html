@@ -180,12 +180,26 @@ window.downloadPDF = (id, withBranding = true) => {
     `Phone: ${inv.clientPhone}`
   ], 120, 36);
 
-  docPDF.autoTable({
-    startY: 80,
-    head: [["Invoice #", "Date Issued", "Due Date", "Status"]],
-    body: [[inv.invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status]],
-    theme: "grid"
-  });
+ docPDF.autoTable({
+  startY: 80,
+  head: [["Invoice #", "Date Issued", "Due Date", "Status"]],
+  body: [[inv.invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status]],
+  theme: "grid",
+  styles: {
+    fontSize: 11,
+    cellPadding: 4,
+    halign: "center",
+    valign: "middle"
+  },
+  headStyles: {
+    fillColor: [37, 99, 235], // офіційний синій (#2563eb)
+    textColor: 255,
+    fontStyle: "bold"
+  },
+  bodyStyles: {
+    textColor: 50
+  }
+});
 
   const items = inv.items?.map(it => [
     it.desc,
@@ -194,11 +208,30 @@ window.downloadPDF = (id, withBranding = true) => {
     `${it.vat}%`,
     `€${(it.qty * it.price * (1 + it.vat / 100)).toFixed(2)}`
   ]) || [];
-  docPDF.autoTable({
-    head: [["Description", "Qty", "Unit Price", "VAT", "Total"]],
-    body: items,
-    theme: "grid"
-  });
+
+
+docPDF.autoTable({
+  startY: 80,
+  head: [["Description", "Qty", "Unit Price", "VAT", "Total"]],
+  body: [[inv.invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status]],
+  theme: "grid",
+  styles: {
+    fontSize: 11,
+    cellPadding: 4,
+    halign: "center",
+    valign: "middle"
+  },
+  headStyles: {
+    fillColor: [37, 99, 235], // офіційний синій (#2563eb)
+    textColor: 255,
+    fontStyle: "bold"
+  },
+  bodyStyles: {
+    textColor: 50
+  }
+});
+
+  
 
   docPDF.text(`Subtotal: ${inv.subtotal}`, 150, docPDF.lastAutoTable.finalY + 10);
   docPDF.text(`VAT: ${inv.totalVat}`, 150, docPDF.lastAutoTable.finalY + 16);
