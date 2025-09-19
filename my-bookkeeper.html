@@ -94,7 +94,7 @@
     <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   </footer>
 
-  <script type="module" src="bookkeeper.js">
+  <script type="module">
     // 📁 bookkeeper.js — Firebase інтеграція для My Bookkeeper
 
 // bookkeeper.js
@@ -139,7 +139,8 @@ onAuthStateChanged(auth, async (user) => {
   const uid = user.uid;
   const month = $("#monthSelect").value;
   const status = $("#statusSelect").value;
-  const type = $("#chartType").value;
+  const type = $("#chartType")?.value || "bar";
+  //const type = $("#chartType").value;
 
   const invoicesSnap = await getDocs(
     query(collection(db, "invoices"), where("userId", "==", uid))
@@ -165,7 +166,8 @@ window.updateFilters = async function () {
   const uid = user.uid;
   const month = $("#monthSelect").value;
   const status = $("#statusSelect").value;
-  const type = $("#chartType").value;
+  const type = $("#chartType")?.value || "bar";
+  //const type = $("#chartType").value;
 
   const invoicesSnap = await getDocs(
     query(collection(db, "invoices"), where("userId", "==", uid))
@@ -217,6 +219,51 @@ function updateChart(data, type) {
     }
   });
 }
+   window.addEventListener("DOMContentLoaded", () => {
+  const monthSelect = document.getElementById("monthSelect");
+  if (!monthSelect) return;
+
+  // Очистити існуючі варіанти
+  monthSelect.innerHTML = "";
+
+  // Додати "All"
+  const optAll = document.createElement("option");
+  optAll.value = "all";
+  optAll.textContent = "All";
+  monthSelect.appendChild(optAll);
+
+  // Додати останні 12 місяців
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthValue = d.toISOString().slice(0, 7); // YYYY-MM
+    const monthLabel = d.toLocaleString("default", { month: "long", year: "numeric" }); // September 2025
+    const opt = document.createElement("option");
+    opt.value = monthValue;
+    opt.textContent = monthLabel;
+    monthSelect.appendChild(opt);
+  }
+});
+
+    // ⏱ Refresh page
+window.refreshBookkeeper = () => {
+  location.reload();
+};
+
+// 📤 Export All (dummy version — покращимо пізніше)
+window.exportAllData = () => {
+  alert("Exporting all data (function in progress)...");
+};
+
+// 📅 Filters by period — базові заглушки
+window.filterBy = (period) => {
+  alert(`Filtering by: ${period} (feature in progress)`);
+};
+
+window.filterByMonth = (month) => {
+  alert(`Filtering by custom month: ${month} (feature in progress)`);
+};
+    
   </script>
 </body>
 </html>
