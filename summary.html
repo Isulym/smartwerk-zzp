@@ -52,9 +52,9 @@
   <section class="section suggestions">
     <h3>💡 Smart Suggestions</h3>
     <ul id="suggestionsList">
-      <li>📌 You have 2 unpaid invoices — send a reminder.</li>
-      <li>📌 Your expenses this month are 25% higher than average.</li>
-      <li>📌 You’re eligible for KOR — consider applying.</li>
+      <li>📌 You have unpaid invoices — consider sending reminders.</li>
+      <li>📌 Your expenses this month are above average.</li>
+      <li>📌 You're eligible for KOR — consider applying.</li>
     </ul>
   </section>
 
@@ -62,142 +62,153 @@
     <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   </footer>
 
- <script type="module">
-  // 🔽 Вставляй весь код сюди:
-  import {
-    initializeApp,
-    getApps,
-    getApp
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  <script>
 
-  import {
-    getFirestore,
-    collection,
-    getDocs,
-    query,
-    where
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-  import {
-    getAuth,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-    authDomain: "smartwerk8520.firebaseapp.com",
-    projectId: "smartwerk8520",
-    appId: "1:607670981972:web:c07103c981c86860d724c1",
-  };
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
 
-  const $ = sel => document.querySelector(sel);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return (window.location.href = "login.html");
-    const uid = user.uid;
+const $ = sel => document.querySelector(sel);
 
-    const invoicesSnap = await getDocs(
-      query(collection(db, "invoices"), where("userId", "==", uid))
-    );
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return (window.location.href = "login.html");
+  const uid = user.uid;
 
-    const invoices = [];
-    invoicesSnap.forEach(doc => invoices.push(doc.data()));
+  const invoicesSnap = await getDocs(
+    query(collection(db, "invoices"), where("userId", "==", uid))
+  );
 
-    renderSummary(invoices);
+  const invoices = [];
+  invoicesSnap.forEach(doc => invoices.push(doc.data()));
+
+  renderSummary(invoices);
+});
+
+function renderSummary(invoices) {
+  let totalIncome = 0;
+  let totalVAT = 0;
+  let outstanding = 0;
+
+  invoices.forEach(inv => {
+    const total = parseFloat(inv.total || 0);
+    const vat = parseFloat(inv.vat || 0);
+    totalIncome += total;
+    totalVAT += vat;
+    if (inv.status !== "Paid") outstanding += total;
   });
 
-  function renderSummary(invoices) {
-    const total = invoices.length;
-    const paid = invoices.filter(i => i.status === 'Paid').length;
-    const sent = invoices.filter(i => i.status === 'Sent').length;
-    const draft = invoices.filter(i => i.status === 'Draft').length;
+  const totalExpenses = 0; // 🔜 Якщо потрібен звʼязок з "expenses"
+  const netProfit = totalIncome - totalExpenses;
 
-    $("#totalInvoices").textContent = total;
-    $("#paidInvoices").textContent = paid;
-    $("#sentInvoices").textContent = sent;
-    $("#draftInvoices").textContent = draft;
+  $("#totalIncome").textContent = "€" + totalIncome.toFixed(2);
+  $("#totalExpenses").textContent = "€" + totalExpenses.toFixed(2);
+  $("#netProfit").textContent = "€" + netProfit.toFixed(2);
+  $("#vatPayable").textContent = "€" + totalVAT.toFixed(2);
+  $("#pendingInvoices").textContent = "€" + outstanding.toFixed(2);
 
-    const monthlyData = {};
-    invoices.forEach(inv => {
-      const month = (inv.date || '').substring(0, 7); // YYYY-MM
-      if (!monthlyData[month]) monthlyData[month] = 0;
-      monthlyData[month] += parseFloat(inv.total || 0);
-    });
+  const monthlyData = {};
+  invoices.forEach(inv => {
+    const month = (inv.date || "").substring(0, 7); // YYYY-MM
+    if (!monthlyData[month]) monthlyData[month] = 0;
+    monthlyData[month] += parseFloat(inv.total || 0);
+  });
 
-    const labels = Object.keys(monthlyData).sort();
-    const values = labels.map(m => monthlyData[m]);
+  const labels = Object.keys(monthlyData).sort();
+  const values = labels.map(m => monthlyData[m]);
 
-    renderChart(labels, values);
-  }
+  renderChart(labels, values);
+}
 
-  function renderChart(labels, values) {
-    const canvas = document.getElementById('monthlyChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Monthly Revenue (€)',
-          data: values,
-          borderWidth: 1
-        }]
+function renderChart(labels, values) {
+  const canvas = document.getElementById('monthlyChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Monthly Revenue (€)',
+        data: values,
+        borderWidth: 1,
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        borderColor: 'rgba(59, 130, 246, 1)'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
       },
-      options: {
-        scales: {
-          y: { beginAtZero: true }
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: value => '€' + value
+          }
         }
       }
-    });
-  }
-
-  // Export CSV function
-  window.exportSummary = async function () {
-    const user = auth.currentUser;
-    if (!user) return alert("Not logged in");
-
-    const q = query(collection(db, "invoices"), where("userId", "==", user.uid));
-    const snap = await getDocs(q);
-
-    const rows = [["Invoice #", "Client", "Date", "Total", "Status"]];
-    snap.forEach(doc => {
-      const i = doc.data();
-      rows.push([i.number, i.clientName, i.date, i.total, i.status]);
-    });
-
-    let csv = rows.map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "SmartWerk_Summary.csv";
-    a.click();
-  };
-
-  // Приховати незаповнені секції
-  window.addEventListener("DOMContentLoaded", () => {
-    if (!document.getElementById("monthlyChart")) {
-      document.querySelector(".summary-chart-block")?.style.display = 'none';
-    }
-    if (!document.getElementById("vatSummary")) {
-      document.querySelector(".vat-summary-block")?.style.display = 'none';
     }
   });
-     window.refreshSummary = () => {
-    location.reload(); // простий спосіб перезавантажити
-  };
-   window.filterBy = function(period) {
-  alert("Filtering by: " + period + " (Feature coming soon)");
 }
 
-window.filterByMonth = function(month) {
+window.refreshSummary = () => location.reload();
+
+window.exportSummary = async function () {
+  const user = auth.currentUser;
+  if (!user) return alert("Not logged in");
+
+  const q = query(collection(db, "invoices"), where("userId", "==", user.uid));
+  const snap = await getDocs(q);
+
+  const rows = [["Invoice #", "Client", "Date", "Total", "Status"]];
+  snap.forEach(doc => {
+    const i = doc.data();
+    rows.push([i.number, i.clientName, i.date, i.total, i.status]);
+  });
+
+  let csv = rows.map(r => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "SmartWerk_Summary.csv";
+  a.click();
+};
+
+window.filterBy = function (period) {
+  alert("Filtering by: " + period + " (Feature coming soon)");
+};
+
+window.filterByMonth = function (month) {
   alert("Filtering by month: " + month + " (Feature coming soon)");
-}
+};
     
   </script>
 </body>
