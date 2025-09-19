@@ -4,17 +4,29 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Invoice</title>
-  <link rel="stylesheet" href="style-invoices.css?v=5"/>
+  <link rel="stylesheet" href="style-invoices.css?v=6"/>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+  <style>
+    header nav a.btn {
+      background:#2563eb;
+      color:#fff;
+      padding:6px 12px;
+      border-radius:6px;
+      text-decoration:none;
+      margin-right:8px;
+    }
+    header nav { margin-bottom:1rem; }
+    canvas.signature { border:1px solid #ccc; background:#fff; cursor:crosshair; }
+  </style>
 </head>
 <body>
   <header>
     <h1>🧾 SmartWerk Invoice</h1>
-    <div class="header-actions">
-      <button id="saveBtn">💾 Save Invoice</button>
-      <a href="invoices-list.html" class="btn">📋 Open Invoices List</a>
-    </div>
+    <nav>
+      <a href="index.html" class="btn">← Main Page</a>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+    </nav>
   </header>
 
   <main>
@@ -81,16 +93,23 @@
       <h2>✍️ Signatures</h2>
       <div>
         <h3>Business</h3>
-        <canvas id="signatureBusiness" width="300" height="100"></canvas>
+        <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
         <button onclick="clearSignature('signatureBusiness')">Clear</button>
         <p>Date: <span id="signatureBusinessDate"></span></p>
       </div>
       <div>
         <h3>Client</h3>
-        <canvas id="signatureClient" width="300" height="100"></canvas>
+        <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
         <button onclick="clearSignature('signatureClient')">Clear</button>
         <p>Date: <span id="signatureClientDate"></span></p>
       </div>
+    </section>
+
+    <!-- Actions -->
+    <section>
+      <h2>⚙️ Actions</h2>
+      <button id="saveBtn">💾 Save Invoice</button>
+      <a href="invoices-list.html" class="btn">📋 Open Invoices List</a>
     </section>
   </main>
 
@@ -101,7 +120,7 @@
 <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -116,13 +135,14 @@ const db = getFirestore(app);
 let signatureBusinessDate = "";
 let signatureClientDate = "";
 
+// ==== Items ====
 function addItem(desc="", qty=1, price=0, vat=21){
   const row=document.createElement("tr");
   row.innerHTML=`
     <td><input class="desc" value="${desc}"/></td>
     <td><input class="qty" type="number" value="${qty}" min="1"/></td>
     <td><input class="price" type="number" value="${price}" step="0.01"/></td>
-    <td><select class="vat"><option>0</option><option>9</option><option selected>21</option></select></td>
+    <td><select class="vat"><option>0</option><option>9</option><option ${vat==21?"selected":""}>21</option></select></td>
     <td class="item-total">€0.00</td>
     <td><button type="button" onclick="this.closest('tr').remove();updateTotals();">❌</button></td>
   `;
@@ -133,7 +153,7 @@ function addItem(desc="", qty=1, price=0, vat=21){
 window.addItem=addItem;
 
 function updateTotals(){
-  let subtotal=0, totalVat=0;
+  let subtotal=0,totalVat=0;
   document.querySelectorAll("#itemsBody tr").forEach(r=>{
     const qty=+r.querySelector(".qty").value||0;
     const price=+r.querySelector(".price").value||0;
@@ -149,6 +169,7 @@ function updateTotals(){
 }
 window.updateTotals=updateTotals;
 
+// ==== Signatures ====
 function clearSignature(id){
   const c=document.getElementById(id),ctx=c.getContext("2d");
   ctx.clearRect(0,0,c.width,c.height);
@@ -157,6 +178,14 @@ function clearSignature(id){
 }
 window.clearSignature=clearSignature;
 
+["signatureBusiness","signatureClient"].forEach(id=>{
+  const c=document.getElementById(id),ctx=c.getContext("2d");let draw=false;
+  c.addEventListener("mousedown",()=>{draw=true;ctx.beginPath();});
+  c.addEventListener("mouseup",()=>{draw=false;const now=new Date().toLocaleDateString();if(id==="signatureBusiness"){signatureBusinessDate=now;document.getElementById("signatureBusinessDate").innerText=now;}else{signatureClientDate=now;document.getElementById("signatureClientDate").innerText=now;}});
+  c.addEventListener("mousemove",e=>{if(!draw)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#2563eb";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
+});
+
+// ==== OCR ====
 function processReceipt(){
   const f=document.getElementById("receiptInput").files[0];
   if(!f)return;
@@ -168,10 +197,10 @@ function processReceipt(){
 }
 window.processReceipt=processReceipt;
 
-// === Save ===
+// ==== Firestore Save ====
 async function generateInvoiceNumber(userId){
   const ref=doc(db,"users",userId,"meta","counters");
-  return await runTransaction(db, async(tx)=>{
+  return await runTransaction(db,async(tx)=>{
     const snap=await tx.get(ref);
     let last=0;
     if(snap.exists()) last=snap.data().lastInvoiceNumber||0;
@@ -182,16 +211,14 @@ async function generateInvoiceNumber(userId){
 }
 
 async function saveInvoice(){
-  const user=auth.currentUser; if(!user) return;
+  const user=auth.currentUser;if(!user) return;
   const uid=user.uid;
-
   let invId=localStorage.getItem("editInvoiceId")||null;
   let invoiceNumber=document.getElementById("invoiceNumber").value;
   if(!invId && !invoiceNumber){
     invoiceNumber=await generateInvoiceNumber(uid);
     document.getElementById("invoiceNumber").value=invoiceNumber;
   }
-
   const items=[];
   document.querySelectorAll("#itemsBody tr").forEach(r=>{
     items.push({
@@ -201,19 +228,9 @@ async function saveInvoice(){
       vat:+r.querySelector(".vat").value
     });
   });
-
   const data={
     businessName:document.getElementById("businessName").value,
-    kvk:document.getElementById("kvk").value,
-    iban:document.getElementById("iban").value,
-    btw:document.getElementById("btw").value,
-    email:document.getElementById("email").value,
-    businessAddress:document.getElementById("businessAddress").value,
-    businessPhone:document.getElementById("businessPhone").value,
     clientName:document.getElementById("clientName").value,
-    clientEmail:document.getElementById("clientEmail").value,
-    clientPhone:document.getElementById("clientPhone").value,
-    clientAddress:document.getElementById("clientAddress").value,
     invoiceDate:document.getElementById("invoiceDate").value,
     dueDate:document.getElementById("dueDate").value,
     invoiceNumber,
@@ -231,46 +248,16 @@ async function saveInvoice(){
     },
     userId:uid
   };
-
-  if(invId){
-    await setDoc(doc(db,"users",uid,"invoices",invId),data);
-    localStorage.removeItem("editInvoiceId");
-  }else{
-    await addDoc(collection(db,"users",uid,"invoices"),data);
-  }
+  if(invId){await setDoc(doc(db,"users",uid,"invoices",invId),data);localStorage.removeItem("editInvoiceId");}
+  else{await addDoc(collection(db,"users",uid,"invoices"),data);}
   alert("✅ Saved!");
 }
 document.getElementById("saveBtn").onclick=saveInvoice;
 
-// === Edit Mode ===
-onAuthStateChanged(auth,async(user)=>{
+// ==== Init ====
+onAuthStateChanged(auth,user=>{
   if(!user) return location.href="login.html";
-  const invId=localStorage.getItem("editInvoiceId");
-  if(invId){
-    const snap=await getDoc(doc(db,"users",user.uid,"invoices",invId));
-    if(snap.exists()){
-      const inv=snap.data();
-      for(const k in inv){ if(document.getElementById(k)) document.getElementById(k).value=inv[k]; }
-      inv.items.forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
-      document.getElementById("subtotal").innerText=inv.subtotal;
-      document.getElementById("totalVat").innerText=inv.totalVat;
-      document.getElementById("grandTotal").innerText=inv.grandTotal;
-      if(inv.signatures){
-        const b=new Image(); b.onload=()=>document.getElementById("signatureBusiness").getContext("2d").drawImage(b,0,0); b.src=inv.signatures.business;
-        const c=new Image(); c.onload=()=>document.getElementById("signatureClient").getContext("2d").drawImage(c,0,0); c.src=inv.signatures.client;
-        document.getElementById("signatureBusinessDate").innerText=inv.signatures.businessDate;
-        document.getElementById("signatureClientDate").innerText=inv.signatures.clientDate;
-      }
-    }
-  }
-});
-
-// Signatures draw
-["signatureBusiness","signatureClient"].forEach(id=>{
-  const c=document.getElementById(id),ctx=c.getContext("2d");let draw=false;
-  c.addEventListener("mousedown",()=>{draw=true;ctx.beginPath();});
-  c.addEventListener("mouseup",()=>{draw=false;const now=new Date().toLocaleDateString();if(id==="signatureBusiness"){signatureBusinessDate=now;document.getElementById("signatureBusinessDate").innerText=now;}else{signatureClientDate=now;document.getElementById("signatureClientDate").innerText=now;}});
-  c.addEventListener("mousemove",e=>{if(!draw)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="black";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
+  flatpickr(".js-date",{dateFormat:"Y-m-d"});
 });
 </script>
 </body>
