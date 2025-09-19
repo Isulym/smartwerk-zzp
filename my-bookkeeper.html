@@ -25,33 +25,30 @@
   </section>
 
   <section class="chart-filters">
-  <h3>📊 Invoices Chart Filters</h3>
-  <label>
-    Month:
-    <select id="monthSelect" onchange="updateFilters()">
-      <option value="all">All</option>
-      <!-- Динамічно додається -->
-    </select>
-  </label>
-
-  <label>
-    Status:
-    <select id="statusSelect" onchange="updateFilters()">
-      <option value="all">All</option>
-      <option value="Paid">Paid</option>
-      <option value="Draft">Draft</option>
-      <option value="Sent">Sent</option>
-    </select>
-  </label>
-
-  <label>
-    Chart Type:
-    <select id="chartType" onchange="updateFilters()">
-      <option value="bar">Bar</option>
-      <option value="line">Line</option>
-    </select>
-  </label>
-</section>
+    <h3>📊 Invoices Chart Filters</h3>
+    <label>
+      Month:
+      <select id="monthSelect" onchange="updateFilters()">
+        <option value="all">All</option>
+      </select>
+    </label>
+    <label>
+      Status:
+      <select id="statusSelect" onchange="updateFilters()">
+        <option value="all">All</option>
+        <option value="Paid">Paid</option>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+      </select>
+    </label>
+    <label>
+      Chart Type:
+      <select id="chartType" onchange="updateFilters()">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+      </select>
+    </label>
+  </section>
 
   <section class="filters">
     <h3>📅 Filter by Period</h3>
@@ -62,12 +59,12 @@
   </section>
 
   <section class="charts">
-  <h3>📊 Financial Overview</h3>
-  <canvas id="bookkeeperChart" height="120"></canvas>
+    <h3>📊 Financial Overview</h3>
+    <canvas id="bookkeeperChart" height="120"></canvas>
 
-  <h3>📈 Invoices Chart</h3>
-  <canvas id="invoicesChart" height="120"></canvas>
-</section>
+    <h3>📈 Invoices Chart</h3>
+    <canvas id="invoicesChart" height="120"></canvas>
+  </section>
 
   <section class="section invoices">
     <h3>📄 Invoices Summary</h3>
@@ -94,10 +91,10 @@
     <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   </footer>
 
-  <script type="module">
-    // 📁 bookkeeper.js — Firebase інтеграція для My Bookkeeper
+  <!-- JS module -->
+  <script type="module" 
+// 📁 bookkeeper.js — повна інтеграція з Firebase для SmartWerk My Bookkeeper
 
-// bookkeeper.js
 import {
   initializeApp,
   getApps,
@@ -119,6 +116,7 @@ import {
 
 import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
 
+// 🔐 Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
   authDomain: "smartwerk8520.firebaseapp.com",
@@ -126,66 +124,50 @@ const firebaseConfig = {
   appId: "1:607670981972:web:c07103c981c86860d724c1",
 };
 
+// ✅ Ініціалізація
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ⛏️ Зручний селектор
 const $ = sel => document.querySelector(sel);
 
-let currentChart = null;
+let invoicesChartInstance = null;
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return (window.location.href = "login.html");
-  const uid = user.uid;
-  const month = $("#monthSelect").value;
-  const status = $("#statusSelect").value;
-  const type = $("#chartType")?.value || "bar";
-  //const type = $("#chartType").value;
+// 🔁 Refresh
+window.refreshBookkeeper = () => location.reload();
 
-  const invoicesSnap = await getDocs(
-    query(collection(db, "invoices"), where("userId", "==", uid))
-  );
+// 📤 Dummy export
+window.exportAllData = () => alert("Exporting all data (in progress)...");
 
-  const invoices = [];
-  invoicesSnap.forEach(doc => invoices.push(doc.data()));
+// 🧪 Заглушки для фільтрації
+window.filterBy = (period) => alert(`Filtering by: ${period}`);
+window.filterByMonth = (month) => alert(`Filtering by month: ${month}`);
 
-  const filtered = invoices.filter(i => {
-    const iMonth = (i.date || "").substring(0, 7);
-    const statusMatch = status === "All" || i.status === status;
-    const monthMatch = !month || iMonth === month;
-    return statusMatch && monthMatch;
-  });
-
-  updateChart(filtered, type);
-});
-
+// 🟡 Фільтр-графік
 window.updateFilters = async function () {
   const user = auth.currentUser;
   if (!user) return;
-
   const uid = user.uid;
+
   const month = $("#monthSelect").value;
   const status = $("#statusSelect").value;
-  const type = $("#chartType")?.value || "bar";
-  //const type = $("#chartType").value;
+  const type = $("#chartType").value;
 
-  const invoicesSnap = await getDocs(
-    query(collection(db, "invoices"), where("userId", "==", uid))
-  );
-
-  const invoices = [];
-  invoicesSnap.forEach(doc => invoices.push(doc.data()));
+  const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
+  const invoices = invoicesSnap.docs.map(doc => doc.data());
 
   const filtered = invoices.filter(i => {
     const iMonth = (i.date || "").substring(0, 7);
-    const statusMatch = status === "All" || i.status === status;
-    const monthMatch = !month || iMonth === month;
+    const statusMatch = status === "all" || i.status === status;
+    const monthMatch = month === "all" || iMonth === month;
     return statusMatch && monthMatch;
   });
 
   updateChart(filtered, type);
-}
+};
 
+// 📈 Побудова графіка
 function updateChart(data, type) {
   const monthly = {};
   data.forEach(i => {
@@ -197,10 +179,10 @@ function updateChart(data, type) {
   const labels = Object.keys(monthly).sort();
   const values = labels.map(l => monthly[l]);
 
-  if (currentChart) currentChart.destroy();
+  if (invoicesChartInstance) invoicesChartInstance.destroy();
 
   const ctx = document.getElementById("invoicesChart").getContext("2d");
-  currentChart = new Chart(ctx, {
+  invoicesChartInstance = new Chart(ctx, {
     type: type,
     data: {
       labels: labels,
@@ -213,57 +195,71 @@ function updateChart(data, type) {
     },
     options: {
       responsive: true,
-      scales: {
-        y: { beginAtZero: true }
-      }
+      scales: { y: { beginAtZero: true } }
     }
   });
 }
-   window.addEventListener("DOMContentLoaded", () => {
+
+// 🔓 Авторизація та завантаження
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return (window.location.href = "login.html");
+  const uid = user.uid;
+
+  // Month select
   const monthSelect = document.getElementById("monthSelect");
-  if (!monthSelect) return;
+  if (monthSelect) {
+    monthSelect.innerHTML = "";
+    const optAll = document.createElement("option");
+    optAll.value = "all";
+    optAll.textContent = "All";
+    monthSelect.appendChild(optAll);
 
-  // Очистити існуючі варіанти
-  monthSelect.innerHTML = "";
-
-  // Додати "All"
-  const optAll = document.createElement("option");
-  optAll.value = "all";
-  optAll.textContent = "All";
-  monthSelect.appendChild(optAll);
-
-  // Додати останні 12 місяців
-  const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthValue = d.toISOString().slice(0, 7); // YYYY-MM
-    const monthLabel = d.toLocaleString("default", { month: "long", year: "numeric" }); // September 2025
-    const opt = document.createElement("option");
-    opt.value = monthValue;
-    opt.textContent = monthLabel;
-    monthSelect.appendChild(opt);
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const val = d.toISOString().slice(0, 7);
+      const label = d.toLocaleString("default", { month: "long", year: "numeric" });
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = label;
+      monthSelect.appendChild(opt);
+    }
   }
+
+  // 📥 Invoices
+  const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
+  const invoices = invoicesSnap.docs.map(doc => doc.data());
+
+  // 📥 Expenses
+  const expensesSnap = await getDocs(query(collection(db, "expenses"), where("userId", "==", uid)));
+  const expenses = expensesSnap.docs.map(doc => doc.data());
+
+  // 📥 Reminders
+  const remindersSnap = await getDocs(query(collection(db, "reminders"), where("userId", "==", uid)));
+  const reminders = remindersSnap.docs.map(doc => doc.data());
+
+  // 💰 KPI
+  const income = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+  const expense = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const vat = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
+  const profit = income - expense;
+
+  $("#totalIncome").textContent = `€${income.toFixed(2)}`;
+  $("#totalExpenses").textContent = `€${expense.toFixed(2)}`;
+  $("#vatPayable").textContent = `€${vat.toFixed(2)}`;
+  $("#netProfit").textContent = `€${profit.toFixed(2)}`;
+
+  // 📋 Списки
+  const format = obj => JSON.stringify(obj, null, 2);
+
+  $("#invoicesList").innerHTML = invoices.map(i => `<li>${i.invoiceNumber || "INV"} — €${i.total || 0} — ${i.status}</li>`).join("");
+  $("#expensesList").innerHTML = expenses.map(e => `<li>${e.category || "Expense"} — €${e.amount || 0}</li>`).join("");
+  $("#remindersList").innerHTML = reminders.map(r => `<li>${r.reminderId || "REM"} — ${r.clientName || "Unknown"}</li>`).join("");
+
+  // 📊 Початковий графік
+  updateChart(invoices, $("#chartType").value);
 });
-
-    // ⏱ Refresh page
-window.refreshBookkeeper = () => {
-  location.reload();
-};
-
-// 📤 Export All (dummy version — покращимо пізніше)
-window.exportAllData = () => {
-  alert("Exporting all data (function in progress)...");
-};
-
-// 📅 Filters by period — базові заглушки
-window.filterBy = (period) => {
-  alert(`Filtering by: ${period} (feature in progress)`);
-};
-
-window.filterByMonth = (month) => {
-  alert(`Filtering by custom month: ${month} (feature in progress)`);
-};
     
-  </script>
+    </script>
 </body>
 </html>
