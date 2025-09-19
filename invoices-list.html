@@ -1,241 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 SmartWerk — Invoices List</title>
-  <link rel="stylesheet" href="style-invoices.css?v=5"/>
+  <link rel="stylesheet" href="style-invoices.css?v=7"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    /* невеличкі дефолти, якщо в CSS немає */
-    table { width:100%; border-collapse: collapse }
-    th, td { padding:10px; border-bottom:1px solid rgba(255,255,255,.08) }
-    th { cursor:pointer; user-select:none }
-    .header-actions .btn { margin-right:8px }
-    .filters label { margin-right:16px; display:inline-flex; align-items:center; gap:6px }
-    .filters select, .filters input[type="month"] { padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.02); color:inherit }
-    .filters button { padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03); color:inherit }
-    .actions button { margin-right:6px }
-  </style>
 </head>
 <body>
-  <header>
-    <h1>📋 Invoices List</h1>
-    <div class="header-actions">
-      <a href="invoices.html" class="btn">➕ New Invoice</a>
-      <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
-    </div>
-  </header>
+<header>
+  <h1>📋 Invoices List</h1>
+  <div class="header-actions">
+    <a href="invoices.html" class="btn">➕ New Invoice</a>
+    <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
+  </div>
+</header>
 
-  <section class="filters">
-    <h3>🔎 Filters</h3>
-    <label>Status:
-      <select id="statusFilter">
-        <option value="all">All</option>
-        <option value="Draft">Draft</option>
-        <option value="Sent">Sent</option>
-        <option value="Paid">Paid</option>
-      </select>
-    </label>
-    <label>Month:
-      <input type="month" id="monthFilter"/>
-    </label>
-    <button id="resetBtn">♻️ Reset Filters</button>
-  </section>
+<section class="filters">
+  <h3>📅 Filters & Search</h3>
+  <label>From: <input type="date" id="fromDate"></label>
+  <label>To: <input type="date" id="toDate"></label>
+  <label>Status:
+    <select id="statusFilter">
+      <option value="all">All</option>
+      <option value="Draft">Draft</option>
+      <option value="Sent">Sent</option>
+      <option value="Paid">Paid</option>
+      <option value="Reminder Sent">Reminder Sent</option>
+    </select>
+  </label>
+  <label>Search: <input type="text" id="searchBox" placeholder="Client, number, amount"></label>
+  <label>Sort by:
+    <select id="sortBy">
+      <option value="invoiceNumber_desc">Invoice # (new)</option>
+      <option value="invoiceNumber_asc">Invoice # (old)</option>
+      <option value="date_desc">Date (new)</option>
+      <option value="date_asc">Date (old)</option>
+      <option value="amount_desc">Amount (high → low)</option>
+      <option value="amount_asc">Amount (low → high)</option>
+    </select>
+  </label>
+  <button onclick="resetFilters()">♻️ Reset</button>
+</section>
 
-  <section>
-    <table id="invoicesTable">
-      <thead>
-        <tr>
-          <th data-sort="invoiceNumber">Invoice #</th>
-          <th data-sort="clientName">Client</th>
-          <th>Status</th>
-          <th data-sort="invoiceDate">Date</th>
-          <th data-sort="total">Total</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="invoicesBody"></tbody>
-    </table>
-  </section>
+<section>
+  <table id="invoicesTable">
+    <thead>
+    <tr>
+      <th>Invoice #</th>
+      <th>Client</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Total</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="invoicesBody"></tbody>
+  </table>
+</section>
 
-  <footer>
-    <p>© 2025–2030 SmartWerk. All rights reserved.</p>
-  </footer>
+<footer>
+  <p>© 2025–2030 SmartWerk. All rights reserved.</p>
+</footer>
 
-  <script type="module">
-    // ==== Firebase ====
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc, setDoc } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-    const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const db   = getFirestore(app);
-    const auth = getAuth(app);
+let invoices = [];
+const $ = sel => document.querySelector(sel);
 
-    // ==== State ====
-    let invoices = [];
-    let currentSort = { field: "invoiceDate", asc: false }; // за замовчуванням — новіші вище
+// ==== Render ====
+function renderInvoices() {
+  const body = $("#invoicesBody");
+  body.innerHTML = "";
 
-    // ==== DOM ====
-    const $ = s => document.querySelector(s);
-    const bodyEl = $("#invoicesBody");
-    const statusEl = $("#statusFilter");
-    const monthEl  = $("#monthFilter");
-    const resetBtn = $("#resetBtn");
+  const from = $("#fromDate").value;
+  const to = $("#toDate").value;
+  const status = $("#statusFilter").value;
+  const search = $("#searchBox").value.toLowerCase();
+  const sortBy = $("#sortBy").value;
 
-    // ==== Helpers ====
-    const money = v => `€${(Number(v) || 0).toFixed(2)}`;
-    const ymd = s => String(s||"").slice(0,10); // очікуємо YYYY-MM-DD
-
-    function cmp(a,b) { return a < b ? -1 : a > b ? 1 : 0; }
-
-    function applyFilters(list) {
-      const st = statusEl.value;
-      const m  = monthEl.value; // YYYY-MM
-
-      return list.filter(inv => {
-        if (st !== "all" && inv.status !== st) return false;
-        if (m && !(String(inv.invoiceDate || "").startsWith(m))) return false;
-        return true;
-      });
+  let filtered = invoices.filter(inv => {
+    let ok = true;
+    if (status !== "all") ok = ok && inv.status === status;
+    if (from) ok = ok && inv.invoiceDate >= from;
+    if (to) ok = ok && inv.invoiceDate <= to;
+    if (search) {
+      ok = ok && (
+        (inv.clientName || "").toLowerCase().includes(search) ||
+        (inv.invoiceNumber || "").toLowerCase().includes(search) ||
+        String(inv.grandTotal || "").toLowerCase().includes(search)
+      );
     }
+    return ok;
+  });
 
-    function applySort(list) {
-      const { field, asc } = currentSort;
-      const dir = asc ? 1 : -1;
-      return list.slice().sort((a,b) => {
-        let A = a[field], B = b[field];
-        if (field === "total") { A = Number(A)||0; B = Number(B)||0; }
-        if (field === "invoiceNumber") {
-          // спробуємо акуратнішу сортування для INV-2025-001
-          const pa = String(A||"").match(/(\d+)$/); 
-          const pb = String(B||"").match(/(\d+)$/);
-          if (pa && pb) return (Number(pa[1]) - Number(pb[1])) * dir;
-        }
-        return cmp(String(A||""), String(B||"")) * dir;
-      });
+  filtered.sort((a, b) => {
+    switch (sortBy) {
+      case "invoiceNumber_desc": return (b.invoiceNumber || "").localeCompare(a.invoiceNumber || "");
+      case "invoiceNumber_asc": return (a.invoiceNumber || "").localeCompare(b.invoiceNumber || "");
+      case "date_desc": return (b.invoiceDate || "").localeCompare(a.invoiceDate || "");
+      case "date_asc": return (a.invoiceDate || "").localeCompare(b.invoiceDate || "");
+      case "amount_desc": return (parseFloat(b.grandTotal) || 0) - (parseFloat(a.grandTotal) || 0);
+      case "amount_asc": return (parseFloat(a.grandTotal) || 0) - (parseFloat(b.grandTotal) || 0);
     }
+    return 0;
+  });
 
-    function render() {
-      bodyEl.innerHTML = "";
-      const filtered = applyFilters(invoices);
-      const sorted = applySort(filtered);
+  filtered.forEach(inv => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${inv.invoiceNumber || "—"}</td>
+      <td>${inv.clientName || "—"}</td>
+      <td>${inv.status || "Draft"}</td>
+      <td>${inv.invoiceDate || "—"}</td>
+      <td>€${parseFloat(inv.grandTotal || 0).toFixed(2)}</td>
+      <td>
+        <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
+        <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
+        <button onclick="downloadPDF('${inv.id}', true)">📄 PDF</button>
+        <button onclick="downloadPDF('${inv.id}', false)">PRO 📄 PDF</button>
+      </td>`;
+    body.appendChild(tr);
+  });
+}
 
-      sorted.forEach(inv => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${inv.invoiceNumber || "—"}</td>
-          <td>${inv.clientName || "—"}</td>
-          <td>${inv.status || "Draft"}</td>
-          <td>${ymd(inv.invoiceDate) || "—"}</td>
-          <td>${money(inv.total)}</td>
-          <td class="actions">
-            <button data-act="edit"    data-id="${inv.id}" data-num="${inv.invoiceNumber||""}">✏️ Edit</button>
-            <button data-act="delete"  data-id="${inv.id}">🗑 Delete</button>
-            <button data-act="pdf"     data-id="${inv.id}">📄 PDF</button>
-            <button data-act="repeat"  data-id="${inv.id}" data-num="${inv.invoiceNumber||""}">🔁 Repeat Monthly</button>
-          </td>
-        `;
-        bodyEl.appendChild(tr);
-      });
-    }
+// ==== Actions ====
+window.editInvoice = id => {
+  localStorage.setItem("editInvoiceId", id);
+  window.location.href = "invoices.html";
+};
+window.deleteInvoice = async id => {
+  if (!confirm("Delete this invoice?")) return;
+  const user = auth.currentUser;
+  if (!user) return;
+  await deleteDoc(doc(db, "users", user.uid, "invoices", id));
+};
 
-    // ==== Actions (event delegation) ====
-    bodyEl.addEventListener("click", async (e) => {
-      const btn = e.target.closest("button[data-act]");
-      if (!btn) return;
+// ==== PDF ====
+window.downloadPDF = (id, withBranding = true) => {
+  const inv = invoices.find(i => i.id === id);
+  if (!inv) return;
+  const { jsPDF } = window.jspdf;
+  const docPDF = new jsPDF();
 
-      const act = btn.dataset.act;
-      const id  = btn.dataset.id;
-      const inv = invoices.find(x => x.id === id);
-      const user = auth.currentUser;
-      if (!inv || !user) return;
+  docPDF.setFontSize(18);
+  docPDF.text("INVOICE", 105, 15, { align: "center" });
 
-      if (act === "edit") {
-        // Твій існуючий флоу: редагування — через invoiceNumber
-        localStorage.setItem("editInvoiceNumber", btn.dataset.num || "");
-        location.href = "invoices.html";
-      }
+  docPDF.setFontSize(12);
+  docPDF.text("From:", 14, 30);
+  docPDF.text([
+    inv.businessName,
+    `KvK: ${inv.kvk}`,
+    `IBAN: ${inv.iban}`,
+    `Email: ${inv.email}`,
+    `BTW: ${inv.btw}`,
+    `Address: ${inv.businessAddress}`,
+    `Phone: ${inv.businessPhone}`
+  ], 14, 36);
 
-      if (act === "delete") {
-        if (!confirm("Delete this invoice?")) return;
-        await deleteDoc(doc(db, "users", user.uid, "invoices", id));
-      }
+  docPDF.text("To:", 120, 30);
+  docPDF.text([
+    inv.clientName,
+    inv.clientEmail,
+    `Address: ${inv.clientAddress}`,
+    `Phone: ${inv.clientPhone}`
+  ], 120, 36);
 
-      if (act === "pdf") {
-        // Простий PDF (як було)
-        const { jsPDF } = window.jspdf;
-        const docPDF = new jsPDF();
-        docPDF.text(`Invoice ${inv.invoiceNumber||""}`, 14, 16);
-        docPDF.text(`Client: ${inv.clientName||"-"}`,   14, 24);
-        docPDF.text(`Date: ${ymd(inv.invoiceDate)}`,     14, 32);
-        docPDF.text(`Status: ${inv.status||"Draft"}`,   14, 40);
-        docPDF.text(`Total: ${money(inv.total)}`,       14, 48);
-        docPDF.save(`${inv.invoiceNumber||"invoice"}.pdf`);
-      }
+  docPDF.autoTable({
+    startY: 80,
+    head: [["Invoice #", "Date Issued", "Due Date", "Status"]],
+    body: [[inv.invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status]],
+    theme: "grid"
+  });
 
-      if (act === "repeat") {
-        // Копія на поточний місяць з інкрементом номера, статус Draft
-        const today = new Date();
-        const y = today.getFullYear();
-        const m = String(today.getMonth()+1).padStart(2,"0");
-        const d = String(today.getDate()).padStart(2,"0");
+  const items = inv.items?.map(it => [
+    it.desc,
+    it.qty,
+    `€${it.price.toFixed(2)}`,
+    `${it.vat}%`,
+    `€${(it.qty * it.price * (1 + it.vat / 100)).toFixed(2)}`
+  ]) || [];
+  docPDF.autoTable({
+    head: [["Description", "Qty", "Unit Price", "VAT", "Total"]],
+    body: items,
+    theme: "grid"
+  });
 
-        const nextNumber = String(inv.invoiceNumber||"").replace(/\d+$/, n => String(Number(n||0)+1).padStart(3,"0"));
-        const clone = {
-          ...inv,
-          invoiceDate: `${y}-${m}-${d}`,
-          status: "Draft",
-          invoiceNumber: nextNumber
-        };
-        delete clone.id;
+  docPDF.text(`Subtotal: ${inv.subtotal}`, 150, docPDF.lastAutoTable.finalY + 10);
+  docPDF.text(`VAT: ${inv.totalVat}`, 150, docPDF.lastAutoTable.finalY + 16);
+  docPDF.text(`Total Due: ${inv.grandTotal}`, 150, docPDF.lastAutoTable.finalY + 22);
 
-        await setDoc(doc(collection(db, "users", user.uid, "invoices")), clone);
-        alert("Invoice repeated for this month!");
-      }
-    });
+  if (inv.note) {
+    docPDF.text("Note:", 14, docPDF.lastAutoTable.finalY + 10);
+    docPDF.text(inv.note, 14, docPDF.lastAutoTable.finalY + 16);
+  }
 
-    // ==== Table sorting by headers ====
-    document.querySelectorAll("th[data-sort]").forEach(th => {
-      th.addEventListener("click", () => {
-        const field = th.dataset.sort;
-        if (currentSort.field === field) currentSort.asc = !currentSort.asc;
-        else currentSort = { field, asc: true };
-        render();
-      });
-    });
+  if (inv.signatures?.business) {
+    docPDF.addImage(inv.signatures.business, "PNG", 14, docPDF.lastAutoTable.finalY + 30, 60, 20);
+    docPDF.text("Business Signature", 14, docPDF.lastAutoTable.finalY + 55);
+    if (inv.signatures.businessDate) docPDF.text(`Signed: ${inv.signatures.businessDate}`, 14, docPDF.lastAutoTable.finalY + 62);
+  }
+  if (inv.signatures?.client) {
+    docPDF.addImage(inv.signatures.client, "PNG", 120, docPDF.lastAutoTable.finalY + 30, 60, 20);
+    docPDF.text("Client Signature", 120, docPDF.lastAutoTable.finalY + 55);
+    if (inv.signatures.clientDate) docPDF.text(`Signed: ${inv.signatures.clientDate}`, 120, docPDF.lastAutoTable.finalY + 62);
+  }
 
-    // ==== Filters ====
-    statusEl.addEventListener("change", render);
-    monthEl.addEventListener("change", render);
-    resetBtn.addEventListener("click", () => {
-      statusEl.value = "all";
-      monthEl.value = "";
-      render();
-    });
+  if (withBranding) {
+    docPDF.setFontSize(10);
+    docPDF.text("Generated with SmartWerk", 105, 290, { align: "center" });
+  }
 
-    // ==== Live data ====
-    onAuthStateChanged(auth, (user) => {
-      if (!user) { location.href = "login.html"; return; }
-      const colRef = collection(db, "users", user.uid, "invoices");
-      // ВАЖЛИВО: сортування у запиті по даті — щоби нові швидше приходили
-      const q = query(colRef, orderBy("invoiceDate", "desc"));
-      onSnapshot(q, (snap) => {
-        invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        render();
-      });
-    });
-  </script>
+  docPDF.save(`${inv.invoiceNumber}.pdf`);
+};
+
+// ==== Filters ====
+window.resetFilters = () => {
+  $("#fromDate").value = "";
+  $("#toDate").value = "";
+  $("#statusFilter").value = "all";
+  $("#searchBox").value = "";
+  $("#sortBy").value = "invoiceNumber_desc";
+  renderInvoices();
+};
+
+// ==== Realtime ====
+onAuthStateChanged(auth, user => {
+  if (!user) return location.href = "login.html";
+  const colRef = collection(db, "users", user.uid, "invoices");
+  const q = query(colRef, orderBy("invoiceDate", "desc"));
+  onSnapshot(q, snap => {
+    invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderInvoices();
+  });
+});
+</script>
 </body>
 </html>
