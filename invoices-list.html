@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 SmartWerk — Invoices List</title>
-  <link rel="stylesheet" href="style-invoices.css?v=4"/>
+  <link rel="stylesheet" href="style-invoices.css?v=5"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -54,18 +54,15 @@
   </footer>
 
   <script type="module">
-    // ==== Firebase Imports ====
+    // ==== Firebase ====
     import { initializeApp, getApps, getApp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { 
-      getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy 
+      getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, addDoc 
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-
-    // ==== Firebase Config ====
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -77,13 +74,12 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // ==== Global State ====
+    // ==== State ====
     let invoices = [];
     let currentSort = { field: "invoiceNumber", asc: false };
-
     const $ = sel => document.querySelector(sel);
 
-    // ==== Render Invoices ====
+    // ==== Render ====
     function renderInvoices() {
       const body = $("#invoicesBody");
       body.innerHTML = "";
@@ -100,10 +96,10 @@
 
       // Sorting
       filtered.sort((a, b) => {
-        let field = currentSort.field;
+        let f = currentSort.field;
         let dir = currentSort.asc ? 1 : -1;
-        if (a[field] < b[field]) return -1 * dir;
-        if (a[field] > b[field]) return 1 * dir;
+        if ((a[f] || "") < (b[f] || "")) return -1 * dir;
+        if ((a[f] || "") > (b[f] || "")) return 1 * dir;
         return 0;
       });
 
@@ -128,177 +124,7 @@
 
     // ==== Actions ====
     window.editInvoice = (id) => {
-      localStorage.setItem("editInvoiceId", id);
-      window.location.href = "invoices.html";
-    };
-
-    window.deleteInvoice = async (id) => {
-      if (!confirm("Delete this invoice?")) return;
-      const user = auth.currentUser;
-      if (!user) return;
-      await deleteDoc(doc(db, "users", user.uid, "invoices", id));
-    };
-
-    window.repeatMonthly = async (id) => {
-  const user = auth.currentUser;
-  if (!user) return;
-  const inv = invoices.find(i => i.id === id);
-  if (!inv) return;
-
-  const newDate = new Date();
-  const y = newDate.getFullYear();
-  const m = String(newDate.getMonth() + 1).padStart(2, "0");
-  const d = String(newDate.getDate()).padStart(2, "0");
-
-  const newInv = {
-    ...inv,
-    invoiceDate: `${y}-${m}-${d}`,
-    invoiceNumber: inv.invoiceNumber.replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
-    status: "Draft"
-  };
-  delete newInv.id;
-
-  await addDoc(collection(db, "users", user.uid, "invoices"), newInv);
-  alert("Invoice repeated for this month!");
-};
-
-    window.downloadPDF = (id) => {
-      const inv = invoices.find(i => i.id === id);
-      if (!inv) return;
-      const { jsPDF } = window.jspdf;
-      const docPDF = new jsPDF();
-      docPDF.text(`Invoice ${inv.invoiceNumber}`, 10, 10);
-      docPDF.text(`Client: ${inv.clientName}`, 10, 20);
-      docPDF.text(`Date: ${inv.invoiceDate}`, 10, 30);
-      docPDF.text(`Status: ${inv.status}`, 10, 40);<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📋 SmartWerk — Invoices List</title>
-  <link rel="stylesheet" href="style-invoices.css?v=4"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-</head>
-<body>
-  <header>
-    <h1>📋 Invoices List</h1>
-    <div class="header-actions">
-      <a href="invoices.html" class="btn">➕ New Invoice</a>
-      <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
-    </div>
-  </header>
-
-  <section class="filters">
-    <h3>🔎 Filters</h3>
-    <label>Status:
-      <select id="statusFilter">
-        <option value="all">All</option>
-        <option value="Draft">Draft</option>
-        <option value="Sent">Sent</option>
-        <option value="Paid">Paid</option>
-      </select>
-    </label>
-    <label>Month:
-      <input type="month" id="monthFilter"/>
-    </label>
-    <button onclick="resetFilters()">♻️ Reset Filters</button>
-  </section>
-
-  <section>
-    <table id="invoicesTable">
-      <thead>
-        <tr>
-          <th onclick="sortInvoices('invoiceNumber')">Invoice #</th>
-          <th onclick="sortInvoices('clientName')">Client</th>
-          <th>Status</th>
-          <th>Date</th>
-          <th>Total</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="invoicesBody"></tbody>
-    </table>
-  </section>
-
-  <footer>
-    <p>© 2025–2030 SmartWerk. All rights reserved.</p>
-  </footer>
-
-  <script type="module">
-    // ==== Firebase Imports ====
-    import { initializeApp, getApps, getApp } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { 
-      getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy 
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    // ==== Firebase Config ====
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
-
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    // ==== Global State ====
-    let invoices = [];
-    let currentSort = { field: "invoiceNumber", asc: false };
-
-    const $ = sel => document.querySelector(sel);
-
-    // ==== Render Invoices ====
-    function renderInvoices() {
-      const body = $("#invoicesBody");
-      body.innerHTML = "";
-
-      const statusFilter = $("#statusFilter").value;
-      const monthFilter = $("#monthFilter").value;
-
-      let filtered = invoices.filter(inv => {
-        let ok = true;
-        if (statusFilter !== "all") ok = ok && inv.status === statusFilter;
-        if (monthFilter) ok = ok && inv.invoiceDate?.startsWith(monthFilter);
-        return ok;
-      });
-
-      // Sorting
-      filtered.sort((a, b) => {
-        let field = currentSort.field;
-        let dir = currentSort.asc ? 1 : -1;
-        if (a[field] < b[field]) return -1 * dir;
-        if (a[field] > b[field]) return 1 * dir;
-        return 0;
-      });
-
-      filtered.forEach(inv => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${inv.invoiceNumber || "—"}</td>
-          <td>${inv.clientName || "—"}</td>
-          <td>${inv.status || "Draft"}</td>
-          <td>${inv.invoiceDate || "—"}</td>
-          <td>€${(inv.total || 0).toFixed(2)}</td>
-          <td>
-            <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
-            <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
-            <button onclick="downloadPDF('${inv.id}')">📄 PDF</button>
-            <button onclick="repeatMonthly('${inv.id}')">🔁 Repeat Monthly</button>
-          </td>
-        `;
-        body.appendChild(tr);
-      });
-    }
-
-    // ==== Actions ====
-    window.editInvoice = (id) => {
-      localStorage.setItem("editInvoiceId", id);
+      localStorage.setItem("editInvoiceId", id); // для завантаження у invoices.html
       window.location.href = "invoices.html";
     };
 
@@ -321,11 +147,11 @@
       const newInv = {
         ...inv,
         invoiceDate: `${y}-${m}-${d}`,
-        invoiceNumber: inv.invoiceNumber.replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
+        invoiceNumber: (inv.invoiceNumber || "INV-000").replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
         status: "Draft"
       };
       delete newInv.id;
-      await setDoc(doc(collection(db, "users", user.uid, "invoices")), newInv);
+      await addDoc(collection(db, "users", user.uid, "invoices"), newInv);
       alert("Invoice repeated for this month!");
     };
 
@@ -342,7 +168,7 @@
       docPDF.save(`${inv.invoiceNumber}.pdf`);
     };
 
-    // ==== Sorting / Filters ====
+    // ==== Sort & Filters ====
     window.sortInvoices = (field) => {
       if (currentSort.field === field) currentSort.asc = !currentSort.asc;
       else currentSort = { field, asc: true };
@@ -355,7 +181,7 @@
       renderInvoices();
     };
 
-    // ==== Realtime listener ====
+    // ==== Live Sync ====
     onAuthStateChanged(auth, (user) => {
       if (!user) return (window.location.href = "login.html");
       const colRef = collection(db, "users", user.uid, "invoices");
