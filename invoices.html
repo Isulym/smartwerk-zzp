@@ -4,11 +4,9 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Invoice</title>
-  <link rel="stylesheet" href="style-invoices.css?v=6"/>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+  <link rel="stylesheet" href="style-invoices.css?v=7"/>
+  <!-- Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  
 </head>
 <body>
   <header>
@@ -16,6 +14,7 @@
     <nav>
       <a href="index.html" class="btn">← Main Page</a>
       <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="invoices-list.html" class="btn">📋 Invoices List</a>
     </nav>
   </header>
 
@@ -39,13 +38,15 @@
       <input id="clientEmail" placeholder="Client Email"/>
       <input id="clientPhone" placeholder="Client Phone"/>
       <input id="clientAddress" placeholder="Client Address"/>
+
       <input id="invoiceDate" class="js-date" placeholder="YYYY-MM-DD">
       <input id="dueDate"     class="js-date" placeholder="YYYY-MM-DD">
+
       <input id="invoiceNumber" readonly placeholder="Invoice Number"/>
       <select id="status">
-        <option>Draft</option>
-        <option>Sent</option>
-        <option>Paid</option>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
       </select>
     </section>
 
@@ -74,7 +75,7 @@
     <section>
       <h2>📷 OCR</h2>
       <input type="file" id="receiptInput" accept="image/*"/>
-      <button onclick="processReceipt()">Scan</button>
+      <button type="button" onclick="processReceipt()">Scan</button>
       <pre id="receiptText"></pre>
     </section>
 
@@ -84,195 +85,334 @@
       <div>
         <h3>Business</h3>
         <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
-        <button onclick="clearSignature('signatureBusiness')">Clear</button>
+        <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
         <p>Date: <span id="signatureBusinessDate"></span></p>
       </div>
       <div>
         <h3>Client</h3>
         <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-        <button onclick="clearSignature('signatureClient')">Clear</button>
+        <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
         <p>Date: <span id="signatureClientDate"></span></p>
       </div>
     </section>
 
-    <!-- Actions -->
-    <section>
+    <!-- Actions (BOTTOM) -->
     <section class="step actions">
-  <button id="saveBtn" class="btn-primary">💾 Save Invoice</button>
-  <a href="invoices-list.html" class="btn-primary">📋 Open Invoices List</a>
-</section>
+      <button id="saveBtn" class="btn-primary">💾 Save Invoice</button>
+      <a href="invoices-list.html" class="btn-primary">📋 Open Invoices List</a>
+    </section>
   </main>
- <footer>
+
+  <footer>
     <p>© 2025 SmartWerk</p>
   </footer>
 
-<script type="module">
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <!-- Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1",
-};
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  <!-- App -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { 
+      getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-let signatureBusinessDate = "";
-let signatureClientDate = "";
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-// ==== Items ====
-function addItem(desc="", qty=1, price=0, vat=21){
-  const row=document.createElement("tr");
-  row.innerHTML=`
-    <td><input class="desc" value="${desc}"/></td>
-    <td><input class="qty" type="number" value="${qty}" min="1"/></td>
-    <td><input class="price" type="number" value="${price}" step="0.01"/></td>
-    <td><select class="vat"><option>0</option><option>9</option><option ${vat==21?"selected":""}>21</option></select></td>
-    <td class="item-total">€0.00</td>
-    <td><button type="button" onclick="this.closest('tr').remove();updateTotals();">❌</button></td>
-  `;
-  row.querySelectorAll("input,select").forEach(el=>el.oninput=updateTotals);
-  document.getElementById("itemsBody").appendChild(row);
-  updateTotals();
-}
-window.addItem=addItem;
+    const $ = (id) => document.getElementById(id);
 
-function updateTotals(){
-  let subtotal=0,totalVat=0;
-  document.querySelectorAll("#itemsBody tr").forEach(r=>{
-    const qty=+r.querySelector(".qty").value||0;
-    const price=+r.querySelector(".price").value||0;
-    const vat=+r.querySelector(".vat").value||0;
-    const t=qty*price;
-    subtotal+=t;
-    totalVat+=t*vat/100;
-    r.querySelector(".item-total").innerText="€"+(t+t*vat/100).toFixed(2);
-  });
-  document.getElementById("subtotal").innerText="€"+subtotal.toFixed(2);
-  document.getElementById("totalVat").innerText="€"+totalVat.toFixed(2);
-  document.getElementById("grandTotal").innerText="€"+(subtotal+totalVat).toFixed(2);
-}
-window.updateTotals=updateTotals;
-
-// ==== Signatures ====
-function clearSignature(id){
-  const c=document.getElementById(id),ctx=c.getContext("2d");
-  ctx.clearRect(0,0,c.width,c.height);
-  if(id==="signatureBusiness"){signatureBusinessDate="";document.getElementById("signatureBusinessDate").innerText="";}
-  else{signatureClientDate="";document.getElementById("signatureClientDate").innerText="";}
-}
-window.clearSignature=clearSignature;
-
-["signatureBusiness","signatureClient"].forEach(id=>{
-  const c=document.getElementById(id),ctx=c.getContext("2d");let draw=false;
-  c.addEventListener("mousedown",()=>{draw=true;ctx.beginPath();});
-  c.addEventListener("mouseup",()=>{draw=false;const now=new Date().toLocaleDateString();if(id==="signatureBusiness"){signatureBusinessDate=now;document.getElementById("signatureBusinessDate").innerText=now;}else{signatureClientDate=now;document.getElementById("signatureClientDate").innerText=now;}});
-  c.addEventListener("mousemove",e=>{if(!draw)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#2563eb";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
-});
-
-// ==== OCR ====
-function processReceipt(){
-  const f=document.getElementById("receiptInput").files[0];
-  if(!f)return;
-  const out=document.getElementById("receiptText");
-  out.innerText="⏳ Scanning...";
-  const reader=new FileReader();
-  reader.onload=()=>Tesseract.recognize(reader.result,"eng").then(({data:{text}})=>out.innerText=text);
-  reader.readAsDataURL(f);
-}
-window.processReceipt=processReceipt;
-
-// ==== Firestore Save ====
-async function generateInvoiceNumber(uid) {
-  const ref = doc(db, "users", uid, "meta", "counters");
-  const year = new Date().getFullYear();
-  return await runTransaction(db, async (tx) => {
-    const snap = await tx.get(ref);
-    const last = snap.exists() ? (snap.data().lastInvoiceNumber || 0) : 0;
-    const next = last + 1;
-    tx.set(ref, { lastInvoiceNumber: next }, { merge: true });
-    return `INV-${year}-${String(next).padStart(3, "0")}`;
-  });
-}
-
-// ... усередині saveInvoice():
-let invoiceNumber = document.getElementById("invoiceNumber").value.trim();
-if (!invoiceNumber) {
-  invoiceNumber = await generateInvoiceNumber(user.uid);
-  document.getElementById("invoiceNumber").value = invoiceNumber;
-}
-
-async function saveInvoice(){
-  const user=auth.currentUser;if(!user) return;
-  const uid=user.uid;
-  let invId=localStorage.getItem("editInvoiceId")||null;
-  let invoiceNumber=document.getElementById("invoiceNumber").value;
-  if(!invId && !invoiceNumber){
-    invoiceNumber=await generateInvoiceNumber(uid);
-    document.getElementById("invoiceNumber").value=invoiceNumber;
-  }
-  const items=[];
-  document.querySelectorAll("#itemsBody tr").forEach(r=>{
-    items.push({
-      desc:r.querySelector(".desc").value,
-      qty:+r.querySelector(".qty").value,
-      price:+r.querySelector(".price").value,
-      vat:+r.querySelector(".vat").value
-    });
-  });
-  const data={
-    businessName:document.getElementById("businessName").value,
-    clientName:document.getElementById("clientName").value,
-    invoiceDate:document.getElementById("invoiceDate").value,
-    dueDate:document.getElementById("dueDate").value,
-    invoiceNumber,
-    status:document.getElementById("status").value,
-    note:document.getElementById("note").value,
-    items,
-    subtotal:document.getElementById("subtotal").innerText,
-    totalVat:document.getElementById("totalVat").innerText,
-    grandTotal:document.getElementById("grandTotal").innerText,
-    signatures:{
-      business:document.getElementById("signatureBusiness").toDataURL(),
-      client:document.getElementById("signatureClient").toDataURL(),
-      businessDate:signatureBusinessDate,
-      clientDate:signatureClientDate
-    },
-    userId:uid
-  };
-  if(invId){await setDoc(doc(db,"users",uid,"invoices",invId),data);localStorage.removeItem("editInvoiceId");}
-  else{await addDoc(collection(db,"users",uid,"invoices"),data);}
-  alert("✅ Saved!");
-}
-document.getElementById("saveBtn").addEventListener("click", saveInvoice);
-
-  
-  // === Preview Invoice Number ===
-  async function previewNextInvoiceNumber(uid) {
-    try {
-      const ref  = doc(db, "users", uid, "meta", "counters");
-      const snap = await getDoc(ref);
-      const last = snap.exists() ? (snap.data().lastInvoiceNumber || 0) : 0;
-      const next = last + 1;
-      const preview = `INV-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
-      const el = document.getElementById("invoiceNumber");
-      if (el && !el.value) {
-        el.placeholder = preview; // показуємо користувачу
-      }
-    } catch (e) {
-      console.error("Preview error:", e);
+    /* ========== ITEMS & TOTALS ========== */
+    function addItem(desc="", qty=1, price=0, vat=21){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input class="desc" value="${desc}"/></td>
+        <td><input class="qty" type="number" value="${qty}" min="1"/></td>
+        <td><input class="price" type="number" value="${price}" step="0.01"/></td>
+        <td>
+          <select class="vat">
+            <option value="0">0</option>
+            <option value="9"${vat==9?" selected":""}>9</option>
+            <option value="21"${vat==21?" selected":""}>21</option>
+          </select>
+        </td>
+        <td class="item-total">€0.00</td>
+        <td><button type="button" class="btn-del">❌</button></td>
+      `;
+      tr.querySelectorAll("input,select").forEach(el => el.addEventListener("input", updateTotals));
+      tr.querySelector(".btn-del").addEventListener("click", () => { tr.remove(); updateTotals(); });
+      $("itemsBody").appendChild(tr);
+      updateTotals();
     }
-  }
+    window.addItem = addItem;
 
-// ==== Init ====
-onAuthStateChanged(auth,user=>{
-  if(!user) return location.href="login.html";
-  flatpickr(".js-date",{dateFormat:"Y-m-d"});
-});
-</script>
+    function updateTotals(){
+      let subtotal=0, totalVat=0;
+      document.querySelectorAll("#itemsBody tr").forEach(tr=>{
+        const qty = parseFloat(tr.querySelector(".qty").value)||0;
+        const price = parseFloat(tr.querySelector(".price").value)||0;
+        const vat = parseFloat(tr.querySelector(".vat").value)||0;
+        const line = qty*price;
+        const v = line*vat/100;
+        subtotal+=line; totalVat+=v;
+        tr.querySelector(".item-total").innerText = "€"+(line+v).toFixed(2);
+      });
+      $("subtotal").innerText = "€"+subtotal.toFixed(2);
+      $("totalVat").innerText = "€"+totalVat.toFixed(2);
+      $("grandTotal").innerText= "€"+(subtotal+totalVat).toFixed(2);
+    }
+    window.updateTotals = updateTotals;
+
+    /* ========== SIGNATURES ========== */
+    function setupSignature(canvasId, dateId){
+      const c  = $(canvasId);
+      const ctx= c.getContext("2d");
+      let drawing = false;
+
+      const start = ()=>{ drawing=true; ctx.beginPath(); };
+      const end   = ()=>{
+        if(!drawing) return;
+        drawing=false;
+        const now=new Date().toLocaleDateString("nl-NL");
+        $(dateId).innerText = now;
+      };
+      const move  = (e)=>{
+        if(!drawing) return;
+        const r=c.getBoundingClientRect();
+        const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+        const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+        ctx.lineWidth=2; ctx.lineCap="round"; ctx.strokeStyle="#000";
+        ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y);
+      };
+
+      c.addEventListener("mousedown", start);
+      c.addEventListener("mouseup", end);
+      c.addEventListener("mouseleave", ()=>drawing=false);
+      c.addEventListener("mousemove", move);
+      // touch
+      c.addEventListener("touchstart", (e)=>{e.preventDefault(); start();});
+      c.addEventListener("touchend",   (e)=>{e.preventDefault(); end();});
+      c.addEventListener("touchmove",  (e)=>{e.preventDefault(); move(e);});
+    }
+    window.clearSignature = (id)=>{
+      const c=$(id); c.getContext("2d").clearRect(0,0,c.width,c.height);
+      if(id==="signatureBusiness") $("signatureBusinessDate").innerText="";
+      if(id==="signatureClient")  $("signatureClientDate").innerText="";
+    };
+
+    /* ========== OCR ========== */
+    window.processReceipt = function(){
+      const file = $("receiptInput").files?.[0];
+      const out  = $("receiptText");
+      if(!file){ out.innerText="⚠️ No file selected"; return; }
+      out.innerText="⏳ Scanning...";
+      const reader=new FileReader();
+      reader.onload=()=> {
+        Tesseract.recognize(reader.result,"eng")
+          .then(({data:{text}})=> out.innerText=text.trim() || "(no text)")
+          .catch(()=> out.innerText="❌ OCR failed");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    /* ========== DATES ========== */
+    function initDates(){
+      flatpickr(".js-date",{dateFormat:"Y-m-d"});
+      const inv = $("invoiceDate");
+      const due = $("dueDate");
+      inv?.addEventListener("change", ()=>{
+        if(!inv.value) return;
+        const d=new Date(inv.value); if(String(d)==="Invalid Date") return;
+        d.setDate(d.getDate()+14);
+        const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0");
+        due.value=`${y}-${m}-${dd}`;
+      });
+    }
+
+    /* ========== FIRESTORE: NUMBER PREVIEW + GENERATION ========== */
+    async function previewNextInvoiceNumber(uid){
+      try{
+        const ref  = doc(db,"users",uid,"meta","counters");
+        const snap = await getDoc(ref);
+        const last = snap.exists() ? (snap.data().lastInvoiceNumber||0) : 0;
+        const next = last+1;
+        const preview = `INV-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
+        if(!$("invoiceNumber").value) $("invoiceNumber").placeholder = preview;
+      }catch{}
+    }
+
+    async function generateInvoiceNumber(uid){
+      const ref = doc(db,"users",uid,"meta","counters");
+      const year = new Date().getFullYear();
+      let final = "";
+      await runTransaction(db, async (tx)=>{
+        const snap=await tx.get(ref);
+        const last=snap.exists()?(snap.data().lastInvoiceNumber||0):0;
+        const next=last+1;
+        final=`INV-${year}-${String(next).padStart(3,"0")}`;
+        tx.set(ref,{lastInvoiceNumber:next},{merge:true});
+      });
+      return final;
+    }
+
+    /* ========== SAVE (CREATE/UPDATE) ========== */
+    async function saveInvoice(){
+      const user=auth.currentUser; if(!user){ location.href="login.html"; return; }
+      const uid=user.uid;
+
+      // items
+      const items=[];
+      document.querySelectorAll("#itemsBody tr").forEach(tr=>{
+        items.push({
+          desc: tr.querySelector(".desc")?.value || "",
+          qty:  parseFloat(tr.querySelector(".qty")?.value)||0,
+          price:parseFloat(tr.querySelector(".price")?.value)||0,
+          vat:  parseFloat(tr.querySelector(".vat")?.value)||0,
+        });
+      });
+
+      // totals (перерахунок для надійності)
+      let subtotal=0,totalVat=0;
+      items.forEach(i=>{ const line=i.qty*i.price; subtotal+=line; totalVat+=line*i.vat/100; });
+
+      // номер
+      let invoiceNumber = $("invoiceNumber").value.trim();
+      const editingId = localStorage.getItem("editInvoiceId") || null;
+      if(!editingId && !invoiceNumber) {
+        invoiceNumber = await generateInvoiceNumber(uid);
+        $("invoiceNumber").value = invoiceNumber;
+      }
+
+      // signatures
+      const businessSig = $("signatureBusiness").toDataURL();
+      const clientSig   = $("signatureClient").toDataURL();
+
+      const data = {
+        businessName: $("businessName").value,
+        kvk: $("kvk").value,
+        iban: $("iban").value,
+        btw: $("btw").value,
+        email: $("email").value,
+        businessAddress: $("businessAddress").value,
+        businessPhone: $("businessPhone").value,
+
+        clientName: $("clientName").value,
+        clientEmail: $("clientEmail").value,
+        clientPhone: $("clientPhone").value,
+        clientAddress: $("clientAddress").value,
+
+        invoiceDate: $("invoiceDate").value,
+        dueDate: $("dueDate").value,
+        invoiceNumber,
+        status: $("status").value,
+        note: $("note").value,
+
+        items,
+        subtotal: subtotal,
+        totalVat: totalVat,
+        total: subtotal+totalVat,
+
+        signatures:{
+          business: businessSig,
+          client: clientSig,
+          businessDate: $("signatureBusinessDate").innerText || "",
+          clientDate: $("signatureClientDate").innerText || "",
+        },
+
+        userId: uid,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if(editingId){
+        await setDoc(doc(db,"users",uid,"invoices",editingId), data, { merge:true });
+        localStorage.removeItem("editInvoiceId");
+        alert("✅ Invoice updated");
+      }else{
+        await addDoc(collection(db,"users",uid,"invoices"), data);
+        alert(`✅ Invoice saved${invoiceNumber ? " as "+invoiceNumber : ""}`);
+      }
+      location.href="invoices-list.html";
+    }
+    window.saveInvoice = saveInvoice;
+
+    /* ========== LOAD FOR EDIT ========== */
+    async function loadForEdit(uid){
+      const id = localStorage.getItem("editInvoiceId");
+      if(!id) return;
+      const ref = doc(db,"users",uid,"invoices",id);
+      const snap = await getDoc(ref);
+      if(!snap.exists()) { localStorage.removeItem("editInvoiceId"); return; }
+      const inv = snap.data();
+
+      // fill
+      $("businessName").value = inv.businessName||"";
+      $("kvk").value = inv.kvk||"";
+      $("iban").value = inv.iban||"";
+      $("btw").value = inv.btw||"";
+      $("email").value = inv.email||"";
+      $("businessAddress").value = inv.businessAddress||"";
+      $("businessPhone").value = inv.businessPhone||"";
+
+      $("clientName").value = inv.clientName||"";
+      $("clientEmail").value = inv.clientEmail||"";
+      $("clientPhone").value = inv.clientPhone||"";
+      $("clientAddress").value = inv.clientAddress||"";
+
+      $("invoiceDate").value = inv.invoiceDate||"";
+      $("dueDate").value     = inv.dueDate||"";
+      $("invoiceNumber").value = inv.invoiceNumber||"";
+      $("status").value      = inv.status||"Draft";
+      $("note").value        = inv.note||"";
+
+      $("itemsBody").innerHTML="";
+      (inv.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
+      if(!(inv.items||[]).length) addItem();
+
+      // redraw signatures if present
+      if(inv.signatures?.business){
+        const img=new Image();
+        img.onload=()=>{ const c=$("signatureBusiness"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
+        img.src=inv.signatures.business;
+        $("signatureBusinessDate").innerText = inv.signatures.businessDate || "";
+      }
+      if(inv.signatures?.client){
+        const img=new Image();
+        img.onload=()=>{ const c=$("signatureClient"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
+        img.src=inv.signatures.client;
+        $("signatureClientDate").innerText = inv.signatures.clientDate || "";
+      }
+
+      // totals (recalc)
+      updateTotals();
+    }
+
+    /* ========== INIT ========== */
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href="login.html"; return; }
+      initDates();
+      setupSignature("signatureBusiness","signatureBusinessDate");
+      setupSignature("signatureClient","signatureClientDate");
+      if(!document.querySelector("#itemsBody tr")) addItem();
+      updateTotals();
+
+      // preview номер + якщо редагування — завантажити документ
+      await previewNextInvoiceNumber(user.uid);
+      await loadForEdit(user.uid);
+    });
+
+    // кнопка Save
+    document.addEventListener("DOMContentLoaded", ()=>{
+      $("saveBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); saveInvoice(); });
+    });
+  </script>
 </body>
 </html>
