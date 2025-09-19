@@ -1,969 +1,195 @@
-  <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Bookkeeper – SmartWerk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookkeeper | SmartWerk</title>
   <link rel="stylesheet" href="style-bookkeeper.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="breadcrumbs">
-    <a href="dashboard.html">🏠 Dashboard</a>
-    <span>/</span>
-    <a href="my-bookkeeper.html" class="active">👨‍💼 My Bookkeeper</a>
-  </div>
-
-  <main class="main-panel">
-    <header class="page-header">
-      <h1>👨‍💼 My Bookkeeper</h1>
-      <p>Manage your business documents, communication, and accounting tasks in one place.</p>
-    </header>
-
-    <!-- Profile Status -->
-    <section class="profile-status">
-      <h2>📋 Profile Status</h2>
-      <ul>
-        <li>KvK Verified: ✅</li>
-        <li>IBAN Added: ✅</li>
-        <li>Profile Completion: 85%</li>
-      </ul>
-    </section>
-
-    <!-- Financial Overview -->
-    <section class="financial-overview">
-      <h2>📊 Financial Summary</h2>
-      <p><strong>Gross Income:</strong> <span id="bk-gross">€0.00</span></p>
-      <p><strong>Expenses:</strong> <span id="bk-expenses">€0.00</span></p>
-      <p><strong>Tax Estimate:</strong> <span id="bk-tax">€0.00</span></p>
-      <p><strong>Net Income:</strong> <span id="bk-net">€0.00</span></p>
-    </section>
-
-    <!-- Document Upload Area -->
-    <section class="documents">
-      <h2>📁 Documents</h2>
-      <p>Upload your receipts, invoices, and contracts below:</p>
-      <input type="file" id="upload-docs" multiple />
-    </section>
-
-    <section class="document-status-tracker">
-  <h2>📂 Document Status Tracker</h2>
-
-  <!-- Фільтр -->
-  <label for="statusFilter">Filter by status:</label>
-  <select id="statusFilter">
-    <option value="all">Show All</option>
-    <option value="✅ Uploaded">✅ Uploaded</option>
-    <option value="🔄 In Review">🔄 In Review</option>
-    <option value="❌ Missing">❌ Missing</option>
-  </select>
-
-  <!-- Таблиця -->
-<table id="documentStatusTable">
-  <thead>
-    <tr>
-      <th>Document</th>
-      <th>Status</th>
-      <th>Date</th>
-      <th>Note</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="documentStatusBody">
-    <!-- Рядки генеруються динамічно -->
-  </tbody>
-</table>
-</section>
-
-    <!-- Tasks and Reminders -->
-    <section class="tasks">
-      <h2>📌 To‑Do / Tasks</h2>
-      <ul>
-        <li>🔔 Upload July receipts <span class="status">Pending</span></li>
-        <li>📝 Sign quarterly tax form <span class="status done">Done</span></li>
-        <li>📤 Submit income declaration <span class="status">Pending</span></li>
-      </ul>
-    </section>
-
-    <!-- Messages -->
-    <section class="messages">
-      <h2>💬 Messages</h2>
-      <textarea placeholder="Type your message to your bookkeeper..."></textarea>
-      <button>📩 Send</button>
-    </section>
-
-    <!-- Invoices Section -->
-    <section class="invoices">
-      <h2>📄 Invoices</h2>
-      <p><a href="invoices.html">Go to invoice center</a></p>
-    </section>
-
-    <!-- Export & Settings -->
-    <section class="export">
-      <h2>⚙️ Settings & Export</h2>
-      <button>🧾 Export My Report (PDF)</button>
-      <button>💾 Save to Profile</button>
-    </section>
-
-    <section class="analytics-section">
-  <h2>📊 Analytics Overview</h2>
-  <div class="analytics-cards">
-    <div class="card"><strong>💼 Total Income</strong><p id="analytics-income">€0.00</p></div>
-    <div class="card"><strong>🧾 Total Expenses</strong><p id="analytics-expenses">€0.00</p></div>
-    <div class="card"><strong>💸 Estimated Tax</strong><p id="analytics-tax">€0.00</p></div>
-    <div class="card"><strong>💰 Net Profit</strong><p id="analytics-profit">€0.00</p></div>
-  </div>
-
-  <canvas id="financeChart" style="max-width: 100%; height: 300px; margin-top: 2rem;"></canvas>
-</section>
-    <section class="kpi-dashboard">
-  <h2>📊 KPI Dashboard – Business Insights</h2>
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <strong>🔢 Invoices Sent</strong>
-      <p id="kpi-invoices">12</p>
+  <header>
+    <h1>👨‍💼 My Bookkeeper</h1>
+    <div class="header-actions">
+      <button onclick="refreshBookkeeper()">🔄 Refresh</button>
+      <button onclick="exportAllData()">📤 Export All</button>
+      <a href="dashboard.html" class="btn-link">🏠 Back to Dashboard</a>
     </div>
-    <div class="kpi-card">
-      <strong>🧾 Avg. Invoice Value</strong>
-      <p id="kpi-average-invoice">€435.00</p>
-    </div>
-    <div class="kpi-card">
-      <strong>⏱️ Time Saved</strong>
-      <p id="kpi-time-saved">8 hours/month</p>
-    </div>
-    <div class="kpi-card">
-      <strong>💸 VAT Collected</strong>
-      <p id="kpi-vat-collected">€720.00</p>
-    </div>
-    <div class="kpi-card">
-      <strong>🧠 AI Usage</strong>
-      <p id="kpi-ai-usage">2 / 3 free</p>
-    </div>
-  </div>
-</section>
-    <section class="quick-actions">
-  <h2>⚡ Quick Actions</h2>
-  <div class="action-buttons">
-    <button onclick="window.location.href='invoices.html#new'">➕ New Invoice</button>
-    <button onclick="alert('Exporting all documents...')">🧾 Export All Documents</button>
-    <button onclick="window.location.href='tax-calculator.html'">🔁 Sync with Tax Tool</button>
-    <button onclick="addManualNote()">✍️ Add Manual Note</button>
-    <button onclick="askSmartWerkAI()">🧠 Ask SmartWerk AI</button>
-  </div>
-</section>
+  </header>
 
-  <section class="kpi-dashboard">
-  <h2>📊 Business KPIs</h2>
-  <div class="kpi-cards">
-    <div class="kpi"><strong>🧮 Profit Margin:</strong> <span id="kpi-margin">--</span></div>
-    <div class="kpi"><strong>📈 Tax Ratio:</strong> <span id="kpi-tax-ratio">--</span></div>
-    <div class="kpi"><strong>📅 Avg Monthly Income:</strong> <span id="kpi-monthly-income">--</span></div>
-    <div class="kpi"><strong>💹 Growth Trend:</strong> <span id="kpi-growth">--</span></div>
-  </div>
-</section>
+  <section class="kpi-cards">
+    <div class="card income">💰 Total Income<br><span id="totalIncome">€0</span></div>
+    <div class="card expenses">📉 Total Expenses<br><span id="totalExpenses">€0</span></div>
+    <div class="card profit">📈 Net Profit<br><span id="netProfit">€0</span></div>
+    <div class="card vat">🧾 VAT Payable<br><span id="vatPayable">€0</span></div>
+  </section>
 
-    <section class="quick-actions">
-  <h2>⚡ Quick Actions</h2>
-  <div class="action-buttons">
-    <button onclick="refreshSummary()">🔄 Refresh Summary</button>
-    <button onclick="downloadPDF()">📄 Export Report</button>
-    <button onclick="downloadAnalytics()">📊 Export Analytics</button>
-    <button onclick="clearAllData()">🗑️ Clear All Data</button>
-  </div>
-</section>
+  <section class="filters">
+    <h3>📅 Filter by Period</h3>
+    <button onclick="filterBy('thisMonth')">This Month</button>
+    <button onclick="filterBy('lastMonth')">Last Month</button>
+    <button onclick="filterBy('thisYear')">This Year</button>
+    <input type="month" id="customMonth" onchange="filterByMonth(this.value)" />
+  </section>
 
- <section id="document-comments">
-  <h2>📝 Comments on Documents</h2>
+  <section class="charts">
+    <h3>📊 Financial Overview</h3>
+    <canvas id="bookkeeperChart" height="120"></canvas>
+  </section>
 
-  <label for="documentName">Document name:</label>
-  <input type="text" id="documentName" placeholder="e.g. Invoice Q3">
+  <section class="section invoices">
+    <h3>📄 Invoices Summary</h3>
+    <ul id="invoicesList">
+      <!-- Fetched via JS -->
+    </ul>
+  </section>
 
-  <label for="commentText">Your comment:</label>
-  <textarea id="commentText" placeholder="Add your comment..."></textarea>
+  <section class="section expenses">
+    <h3>💼 Expenses Summary</h3>
+    <ul id="expensesList">
+      <!-- Fetched via JS -->
+    </ul>
+  </section>
 
-  <button id="saveCommentBtn" onclick="saveComment()">💾 Save Comment</button>
-  <button id="updateCommentBtn" onclick="updateComment()" style="display:none;">✅ Update Comment</button>
+  <section class="section reminders">
+    <h3>📬 Reminders Sent</h3>
+    <ul id="remindersList">
+      <!-- Fetched via JS -->
+    </ul>
+  </section>
 
-  <h3>📂 Saved Comments</h3>
-  <ul id="commentsList"></ul>
-</section>
+  <footer>
+    <p>© 2025–2030 SmartWerk. All rights reserved.</p>
+  </footer>
 
-  <section class="financial-analytics">
-  <h2>📈 Financial Analytics</h2>
+  <script type="module" src="bookkeeper.js">
+    // 📁 bookkeeper.js — Firebase інтеграція для My Bookkeeper
 
-  <!-- Період -->
-  <label for="analyticsPeriod">Select period:</label>
-  <select id="analyticsPeriod">
-    <option value="6m">Last 6 months</option>
-    <option value="q1">Q1 (Jan–Mar)</option>
-    <option value="q2">Q2 (Apr–Jun)</option>
-    <option value="q3">Q3 (Jul–Sep)</option>
-    <option value="q4">Q4 (Oct–Dec)</option>
-    <option value="year">Full Year</option>
-  </select>
+import {
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-  <!-- Графік -->
-  <canvas id="netIncomeChart" height="200"></canvas>
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  <!-- AI-порада -->
-  <div class="ai-insight-box">
-    <strong>💡 Smart Tip:</strong>
-    <p id="aiTipText">Your business is stable. Keep tracking expenses to improve margin.</p>
-  </div>
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  <!-- Кнопка експорту -->
-  <button id="exportAnalyticsBtn">🧾 Export Analytics as PDF</button>
-</section>
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
 
- <!-- ✅ Ask SmartWerk AI – Documents (with free limit) -->
-<section class="ai-doc-assistant">
-  <h2>📜 Ask SmartWerk AI – Documents</h2>
-  <label for="docAiQuestion">Have a question about your documents?</label><br>
-  <textarea id="docAiQuestion" placeholder="e.g. Can you explain my Q3 invoice or tax form?"></textarea>
-  <button id="docAiBtn">🧠 Ask AI</button>
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-  <div id="docAiResponseBox" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; display: none;">
-    <strong>AI Response:</strong>
-    <p id="docAiAnswerText" style="white-space: pre-wrap;"></p>
-    <p id="aiFooter" style="margin-top: 1rem; color: #555; font-size: 0.9rem;"></p>
-  </div>
-</section>
+const $ = (id) => document.getElementById(id);
 
-<script>
-  let freeAiCounter = 0;
-  const aiLimit = 3;
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return window.location.href = "login.html";
+  const uid = user.uid;
 
-  document.getElementById("docAiBtn").addEventListener("click", () => {
-    const question = document.getElementById("docAiQuestion").value.trim();
-    const responseBox = document.getElementById("docAiResponseBox");
-    const answerText = document.getElementById("docAiAnswerText");
-    const footer = document.getElementById("aiFooter");
+  const invoices = await getData("invoices", uid);
+  const expenses = await getData("expenses", uid);
+  const reminders = await getData("reminders", uid);
 
-    if (!question) {
-      answerText.innerText = "Please enter a valid question.";
-      responseBox.style.display = "block";
-      footer.innerText = "";
-      return;
-    }
+  renderKPI(invoices, expenses);
+  renderChart(invoices, expenses);
+  renderTables(invoices, expenses, reminders);
+});
 
-    if (freeAiCounter < aiLimit) {
-      // Simulate a sample AI answer (replace with real API in future)
-      let demoAnswer = "This is a sample AI response for: \"" + question + "\"\n";
-      demoAnswer += "(e.g. Make sure the invoice date matches the tax reporting period.)";
+async function getData(collectionName, uid) {
+  const q = query(collection(db, collectionName), where("userId", "==", uid));
+  const snap = await getDocs(q);
+  const data = [];
+  snap.forEach(doc => data.push(doc.data()));
+  return data;
+}
 
-      answerText.innerText = demoAnswer;
-      footer.innerHTML = `✅ You have ${aiLimit - freeAiCounter - 1} free questions left. <br><br><em>This is a SmartWerk AI preview. Upgrade to PRO to unlock full access.</em>`;
-      responseBox.style.display = "block";
-      freeAiCounter++;
-    } else {
-      answerText.innerText = "❌ You’ve reached the limit of free AI questions.";
-      footer.innerHTML = `Upgrade to <strong>PRO</strong> in your dashboard to continue using SmartWerk AI.`;
-      responseBox.style.display = "block";
-    }
+function renderKPI(invoices, expenses) {
+  const income = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+  const cost = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const vat = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
+  const profit = income - cost;
+
+  $("kpiIncome").textContent = "€" + income.toFixed(2);
+  $("kpiExpenses").textContent = "€" + cost.toFixed(2);
+  $("kpiProfit").textContent = "€" + profit.toFixed(2);
+  $("kpiVAT").textContent = "€" + vat.toFixed(2);
+  $("kpiInvoices").textContent = invoices.length;
+}
+
+function renderChart(invoices, expenses) {
+  const byMonth = {};
+
+  invoices.forEach(i => {
+    const month = (i.date || '').substring(0, 7);
+    if (!byMonth[month]) byMonth[month] = { income: 0, expenses: 0 };
+    byMonth[month].income += parseFloat(i.total || 0);
   });
-</script>
 
-    <section class="ai-doc-frame">
-  <h2>🤖 Ask SmartWerk AI – Documents</h2>
-  <p>You can ask your accountant assistant about uploaded invoices, KvK, taxes and more.</p>
-
-  <iframe
-    src="https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls"
-    width="100%"
-    height="500"
-    frameborder="0"
-    style="border:1px solid #ccc; border-radius: 8px;">
-  </iframe>
-</section>
-
-<!-- 📁 Upload Archive with Status Filters and Download -->
-<section class="upload-archive">
-  <h2>📁 Upload Archive</h2>
-
-  <!-- Фільтрація -->
-  <div class="filter-controls">
-    <button onclick="filterDocuments('all')">📋 All</button>
-    <button onclick="filterDocuments('uploaded')">🟡 Uploaded</button>
-    <button onclick="filterDocuments('verified')">✅ Verified</button>
-    <button onclick="filterDocuments('rejected')">❌ Rejected</button>
-    <button onclick="exportToPDF()">🧾 Export Archive as PDF</button>
-  </div>
-
-  <!-- Завантаження -->
-  <input type="file" id="uploadField" multiple />
-  <button onclick="handleUpload()">📤 Upload</button>
-
-  <!-- Список документів -->
-  <ul id="documentList" class="document-list"></ul>
-</section>
-    
-  </main>
-
-  <script src="js/bookkeeper.js"></script>
-  
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const savedData = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
-
-    if (savedData) {
-      const income = parseFloat(savedData.grossIncome) || 0;
-      const expenses = parseFloat(savedData.expenses) || 0;
-      const tax = parseFloat(savedData.taxEstimation) || 0;
-      const profit = income - expenses - tax;
-
-      document.getElementById('analytics-income').textContent = '€' + income.toFixed(2);
-      document.getElementById('analytics-expenses').textContent = '€' + expenses.toFixed(2);
-      document.getElementById('analytics-tax').textContent = '€' + tax.toFixed(2);
-      document.getElementById('analytics-profit').textContent = '€' + profit.toFixed(2);
-    } else {
-      document.getElementById('analytics-income').textContent = 'No data';
-      document.getElementById('analytics-expenses').textContent = 'No data';
-      document.getElementById('analytics-tax').textContent = 'No data';
-      document.getElementById('analytics-profit').textContent = 'No data';
-    }
+  expenses.forEach(e => {
+    const month = (e.date || '').substring(0, 7);
+    if (!byMonth[month]) byMonth[month] = { income: 0, expenses: 0 };
+    byMonth[month].expenses += parseFloat(e.amount || 0);
   });
-  </script>
 
-  <script>
-  let editingIndex = null;
+  const labels = Object.keys(byMonth).sort();
+  const incomeData = labels.map(m => byMonth[m].income);
+  const expenseData = labels.map(m => byMonth[m].expenses);
 
-  document.addEventListener('DOMContentLoaded', loadComments);
-
-  function saveComment() {
-    const name = document.getElementById('documentName').value.trim();
-    const comment = document.getElementById('commentText').value.trim();
-
-    if (!name || !comment) {
-      alert("Please fill in both fields");
-      return;
-    }
-
-    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
-    comments.push({ name, comment, date: new Date().toLocaleString() });
-    localStorage.setItem('document_comments', JSON.stringify(comments));
-
-    clearForm();
-    loadComments();
-  }
-
-  function loadComments() {
-    const list = document.getElementById('commentsList');
-    list.innerHTML = '';
-
-    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
-    comments.forEach(({ name, comment, date }, index) => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <strong>${name}</strong> – ${comment} <em>(${date})</em>
-        <button onclick="editComment(${index})">✏️ Edit</button>
-        <button onclick="deleteComment(${index})">🗑️ Delete</button>
-      `;
-      list.appendChild(li);
-    });
-  }
-
-  function deleteComment(index) {
-    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
-    comments.splice(index, 1);
-    localStorage.setItem('document_comments', JSON.stringify(comments));
-    loadComments();
-    clearForm();
-  }
-
-  function editComment(index) {
-    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
-    const { name, comment } = comments[index];
-    document.getElementById('documentName').value = name;
-    document.getElementById('commentText').value = comment;
-
-    editingIndex = index;
-    document.getElementById('saveCommentBtn').style.display = 'none';
-    document.getElementById('updateCommentBtn').style.display = 'inline-block';
-  }
-
-  function updateComment() {
-    const name = document.getElementById('documentName').value.trim();
-    const comment = document.getElementById('commentText').value.trim();
-
-    if (!name || !comment) {
-      alert("Please fill in both fields");
-      return;
-    }
-
-    const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
-    comments[editingIndex] = { name, comment, date: new Date().toLocaleString() };
-    localStorage.setItem('document_comments', JSON.stringify(comments));
-
-    editingIndex = null;
-    clearForm();
-    loadComments();
-  }
-
-  function clearForm() {
-    document.getElementById('documentName').value = '';
-    document.getElementById('commentText').value = '';
-    document.getElementById('saveCommentBtn').style.display = 'inline-block';
-    document.getElementById('updateCommentBtn').style.display = 'none';
-  }
-</script>
-  
- <!-- Підключення бібліотек -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  
-<script>
-const chartCtx = document.getElementById('netIncomeChart').getContext('2d');
-let chart;
-
-function renderChart(data, labels) {
-  if (chart) chart.destroy();
-  chart = new Chart(chartCtx, {
-    type: 'line',
+  const ctx = document.getElementById("bkChart").getContext("2d");
+  new Chart(ctx, {
+    type: 'bar',
     data: {
       labels: labels,
-      datasets: [{
-        label: 'Net Income',
-        data: data,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
-        tension: 0.3
-      }]
+      datasets: [
+        { label: 'Income', data: incomeData },
+        { label: 'Expenses', data: expenseData }
+      ]
     },
     options: {
       responsive: true,
-      plugins: { title: { display: true, text: 'Net Income Trend' } },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: value => '€' + value
-          }
-        }
-      }
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true } }
     }
   });
 }
 
-// Фіктивні дані
-const periods = {
-  '6m': {
-    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-    data: [1200, 1600, 1800, 2400, 2100, 2700],
-    tip: 'Strong growth over the last 6 months. Great work!'
-  },
-  'q1': {
-    labels: ['Jan', 'Feb', 'Mar'],
-    data: [1000, 1200, 1500],
-    tip: 'Q1 was consistent. Try to reduce operational costs.'
-  },
-  'q2': {
-    labels: ['Apr', 'May', 'Jun'],
-    data: [1600, 1800, 2400],
-    tip: 'Solid performance in Q2. Revenue increased steadily.'
-  },
-  'year': {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-    data: [1000, 1100, 1400, 1600, 1800, 2000, 2200, 2500],
-    tip: 'Your income trend is positive. Keep tracking expenses closely.'
-  }
-};
+function renderTables(invoices, expenses, reminders) {
+  const invList = $("tableInvoices");
+  const expList = $("tableExpenses");
+  const remList = $("tableReminders");
 
-// Початкове завантаження
-renderChart(periods['6m'].data, periods['6m'].labels);
-document.getElementById('aiTipText').innerText = periods['6m'].tip;
+  invList.innerHTML = "";
+  invoices.forEach(i => {
+    invList.innerHTML += `<tr><td>${i.number}</td><td>${i.clientName}</td><td>${i.date}</td><td>€${i.total}</td><td>${i.status}</td></tr>`;
+  });
 
-// Зміна періоду
-document.getElementById('analyticsPeriod').addEventListener('change', function () {
-  const selected = this.value;
-  const periodData = periods[selected];
-  renderChart(periodData.data, periodData.labels);
-  document.getElementById('aiTipText').innerText = periodData.tip;
-});
+  expList.innerHTML = "";
+  expenses.forEach(e => {
+    expList.innerHTML += `<tr><td>${e.category}</td><td>${e.date}</td><td>€${e.amount}</td><td>${e.notes || ''}</td></tr>`;
+  });
 
-// Експорт у PDF
-document.getElementById('exportAnalyticsBtn').addEventListener('click', function () {
-  const element = document.querySelector('.financial-analytics');
-  const opt = {
-    margin: 0.5,
-    filename: 'Financial_Analytics_SmartWerk.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
-});
-</script>
+  remList.innerHTML = "";
+  reminders.forEach(r => {
+    remList.innerHTML += `<tr><td>${r.reminderId}</td><td>${r.clientName}</td><td>${r.dueDate}</td><td>${r.status}</td></tr>`;
+  });
+}
 
-  <script>
-document.getElementById('askAiBtn').addEventListener('click', function () {
-  const question = document.getElementById('ai-question').value.trim();
-  if (!question) {
-    alert("Please enter a question.");
-    return;
-  }
-
-  // Dummy logic for now
-  const saved = JSON.parse(localStorage.getItem('smartwerk_summary_data')) || {};
-  const income = saved.grossIncome || 0;
-  const expenses = saved.expenses || 0;
-  const tax = saved.taxEstimation || 0;
-
-  const response = `Based on your saved data:
-- 💼 Gross Income: €${income}
-- 💸 Expenses: €${expenses}
-- 🧾 Estimated Tax: €${tax}
-
-Your question was: "${question}"
-SmartWerk AI suggests reviewing Q2 invoices and comparing it with expenses from July.`;
-
-  document.getElementById('ai-response').textContent = response;
-  document.getElementById('ai-response-box').style.display = 'block';
-});
-</script>
-
-    <script>
-  document.addEventListener('DOMContentLoaded', function () {
-  const data = JSON.parse(localStorage.getItem('smartwerk_summary_data')) || {};
-  const income = parseFloat(data.grossIncome) || 0;
-  const expenses = parseFloat(data.expenses) || 0;
-  const tax = parseFloat(data.taxEstimation) || 0;
-
-  // KPI Calculations
-  const profit = income - expenses - tax;
-  const margin = income > 0 ? ((profit / income) * 100).toFixed(1) + '%' : '--';
-  const taxRatio = income > 0 ? ((tax / income) * 100).toFixed(1) + '%' : '--';
-  const monthlyIncome = income > 0 ? '€' + (income / 12).toFixed(2) : '--';
-
-  // Growth Trend (dummy: just shows "Positive", "Flat", or "Declining")
-  let growth = '--';
-  if (income > 8000) growth = '📈 Positive';
-  else if (income > 3000) growth = '➖ Flat';
-  else if (income > 0) growth = '📉 Declining';
-
-  // Set to DOM
-  document.getElementById('kpi-margin').textContent = margin;
-  document.getElementById('kpi-tax-ratio').textContent = taxRatio;
-  document.getElementById('kpi-monthly-income').textContent = monthlyIncome;
-  document.getElementById('kpi-growth').textContent = growth;
-});
+window.refreshBookkeeper = () => window.location.reload();
   </script>
-
-      <script>
-
-  function refreshSummary() {
-  location.reload();
-}
-
-function downloadPDF() {
-  const element = document.body;
-  const opt = {
-    margin: 0.5,
-    filename: 'SmartWerk_Report.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
-}
-
-function downloadAnalytics() {
-  const element = document.querySelector('.financial-analytics');
-  const opt = {
-    margin: 0.5,
-    filename: 'SmartWerk_Analytics.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
-}
-
-function clearAllData() {
-  if (confirm("Are you sure you want to clear all local data?")) {
-    localStorage.clear();
-    location.reload();
-  }
-}
-  </script>
-
- <script>
-  let docs = [
-    { name: "Invoice Q3", date: "2025-08-01", status: "✅ Uploaded", note: "Ready for tax declaration" },
-    { name: "Tax Form Q2", date: "2025-07-10", status: "🔄 In Review", note: "Waiting for approval" },
-    { name: "KvK Update", date: "2025-06-25", status: "❌ Missing", note: "Please upload document" }
-  ];
-
-  function renderDocuments(filter = "all") {
-    const body = document.getElementById('documentStatusBody');
-    body.innerHTML = "";
-
-    docs.forEach((doc, index) => {
-      if (filter === "all" || doc.status === filter) {
-        const row = document.createElement('tr');
-        row.className = doc.status.includes("✅") ? "status-ok"
-                    : doc.status.includes("🔄") ? "status-review"
-                    : "status-missing";
-
-        row.innerHTML = `
-          <td>${doc.name}</td>
-          <td>${doc.date}</td>
-          <td>${doc.status}</td>
-          <td contenteditable="true" onblur="updateNote(${index}, this.innerText)">${doc.note}</td>
-          <td>
-            <button onclick="markAsDone(${index})">✅ Done</button>
-            <button onclick="triggerUpload(${index})">📤 Upload</button>
-            <input type="file" style="display:none;" id="upload-${index}" onchange="handleUpload(${index}, this)" />
-          </td>
-        `;
-        body.appendChild(row);
-      }
-    });
-  }
-
-  function markAsDone(index) {
-    docs[index].status = "✅ Uploaded";
-    renderDocuments(document.getElementById('statusFilter').value);
-  }
-
-  function triggerUpload(index) {
-    document.getElementById(`upload-${index}`).click();
-  }
-
-  function handleUpload(index, input) {
-    if (input.files.length > 0) {
-      docs[index].status = "✅ Uploaded";
-      docs[index].note = "File uploaded on " + new Date().toLocaleDateString();
-      renderDocuments(document.getElementById('statusFilter').value);
-    }
-  }
-
-  function updateNote(index, newText) {
-    docs[index].note = newText;
-  }
-
-  // Фільтр
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('statusFilter').addEventListener('change', function () {
-      renderDocuments(this.value);
-    });
-    renderDocuments();
-  });
-</script>
-  <script>
-  let docs = [
-    { name: "Invoice Q3", date: "2025-08-01", status: "✅ Uploaded", note: "Ready for tax declaration" },
-    { name: "Tax Form Q2", date: "2025-07-10", status: "🔄 In Review", note: "Waiting for approval" },
-    { name: "KvK Update", date: "2025-06-25", status: "❌ Missing", note: "Please upload document" }
-  ];
-
- function renderDocumentStatusList() {
-  const list = JSON.parse(localStorage.getItem('document_status_list')) || [];
-  const body = document.getElementById('documentStatusBody');
-  body.innerHTML = '';
-
-  list.forEach((doc, index) => {
-    const row = document.createElement('tr');
-    row.className = doc.status.toLowerCase(); // кольорова підсвітка
-
-    row.innerHTML = `
-      <td>${doc.name}</td>
-      <td>${doc.status}</td>
-      <td>
-        <span>${doc.date}</span><br>
-        <input type="date" value="${doc.date}" onchange="updateDate(${index}, this.value)" />
-      </td>
-      <td>${doc.note || ''}</td>
-      <td>
-        <button onclick="markAsDone(${index})">✅ Done</button>
-        <button onclick="editNote(${index})">✏️ Note</button>
-        <button onclick="deleteStatus(${index})">🗑️ Delete</button>
-      </td>
-    `;
-    body.appendChild(row);
-  });
-}
-
-function updateDate(index, newDate) {
-  const list = JSON.parse(localStorage.getItem('document_status_list')) || [];
-  list[index].date = newDate;
-  localStorage.setItem('document_status_list', JSON.stringify(list));
-  renderDocumentStatusList();
-}
-
-  function markAsDone(index) {
-    docs[index].status = "✅ Uploaded";
-    renderDocuments(document.getElementById('statusFilter').value);
-  }
-
-  function triggerUpload(index) {
-    document.getElementById(`upload-${index}`).click();
-  }
-
-  function handleUpload(index, input) {
-    if (input.files.length > 0) {
-      docs[index].status = "✅ Uploaded";
-      docs[index].note = "File uploaded on " + new Date().toLocaleDateString();
-      renderDocuments(document.getElementById('statusFilter').value);
-    }
-  }
-
-  function updateNote(index, newText) {
-    docs[index].note = newText;
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('statusFilter').addEventListener('change', function () {
-      renderDocuments(this.value);
-    });
-    renderDocuments();
-  });
-    function addDocumentStatus() {
-  const docName = prompt("Enter document name:");
-  if (!docName) return;
-
-  const list = JSON.parse(localStorage.getItem('document_status_list')) || [];
-  list.push({
-    name: docName,
-    status: 'Pending',
-    note: '',
-    date: new Date().toISOString().slice(0, 10) // формат YYYY-MM-DD
-  });
-
-  localStorage.setItem('document_status_list', JSON.stringify(list));
-  renderDocumentStatusList();
-}
-</script>
-
-  <script>
-document.getElementById("docAiBtn").addEventListener("click", function () {
-  const question = document.getElementById("docAiQuestion").value.toLowerCase();
-  const responseBox = document.getElementById("docAiResponseBox");
-  const answerText = document.getElementById("docAiAnswerText");
-
-  let answer = "";
-  let limited = false;
-
-  if (question.includes("gross")) {
-    answer = `💶 <b>Gross Income</b> is your total earnings before taxes and deductions.`;
-    limited = true;
-  } else if (question.includes("kvk")) {
-    answer = `🏛️ <b>KvK</b> is your registration with the Dutch Chamber of Commerce. Required for all freelancers in NL.`;
-    limited = true;
-  } else if (question.includes("btw") || question.includes("vat")) {
-    answer = `🧾 <b>BTW (VAT)</b> is the tax you add to your invoices. If KOR is active, you might be exempt.`;
-    limited = true;
-  } else {
-    answer = `🤖 This document seems to relate to your business finances.<br>Please check if it matches the tax period or upload date.`;
-  }
-
-  // If it's a limited (free) topic
-  if (limited) {
-    answer += `<br><br>🔒 <i>This is a <b>limited SmartWerk AI preview</b>.</i><br>
-    Unlock full access to:
-    <ul>
-      <li>💼 Detailed freelance tax guidance</li>
-      <li>📄 Smart invoice checks</li>
-      <li>📊 KOR/BTW optimization tips</li>
-      <li>💬 Unlimited AI questions</li>
-    </ul>
-    👉 <b>Upgrade to PRO</b> in your dashboard to unlock all features.`;
-  }
-
-  answer += `<br><br>🗓️ <i>Checked on: ${new Date().toLocaleDateString()}</i>`;
-
-  answerText.innerHTML = answer;
-  responseBox.style.display = "block";
-});
-</script>
-
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const summary = JSON.parse(localStorage.getItem('smartwerk_summary_data'));
-    if (summary) {
-      // Фіктивно або розрахунково
-      document.getElementById('kpi-invoices').textContent = '12';
-      document.getElementById('kpi-average-invoice').textContent = '€435.00';
-      document.getElementById('kpi-time-saved').textContent = '8 hours/month';
-      document.getElementById('kpi-vat-collected').textContent = '€' + (parseFloat(summary.btwAmount || 720)).toFixed(2);
-      document.getElementById('kpi-ai-usage').textContent = '2 / 3 free';
-    }
-  });
-</script>
-
-  <script>
-function addManualNote() {
-  const name = prompt("Document name:");
-  const comment = prompt("Your note:");
-  if (!name || !comment) return;
-
-  const comments = JSON.parse(localStorage.getItem('document_comments')) || [];
-  comments.push({ name, comment, date: new Date().toLocaleString() });
-  localStorage.setItem('document_comments', JSON.stringify(comments));
-  alert("Note saved.");
-}
-
-function askSmartWerkAI() {
-  const used = parseInt(localStorage.getItem('ai_used') || '0');
-  if (used >= 3) {
-    alert("You've reached your free AI limit. Upgrade to PRO for unlimited access.");
-    return;
-  }
-
-  localStorage.setItem('ai_used', used + 1);
-  window.open('https://www.chatbase.co/chatbot-iframe/uy7T8ni8HnK8A2Hb3onls', '_blank');
-}
-</script>
-
-<!-- PDF export бібліотека -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-<script>
-function handleUpload() {
-  const files = document.getElementById("uploadField").files;
-  const documentList = document.getElementById("documentList");
-  for (let file of files) {
-    const reader = new FileReader();
-    reader.onload = function () {
-      const base64 = reader.result;
-      localStorage.setItem(`file-${file.name}`, base64);
-
-      const li = document.createElement("li");
-      li.dataset.filename = file.name;
-      li.dataset.status = "uploaded";
-      li.dataset.comment = "";
-      li.dataset.time = new Date().toLocaleString();
-
-      renderListItem(li);
-      documentList.appendChild(li);
-      saveDocuments();
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-function renderListItem(li) {
-  const { filename, status, comment, time } = li.dataset;
-  li.innerHTML = `
-    <strong>${filename}</strong> (${status}) – ${time}
-    <button onclick="setStatus(this, 'verified')">✅</button>
-    <button onclick="setStatus(this, 'rejected')">❌</button>
-    <button onclick="setStatus(this, 'uploaded')">🔁</button>
-    <button onclick="deleteFile(this)">🗑️</button>
-   <a href="#" onclick="downloadFile('${filename}'); return false;" class="download-btn">⬇️ Download</a>
-    <br><span class="comment-label">💬 Note:</span>
-    <input type="text" class="comment-input" placeholder="Add comment..." value="${comment || ''}" oninput="saveComment(this)">
-  `;
-}
-
-function setStatus(button, newStatus) {
-  const li = button.closest("li");
-  li.dataset.status = newStatus;
-  li.dataset.time = new Date().toLocaleString();
-  renderListItem(li);
-  saveDocuments();
-}
-
-function deleteFile(button) {
-  const li = button.closest("li");
-  const filename = li.dataset.filename;
-  li.remove();
-  localStorage.removeItem(`file-${filename}`);
-  saveDocuments();
-}
-
-function saveComment(input) {
-  const li = input.closest("li");
-  li.dataset.comment = input.value;
-  saveDocuments();
-}
-
-function filterDocuments(status) {
-  const items = document.querySelectorAll("#documentList li");
-  items.forEach((item) => {
-    if (status === "all" || item.dataset.status === status) {
-      item.style.display = "";
-    } else {
-      item.style.display = "none";
-    }
-  });
-}
-
-function saveDocuments() {
-  const data = [];
-  document.querySelectorAll("#documentList li").forEach((li) => {
-    data.push({
-      filename: li.dataset.filename,
-      status: li.dataset.status,
-      comment: li.dataset.comment || '',
-      time: li.dataset.time
-    });
-  });
-  localStorage.setItem("documentArchive", JSON.stringify(data));
-}
-
-function loadDocuments() {
-  const saved = JSON.parse(localStorage.getItem("documentArchive") || "[]");
-  const documentList = document.getElementById("documentList");
-  documentList.innerHTML = "";
-  saved.forEach((doc) => {
-    const li = document.createElement("li");
-    li.dataset.filename = doc.filename;
-    li.dataset.status = doc.status;
-    li.dataset.comment = doc.comment;
-    li.dataset.time = doc.time;
-    renderListItem(li);
-    documentList.appendChild(li);
-  });
-}
-
-function downloadFile(name) {
-  const dataUrl = localStorage.getItem(`file-${name}`);
-  if (!dataUrl) {
-    alert("This file is not available for download.");
-    return;
-  }
-
-  // Витягнути base64-дані
-  const base64 = dataUrl.split(',')[1];
-  const mime = dataUrl.match(/^data:(.*?);base64/)[1];
-
-  // Декодувати base64 → binary
-  const binary = atob(base64);
-  const len = binary.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-
-  // Створити Blob
-  const blob = new Blob([bytes], { type: mime });
-  const blobUrl = URL.createObjectURL(blob);
-
-  // Створити посилання для завантаження
-  const a = document.createElement("a");
-  a.href = blobUrl;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  // Очистити URL (важливо!)
-  URL.revokeObjectURL(blobUrl);
-}
-
-function exportToPDF() {
-  const element = document.getElementById("documentList");
-  const opt = {
-    margin: 0.5,
-    filename: "Upload_Archive_Report.pdf",
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-  };
-  html2pdf().from(element).set(opt).save();
-}
-
-document.addEventListener("DOMContentLoaded", loadDocuments);
-</script>
-  
 </body>
 </html>
