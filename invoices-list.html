@@ -213,7 +213,7 @@ window.downloadPDF = (id, withBranding = true) => {
 docPDF.autoTable({
   startY: 80,
   head: [["Description", "Qty", "Unit Price", "VAT", "Total"]],
-  body: [[inv.invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status]],
+  body: [[inv.Description, inv.Qty, inv.UnitPrice, inv.VAT, inv.Total]],
   theme: "grid",
   styles: {
     fontSize: 11,
