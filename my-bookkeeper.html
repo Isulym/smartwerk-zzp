@@ -68,198 +68,168 @@
 
   <section class="section invoices">
     <h3>📄 Invoices Summary</h3>
-    <ul id="invoicesList">
-      <!-- Fetched via JS -->
-    </ul>
+    <ul id="invoicesList"></ul>
   </section>
 
   <section class="section expenses">
     <h3>💼 Expenses Summary</h3>
-    <ul id="expensesList">
-      <!-- Fetched via JS -->
-    </ul>
+    <ul id="expensesList"></ul>
   </section>
 
   <section class="section reminders">
     <h3>📬 Reminders Sent</h3>
-    <ul id="remindersList">
-      <!-- Fetched via JS -->
-    </ul>
+    <ul id="remindersList"></ul>
   </section>
 
   <footer>
     <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   </footer>
 
-  <!-- JS module -->
-  <script type="module" 
-// 📁 bookkeeper.js — повна інтеграція з Firebase для SmartWerk My Bookkeeper
+  <!-- Вбудований JS -->
+  <script type="module">
+    import {
+      initializeApp,
+      getApps,
+      getApp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
-  initializeApp,
-  getApps,
-  getApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
 
-import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
 
-// 🔐 Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1",
-};
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-// ✅ Ініціалізація
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    const $ = sel => document.querySelector(sel);
+    let invoicesChartInstance = null;
 
-// ⛏️ Зручний селектор
-const $ = sel => document.querySelector(sel);
+    window.refreshBookkeeper = () => location.reload();
+    window.exportAllData = () => alert("Exporting all data (in progress)...");
+    window.filterBy = (period) => alert(`Filtering by: ${period}`);
+    window.filterByMonth = (month) => alert(`Filtering by month: ${month}`);
 
-let invoicesChartInstance = null;
+    window.updateFilters = async function () {
+      const user = auth.currentUser;
+      if (!user) return;
+      const uid = user.uid;
+      const month = $("#monthSelect").value;
+      const status = $("#statusSelect").value;
+      const type = $("#chartType").value;
 
-// 🔁 Refresh
-window.refreshBookkeeper = () => location.reload();
+      const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
+      const invoices = invoicesSnap.docs.map(doc => doc.data());
 
-// 📤 Dummy export
-window.exportAllData = () => alert("Exporting all data (in progress)...");
+      const filtered = invoices.filter(i => {
+        const iMonth = (i.date || "").substring(0, 7);
+        const statusMatch = status === "all" || i.status === status;
+        const monthMatch = month === "all" || iMonth === month;
+        return statusMatch && monthMatch;
+      });
 
-// 🧪 Заглушки для фільтрації
-window.filterBy = (period) => alert(`Filtering by: ${period}`);
-window.filterByMonth = (month) => alert(`Filtering by month: ${month}`);
+      updateChart(filtered, type);
+    };
 
-// 🟡 Фільтр-графік
-window.updateFilters = async function () {
-  const user = auth.currentUser;
-  if (!user) return;
-  const uid = user.uid;
+    function updateChart(data, type) {
+      const monthly = {};
+      data.forEach(i => {
+        const date = (i.date || "").substring(0, 7);
+        if (!monthly[date]) monthly[date] = 0;
+        monthly[date] += parseFloat(i.total || 0);
+      });
 
-  const month = $("#monthSelect").value;
-  const status = $("#statusSelect").value;
-  const type = $("#chartType").value;
+      const labels = Object.keys(monthly).sort();
+      const values = labels.map(l => monthly[l]);
 
-  const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
-  const invoices = invoicesSnap.docs.map(doc => doc.data());
+      if (invoicesChartInstance) invoicesChartInstance.destroy();
 
-  const filtered = invoices.filter(i => {
-    const iMonth = (i.date || "").substring(0, 7);
-    const statusMatch = status === "all" || i.status === status;
-    const monthMatch = month === "all" || iMonth === month;
-    return statusMatch && monthMatch;
-  });
-
-  updateChart(filtered, type);
-};
-
-// 📈 Побудова графіка
-function updateChart(data, type) {
-  const monthly = {};
-  data.forEach(i => {
-    const date = (i.date || "").substring(0, 7);
-    if (!monthly[date]) monthly[date] = 0;
-    monthly[date] += parseFloat(i.total || 0);
-  });
-
-  const labels = Object.keys(monthly).sort();
-  const values = labels.map(l => monthly[l]);
-
-  if (invoicesChartInstance) invoicesChartInstance.destroy();
-
-  const ctx = document.getElementById("invoicesChart").getContext("2d");
-  invoicesChartInstance = new Chart(ctx, {
-    type: type,
-    data: {
-      labels: labels,
-      datasets: [{
-        label: `Invoices (${type})`,
-        data: values,
-        borderWidth: 1,
-        fill: type === "line"
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: { y: { beginAtZero: true } }
+      const ctx = document.getElementById("invoicesChart").getContext("2d");
+      invoicesChartInstance = new Chart(ctx, {
+        type: type,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `Invoices (${type})`,
+            data: values,
+            borderWidth: 1,
+            fill: type === "line"
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
     }
-  });
-}
 
-// 🔓 Авторизація та завантаження
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return (window.location.href = "login.html");
-  const uid = user.uid;
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return (window.location.href = "login.html");
+      const uid = user.uid;
 
-  // Month select
-  const monthSelect = document.getElementById("monthSelect");
-  if (monthSelect) {
-    monthSelect.innerHTML = "";
-    const optAll = document.createElement("option");
-    optAll.value = "all";
-    optAll.textContent = "All";
-    monthSelect.appendChild(optAll);
+      const monthSelect = document.getElementById("monthSelect");
+      if (monthSelect) {
+        monthSelect.innerHTML = "";
+        const optAll = document.createElement("option");
+        optAll.value = "all";
+        optAll.textContent = "All";
+        monthSelect.appendChild(optAll);
 
-    const now = new Date();
-    for (let i = 0; i < 12; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const val = d.toISOString().slice(0, 7);
-      const label = d.toLocaleString("default", { month: "long", year: "numeric" });
-      const opt = document.createElement("option");
-      opt.value = val;
-      opt.textContent = label;
-      monthSelect.appendChild(opt);
-    }
-  }
+        const now = new Date();
+        for (let i = 0; i < 12; i++) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const val = d.toISOString().slice(0, 7);
+          const label = d.toLocaleString("default", { month: "long", year: "numeric" });
+          const opt = document.createElement("option");
+          opt.value = val;
+          opt.textContent = label;
+          monthSelect.appendChild(opt);
+        }
+      }
 
-  // 📥 Invoices
-  const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
-  const invoices = invoicesSnap.docs.map(doc => doc.data());
+      const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
+      const invoices = invoicesSnap.docs.map(doc => doc.data());
 
-  // 📥 Expenses
-  const expensesSnap = await getDocs(query(collection(db, "expenses"), where("userId", "==", uid)));
-  const expenses = expensesSnap.docs.map(doc => doc.data());
+      const expensesSnap = await getDocs(query(collection(db, "expenses"), where("userId", "==", uid)));
+      const expenses = expensesSnap.docs.map(doc => doc.data());
 
-  // 📥 Reminders
-  const remindersSnap = await getDocs(query(collection(db, "reminders"), where("userId", "==", uid)));
-  const reminders = remindersSnap.docs.map(doc => doc.data());
+      const remindersSnap = await getDocs(query(collection(db, "reminders"), where("userId", "==", uid)));
+      const reminders = remindersSnap.docs.map(doc => doc.data());
 
-  // 💰 KPI
-  const income = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-  const expense = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  const vat = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
-  const profit = income - expense;
+      const income = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+      const expense = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+      const vat = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
+      const profit = income - expense;
 
-  $("#totalIncome").textContent = `€${income.toFixed(2)}`;
-  $("#totalExpenses").textContent = `€${expense.toFixed(2)}`;
-  $("#vatPayable").textContent = `€${vat.toFixed(2)}`;
-  $("#netProfit").textContent = `€${profit.toFixed(2)}`;
+      $("#totalIncome").textContent = `€${income.toFixed(2)}`;
+      $("#totalExpenses").textContent = `€${expense.toFixed(2)}`;
+      $("#vatPayable").textContent = `€${vat.toFixed(2)}`;
+      $("#netProfit").textContent = `€${profit.toFixed(2)}`;
 
-  // 📋 Списки
-  const format = obj => JSON.stringify(obj, null, 2);
+      $("#invoicesList").innerHTML = invoices.map(i => `<li>${i.invoiceNumber || "INV"} — €${i.total || 0} — ${i.status}</li>`).join("");
+      $("#expensesList").innerHTML = expenses.map(e => `<li>${e.category || "Expense"} — €${e.amount || 0}</li>`).join("");
+      $("#remindersList").innerHTML = reminders.map(r => `<li>${r.reminderId || "REM"} — ${r.clientName || "Unknown"}</li>`).join("");
 
-  $("#invoicesList").innerHTML = invoices.map(i => `<li>${i.invoiceNumber || "INV"} — €${i.total || 0} — ${i.status}</li>`).join("");
-  $("#expensesList").innerHTML = expenses.map(e => `<li>${e.category || "Expense"} — €${e.amount || 0}</li>`).join("");
-  $("#remindersList").innerHTML = reminders.map(r => `<li>${r.reminderId || "REM"} — ${r.clientName || "Unknown"}</li>`).join("");
-
-  // 📊 Початковий графік
-  updateChart(invoices, $("#chartType").value);
-});
-    
-    </script>
+      updateChart(invoices, $("#chartType").value);
+    });
+  </script>
 </body>
 </html>
+
