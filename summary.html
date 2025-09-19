@@ -66,6 +66,9 @@
 
 // summary.js (оновлена версія з фільтрацією, витратами та smart-порадами)
 
+// summary.js
+// Додаємо зчитування витрат з Firebase
+
 import {
   initializeApp,
   getApps,
@@ -98,85 +101,139 @@ const db = getFirestore(app);
 
 const $ = sel => document.querySelector(sel);
 
-let invoices = [];
-let expenses = [];
+let allInvoices = [];
+let allExpenses = [];
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) return (window.location.href = "login.html");
   const uid = user.uid;
 
-  const [invoicesSnap, expensesSnap] = await Promise.all([
-    getDocs(query(collection(db, "invoices"), where("userId", "==", uid))),
-    getDocs(query(collection(db, "expenses"), where("userId", "==", uid)))
-  ]);
+  const invoicesSnap = await getDocs(
+    query(collection(db, "invoices"), where("userId", "==", uid))
+  );
+  invoicesSnap.forEach(doc => allInvoices.push(doc.data()));
 
-  invoices = [];
-  invoicesSnap.forEach(doc => invoices.push(doc.data()));
+  const expensesSnap = await getDocs(
+    query(collection(db, "expenses"), where("userId", "==", uid))
+  );
+  expensesSnap.forEach(doc => allExpenses.push(doc.data()));
 
-  expenses = [];
-  expensesSnap.forEach(doc => expenses.push(doc.data()));
-
-  renderSummary(invoices, expenses);
+  renderSummary();
 });
 
-function filterBy(period) {
-  const now = new Date();
-  let filteredInvoices = invoices;
+function renderSummary() {
+  const income = allInvoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+  const expenses = allExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const netProfit = income - expenses;
+  const vat = income * 0.21; // умовно
+  const pending = allInvoices
+    .filter(i => i.status !== 'Paid')
+    .reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
 
-  if (period === 'thisMonth') {
-    const ym = now.toISOString().slice(0, 7);
-    filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(ym));
-  } else if (period === 'lastMonth') {
-    const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const ym = d.toISOString().slice(0, 7);
-    filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(ym));
-  } else if (period === 'thisYear') {
-    const y = now.getFullYear();
-    filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(y.toString()));
-  }
-
-  renderSummary(filteredInvoices, expenses);
-}
-
-function filterByMonth(month) {
-  const filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(month));
-  renderSummary(filteredInvoices, expenses);
-}
-
-window.filterBy = filterBy;
-window.filterByMonth = filterByMonth;
-window.refreshSummary = () => location.reload();
-
-function renderSummary(invoices, expenses) {
-  const totalIncome = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-  const totalExpenses = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  const netProfit = totalIncome - totalExpenses;
-  const vatPayable = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
-  const unpaid = invoices.filter(i => i.status !== 'Paid');
-
-  $("#totalIncome").textContent = `€${totalIncome.toFixed(2)}`;
-  $("#totalExpenses").textContent = `€${totalExpenses.toFixed(2)}`;
+  $("#totalIncome").textContent = `€${income.toFixed(2)}`;
+  $("#totalExpenses").textContent = `€${expenses.toFixed(2)}`;
   $("#netProfit").textContent = `€${netProfit.toFixed(2)}`;
-  $("#vatPayable").textContent = `€${vatPayable.toFixed(2)}`;
-  $("#pendingInvoices").textContent = `€${unpaid.reduce((s, i) => s + parseFloat(i.total || 0), 0).toFixed(2)}`;
+  $("#vatPayable").textContent = `€${vat.toFixed(2)}`;
+  $("#pendingInvoices").textContent = `€${pending.toFixed(2)}`;
 
-  // Breakdown
-  $("#breakdownInvoiced").textContent = totalIncome.toFixed(2);
-  $("#breakdownExpenses").textContent = totalExpenses.toFixed(2);
-  $("#breakdownVAT").textContent = vatPayable.toFixed(2);
-  $("#breakdownTaxReserve").textContent = (netProfit * 0.20).toFixed(2);
-  $("#breakdownReminders").textContent = invoices.filter(i => i.status === 'Reminder Sent').length;
-
-  renderSmartSuggestions(unpaid.length, totalIncome, totalExpenses);
-  renderChart(invoices);
+  renderBreakdown();
+  renderChart();
+  renderSuggestions();
 }
 
-function renderSmartSuggestions(unpaidCount, income, expenses) {
-  const ul = $("#suggestionsList");
-  ul.innerHTML = "";
+function renderBreakdown() {
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-  if (unpaidCount > 0) {
-    ul.innerHTML += `<li>
+  const invoicedMonth = allInvoices.filter(i => (i.date || '').startsWith(ym))
+    .reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+
+  const expensesMonth = allExpenses.filter(e => (e.paymentDate || '').startsWith(ym))
+    .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
+  const taxReserve = (invoicedMonth - expensesMonth) * 0.25;
+
+  $("#breakdownInvoiced").textContent = invoicedMonth.toFixed(2);
+  $("#breakdownExpenses").textContent = expensesMonth.toFixed(2);
+  $("#breakdownVAT").textContent = (invoicedMonth * 0.21).toFixed(2);
+  $("#breakdownTaxReserve").textContent = taxReserve.toFixed(2);
+
+  // поки reminders = інвойси з тегом reminderSent = true (пізніше оновимо)
+  const remindersSent = allInvoices.filter(i => i.reminderSent).length;
+  $("#breakdownReminders").textContent = remindersSent;
+}
+
+function renderChart() {
+  const monthlyData = {};
+  allInvoices.forEach(inv => {
+    const month = (inv.date || '').substring(0, 7);
+    if (!monthlyData[month]) monthlyData[month] = 0;
+    monthlyData[month] += parseFloat(inv.total || 0);
+  });
+
+  const labels = Object.keys(monthlyData).sort();
+  const values = labels.map(m => monthlyData[m]);
+
+  const ctx = document.getElementById('monthlyChart')?.getContext('2d');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{ label: 'Monthly Revenue (€)', data: values, borderWidth: 1 }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  }
+}
+
+function renderSuggestions() {
+  const suggestions = [];
+  const unpaid = allInvoices.filter(i => i.status !== 'Paid').length;
+  if (unpaid > 0) suggestions.push("📌 You have unpaid invoices — consider sending reminders.");
+
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const incomeMonth = allInvoices.filter(i => (i.date || '').startsWith(thisMonth)).reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+  const expensesMonth = allExpenses.filter(e => (e.paymentDate || '').startsWith(thisMonth)).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  if (expensesMonth > incomeMonth * 0.3) suggestions.push("📌 Your expenses this month are above average.");
+
+  const totalIncome = allInvoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+  if (totalIncome < 30000) suggestions.push("📌 You're eligible for KOR — consider applying.");
+
+  const list = $("#suggestionsList");
+  list.innerHTML = "";
+  suggestions.forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = s;
+    list.appendChild(li);
+  });
+}
+
+window.refreshSummary = () => location.reload();
+window.filterBy = (period) => alert("Filtering by: " + period + " (Coming soon)");
+window.filterByMonth = (month) => alert("Filtering by: " + month + " (Coming soon)");
+
+window.exportSummary = async function () {
+  const user = auth.currentUser;
+  if (!user) return alert("Not logged in");
+
+  const q = query(collection(db, "invoices"), where("userId", "==", user.uid));
+  const snap = await getDocs(q);
+
+  const rows = [["Invoice #", "Client", "Date", "Total", "Status"]];
+  snap.forEach(doc => {
+    const i = doc.data();
+    rows.push([i.number, i.clientName, i.date, i.total, i.status]);
+  });
+
+  const csv = rows.map(r => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "SmartWerk_Summary.csv";
+  a.click();
+};
     
   </script>
 </body>
