@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 SmartWerk — Invoices List</title>
-  <link rel="stylesheet" href="style-invoices.css?v=6"/>
-  <!-- jsPDF -->
+  <link rel="stylesheet" href="style-invoices.css?v=5"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -19,15 +18,7 @@
   </header>
 
   <section class="filters">
-    <h3>📅 Filters & Search</h3>
-
-    <label>From:
-      <input type="date" id="fromDate" placeholder="YYYY-MM-DD"/>
-    </label>
-    <label>To:
-      <input type="date" id="toDate" placeholder="YYYY-MM-DD"/>
-    </label>
-
+    <h3>🔎 Filters & Search</h3>
     <label>Status:
       <select id="statusFilter">
         <option value="all">All</option>
@@ -36,38 +27,24 @@
         <option value="Paid">Paid</option>
       </select>
     </label>
-
+    <label>Month:
+      <input type="month" id="monthFilter"/>
+    </label>
     <label>Search:
-      <input type="text" id="searchInput" placeholder="Client / Invoice #"/>
+      <input type="text" id="searchFilter" placeholder="Client or Invoice #"/>
     </label>
-
-    <label>Sort by:
-      <select id="sortBy">
-        <option value="invoiceDate">date</option>
-        <option value="invoiceNumber">invoice number</option>
-        <option value="grandTotalNum">amount</option>
-      </select>
-    </label>
-    <label>
-      <select id="sortDir">
-        <option value="desc">↓ desc</option>
-        <option value="asc">↑ asc</option>
-      </select>
-    </label>
-
-    <button id="applyBtn">🔎 Filter</button>
-    <button id="resetBtn">🔄 Reset</button>
+    <button onclick="resetFilters()">♻️ Reset</button>
   </section>
 
   <section>
     <table id="invoicesTable">
       <thead>
         <tr>
-          <th data-col="invoiceNumber">Invoice #</th>
-          <th data-col="clientName">Client</th>
+          <th onclick="sortInvoices('invoiceNumber')">Invoice #</th>
+          <th onclick="sortInvoices('clientName')">Client</th>
           <th>Status</th>
-          <th data-col="invoiceDate">Date</th>
-          <th data-col="grandTotalNum">Total</th>
+          <th>Date</th>
+          <th>Total</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -80,15 +57,16 @@
   </footer>
 
   <script type="module">
-    // ===== Firebase =====
+    // ==== Firebase Imports ====
     import { initializeApp, getApps, getApp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { 
-      getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, query, orderBy 
+      getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy 
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+    // ==== Firebase Config ====
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -100,111 +78,52 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // ===== State / helpers =====
-    let invoices = []; // сирі з Firestore
-    const $ = (s) => document.querySelector(s);
+    // ==== Global State ====
+    let invoices = [];
+    let currentSort = { field: "invoiceNumber", asc: false };
 
-    const toEuro = (n) => `€${(Number(n||0)).toFixed(2)}`;
-    const parseISO = (s) => (s ? new Date(s) : null);
+    const $ = sel => document.querySelector(sel);
 
-    function computeTotals(inv){
-      // обчислюємо subtotal / vat / grand, якщо не збережено
-      if (typeof inv.grandTotal === "number" && typeof inv.subtotal === "number" && typeof inv.totalVat === "number"){
-        return {
-          subtotal: inv.subtotal,
-          totalVat: inv.totalVat,
-          grandTotal: inv.grandTotal,
-          grandTotalNum: Number(inv.grandTotal)
-        };
-      }
-      let subtotal = 0, vatSum = 0;
-      (inv.items||[]).forEach(it=>{
-        const qty = Number(it.qty||0);
-        const price = Number(it.price||0);
-        const vat = Number(it.vat||0);
-        const item = qty*price;
-        const itemVat = item*vat/100;
-        subtotal += item;
-        vatSum += itemVat;
-      });
-      const grand = subtotal + vatSum;
-      return { subtotal, totalVat: vatSum, grandTotal: grand, grandTotalNum: grand };
-    }
-
-    function normalize(inv){
-      const totals = computeTotals(inv);
-      return {
-        id: inv.id,
-        invoiceNumber: inv.invoiceNumber || "",
-        clientName: inv.clientName || "",
-        clientAddress: inv.clientAddress || "",
-        businessName: inv.businessName || "",
-        businessAddress: inv.businessAddress || "",
-        invoiceDate: inv.invoiceDate || "",
-        status: inv.status || "Draft",
-        items: inv.items || [],
-        subtotal: totals.subtotal,
-        totalVat: totals.totalVat,
-        grandTotal: totals.grandTotal,
-        grandTotalNum: totals.grandTotalNum
-      };
-    }
-
-    // ===== Rendering =====
-    function applyFiltersAndRender(){
+    // ==== Render Invoices ====
+    function renderInvoices() {
       const body = $("#invoicesBody");
       body.innerHTML = "";
 
-      const from = $("#fromDate").value;
-      const to = $("#toDate").value;
-      const status = $("#statusFilter").value;
-      const search = $("#searchInput").value.trim().toLowerCase();
-      const sortBy = $("#sortBy").value;      // invoiceDate | invoiceNumber | grandTotalNum
-      const sortDir = $("#sortDir").value;    // asc | desc
+      const statusFilter = $("#statusFilter").value;
+      const monthFilter = $("#monthFilter").value;
+      const searchFilter = $("#searchFilter").value.toLowerCase();
 
-      let list = invoices.map(normalize);
+      let filtered = invoices.filter(inv => {
+        let ok = true;
+        if (statusFilter !== "all") ok = ok && inv.status === statusFilter;
+        if (monthFilter) ok = ok && inv.invoiceDate?.startsWith(monthFilter);
+        if (searchFilter) {
+          ok = ok && (
+            (inv.clientName || "").toLowerCase().includes(searchFilter) ||
+            (inv.invoiceNumber || "").toLowerCase().includes(searchFilter)
+          );
+        }
+        return ok;
+      });
 
-      // фільтр статусу
-      if (status !== "all"){
-        list = list.filter(x => x.status === status);
-      }
-
-      // фільтр по діапазону дат (інвойсDate — строка YYYY-MM-DD)
-      if (from){
-        list = list.filter(x => (x.invoiceDate||"") >= from);
-      }
-      if (to){
-        list = list.filter(x => (x.invoiceDate||"") <= to);
-      }
-
-      // пошук по клієнту / номеру
-      if (search){
-        list = list.filter(x => 
-          (x.clientName||"").toLowerCase().includes(search) ||
-          (x.invoiceNumber||"").toLowerCase().includes(search)
-        );
-      }
-
-      // сортування
-      list.sort((a,b)=>{
-        const dir = (sortDir === "asc") ? 1 : -1;
-        const av = a[sortBy] ?? "";
-        const bv = b[sortBy] ?? "";
-        if (av < bv) return -1*dir;
-        if (av > bv) return  1*dir;
+      // Sorting
+      filtered.sort((a, b) => {
+        let field = currentSort.field;
+        let dir = currentSort.asc ? 1 : -1;
+        if (a[field] < b[field]) return -1 * dir;
+        if (a[field] > b[field]) return 1 * dir;
         return 0;
       });
 
-      // рендер
-      list.forEach(inv=>{
+      filtered.forEach(inv => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${inv.invoiceNumber || "—"}</td>
           <td>${inv.clientName || "—"}</td>
-          <td>${inv.status}</td>
+          <td>${inv.status || "Draft"}</td>
           <td>${inv.invoiceDate || "—"}</td>
-          <td>${toEuro(inv.grandTotalNum)}</td>
-          <td class="actions">
+          <td>€${(inv.total || 0).toFixed(2)}</td>
+          <td>
             <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
             <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
             <button onclick="downloadPDF('${inv.id}')">📄 PDF</button>
@@ -215,125 +134,76 @@
       });
     }
 
-    // ===== Actions (global) =====
-    window.resetFilters = () => {
-      $("#fromDate").value = "";
-      $("#toDate").value = "";
-      $("#statusFilter").value = "all";
-      $("#searchInput").value = "";
-      $("#sortBy").value = "invoiceDate";
-      $("#sortDir").value = "desc";
-      applyFiltersAndRender();
+    // ==== Actions ====
+    window.editInvoice = (id) => {
+      localStorage.setItem("editInvoiceId", id);
+      window.location.href = "invoices.html";
     };
 
-    $("#applyBtn").addEventListener("click", applyFiltersAndRender);
-    $("#resetBtn").addEventListener("click", window.resetFilters);
-    ["fromDate","toDate","statusFilter","searchInput","sortBy","sortDir"].forEach(id=>{
-      const el = document.getElementById(id);
-      el.addEventListener("change", applyFiltersAndRender);
-      if (id==="searchInput") el.addEventListener("input", applyFiltersAndRender);
-    });
-
-    window.editInvoice = (id)=>{
-      // знайдемо документ і передамо ВСЕ у редактор, щоб не залежати від формату
-      const inv = invoices.find(x => x.id === id);
-      if (inv){
-        localStorage.setItem("editInvoiceId", id);                    // варіант 1: редактор зчитує ID і сам тягне з Firestore
-        localStorage.setItem("editInvoiceNumber", inv.invoiceNumber||""); // варіант 2: у тебе було по номеру
-        localStorage.setItem("editInvoiceData", JSON.stringify(inv)); // варіант 3: одразу дані
-      }
-      window.location.href = "invoices.html#edit=1";
-    };
-
-    window.deleteInvoice = async (id)=>{
+    window.deleteInvoice = async (id) => {
       if (!confirm("Delete this invoice?")) return;
       const user = auth.currentUser;
       if (!user) return;
-      await deleteDoc(doc(db,"users",user.uid,"invoices",id));
-      // onSnapshot сам підчистить рядок
+      await deleteDoc(doc(db, "users", user.uid, "invoices", id));
     };
 
-    function incrementInvoiceNumber(num){
-      // підтримка твоєї схеми типу INV-2025-003 або будь-якого закінчення цифрами
-      if (!num) return "INV-2025-001";
-      return num.replace(/(\d+)(?!.*\d)/, m => String(Number(m)+1).padStart(m.length,"0"));
-    }
-
-    window.repeatMonthly = async (id)=>{
-      const user = auth.currentUser; if (!user) return;
-      const src = invoices.find(x=>x.id===id); if (!src) return;
-
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm   = String(today.getMonth()+1).padStart(2,"0");
-      const dd   = String(today.getDate()).padStart(2,"0");
-
-      const copy = structuredClone(src);
-      delete copy.id;
-      copy.invoiceDate = `${yyyy}-${mm}-${dd}`;
-      copy.status = "Draft";
-      copy.invoiceNumber = incrementInvoiceNumber(src.invoiceNumber);
-      // якщо у тебе totals збережені як числа — обнуляти не потрібно, інакше порахуєш у редакторі
-      await addDoc(collection(db,"users",user.uid,"invoices"), copy);
-      alert("Invoice duplicated for this month.");
+    window.repeatMonthly = async (id) => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const inv = invoices.find(i => i.id === id);
+      if (!inv) return;
+      const newDate = new Date();
+      const y = newDate.getFullYear();
+      const m = String(newDate.getMonth() + 1).padStart(2, "0");
+      const d = String(newDate.getDate()).padStart(2, "0");
+      const newInv = {
+        ...inv,
+        invoiceDate: `${y}-${m}-${d}`,
+        invoiceNumber: inv.invoiceNumber.replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
+        status: "Draft"
+      };
+      delete newInv.id;
+      await addDoc(collection(db, "users", user.uid, "invoices"), newInv);
+      alert("Invoice repeated!");
     };
 
-    window.downloadPDF = (id)=>{
-      const invRaw = invoices.find(x=>x.id===id);
-      if (!invRaw) return;
-      const inv = normalize(invRaw);
+    window.downloadPDF = (id) => {
+      const inv = invoices.find(i => i.id === id);
+      if (!inv) return;
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
+      const docPDF = new jsPDF();
 
-      // Header
-      pdf.setFontSize(18);
-      pdf.text(`Invoice ${inv.invoiceNumber || ""}`, 14, 18);
-      pdf.setFontSize(11);
-      pdf.text(`Date: ${inv.invoiceDate || ""}`, 14, 26);
-      pdf.text(`Status: ${inv.status}`, 14, 32);
+      docPDF.text(`Invoice ${inv.invoiceNumber}`, 10, 10);
+      docPDF.text(`Client: ${inv.clientName}`, 10, 20);
+      docPDF.text(`Date: ${inv.invoiceDate}`, 10, 30);
+      docPDF.text(`Status: ${inv.status}`, 10, 40);
+      docPDF.text(`Total: €${inv.total}`, 10, 50);
 
-      // From / To
-      pdf.setFontSize(12);
-      pdf.text("From:", 14, 44);
-      pdf.text(inv.businessName || "", 14, 50);
-      pdf.text(inv.businessAddress || "", 14, 56);
-
-      pdf.text("To:", 120, 44);
-      pdf.text(inv.clientName || "", 120, 50);
-      pdf.text(inv.clientAddress || "", 120, 56);
-
-      // Items
-      if (inv.items && inv.items.length){
-        pdf.autoTable({
-          startY: 70,
-          head: [["Description","Qty","Price","VAT","Total"]],
-          body: inv.items.map(it=>{
-            const qty = Number(it.qty||0);
-            const price = Number(it.price||0);
-            const vat = Number(it.vat||0);
-            const total = qty*price*(1+vat/100);
-            return [it.desc||"", qty, toEuro(price), `${vat}%`, toEuro(total)];
-          })
-        });
-      }
-
-      const y = pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 10 : 100;
-      pdf.text(`Subtotal: ${toEuro(inv.subtotal)}`, 14, y);
-      pdf.text(`VAT: ${toEuro(inv.totalVat)}`, 14, y+6);
-      pdf.text(`Total: ${toEuro(inv.grandTotal)}`, 14, y+12);
-
-      pdf.save(`${inv.invoiceNumber||'invoice'}.pdf`);
+      docPDF.save(`${inv.invoiceNumber}.pdf`);
     };
 
-    // ===== Live data =====
-    onAuthStateChanged(auth,(user)=>{
-      if (!user) { window.location.href = "login.html"; return; }
-      const col = collection(db,"users",user.uid,"invoices");
-      // рядок дати у форматі YYYY-MM-DD сортується коректно лексикографічно
-      const qy = query(col, orderBy("invoiceDate","desc"));
-      onSnapshot(qy, (snap)=>{
+    // ==== Sorting / Filters ====
+    window.sortInvoices = (field) => {
+      if (currentSort.field === field) currentSort.asc = !currentSort.asc;
+      else currentSort = { field, asc: true };
+      renderInvoices();
+    };
+
+    window.resetFilters = () => {
+      $("#statusFilter").value = "all";
+      $("#monthFilter").value = "";
+      $("#searchFilter").value = "";
+      renderInvoices();
+    };
+
+    // ==== Realtime listener ====
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return (window.location.href = "login.html");
+      const colRef = collection(db, "users", user.uid, "invoices");
+      const q = query(colRef, orderBy("invoiceDate", "desc"));
+      onSnapshot(q, (snap) => {
         invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        applyFiltersAndRender();
+        renderInvoices();
       });
     });
   </script>
