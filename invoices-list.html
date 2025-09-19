@@ -4,20 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 SmartWerk — Invoices List</title>
-  <link rel="stylesheet" href="style-invoices.css?v=5"/>
-  <!-- PDF libs -->
+  <link rel="stylesheet" href="style-invoices.css?v=6"/>
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    /* легкі стилі для фільтрів (на випадок, якщо у твоєму CSS їх нема) */
-    .filters, .search-row {display:grid; gap:.75rem; margin:1rem 0}
-    .filters{grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); align-items:end}
-    .search-row{grid-template-columns:1fr auto auto}
-    .muted{opacity:.7}
-    .count-pill{font-size:.9rem; padding:.2rem .6rem; border:1px solid var(--line,#2a2f3a); border-radius:999px}
-    th.sortable{cursor:pointer}
-    .header-actions .btn{margin-right:.5rem}
-  </style>
 </head>
 <body>
   <header>
@@ -28,58 +18,56 @@
     </div>
   </header>
 
-  <!-- 📅 Filters & Search -->
   <section class="filters">
-    <div>
-      <label class="muted">From:</label>
-      <input type="date" id="fromDate" />
-    </div>
-    <div>
-      <label class="muted">To:</label>
-      <input type="date" id="toDate" />
-    </div>
-    <div>
-      <label class="muted">Status:</label>
+    <h3>📅 Filters & Search</h3>
+
+    <label>From:
+      <input type="date" id="fromDate" placeholder="YYYY-MM-DD"/>
+    </label>
+    <label>To:
+      <input type="date" id="toDate" placeholder="YYYY-MM-DD"/>
+    </label>
+
+    <label>Status:
       <select id="statusFilter">
         <option value="all">All</option>
         <option value="Draft">Draft</option>
         <option value="Sent">Sent</option>
         <option value="Paid">Paid</option>
       </select>
-    </div>
-    <div>
-      <label class="muted">Sort by:</label>
-      <div style="display:flex; gap:.5rem">
-        <select id="sortBy">
-          <option value="invoiceNumber">invoice number</option>
-          <option value="invoiceDate">date</option>
-          <option value="total">amount</option>
-          <option value="clientName">client</option>
-        </select>
-        <button id="sortDirBtn" class="btn" type="button" title="Toggle sort direction">⬆️</button>
-      </div>
-    </div>
-  </section>
+    </label>
 
-  <section class="search-row">
-    <input type="search" id="searchInput" placeholder="Search..." />
-    <button id="applyBtn" class="btn" type="button">🔎 Filter</button>
-    <button id="resetBtn" class="btn" type="button">🔄 Reset</button>
+    <label>Search:
+      <input type="text" id="searchInput" placeholder="Client / Invoice #"/>
+    </label>
+
+    <label>Sort by:
+      <select id="sortBy">
+        <option value="invoiceDate">date</option>
+        <option value="invoiceNumber">invoice number</option>
+        <option value="grandTotalNum">amount</option>
+      </select>
+    </label>
+    <label>
+      <select id="sortDir">
+        <option value="desc">↓ desc</option>
+        <option value="asc">↑ asc</option>
+      </select>
+    </label>
+
+    <button id="applyBtn">🔎 Filter</button>
+    <button id="resetBtn">🔄 Reset</button>
   </section>
 
   <section>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem;">
-      <div class="muted">Showing <span id="countShown">0</span> / <span id="countTotal">0</span> invoices</div>
-      <div id="liveBadge" class="count-pill muted">live</div>
-    </div>
     <table id="invoicesTable">
       <thead>
         <tr>
-          <th class="sortable" data-sort="invoiceNumber">Invoice #</th>
-          <th class="sortable" data-sort="clientName">Client</th>
+          <th data-col="invoiceNumber">Invoice #</th>
+          <th data-col="clientName">Client</th>
           <th>Status</th>
-          <th class="sortable" data-sort="invoiceDate">Date</th>
-          <th class="sortable" data-sort="total">Total</th>
+          <th data-col="invoiceDate">Date</th>
+          <th data-col="grandTotalNum">Total</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -91,216 +79,263 @@
     <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   </footer>
 
- <script type="module">
-  // === Firestore bridge: без змін твоїх існуючих функцій UI ===
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, doc, getDoc, addDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <script type="module">
+    // ===== Firebase =====
+    import { initializeApp, getApps, getApp } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, query, orderBy 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  // ⚙️ твій конфіг
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-    authDomain: "smartwerk8520.firebaseapp.com",
-    projectId: "smartwerk8520",
-    appId: "1:607670981972:web:c07103c981c86860d724c1",
-  };
-
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
-  const auth = getAuth(app);
-
-  const $ = (id) => document.getElementById(id);
-
-  // 🧭 чи відкриття на редагування
-  const params = new URLSearchParams(location.search);
-  let EDITING_ID = params.get("id") || null;
-
-  // 🧩 допоміжне: зібрати інвойс із DOM (максимально як у тебе раніше)
-  function collectInvoiceFromDom() {
-    const get = (id) => $(id)?.value?.trim() || "";
-
-    const items = [];
-    document.querySelectorAll("#itemsBody tr").forEach(row => {
-      const desc = row.querySelector(".desc")?.value || "";
-      const qty  = parseFloat(row.querySelector(".qty")?.value || 0);
-      const price= parseFloat(row.querySelector(".price")?.value || 0);
-      const vatEl= row.querySelector(".vat-select") || row.querySelector(".vat");
-      const vat  = parseFloat(vatEl ? vatEl.value : 0) || 0;
-
-      items.push({ desc, qty, price, vat });
-    });
-
-    // підписи -> base64 (як у тебе)
-    let signBiz = "", signClient = "";
-    try { signBiz   = $("signatureBusiness")?.toDataURL() || ""; } catch {}
-    try { signClient= $("signatureClient")?.toDataURL() || ""; } catch {}
-
-    // підрахунок totals (щоб у списку був inv.total)
-    let subtotal = 0, totalVAT = 0;
-    items.forEach(it => {
-      const line = (it.qty || 0) * (it.price || 0);
-      subtotal += line;
-      totalVAT += line * (it.vat || 0) / 100;
-    });
-    const grand = subtotal + totalVAT;
-
-    const number = get("invoiceNumber") || (window.generateNextInvoiceNumber ? window.generateNextInvoiceNumber() : `INV-${Date.now()}`);
-
-    return {
-      businessName: get("businessName"),
-      kvk: get("kvk"),
-      iban: get("iban"),
-      btw: get("btw"),
-      email: get("email"),
-      businessAddress: get("businessAddress"),
-      businessPhone: get("businessPhone"),
-
-      clientName: get("clientName"),
-      clientEmail: get("clientEmail"),
-      clientPhone: get("clientPhone"),
-      clientAddress: get("clientAddress"),
-
-      invoiceNumber: number,
-      invoiceDate: get("invoiceDate"),
-      dueDate: get("dueDate"),
-      note: get("note"),
-      status: get("status") || "Draft",
-
-      items,
-      subtotal: Number(subtotal.toFixed(2)),
-      vat: Number(totalVAT.toFixed(2)),
-      total: Number(grand.toFixed(2)),
-
-      signatures: {
-        business: signBiz,
-        client: signClient,
-        businessDate: $("signatureBusinessDate")?.textContent || "",
-        clientDate: $("signatureClientDate")?.textContent || "",
-        date: new Date().toISOString()
-      },
-
-      updatedAt: new Date().toISOString()
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
-  }
 
-  // 🧩 заповнити форму із Firestore-документа
-  function fillInvoiceForm(data, id) {
-    const set = (id, val) => { if ($(id)) $(id).value = val ?? ""; };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    set("businessName", data.businessName);
-    set("kvk",          data.kvk);
-    set("iban",         data.iban);
-    set("btw",          data.btw);
-    set("email",        data.email);
-    set("businessAddress", data.businessAddress);
-    set("businessPhone",   data.businessPhone);
+    // ===== State / helpers =====
+    let invoices = []; // сирі з Firestore
+    const $ = (s) => document.querySelector(s);
 
-    set("clientName", data.clientName);
-    set("clientEmail", data.clientEmail);
-    set("clientPhone", data.clientPhone);
-    set("clientAddress", data.clientAddress);
+    const toEuro = (n) => `€${(Number(n||0)).toFixed(2)}`;
+    const parseISO = (s) => (s ? new Date(s) : null);
 
-    set("invoiceNumber", data.invoiceNumber);
-    set("invoiceDate",   data.invoiceDate);
-    set("dueDate",       data.dueDate);
-    set("note",          data.note);
-    if ($("status")) $("status").value = data.status || "Draft";
-
-    // items (використовуємо твою addItem)
-    const body = document.querySelector("#itemsBody");
-    if (body) body.innerHTML = "";
-    (data.items || []).forEach(it => {
-      if (typeof window.addItem === "function") {
-        window.addItem(it.desc, it.qty, it.price, it.vat);
+    function computeTotals(inv){
+      // обчислюємо subtotal / vat / grand, якщо не збережено
+      if (typeof inv.grandTotal === "number" && typeof inv.subtotal === "number" && typeof inv.totalVat === "number"){
+        return {
+          subtotal: inv.subtotal,
+          totalVat: inv.totalVat,
+          grandTotal: inv.grandTotal,
+          grandTotalNum: Number(inv.grandTotal)
+        };
       }
+      let subtotal = 0, vatSum = 0;
+      (inv.items||[]).forEach(it=>{
+        const qty = Number(it.qty||0);
+        const price = Number(it.price||0);
+        const vat = Number(it.vat||0);
+        const item = qty*price;
+        const itemVat = item*vat/100;
+        subtotal += item;
+        vatSum += itemVat;
+      });
+      const grand = subtotal + vatSum;
+      return { subtotal, totalVat: vatSum, grandTotal: grand, grandTotalNum: grand };
+    }
+
+    function normalize(inv){
+      const totals = computeTotals(inv);
+      return {
+        id: inv.id,
+        invoiceNumber: inv.invoiceNumber || "",
+        clientName: inv.clientName || "",
+        clientAddress: inv.clientAddress || "",
+        businessName: inv.businessName || "",
+        businessAddress: inv.businessAddress || "",
+        invoiceDate: inv.invoiceDate || "",
+        status: inv.status || "Draft",
+        items: inv.items || [],
+        subtotal: totals.subtotal,
+        totalVat: totals.totalVat,
+        grandTotal: totals.grandTotal,
+        grandTotalNum: totals.grandTotalNum
+      };
+    }
+
+    // ===== Rendering =====
+    function applyFiltersAndRender(){
+      const body = $("#invoicesBody");
+      body.innerHTML = "";
+
+      const from = $("#fromDate").value;
+      const to = $("#toDate").value;
+      const status = $("#statusFilter").value;
+      const search = $("#searchInput").value.trim().toLowerCase();
+      const sortBy = $("#sortBy").value;      // invoiceDate | invoiceNumber | grandTotalNum
+      const sortDir = $("#sortDir").value;    // asc | desc
+
+      let list = invoices.map(normalize);
+
+      // фільтр статусу
+      if (status !== "all"){
+        list = list.filter(x => x.status === status);
+      }
+
+      // фільтр по діапазону дат (інвойсDate — строка YYYY-MM-DD)
+      if (from){
+        list = list.filter(x => (x.invoiceDate||"") >= from);
+      }
+      if (to){
+        list = list.filter(x => (x.invoiceDate||"") <= to);
+      }
+
+      // пошук по клієнту / номеру
+      if (search){
+        list = list.filter(x => 
+          (x.clientName||"").toLowerCase().includes(search) ||
+          (x.invoiceNumber||"").toLowerCase().includes(search)
+        );
+      }
+
+      // сортування
+      list.sort((a,b)=>{
+        const dir = (sortDir === "asc") ? 1 : -1;
+        const av = a[sortBy] ?? "";
+        const bv = b[sortBy] ?? "";
+        if (av < bv) return -1*dir;
+        if (av > bv) return  1*dir;
+        return 0;
+      });
+
+      // рендер
+      list.forEach(inv=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${inv.invoiceNumber || "—"}</td>
+          <td>${inv.clientName || "—"}</td>
+          <td>${inv.status}</td>
+          <td>${inv.invoiceDate || "—"}</td>
+          <td>${toEuro(inv.grandTotalNum)}</td>
+          <td class="actions">
+            <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
+            <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
+            <button onclick="downloadPDF('${inv.id}')">📄 PDF</button>
+            <button onclick="repeatMonthly('${inv.id}')">🔁 Repeat</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    // ===== Actions (global) =====
+    window.resetFilters = () => {
+      $("#fromDate").value = "";
+      $("#toDate").value = "";
+      $("#statusFilter").value = "all";
+      $("#searchInput").value = "";
+      $("#sortBy").value = "invoiceDate";
+      $("#sortDir").value = "desc";
+      applyFiltersAndRender();
+    };
+
+    $("#applyBtn").addEventListener("click", applyFiltersAndRender);
+    $("#resetBtn").addEventListener("click", window.resetFilters);
+    ["fromDate","toDate","statusFilter","searchInput","sortBy","sortDir"].forEach(id=>{
+      const el = document.getElementById(id);
+      el.addEventListener("change", applyFiltersAndRender);
+      if (id==="searchInput") el.addEventListener("input", applyFiltersAndRender);
     });
 
-    // signatures → канваси
-    if (data.signatures?.business) {
-      const img = new Image();
-      img.onload = () => {
-        const c = $("signatureBusiness"); if (!c) return;
-        const ctx = c.getContext("2d");
-        ctx.clearRect(0,0,c.width,c.height);
-        ctx.drawImage(img, 0, 0);
-        if ($("signatureBusinessDate")) $("signatureBusinessDate").textContent = data.signatures.businessDate || "";
-      };
-      img.src = data.signatures.business;
+    window.editInvoice = (id)=>{
+      // знайдемо документ і передамо ВСЕ у редактор, щоб не залежати від формату
+      const inv = invoices.find(x => x.id === id);
+      if (inv){
+        localStorage.setItem("editInvoiceId", id);                    // варіант 1: редактор зчитує ID і сам тягне з Firestore
+        localStorage.setItem("editInvoiceNumber", inv.invoiceNumber||""); // варіант 2: у тебе було по номеру
+        localStorage.setItem("editInvoiceData", JSON.stringify(inv)); // варіант 3: одразу дані
+      }
+      window.location.href = "invoices.html#edit=1";
+    };
+
+    window.deleteInvoice = async (id)=>{
+      if (!confirm("Delete this invoice?")) return;
+      const user = auth.currentUser;
+      if (!user) return;
+      await deleteDoc(doc(db,"users",user.uid,"invoices",id));
+      // onSnapshot сам підчистить рядок
+    };
+
+    function incrementInvoiceNumber(num){
+      // підтримка твоєї схеми типу INV-2025-003 або будь-якого закінчення цифрами
+      if (!num) return "INV-2025-001";
+      return num.replace(/(\d+)(?!.*\d)/, m => String(Number(m)+1).padStart(m.length,"0"));
     }
-    if (data.signatures?.client) {
-      const img = new Image();
-      img.onload = () => {
-        const c = $("signatureClient"); if (!c) return;
-        const ctx = c.getContext("2d");
-        ctx.clearRect(0,0,c.width,c.height);
-        ctx.drawImage(img, 0, 0);
-        if ($("signatureClientDate")) $("signatureClientDate").textContent = data.signatures.clientDate || "";
-      };
-      img.src = data.signatures.client;
-    }
 
-    // перерахувати totals твоєю функцією
-    if (typeof window.updateTotals === "function") window.updateTotals();
+    window.repeatMonthly = async (id)=>{
+      const user = auth.currentUser; if (!user) return;
+      const src = invoices.find(x=>x.id===id); if (!src) return;
 
-    // поставити прапорець редагування
-    window.EDITING_ID = id;
-  }
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm   = String(today.getMonth()+1).padStart(2,"0");
+      const dd   = String(today.getDate()).padStart(2,"0");
 
-  // 🔐 авторизація + завантаження інвойсу на редагування (якщо ?id=...)
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      location.replace("login.html");
-      return;
-    }
-    if (!EDITING_ID) return;
+      const copy = structuredClone(src);
+      delete copy.id;
+      copy.invoiceDate = `${yyyy}-${mm}-${dd}`;
+      copy.status = "Draft";
+      copy.invoiceNumber = incrementInvoiceNumber(src.invoiceNumber);
+      // якщо у тебе totals збережені як числа — обнуляти не потрібно, інакше порахуєш у редакторі
+      await addDoc(collection(db,"users",user.uid,"invoices"), copy);
+      alert("Invoice duplicated for this month.");
+    };
 
-    try {
-      const ref  = doc(db, "users", user.uid, "invoices", EDITING_ID);
-      const snap = await getDoc(ref);
-      if (snap.exists()) fillInvoiceForm(snap.data(), EDITING_ID);
-    } catch (e) {
-      console.error("Load invoice error:", e);
-      alert("Failed to load invoice.");
-    }
-  });
+    window.downloadPDF = (id)=>{
+      const invRaw = invoices.find(x=>x.id===id);
+      if (!invRaw) return;
+      const inv = normalize(invRaw);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
 
-  // 💾 перезаписуємо saveInvoice так, щоб писало у Firestore (але UI лишається)
-  const saveToFirestore = async (invoice) => {
-    const user = auth.currentUser;
-    if (!user) throw new Error("Not authenticated");
+      // Header
+      pdf.setFontSize(18);
+      pdf.text(`Invoice ${inv.invoiceNumber || ""}`, 14, 18);
+      pdf.setFontSize(11);
+      pdf.text(`Date: ${inv.invoiceDate || ""}`, 14, 26);
+      pdf.text(`Status: ${inv.status}`, 14, 32);
 
-    // завжди зберігаємо у своїй гілці
-    invoice.userId = user.uid;
+      // From / To
+      pdf.setFontSize(12);
+      pdf.text("From:", 14, 44);
+      pdf.text(inv.businessName || "", 14, 50);
+      pdf.text(inv.businessAddress || "", 14, 56);
 
-    if (window.EDITING_ID) {
-      // update
-      await setDoc(doc(db, "users", user.uid, "invoices", window.EDITING_ID), invoice, { merge: true });
-      return { updated: true, id: window.EDITING_ID };
-    } else {
-      // create
-      const ref = await addDoc(collection(db, "users", user.uid, "invoices"), invoice);
-      return { created: true, id: ref.id };
-    }
-  };
+      pdf.text("To:", 120, 44);
+      pdf.text(inv.clientName || "", 120, 50);
+      pdf.text(inv.clientAddress || "", 120, 56);
 
-  // робимо публічною нову реалізацію
-  window.saveInvoice = async function () {
-    try {
-      // зібрати DOM → invoice
-      const inv = collectInvoiceFromDom();
-      // підстрахуємось щодо номера
-      if (!inv.invoiceNumber && typeof window.generateNextInvoiceNumber === "function") {
-        inv.invoiceNumber = window.generateNextInvoiceNumber();
+      // Items
+      if (inv.items && inv.items.length){
+        pdf.autoTable({
+          startY: 70,
+          head: [["Description","Qty","Price","VAT","Total"]],
+          body: inv.items.map(it=>{
+            const qty = Number(it.qty||0);
+            const price = Number(it.price||0);
+            const vat = Number(it.vat||0);
+            const total = qty*price*(1+vat/100);
+            return [it.desc||"", qty, toEuro(price), `${vat}%`, toEuro(total)];
+          })
+        });
       }
 
-      const res = await saveToFirestore(inv);
-      alert(res.updated ? "✅ Invoice updated!" : "✅ Invoice saved!");
-      location.href = "invoices-list.html";
-    } catch (e) {
-      console.error(e);
-      alert("❌ Failed to save invoice.");
-    }
-  };
-</script>
+      const y = pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 10 : 100;
+      pdf.text(`Subtotal: ${toEuro(inv.subtotal)}`, 14, y);
+      pdf.text(`VAT: ${toEuro(inv.totalVat)}`, 14, y+6);
+      pdf.text(`Total: ${toEuro(inv.grandTotal)}`, 14, y+12);
+
+      pdf.save(`${inv.invoiceNumber||'invoice'}.pdf`);
+    };
+
+    // ===== Live data =====
+    onAuthStateChanged(auth,(user)=>{
+      if (!user) { window.location.href = "login.html"; return; }
+      const col = collection(db,"users",user.uid,"invoices");
+      // рядок дати у форматі YYYY-MM-DD сортується коректно лексикографічно
+      const qy = query(col, orderBy("invoiceDate","desc"));
+      onSnapshot(qy, (snap)=>{
+        invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        applyFiltersAndRender();
+      });
+    });
+  </script>
 </body>
 </html>
