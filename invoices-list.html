@@ -180,7 +180,8 @@ window.downloadPDF = (id, withBranding = true) => {
     `Phone: ${inv.clientPhone}`
   ], 120, 36);
 
- docPDF.autoTable({
+ // Таблиця з загальною інформацією про інвойс
+docPDF.autoTable({
   startY: 80,
   head: [["Invoice #", "Date Issued", "Due Date", "Status"]],
   body: [[inv.invoiceNumber, inv.invoiceDate, inv.dueDate, inv.status]],
@@ -192,7 +193,7 @@ window.downloadPDF = (id, withBranding = true) => {
     valign: "middle"
   },
   headStyles: {
-    fillColor: [37, 99, 235], // офіційний синій (#2563eb)
+    fillColor: [37, 99, 235], // офіційний синій
     textColor: 255,
     fontStyle: "bold"
   },
@@ -201,19 +202,19 @@ window.downloadPDF = (id, withBranding = true) => {
   }
 });
 
-  const items = inv.items?.map(it => [
-    it.desc,
-    it.qty,
-    `€${it.price.toFixed(2)}`,
-    `${it.vat}%`,
-    `€${(it.qty * it.price * (1 + it.vat / 100)).toFixed(2)}`
-  ]) || [];
-
+// Таблиця з позиціями (items)
+const items = inv.items?.map(it => [
+  it.desc,
+  it.qty,
+  `€${parseFloat(it.price).toFixed(2)}`,
+  `${it.vat}%`,
+  `€${(it.qty * it.price * (1 + it.vat / 100)).toFixed(2)}`
+]) || [];
 
 docPDF.autoTable({
-  startY: 80,
+  startY: docPDF.lastAutoTable.finalY + 10, // Щоб почати після першої таблиці
   head: [["Description", "Qty", "Unit Price", "VAT", "Total"]],
-  body: [[inv.Description, inv.Qty, inv.UnitPrice, inv.VAT, inv.Total]],
+  body: items,
   theme: "grid",
   styles: {
     fontSize: 11,
@@ -222,7 +223,7 @@ docPDF.autoTable({
     valign: "middle"
   },
   headStyles: {
-    fillColor: [37, 99, 235], // офіційний синій (#2563eb)
+    fillColor: [37, 99, 235], // офіційний синій
     textColor: 255,
     fontStyle: "bold"
   },
