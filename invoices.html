@@ -1,216 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk Invoice Manager</title>
-
-  <link rel="stylesheet" href="style-invoices.css?v=5" />
-
-  <!-- Flatpickr (календар) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Invoice</title>
+  <link rel="stylesheet" href="style-invoices.css?v=5"/>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-  <!-- OCR + PDF (можеш лишити, якщо користуєшся) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-
-  <style>
-    .signature { border:1px solid #444; background:#fff; cursor:crosshair; display:block }
-    .step { margin:20px 0; padding:16px; border:1px solid #2a2a2a; border-radius:12px }
-    table { width:100%; border-collapse: collapse }
-    th, td { padding:8px; border-bottom:1px solid #2a2a2a }
-    .btn { display:inline-block; padding:8px 12px; border:1px solid #3b82f6; color:#fff; background:#2563eb; border-radius:8px; text-decoration:none }
-    .btn:hover { filter:brightness(1.05) }
-  </style>
 </head>
 <body>
-  <div class="topbar">
-    <nav>
-      <a href="index.html" class="btn">← Main Page</a>
-      <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="invoices-list.html" class="btn">📋 Invoices List</a>
-    </nav>
-  </div>
+  <header>
+    <h1>🧾 SmartWerk Invoice</h1>
+    <div class="header-actions">
+      <button id="saveBtn">💾 Save Invoice</button>
+      <a href="invoices-list.html" class="btn">📋 Open Invoices List</a>
+    </div>
+  </header>
 
   <main>
-    <h1>SmartWerk Invoice Manager</h1>
-
     <!-- Business Info -->
-    <section class="step">
+    <section>
       <h2>🏢 Business Info</h2>
-      <input id="businessName" placeholder="Business Name" />
-      <input id="kvk" placeholder="KvK Number" />
-      <input id="iban" placeholder="IBAN" />
-      <input id="btw" placeholder="BTW Number" />
-      <input id="businessEmail" type="email" placeholder="Business Email" />
-      <input id="businessPhone" type="tel" placeholder="Business Phone" />
-      <input id="businessAddress" placeholder="Business Address" />
+      <input id="businessName" placeholder="Business Name"/>
+      <input id="kvk" placeholder="KvK Number"/>
+      <input id="iban" placeholder="IBAN"/>
+      <input id="btw" placeholder="BTW"/>
+      <input id="email" placeholder="Business Email"/>
+      <input id="businessAddress" placeholder="Business Address"/>
+      <input id="businessPhone" placeholder="Business Phone"/>
     </section>
 
     <!-- Client Info -->
-    <section class="step">
+    <section>
       <h2>👤 Client Info</h2>
-      <input id="clientName" placeholder="Client Name" />
-      <input id="clientEmail" type="email" placeholder="Client Email" />
-      <input id="clientPhone" type="tel" placeholder="Client Phone" />
-      <input id="clientAddress" placeholder="Client Address" />
-
-      <input id="invoiceDate" class="js-date" placeholder="Invoice Date (YYYY-MM-DD)" />
-      <input id="dueDate" class="js-date" placeholder="Due Date (YYYY-MM-DD)" />
-      <input id="invoiceNumber" placeholder="Invoice Number (auto)" />
-
-      <label>Status:
-        <select id="status">
-          <option>Draft</option>
-          <option>Sent</option>
-          <option>Paid</option>
-        </select>
-      </label>
+      <input id="clientName" placeholder="Client Name"/>
+      <input id="clientEmail" placeholder="Client Email"/>
+      <input id="clientPhone" placeholder="Client Phone"/>
+      <input id="clientAddress" placeholder="Client Address"/>
+      <input id="invoiceDate" class="js-date" placeholder="Invoice Date"/>
+      <input id="dueDate" class="js-date" placeholder="Due Date"/>
+      <input id="invoiceNumber" readonly placeholder="Invoice Number"/>
+      <select id="status">
+        <option>Draft</option>
+        <option>Sent</option>
+        <option>Paid</option>
+      </select>
     </section>
 
     <!-- Items -->
-    <section class="step">
+    <section>
       <h2>📝 Items</h2>
       <table>
         <thead>
-          <tr>
-            <th>Description</th><th>Qty</th><th>Price</th><th>VAT %</th><th>Total</th><th></th>
-          </tr>
+          <tr><th>Description</th><th>Qty</th><th>Price</th><th>VAT %</th><th>Total</th><th></th></tr>
         </thead>
         <tbody id="itemsBody"></tbody>
       </table>
-      <button class="btn" onclick="addItem()">➕ Add Item</button>
+      <button type="button" onclick="addItem()">➕ Add Item</button>
     </section>
 
     <!-- Summary -->
-    <section class="step">
+    <section>
       <h2>📦 Summary</h2>
-      <textarea id="note" placeholder="Notes..."></textarea>
-      <p><strong>Subtotal:</strong> <span id="subtotal">€0.00</span></p>
-      <p><strong>Total VAT:</strong> <span id="totalVat">€0.00</span></p>
-      <p><strong>Total:</strong> <span id="grandTotal">€0.00</span></p>
+      <p>Subtotal: <span id="subtotal">€0.00</span></p>
+      <p>Total VAT: <span id="totalVat">€0.00</span></p>
+      <p>Total: <span id="grandTotal">€0.00</span></p>
+      <textarea id="note" placeholder="Note..."></textarea>
     </section>
 
     <!-- OCR -->
-    <section class="step">
-      <h2>📷 Receipt OCR</h2>
-      <input type="file" id="receiptInput" accept="image/*" />
-      <button class="btn" onclick="processReceipt()">Scan</button>
+    <section>
+      <h2>📷 OCR</h2>
+      <input type="file" id="receiptInput" accept="image/*"/>
+      <button onclick="processReceipt()">Scan</button>
       <pre id="receiptText"></pre>
     </section>
 
     <!-- Signatures -->
-    <section class="step">
+    <section>
       <h2>✍️ Signatures</h2>
       <div>
-        <h3>Business Signature</h3>
-        <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
-        <button class="btn" onclick="clearSignature('signatureBusiness')">Clear</button>
+        <h3>Business</h3>
+        <canvas id="signatureBusiness" width="300" height="100"></canvas>
+        <button onclick="clearSignature('signatureBusiness')">Clear</button>
         <p>Date: <span id="signatureBusinessDate"></span></p>
       </div>
-      <div style="margin-top:12px">
-        <h3>Client Signature</h3>
-        <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-        <button class="btn" onclick="clearSignature('signatureClient')">Clear</button>
+      <div>
+        <h3>Client</h3>
+        <canvas id="signatureClient" width="300" height="100"></canvas>
+        <button onclick="clearSignature('signatureClient')">Clear</button>
         <p>Date: <span id="signatureClientDate"></span></p>
       </div>
     </section>
-
-    <!-- Actions -->
-    <section class="step">
-      <h2>⚙️ Actions</h2>
-      <button class="btn" onclick="saveInvoice()">💾 Save Invoice</button>
-      <a href="invoices-list.html" class="btn">📋 Open Invoices List</a>
-    </section>
   </main>
 
- <script type="module">
-  // ✅ Firestore sync — не змінює твою існуючу логіку, лише дописує у хмару
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-    authDomain: "smartwerk8520.firebaseapp.com",
-    projectId: "smartwerk8520",
-    appId: "1:607670981972:web:c07103c981c86860d724c1",
-  };
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const db   = getFirestore(app);
-  const auth = getAuth(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  // Нормалізує інвойс для списку (мінімально необхідні поля + все інше збережеться як є)
-  function normalizeForFirestore(inv) {
-    const parseMoney = v => Number(String(v).toString().replace("€","").trim()) || 0;
+let signatureBusinessDate = "";
+let signatureClientDate = "";
 
-    // Якщо збереження йде з DOM—доберемо підсумки напряму:
-    const subtotalEl = document.getElementById("subtotal");
-    const totalVatEl = document.getElementById("totalVat");
-    const grandEl    = document.getElementById("grandTotal");
+function addItem(desc="", qty=1, price=0, vat=21){
+  const row=document.createElement("tr");
+  row.innerHTML=`
+    <td><input class="desc" value="${desc}"/></td>
+    <td><input class="qty" type="number" value="${qty}" min="1"/></td>
+    <td><input class="price" type="number" value="${price}" step="0.01"/></td>
+    <td><select class="vat"><option>0</option><option>9</option><option selected>21</option></select></td>
+    <td class="item-total">€0.00</td>
+    <td><button type="button" onclick="this.closest('tr').remove();updateTotals();">❌</button></td>
+  `;
+  row.querySelectorAll("input,select").forEach(el=>el.oninput=updateTotals);
+  document.getElementById("itemsBody").appendChild(row);
+  updateTotals();
+}
+window.addItem=addItem;
 
-    const subtotal = inv.subtotal ?? (subtotalEl ? parseMoney(subtotalEl.innerText) : 0);
-    const vat      = inv.vat      ?? (totalVatEl ? parseMoney(totalVatEl.innerText) : 0);
-    const total    = inv.total    ?? (grandEl ? parseMoney(grandEl.innerText) : 0);
+function updateTotals(){
+  let subtotal=0, totalVat=0;
+  document.querySelectorAll("#itemsBody tr").forEach(r=>{
+    const qty=+r.querySelector(".qty").value||0;
+    const price=+r.querySelector(".price").value||0;
+    const vat=+r.querySelector(".vat").value||0;
+    const t=qty*price;
+    subtotal+=t;
+    totalVat+=t*vat/100;
+    r.querySelector(".item-total").innerText="€"+(t+t*vat/100).toFixed(2);
+  });
+  document.getElementById("subtotal").innerText="€"+subtotal.toFixed(2);
+  document.getElementById("totalVat").innerText="€"+totalVat.toFixed(2);
+  document.getElementById("grandTotal").innerText="€"+(subtotal+totalVat).toFixed(2);
+}
+window.updateTotals=updateTotals;
 
-    return {
-      ...inv,
-      // Ключові поля для списку:
-      invoiceNumber: String(inv.invoiceNumber || "").trim(),
-      clientName:    String(inv.clientName || "").trim(),
-      invoiceDate:   String(inv.invoiceDate || "").trim(), // очікується YYYY-MM-DD
-      status:        String(inv.status || "Draft"),
-      subtotal, vat, total,
-      userId: auth.currentUser?.uid || inv.userId || "",
-      createdAt: inv.createdAt || new Date().toISOString()
-    };
+function clearSignature(id){
+  const c=document.getElementById(id),ctx=c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+  if(id==="signatureBusiness"){signatureBusinessDate="";document.getElementById("signatureBusinessDate").innerText="";}
+  else{signatureClientDate="";document.getElementById("signatureClientDate").innerText="";}
+}
+window.clearSignature=clearSignature;
+
+function processReceipt(){
+  const f=document.getElementById("receiptInput").files[0];
+  if(!f)return;
+  const out=document.getElementById("receiptText");
+  out.innerText="⏳ Scanning...";
+  const reader=new FileReader();
+  reader.onload=()=>Tesseract.recognize(reader.result,"eng").then(({data:{text}})=>out.innerText=text);
+  reader.readAsDataURL(f);
+}
+window.processReceipt=processReceipt;
+
+// === Save ===
+async function generateInvoiceNumber(userId){
+  const ref=doc(db,"users",userId,"meta","counters");
+  return await runTransaction(db, async(tx)=>{
+    const snap=await tx.get(ref);
+    let last=0;
+    if(snap.exists()) last=snap.data().lastInvoiceNumber||0;
+    const next=last+1;
+    tx.set(ref,{lastInvoiceNumber:next},{merge:true});
+    return "INV-2025-"+String(next).padStart(3,"0");
+  });
+}
+
+async function saveInvoice(){
+  const user=auth.currentUser; if(!user) return;
+  const uid=user.uid;
+
+  let invId=localStorage.getItem("editInvoiceId")||null;
+  let invoiceNumber=document.getElementById("invoiceNumber").value;
+  if(!invId && !invoiceNumber){
+    invoiceNumber=await generateInvoiceNumber(uid);
+    document.getElementById("invoiceNumber").value=invoiceNumber;
   }
 
-  // Окремий виклик, щоб ти міг дернути його зі свого saveInvoice (якщо захочеш)
-  window.saveInvoiceToCloud = async function (invoice) {
-    const user = auth.currentUser;
-    if (!user) return; // тихо пропускаємо, якщо не залогінений
-    const inv = normalizeForFirestore(invoice);
-    const colRef = collection(db, "users", user.uid, "invoices");
-    await setDoc(doc(colRef), inv);
+  const items=[];
+  document.querySelectorAll("#itemsBody tr").forEach(r=>{
+    items.push({
+      desc:r.querySelector(".desc").value,
+      qty:+r.querySelector(".qty").value,
+      price:+r.querySelector(".price").value,
+      vat:+r.querySelector(".vat").value
+    });
+  });
+
+  const data={
+    businessName:document.getElementById("businessName").value,
+    kvk:document.getElementById("kvk").value,
+    iban:document.getElementById("iban").value,
+    btw:document.getElementById("btw").value,
+    email:document.getElementById("email").value,
+    businessAddress:document.getElementById("businessAddress").value,
+    businessPhone:document.getElementById("businessPhone").value,
+    clientName:document.getElementById("clientName").value,
+    clientEmail:document.getElementById("clientEmail").value,
+    clientPhone:document.getElementById("clientPhone").value,
+    clientAddress:document.getElementById("clientAddress").value,
+    invoiceDate:document.getElementById("invoiceDate").value,
+    dueDate:document.getElementById("dueDate").value,
+    invoiceNumber,
+    status:document.getElementById("status").value,
+    note:document.getElementById("note").value,
+    items,
+    subtotal:document.getElementById("subtotal").innerText,
+    totalVat:document.getElementById("totalVat").innerText,
+    grandTotal:document.getElementById("grandTotal").innerText,
+    signatures:{
+      business:document.getElementById("signatureBusiness").toDataURL(),
+      client:document.getElementById("signatureClient").toDataURL(),
+      businessDate:signatureBusinessDate,
+      clientDate:signatureClientDate
+    },
+    userId:uid
   };
 
-  // 🧠 Акуратне «перехоплення» існуючого saveInvoice без змін твоєї логіки
-  // Якщо у тебе вже є window.saveInvoice, ми його делікатно обгорнемо,
-  // щоб після локального збереження ще дописати у Firestore.
-  const originalSave = window.saveInvoice;
-  if (typeof originalSave === "function") {
-    window.saveInvoice = async function (...args) {
-      // знімок "до"
-      let before = [];
-      try { before = JSON.parse(localStorage.getItem("invoices") || "[]") || []; } catch {}
-
-      // виконуємо твій оригінальний saveInvoice (рахунки, підписи, нумерація — все як було)
-      const res = await originalSave.apply(this, args);
-
-      // шукаємо останній інвойс, щойно доданий/оновлений у localStorage
-      let after = [];
-      try { after = JSON.parse(localStorage.getItem("invoices") || "[]") || []; } catch {}
-
-      // пріоритет — останній елемент, або той, якого не було "до"
-      let candidate = after[after.length - 1];
-      for (const inv of after) {
-        if (!before.some(b => b.invoiceNumber === inv.invoiceNumber)) {
-          candidate = inv; break;
-        }
-      }
-
-      // штовхаємо у хмару (не ламаємо UX, помилки тихо в консоль)
-      if (candidate) {
-        try { await window.saveInvoiceToCloud(candidate); } 
-        catch (e) { console.warn("Cloud sync skipped:", e); }
-      }
-      return res;
-    };
+  if(invId){
+    await setDoc(doc(db,"users",uid,"invoices",invId),data);
+    localStorage.removeItem("editInvoiceId");
+  }else{
+    await addDoc(collection(db,"users",uid,"invoices"),data);
   }
+  alert("✅ Saved!");
+}
+document.getElementById("saveBtn").onclick=saveInvoice;
+
+// === Edit Mode ===
+onAuthStateChanged(auth,async(user)=>{
+  if(!user) return location.href="login.html";
+  const invId=localStorage.getItem("editInvoiceId");
+  if(invId){
+    const snap=await getDoc(doc(db,"users",user.uid,"invoices",invId));
+    if(snap.exists()){
+      const inv=snap.data();
+      for(const k in inv){ if(document.getElementById(k)) document.getElementById(k).value=inv[k]; }
+      inv.items.forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
+      document.getElementById("subtotal").innerText=inv.subtotal;
+      document.getElementById("totalVat").innerText=inv.totalVat;
+      document.getElementById("grandTotal").innerText=inv.grandTotal;
+      if(inv.signatures){
+        const b=new Image(); b.onload=()=>document.getElementById("signatureBusiness").getContext("2d").drawImage(b,0,0); b.src=inv.signatures.business;
+        const c=new Image(); c.onload=()=>document.getElementById("signatureClient").getContext("2d").drawImage(c,0,0); c.src=inv.signatures.client;
+        document.getElementById("signatureBusinessDate").innerText=inv.signatures.businessDate;
+        document.getElementById("signatureClientDate").innerText=inv.signatures.clientDate;
+      }
+    }
+  }
+});
+
+// Signatures draw
+["signatureBusiness","signatureClient"].forEach(id=>{
+  const c=document.getElementById(id),ctx=c.getContext("2d");let draw=false;
+  c.addEventListener("mousedown",()=>{draw=true;ctx.beginPath();});
+  c.addEventListener("mouseup",()=>{draw=false;const now=new Date().toLocaleDateString();if(id==="signatureBusiness"){signatureBusinessDate=now;document.getElementById("signatureBusinessDate").innerText=now;}else{signatureClientDate=now;document.getElementById("signatureClientDate").innerText=now;}});
+  c.addEventListener("mousemove",e=>{if(!draw)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="black";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
+});
 </script>
 </body>
 </html>
