@@ -62,6 +62,8 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
     // ==== Firebase Config ====
     const firebaseConfig = {
@@ -138,24 +140,27 @@
     };
 
     window.repeatMonthly = async (id) => {
-      const user = auth.currentUser;
-      if (!user) return;
-      const inv = invoices.find(i => i.id === id);
-      if (!inv) return;
-      const newDate = new Date();
-      const y = newDate.getFullYear();
-      const m = String(newDate.getMonth() + 1).padStart(2, "0");
-      const d = String(newDate.getDate()).padStart(2, "0");
-      const newInv = {
-        ...inv,
-        invoiceDate: `${y}-${m}-${d}`,
-        invoiceNumber: inv.invoiceNumber.replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
-        status: "Draft"
-      };
-      delete newInv.id;
-      await setDoc(doc(collection(db, "users", user.uid, "invoices")), newInv);
-      alert("Invoice repeated for this month!");
-    };
+  const user = auth.currentUser;
+  if (!user) return;
+  const inv = invoices.find(i => i.id === id);
+  if (!inv) return;
+
+  const newDate = new Date();
+  const y = newDate.getFullYear();
+  const m = String(newDate.getMonth() + 1).padStart(2, "0");
+  const d = String(newDate.getDate()).padStart(2, "0");
+
+  const newInv = {
+    ...inv,
+    invoiceDate: `${y}-${m}-${d}`,
+    invoiceNumber: inv.invoiceNumber.replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
+    status: "Draft"
+  };
+  delete newInv.id;
+
+  await addDoc(collection(db, "users", user.uid, "invoices"), newInv);
+  alert("Invoice repeated for this month!");
+};
 
     window.downloadPDF = (id) => {
       const inv = invoices.find(i => i.id === id);
