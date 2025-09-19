@@ -241,7 +241,7 @@
     /* ========== FIRESTORE: NUMBER PREVIEW + GENERATION ========== */
     async function previewNextInvoiceNumber(uid){
       try{
-        const ref  = doc(db,"users",uid,"meta","counters");
+       const ref = doc(db, "users", uid); // не в meta/counters
         const snap = await getDoc(ref);
         const last = snap.exists() ? (snap.data().lastInvoiceNumber||0) : 0;
         const next = last+1;
@@ -251,7 +251,7 @@
     }
 
     async function generateInvoiceNumber(uid){
-      const ref = doc(db,"users",uid,"meta","counters");
+     const ref = doc(db, "users", uid); // не в meta/counters
       const year = new Date().getFullYear();
       let final = "";
       await runTransaction(db, async (tx)=>{
