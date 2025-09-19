@@ -24,6 +24,35 @@
     <div class="card vat">🧾 VAT Payable<br><span id="vatPayable">€0</span></div>
   </section>
 
+  <section class="chart-filters">
+  <h3>📊 Invoices Chart Filters</h3>
+  <label>
+    Month:
+    <select id="monthSelect" onchange="updateFilters()">
+      <option value="all">All</option>
+      <!-- Динамічно додається -->
+    </select>
+  </label>
+
+  <label>
+    Status:
+    <select id="statusSelect" onchange="updateFilters()">
+      <option value="all">All</option>
+      <option value="Paid">Paid</option>
+      <option value="Draft">Draft</option>
+      <option value="Sent">Sent</option>
+    </select>
+  </label>
+
+  <label>
+    Chart Type:
+    <select id="chartType" onchange="updateFilters()">
+      <option value="bar">Bar</option>
+      <option value="line">Line</option>
+    </select>
+  </label>
+</section>
+
   <section class="filters">
     <h3>📅 Filter by Period</h3>
     <button onclick="filterBy('thisMonth')">This Month</button>
@@ -33,9 +62,12 @@
   </section>
 
   <section class="charts">
-    <h3>📊 Financial Overview</h3>
-    <canvas id="bookkeeperChart" height="120"></canvas>
-  </section>
+  <h3>📊 Financial Overview</h3>
+  <canvas id="bookkeeperChart" height="120"></canvas>
+
+  <h3>📈 Invoices Chart</h3>
+  <canvas id="invoicesChart" height="120"></canvas>
+</section>
 
   <section class="section invoices">
     <h3>📄 Invoices Summary</h3>
@@ -65,6 +97,7 @@
   <script type="module" src="bookkeeper.js">
     // 📁 bookkeeper.js — Firebase інтеграція для My Bookkeeper
 
+// bookkeeper.js
 import {
   initializeApp,
   getApps,
@@ -74,15 +107,17 @@ import {
 import {
   getFirestore,
   collection,
+  getDocs,
   query,
-  where,
-  getDocs
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
   getAuth,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -92,104 +127,96 @@ const firebaseConfig = {
 };
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-const $ = (id) => document.getElementById(id);
+const $ = sel => document.querySelector(sel);
+
+let currentChart = null;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) return window.location.href = "login.html";
+  if (!user) return (window.location.href = "login.html");
   const uid = user.uid;
+  const month = $("#monthSelect").value;
+  const status = $("#statusSelect").value;
+  const type = $("#chartType").value;
 
-  const invoices = await getData("invoices", uid);
-  const expenses = await getData("expenses", uid);
-  const reminders = await getData("reminders", uid);
+  const invoicesSnap = await getDocs(
+    query(collection(db, "invoices"), where("userId", "==", uid))
+  );
 
-  renderKPI(invoices, expenses);
-  renderChart(invoices, expenses);
-  renderTables(invoices, expenses, reminders);
+  const invoices = [];
+  invoicesSnap.forEach(doc => invoices.push(doc.data()));
+
+  const filtered = invoices.filter(i => {
+    const iMonth = (i.date || "").substring(0, 7);
+    const statusMatch = status === "All" || i.status === status;
+    const monthMatch = !month || iMonth === month;
+    return statusMatch && monthMatch;
+  });
+
+  updateChart(filtered, type);
 });
 
-async function getData(collectionName, uid) {
-  const q = query(collection(db, collectionName), where("userId", "==", uid));
-  const snap = await getDocs(q);
-  const data = [];
-  snap.forEach(doc => data.push(doc.data()));
-  return data;
-}
+window.updateFilters = async function () {
+  const user = auth.currentUser;
+  if (!user) return;
 
-function renderKPI(invoices, expenses) {
-  const income = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-  const cost = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  const vat = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
-  const profit = income - cost;
+  const uid = user.uid;
+  const month = $("#monthSelect").value;
+  const status = $("#statusSelect").value;
+  const type = $("#chartType").value;
 
-  $("kpiIncome").textContent = "€" + income.toFixed(2);
-  $("kpiExpenses").textContent = "€" + cost.toFixed(2);
-  $("kpiProfit").textContent = "€" + profit.toFixed(2);
-  $("kpiVAT").textContent = "€" + vat.toFixed(2);
-  $("kpiInvoices").textContent = invoices.length;
-}
+  const invoicesSnap = await getDocs(
+    query(collection(db, "invoices"), where("userId", "==", uid))
+  );
 
-function renderChart(invoices, expenses) {
-  const byMonth = {};
+  const invoices = [];
+  invoicesSnap.forEach(doc => invoices.push(doc.data()));
 
-  invoices.forEach(i => {
-    const month = (i.date || '').substring(0, 7);
-    if (!byMonth[month]) byMonth[month] = { income: 0, expenses: 0 };
-    byMonth[month].income += parseFloat(i.total || 0);
+  const filtered = invoices.filter(i => {
+    const iMonth = (i.date || "").substring(0, 7);
+    const statusMatch = status === "All" || i.status === status;
+    const monthMatch = !month || iMonth === month;
+    return statusMatch && monthMatch;
   });
 
-  expenses.forEach(e => {
-    const month = (e.date || '').substring(0, 7);
-    if (!byMonth[month]) byMonth[month] = { income: 0, expenses: 0 };
-    byMonth[month].expenses += parseFloat(e.amount || 0);
+  updateChart(filtered, type);
+}
+
+function updateChart(data, type) {
+  const monthly = {};
+  data.forEach(i => {
+    const date = (i.date || "").substring(0, 7);
+    if (!monthly[date]) monthly[date] = 0;
+    monthly[date] += parseFloat(i.total || 0);
   });
 
-  const labels = Object.keys(byMonth).sort();
-  const incomeData = labels.map(m => byMonth[m].income);
-  const expenseData = labels.map(m => byMonth[m].expenses);
+  const labels = Object.keys(monthly).sort();
+  const values = labels.map(l => monthly[l]);
 
-  const ctx = document.getElementById("bkChart").getContext("2d");
-  new Chart(ctx, {
-    type: 'bar',
+  if (currentChart) currentChart.destroy();
+
+  const ctx = document.getElementById("invoicesChart").getContext("2d");
+  currentChart = new Chart(ctx, {
+    type: type,
     data: {
       labels: labels,
-      datasets: [
-        { label: 'Income', data: incomeData },
-        { label: 'Expenses', data: expenseData }
-      ]
+      datasets: [{
+        label: `Invoices (${type})`,
+        data: values,
+        borderWidth: 1,
+        fill: type === "line"
+      }]
     },
     options: {
       responsive: true,
-      plugins: { legend: { position: 'top' } },
-      scales: { y: { beginAtZero: true } }
+      scales: {
+        y: { beginAtZero: true }
+      }
     }
   });
 }
-
-function renderTables(invoices, expenses, reminders) {
-  const invList = $("tableInvoices");
-  const expList = $("tableExpenses");
-  const remList = $("tableReminders");
-
-  invList.innerHTML = "";
-  invoices.forEach(i => {
-    invList.innerHTML += `<tr><td>${i.number}</td><td>${i.clientName}</td><td>${i.date}</td><td>€${i.total}</td><td>${i.status}</td></tr>`;
-  });
-
-  expList.innerHTML = "";
-  expenses.forEach(e => {
-    expList.innerHTML += `<tr><td>${e.category}</td><td>${e.date}</td><td>€${e.amount}</td><td>${e.notes || ''}</td></tr>`;
-  });
-
-  remList.innerHTML = "";
-  reminders.forEach(r => {
-    remList.innerHTML += `<tr><td>${r.reminderId}</td><td>${r.clientName}</td><td>${r.dueDate}</td><td>${r.status}</td></tr>`;
-  });
-}
-
-window.refreshBookkeeper = () => window.location.reload();
   </script>
 </body>
 </html>
