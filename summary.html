@@ -64,6 +64,8 @@
 
   <script>
 
+// summary.js (оновлена версія з фільтрацією, витратами та smart-порадами)
+
 import {
   initializeApp,
   getApps,
@@ -96,119 +98,85 @@ const db = getFirestore(app);
 
 const $ = sel => document.querySelector(sel);
 
+let invoices = [];
+let expenses = [];
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) return (window.location.href = "login.html");
   const uid = user.uid;
 
-  const invoicesSnap = await getDocs(
-    query(collection(db, "invoices"), where("userId", "==", uid))
-  );
+  const [invoicesSnap, expensesSnap] = await Promise.all([
+    getDocs(query(collection(db, "invoices"), where("userId", "==", uid))),
+    getDocs(query(collection(db, "expenses"), where("userId", "==", uid)))
+  ]);
 
-  const invoices = [];
+  invoices = [];
   invoicesSnap.forEach(doc => invoices.push(doc.data()));
 
-  renderSummary(invoices);
+  expenses = [];
+  expensesSnap.forEach(doc => expenses.push(doc.data()));
+
+  renderSummary(invoices, expenses);
 });
 
-function renderSummary(invoices) {
-  let totalIncome = 0;
-  let totalVAT = 0;
-  let outstanding = 0;
+function filterBy(period) {
+  const now = new Date();
+  let filteredInvoices = invoices;
 
-  invoices.forEach(inv => {
-    const total = parseFloat(inv.total || 0);
-    const vat = parseFloat(inv.vat || 0);
-    totalIncome += total;
-    totalVAT += vat;
-    if (inv.status !== "Paid") outstanding += total;
-  });
+  if (period === 'thisMonth') {
+    const ym = now.toISOString().slice(0, 7);
+    filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(ym));
+  } else if (period === 'lastMonth') {
+    const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const ym = d.toISOString().slice(0, 7);
+    filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(ym));
+  } else if (period === 'thisYear') {
+    const y = now.getFullYear();
+    filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(y.toString()));
+  }
 
-  const totalExpenses = 0; // 🔜 Якщо потрібен звʼязок з "expenses"
-  const netProfit = totalIncome - totalExpenses;
-
-  $("#totalIncome").textContent = "€" + totalIncome.toFixed(2);
-  $("#totalExpenses").textContent = "€" + totalExpenses.toFixed(2);
-  $("#netProfit").textContent = "€" + netProfit.toFixed(2);
-  $("#vatPayable").textContent = "€" + totalVAT.toFixed(2);
-  $("#pendingInvoices").textContent = "€" + outstanding.toFixed(2);
-
-  const monthlyData = {};
-  invoices.forEach(inv => {
-    const month = (inv.date || "").substring(0, 7); // YYYY-MM
-    if (!monthlyData[month]) monthlyData[month] = 0;
-    monthlyData[month] += parseFloat(inv.total || 0);
-  });
-
-  const labels = Object.keys(monthlyData).sort();
-  const values = labels.map(m => monthlyData[m]);
-
-  renderChart(labels, values);
+  renderSummary(filteredInvoices, expenses);
 }
 
-function renderChart(labels, values) {
-  const canvas = document.getElementById('monthlyChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Monthly Revenue (€)',
-        data: values,
-        borderWidth: 1,
-        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-        borderColor: 'rgba(59, 130, 246, 1)'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: value => '€' + value
-          }
-        }
-      }
-    }
-  });
+function filterByMonth(month) {
+  const filteredInvoices = invoices.filter(inv => (inv.date || '').startsWith(month));
+  renderSummary(filteredInvoices, expenses);
 }
 
+window.filterBy = filterBy;
+window.filterByMonth = filterByMonth;
 window.refreshSummary = () => location.reload();
 
-window.exportSummary = async function () {
-  const user = auth.currentUser;
-  if (!user) return alert("Not logged in");
+function renderSummary(invoices, expenses) {
+  const totalIncome = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
+  const totalExpenses = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const netProfit = totalIncome - totalExpenses;
+  const vatPayable = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
+  const unpaid = invoices.filter(i => i.status !== 'Paid');
 
-  const q = query(collection(db, "invoices"), where("userId", "==", user.uid));
-  const snap = await getDocs(q);
+  $("#totalIncome").textContent = `€${totalIncome.toFixed(2)}`;
+  $("#totalExpenses").textContent = `€${totalExpenses.toFixed(2)}`;
+  $("#netProfit").textContent = `€${netProfit.toFixed(2)}`;
+  $("#vatPayable").textContent = `€${vatPayable.toFixed(2)}`;
+  $("#pendingInvoices").textContent = `€${unpaid.reduce((s, i) => s + parseFloat(i.total || 0), 0).toFixed(2)}`;
 
-  const rows = [["Invoice #", "Client", "Date", "Total", "Status"]];
-  snap.forEach(doc => {
-    const i = doc.data();
-    rows.push([i.number, i.clientName, i.date, i.total, i.status]);
-  });
+  // Breakdown
+  $("#breakdownInvoiced").textContent = totalIncome.toFixed(2);
+  $("#breakdownExpenses").textContent = totalExpenses.toFixed(2);
+  $("#breakdownVAT").textContent = vatPayable.toFixed(2);
+  $("#breakdownTaxReserve").textContent = (netProfit * 0.20).toFixed(2);
+  $("#breakdownReminders").textContent = invoices.filter(i => i.status === 'Reminder Sent').length;
 
-  let csv = rows.map(r => r.join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "SmartWerk_Summary.csv";
-  a.click();
-};
+  renderSmartSuggestions(unpaid.length, totalIncome, totalExpenses);
+  renderChart(invoices);
+}
 
-window.filterBy = function (period) {
-  alert("Filtering by: " + period + " (Feature coming soon)");
-};
+function renderSmartSuggestions(unpaidCount, income, expenses) {
+  const ul = $("#suggestionsList");
+  ul.innerHTML = "";
 
-window.filterByMonth = function (month) {
-  alert("Filtering by month: " + month + " (Feature coming soon)");
-};
+  if (unpaidCount > 0) {
+    ul.innerHTML += `<li>
     
   </script>
 </body>
