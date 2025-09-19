@@ -2,395 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartWerk — Invoices & Overview</title>
-
-  <link rel="stylesheet" href="style-invoices.css?v=3" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-  <style>
-    /* читабельні кольори flatpickr */
-    .flatpickr-calendar{background:#0f172a;color:#e5e7eb;border:1px solid #1f2937}
-    .flatpickr-months{background:#111827;border-bottom:1px solid #1f2937}
-    .flatpickr-months .flatpickr-month,
-    .flatpickr-current-month .cur-month{color:#e5e7eb !important}
-    .flatpickr-current-month .numInputWrapper input{color:#e5e7eb}
-    span.flatpickr-weekday{color:#d1d5db}
-    .flatpickr-day{color:#d1d5db}
-    .flatpickr-day.today{border-color:#60a5fa}
-    .flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{background:#2563eb;border-color:#2563eb;color:#fff}
-    .flatpickr-next-month,.flatpickr-prev-month{color:#9ca3af}
-  </style>
-
-  <!-- libs -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📋 SmartWerk — Invoices List</title>
+  <link rel="stylesheet" href="style-invoices.css?v=4"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="topbar">
-  <nav>
-    <a href="index.html" class="btn">← Main Page</a>
-    <a href="dashboard.html" class="btn">← Dashboard</a>
-    <a href="invoices.html" class="btn">➕ New / Edit Invoice</a>
-  </nav>
-</div>
-  <main>
-    <!-- 📅 Filters & Search -->
-    <section class="step">
-      <h2>📅 Filters & Search</h2>
-      <label for="dateFrom">From:</label>
-      <input type="text" id="dateFrom" class="js-date" placeholder="YYYY-MM-DD">
-      <label for="dateTo">To:</label>
-      <input type="text" id="dateTo" class="js-date" placeholder="YYYY-MM-DD">
-      <input type="text" id="searchNumber" placeholder="Search..." oninput="renderInvoices()" />
-      <button onclick="renderInvoices()">🔎 Filter</button>
-      <button onclick="resetFilters()">🔄 Reset</button>
+  <header>
+    <h1>📋 Invoices List</h1>
+    <div class="header-actions">
+      <a href="invoices.html" class="btn">➕ New Invoice</a>
+      <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
+    </div>
+  </header>
 
-      <label for="statusFilter">Status:</label>
-      <select id="statusFilter" onchange="renderInvoices()">
+  <section class="filters">
+    <h3>🔎 Filters</h3>
+    <label>Status:
+      <select id="statusFilter">
         <option value="all">All</option>
         <option value="Draft">Draft</option>
         <option value="Sent">Sent</option>
         <option value="Paid">Paid</option>
-        <option value="Reminder Sent">Reminder Sent</option>
       </select>
+    </label>
+    <label>Month:
+      <input type="month" id="monthFilter"/>
+    </label>
+    <button onclick="resetFilters()">♻️ Reset Filters</button>
+  </section>
 
-      <label for="sortBy">Sort by:</label>
-      <select id="sortBy" onchange="renderInvoices()">
-        <option value="numberDesc" selected>Invoice Number (Newest First)</option>
-        <option value="numberAsc">Invoice Number (Oldest First)</option>
-        <option value="dateDesc">Date (Newest First)</option>
-        <option value="dateAsc">Date (Oldest First)</option>
-        <option value="amountDesc">Amount (High to Low)</option>
-        <option value="amountAsc">Amount (Low to High)</option>
-      </select>
-    </section>
+  <section>
+    <table id="invoicesTable">
+      <thead>
+        <tr>
+          <th onclick="sortInvoices('invoiceNumber')">Invoice #</th>
+          <th onclick="sortInvoices('clientName')">Client</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="invoicesBody"></tbody>
+    </table>
+  </section>
 
-    <!-- 📂 Saved Invoices -->
-    <section class="step">
-      <h2>📂 Saved Invoices</h2>
-      <div id="savedInvoices"></div>
-    </section>
+  <footer>
+    <p>© 2025–2030 SmartWerk. All rights reserved.</p>
+  </footer>
 
-    <!-- 📊 Overview -->
-    <section class="step">
-      <h2>📊 Income & Expense Overview</h2>
-      <canvas id="incomeChart" height="100"></canvas>
-    </section>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script>
-/* ==== Calendar ==== */
-function initDatepickers(root=document){
-  const opts = {
-    dateFormat: "Y-m-d",
-    allowInput: true,
-    onChange: (sel,str,inst)=>{
-      const input = inst._input;
-      input.value = str || "";
-      input.dispatchEvent(new Event('input',{bubbles:true}));
-      input.dispatchEvent(new Event('change',{bubbles:true}));
-    }
-  };
-  const pickers = ['#dateFrom','#dateTo','.js-date'];
-  const nodes = new Set();
-  pickers.forEach(sel => document.querySelectorAll(sel).forEach(el=>nodes.add(el)));
-  nodes.forEach(el => { if (!el._fp) el._fp = flatpickr(el, opts); });
-}
-
-/* ==== Utils ==== */
-function normStatus(s){ return (s||"").toString().trim().toLowerCase(); }
-function toEnumStatus(s){ const t = normStatus(s); return t==="paid"?"Paid":t==="sent"?"Sent":"Draft"; }
-function indexByNumber(invNumber){
-  const arr = JSON.parse(localStorage.getItem("invoices") || "[]");
-  return arr.findIndex(i => String(i.invoiceNumber) === String(invNumber));
-}
-
-/* парсер номера: INV-YYYY-XXX -> {year, seq} */
-function parseInvoiceNumber(num){
-  const m = String(num||"").match(/INV-(\d{4})-(\d{3})/i);
-  return m ? {year:+m[1], seq:+m[2]} : {year:0, seq:0};
-}
-
-/* ==== Listing / Chart ==== */
-function getInvoiceTotal(inv) {
-  if (!inv.items) return 0;
-  return inv.items.reduce((sum, item) => {
-    const qty = parseFloat(item.qty || 0);
-    const price = parseFloat(item.price || 0);
-    const vat = parseFloat(item.vat || 0);
-    return sum + qty * price * (1 + vat / 100);
-  }, 0);
-}
-let incomeChartInstance = null;
-function renderChart(invoices) {
-  const monthlyTotals = {};
-  invoices.forEach(inv => {
-    if (!inv.invoiceDate) return;
-    const month = new Date(inv.invoiceDate).toLocaleString("en-US", { month: "short", year: "numeric" });
-    const total = getInvoiceTotal(inv);
-    monthlyTotals[month] = (monthlyTotals[month] || 0) + total;
-  });
-  const labels = Object.keys(monthlyTotals);
-  const data = Object.values(monthlyTotals);
-  const ctx = document.getElementById("incomeChart").getContext("2d");
-  if (incomeChartInstance) incomeChartInstance.destroy();
-  incomeChartInstance = new Chart(ctx, {
-    type: "bar",
-    data: { labels, datasets: [{ label: "Monthly Income (€)", data, backgroundColor: "rgba(75, 192, 192, 0.6)" }] },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c)=>`€${c.parsed.y.toFixed(2)}` } } },
-      scales: { y: { beginAtZero: true, ticks: { callback: (v)=>`€${v}` } } }
-    }
-  });
-}
-function statusBadgeHTML(statusRaw){
-  const s = normStatus(statusRaw);
-  const cls = s === "paid" ? "paid" : s === "sent" ? "sent" : s === "reminder sent" ? "reminder" : "draft";
-  const txt = s === "paid" ? "Paid" : s === "sent" ? "Sent" : s === "reminder sent" ? "Reminder Sent" : "Draft";
-  return `<span class="status-badge ${cls}">${txt}</span>`;
-}
-
-/* ---- main render ---- */
-function renderInvoices() {
-  const savedContainer = document.getElementById("savedInvoices"); if (!savedContainer) return;
-  savedContainer.innerHTML = "";
-
-  let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-
-  const status = document.getElementById("statusFilter")?.value || "all";
-  const search = (document.getElementById("searchNumber")?.value || "").toLowerCase();
-  const fromDate = document.getElementById("dateFrom")?.value || "";
-  const toDate   = document.getElementById("dateTo")?.value || "";
-  const sortBy   = document.getElementById("sortBy")?.value || "numberDesc";
-
-  /* фільтри */
-  invoices = invoices.filter(inv => {
-    const matchStatus = status === "all" || normStatus(inv.status) === normStatus(status);
-    const matchSearch = (inv.invoiceNumber || "").toLowerCase().includes(search) || (inv.clientName || "").toLowerCase().includes(search);
-    const invDate = new Date(inv.invoiceDate || "1900-01-01");
-    const matchFrom = !fromDate || new Date(fromDate) <= invDate;
-    const matchTo   = !toDate   || new Date(toDate)   >= invDate;
-    return matchStatus && matchSearch && matchFrom && matchTo;
-  });
-
-  /* компаратори */
-  const cmpNumDesc = (a,b)=>{
-    const pa = parseInvoiceNumber(a.invoiceNumber), pb = parseInvoiceNumber(b.invoiceNumber);
-    if (pb.year !== pa.year) return pb.year - pa.year;   // новіший рік вище
-    if (pb.seq  !== pa.seq ) return pb.seq  - pa.seq;    // більший порядковий вище
-    // fallback: за датою
-    const ta = Date.parse(a.invoiceDate||"") || 0;
-    const tb = Date.parse(b.invoiceDate||"") || 0;
-    return tb - ta;
-  };
-  const cmpNumAsc   = (a,b)=> -cmpNumDesc(a,b);
-  const cmpDateDesc = (a,b)=>{
-    const ta = Date.parse(a.invoiceDate||"") || 0;
-    const tb = Date.parse(b.invoiceDate||"") || 0;
-    return tb - ta;
-  };
-  const cmpDateAsc   = (a,b)=> -cmpDateDesc(a,b);
-  const cmpAmountDesc= (a,b)=> getInvoiceTotal(b) - getInvoiceTotal(a);
-  const cmpAmountAsc = (a,b)=> -cmpAmountDesc(a,b);
-
-  invoices.sort((a,b)=>{
-    switch (sortBy) {
-      case "numberAsc":  return cmpNumAsc(a,b);
-      case "dateDesc":   return cmpDateDesc(a,b);
-      case "dateAsc":    return cmpDateAsc(a,b);
-      case "amountDesc": return cmpAmountDesc(a,b);
-      case "amountAsc":  return cmpAmountAsc(a,b);
-      case "numberDesc":
-      default:           return cmpNumDesc(a,b);
-    }
-  });
-
-  /* рендер карток — показуємо ІМ’Я КЛІЄНТА */
-  invoices.forEach((inv) => {
-    const div = document.createElement("div");
-    div.className = "invoice-block";
-  const badge = statusBadgeHTML(inv.status);
-const statusColor = {
-  "Draft": "gray",
-  "Sent": "blue",
-  "Paid": "green",
-  "Reminder Sent": "orange"
-};
-const statusText = inv.status || "Draft";
-const statusStyle = `color: ${statusColor[statusText] || "black"}`;
-
-div.innerHTML = `
-  <strong>${inv.clientName || "-"}</strong> — ${inv.invoiceNumber || "INV-XXXX-XXX"}<br>
-  <span style="${statusStyle}"><strong>Status:</strong> ${statusText}</span><br>
-  <em>Date: ${inv.invoiceDate || "N/A"}</em><br>
-  <em>Total: €${getInvoiceTotal(inv).toFixed(2)}</em><br>
-  <button onclick="downloadPDFByNumber('${inv.invoiceNumber}')">📄 PDF</button>
-  <button onclick="editInvoiceByNumber('${inv.invoiceNumber}')">✏️ Edit</button>
-  <button onclick="deleteInvoiceByNumber('${inv.invoiceNumber}')">🗑️ Delete</button>
-  <button onclick="repeatMonthlyByNumber('${inv.invoiceNumber}')">📅 Repeat Monthly</button>
-`;
-    savedContainer.appendChild(div);
-  });
-
-  renderChart(invoices);
-}
-
-/* reset фільтрів */
-function resetFilters() {
-  ["searchNumber"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
-  const fd = document.getElementById("dateFrom"); if (fd) fd.value="";
-  const td = document.getElementById("dateTo");   if (td) td.value="";
-  const sf = document.getElementById("statusFilter"); if (sf) sf.value="all";
-  const sb = document.getElementById("sortBy"); if (sb) sb.value="numberDesc";
-  renderInvoices();
-}
-
-/* ==== Actions (by invoiceNumber) ==== */
-async function downloadPDFByNumber(num){
-  const idx = indexByNumber(num); if (idx < 0) return;
-  const { jsPDF } = window.jspdf; const doc = new jsPDF();
-  const invoices = JSON.parse(localStorage.getItem("invoices")) || []; const inv = invoices[idx]; if (!inv) return;
-  const cleanText = (t) => (t || "").toString().replace(/[^\x00-\x7F]/g, "");
-  const invoiceNumber = cleanText(inv.invoiceNumber || `INV-XXXX-${(idx + 1).toString().padStart(3, "0")}`);
-  doc.setFontSize(18); doc.text("INVOICE", 105, 20, null, null, "center");
-  doc.setFontSize(12);
-  doc.text("From:", 20, 35);
-  doc.text(cleanText(inv.businessName), 20, 41);
-  doc.text(`KvK: ${cleanText(inv.kvk)}`, 20, 47);
-  doc.text(`IBAN: ${cleanText(inv.iban)}`, 20, 53);
-  doc.text(`Email: ${cleanText(inv.email)}`, 20, 59);
-  if (inv.btw) doc.text(`BTW: ${cleanText(inv.btw)}`, 20, 65);
-  doc.text(`Address: ${cleanText(inv.businessAddress)}`, 20, 71);
-  doc.text(`Phone: ${cleanText(inv.businessPhone)}`, 20, 77);
-  doc.text("To:", 140, 35);
-  doc.text(cleanText(inv.clientName), 140, 41);
-  if (inv.clientEmail) doc.text(cleanText(inv.clientEmail), 140, 47);
-  doc.text(`Address: ${cleanText(inv.clientAddress)}`, 140, 53);
-  doc.text(`Phone: ${cleanText(inv.clientPhone)}`, 140, 59);
-  let nextY = 90;
-  doc.autoTable({ startY: nextY, head: [['Invoice Number','Date Issued','Due Date','Status']],
-    body:[[ invoiceNumber, cleanText(inv.invoiceDate||""), cleanText(inv.dueDate||""), cleanText(toEnumStatus(inv.status)) ]],
-    styles:{halign:'left'}, headStyles:{ fillColor:[240,240,240] } });
-  nextY = doc.lastAutoTable.finalY + 10;
-  const rows = (inv.items||[]).map(item=>[
-    cleanText(item.desc), item.qty, `€${parseFloat(item.price).toFixed(2)}`, `${item.vat}%`,
-    `€${(item.qty*item.price*(1+item.vat/100)).toFixed(2)}`
-  ]);
-  doc.autoTable({
-    startY: nextY, head: [['Description','Qty','Unit Price','VAT','Total']], body: rows,
-    styles:{halign:'left'}, columnStyles:{0:{cellWidth:60},1:{halign:'right'},2:{halign:'right'},3:{halign:'right'},4:{halign:'right'}},
-    headStyles:{ fillColor:[240,240,240] }
-  });
-  nextY = doc.lastAutoTable.finalY + 10;
-  const subtotal = (inv.items||[]).reduce((s,i)=>s+i.qty*i.price,0);
-  const vatTotal = (inv.items||[]).reduce((s,i)=>s+i.qty*i.price*(i.vat/100),0);
-  const total = subtotal + vatTotal;
-  doc.autoTable({
-    startY: nextY, body: [['Subtotal:',`€${subtotal.toFixed(2)}`],['VAT:',`€${vatTotal.toFixed(2)}`],['Total Due:',`€${total.toFixed(2)}`]],
-    theme:'plain', styles:{fontStyle:'bold'}, columnStyles:{0:{halign:'right'},1:{halign:'right'}}
-  });
-  nextY = doc.lastAutoTable.finalY + 10;
-  doc.save(`${invoiceNumber}.pdf`);
-}
-
-function editInvoiceByNumber(num){
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const inv = invoices.find(i => String(i.invoiceNumber) === String(num));
-  if (!inv) { alert("Invoice not found."); return; }
-  if (normStatus(inv.status) !== "draft") {
-    alert("Editing is only allowed in 'Draft' status."); return;
-  }
-  localStorage.setItem('editInvoiceNumber', String(num));
-  location.href = 'invoices.html#edit=1';
-}
-
-function deleteInvoiceByNumber(num){
-  if (!confirm("Are you sure you want to delete this invoice?")) return;
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const idx = invoices.findIndex(i => String(i.invoiceNumber) === String(num));
-  if (idx>=0) {
-    invoices.splice(idx,1);
-    localStorage.setItem("invoices", JSON.stringify(invoices));
-    renderInvoices();
-    alert("Invoice deleted.");
-  }
-}
-
-function repeatMonthlyByNumber(num){
-  if (typeof window.isBlockedByFreeLimit === "function" && window.isBlockedByFreeLimit(false)) {
-    alert(`❗ You've reached the Free plan limit (3 invoices). Upgrade to PRO for unlimited invoices.`);
-    return;
-  }
-  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-  const idx = invoices.findIndex(i => String(i.invoiceNumber) === String(num));
-  const original = invoices[idx]; if (!original) return;
-
-  const newInvoice = JSON.parse(JSON.stringify(original));
-  const today = new Date();
-  const nextMonth = new Date(today.setMonth(today.getMonth()+1));
-  const formattedDate = nextMonth.toISOString().split("T")[0];
-
-  /* новий номер */
-  const numbers = invoices
-    .map(inv => inv.invoiceNumber)
-    .filter(n => /^INV-\d{4}-\d{3}$/i.test(n || ""))
-    .map(n => parseInt(n.split("-")[2]))
-    .sort((a, b) => b - a);
-  const next = numbers.length ? numbers[0] + 1 : 1;
-  const padded = String(next).padStart(3, "0");
-  const year = new Date().getFullYear();
-  newInvoice.invoiceNumber = `INV-${year}-${padded}`;
-
-  newInvoice.invoiceDate = formattedDate;
-  newInvoice.dueDate = "";
-  newInvoice.status = "Draft";
-  newInvoice.signatures = { business:"", client:"", date:new Date().toLocaleDateString("nl-NL") };
-
-  invoices.push(newInvoice);
-  localStorage.setItem("invoices", JSON.stringify(invoices));
-  renderInvoices();
-
-  if (window.saveInvoiceToCloud) {
-    window.saveInvoiceToCloud(newInvoice).catch(console.error);
-  }
-
-  alert("✅ Monthly invoice created!");
-}
-
-/* ==== Реальний час між вкладками + активізація ==== */
-let LAST_INVOICES_RAW = null;
-function maybeRerenderOnLocalChange(){
-  const raw = localStorage.getItem('invoices') || '[]';
-  if (raw !== LAST_INVOICES_RAW) {
-    LAST_INVOICES_RAW = raw;
-    renderInvoices();
-  }
-}
-window.addEventListener('storage', (e)=>{
-  if (e.key === 'invoices' || e.key === 'invoices:pulse') {
-    maybeRerenderOnLocalChange();
-  }
-});
-document.addEventListener('visibilitychange', ()=>{
-  if (!document.hidden) maybeRerenderOnLocalChange();
-});
-window.addEventListener('focus', maybeRerenderOnLocalChange);
-setInterval(maybeRerenderOnLocalChange, 1500);
-
-/* init */
-document.addEventListener('DOMContentLoaded', ()=>{
-  initDatepickers(document);
-  const sb = document.getElementById('sortBy'); if (sb) sb.value = 'numberDesc'; // гарантуємо "нові зверху" за номером
-  maybeRerenderOnLocalChange();
-});
-  </script>
-
-  <!-- ===== Firebase: realtime список + ліміт + інкремент ===== -->
   <script type="module">
+    // ==== Firebase Imports ====
+    import { initializeApp, getApps, getApp } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // ==== Firebase Config ====
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -398,68 +71,127 @@ document.addEventListener('DOMContentLoaded', ()=>{
       appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
 
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, doc, getDoc, updateDoc, collection, addDoc, increment, onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
 
-    /* Ліміт */
-    const FREE_LIMIT = 3;
-    window.SW_STATE = { isPro:false, invoiceCount:0 };
-    window.isBlockedByFreeLimit = function isBlockedByFreeLimit(isEdit = false){
-      const { isPro, invoiceCount } = window.SW_STATE || {};
-      if (isPro) return false;
-      return !isEdit && Number(invoiceCount || 0) >= FREE_LIMIT;
-    };
+    // ==== Global State ====
+    let invoices = [];
+    let currentSort = { field: "invoiceNumber", asc: false };
 
-    // Cloud save тільки для нових
-    window.saveInvoiceToCloud = async function(invoice){
-      const user = auth.currentUser;
-      if (!user) return;
-      await addDoc(collection(db, 'users', user.uid, 'invoices'), invoice);
-      await updateDoc(doc(db,'users',user.uid), { invoiceCount: increment(1) }).catch(()=>{});
-      window.SW_STATE.invoiceCount = (window.SW_STATE.invoiceCount || 0) + 1;
-    };
+    const $ = sel => document.querySelector(sel);
 
-    /* Realtime Firestore → localStorage → рендер */
-    let unsubscribeInvoices = null;
-    function subscribeInvoices(user){
-      if (unsubscribeInvoices) { unsubscribeInvoices(); unsubscribeInvoices = null; }
-      if (!user) return;
+    // ==== Render Invoices ====
+    function renderInvoices() {
+      const body = $("#invoicesBody");
+      body.innerHTML = "";
 
-      const colRef = collection(db, 'users', user.uid, 'invoices');
-      unsubscribeInvoices = onSnapshot(colRef, (snap)=>{
-        const remote = [];
-        snap.forEach(d => remote.push(d.data()));
+      const statusFilter = $("#statusFilter").value;
+      const monthFilter = $("#monthFilter").value;
 
-        const local = JSON.parse(localStorage.getItem('invoices') || '[]');
-        const map = new Map(local.map(inv => [inv.invoiceNumber, inv]));
+      let filtered = invoices.filter(inv => {
+        let ok = true;
+        if (statusFilter !== "all") ok = ok && inv.status === statusFilter;
+        if (monthFilter) ok = ok && inv.invoiceDate?.startsWith(monthFilter);
+        return ok;
+      });
 
-        remote.forEach(r => {
-          if (r && r.invoiceNumber) map.set(r.invoiceNumber, r); // мерж без видалення локальних
-        });
+      // Sorting
+      filtered.sort((a, b) => {
+        let field = currentSort.field;
+        let dir = currentSort.asc ? 1 : -1;
+        if (a[field] < b[field]) return -1 * dir;
+        if (a[field] > b[field]) return 1 * dir;
+        return 0;
+      });
 
-        const merged = Array.from(map.values());
-        localStorage.setItem('invoices', JSON.stringify(merged));
-        localStorage.setItem('invoices:pulse', String(Date.now()));
+      filtered.forEach(inv => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${inv.invoiceNumber || "—"}</td>
+          <td>${inv.clientName || "—"}</td>
+          <td>${inv.status || "Draft"}</td>
+          <td>${inv.invoiceDate || "—"}</td>
+          <td>€${(inv.total || 0).toFixed(2)}</td>
+          <td>
+            <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
+            <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
+            <button onclick="downloadPDF('${inv.id}')">📄 PDF</button>
+            <button onclick="repeatMonthly('${inv.id}')">🔁 Repeat Monthly</button>
+          </td>
+        `;
+        body.appendChild(tr);
       });
     }
 
-    onAuthStateChanged(auth, async (user) => {
+    // ==== Actions ====
+    window.editInvoice = (id) => {
+      localStorage.setItem("editInvoiceId", id);
+      window.location.href = "invoices.html";
+    };
+
+    window.deleteInvoice = async (id) => {
+      if (!confirm("Delete this invoice?")) return;
+      const user = auth.currentUser;
       if (!user) return;
-      try {
-        const userRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userRef);
-        const data = snap.exists() ? snap.data() : {};
-        window.SW_STATE.isPro        = !!data.pro;
-        window.SW_STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
-        subscribeInvoices(user);
-      } catch (err) { console.error(err); }
+      await deleteDoc(doc(db, "users", user.uid, "invoices", id));
+    };
+
+    window.repeatMonthly = async (id) => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const inv = invoices.find(i => i.id === id);
+      if (!inv) return;
+      const newDate = new Date();
+      const y = newDate.getFullYear();
+      const m = String(newDate.getMonth() + 1).padStart(2, "0");
+      const d = String(newDate.getDate()).padStart(2, "0");
+      const newInv = {
+        ...inv,
+        invoiceDate: `${y}-${m}-${d}`,
+        invoiceNumber: inv.invoiceNumber.replace(/\d+$/, num => String(+num+1).padStart(3,"0")),
+        status: "Draft"
+      };
+      delete newInv.id;
+      await setDoc(doc(collection(db, "users", user.uid, "invoices")), newInv);
+      alert("Invoice repeated for this month!");
+    };
+
+    window.downloadPDF = (id) => {
+      const inv = invoices.find(i => i.id === id);
+      if (!inv) return;
+      const { jsPDF } = window.jspdf;
+      const docPDF = new jsPDF();
+      docPDF.text(`Invoice ${inv.invoiceNumber}`, 10, 10);
+      docPDF.text(`Client: ${inv.clientName}`, 10, 20);
+      docPDF.text(`Date: ${inv.invoiceDate}`, 10, 30);
+      docPDF.text(`Status: ${inv.status}`, 10, 40);
+      docPDF.text(`Total: €${inv.total}`, 10, 50);
+      docPDF.save(`${inv.invoiceNumber}.pdf`);
+    };
+
+    // ==== Sorting / Filters ====
+    window.sortInvoices = (field) => {
+      if (currentSort.field === field) currentSort.asc = !currentSort.asc;
+      else currentSort = { field, asc: true };
+      renderInvoices();
+    };
+
+    window.resetFilters = () => {
+      $("#statusFilter").value = "all";
+      $("#monthFilter").value = "";
+      renderInvoices();
+    };
+
+    // ==== Realtime listener ====
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return (window.location.href = "login.html");
+      const colRef = collection(db, "users", user.uid, "invoices");
+      const q = query(colRef, orderBy("invoiceDate", "desc"));
+      onSnapshot(q, (snap) => {
+        invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderInvoices();
+      });
     });
   </script>
 </body>
