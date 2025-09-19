@@ -281,8 +281,7 @@
       });
 
       // totals (перерахунок для надійності)
-      let subtotal=0,totalVat=0;
-      items.forEach(i=>{ const line=i.qty*i.price; subtotal+=line; totalVat+=line*i.vat/100; });
+     
 
       // номер
       let invoiceNumber = $("invoiceNumber").value.trim();
