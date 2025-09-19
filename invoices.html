@@ -7,18 +7,8 @@
   <link rel="stylesheet" href="style-invoices.css?v=6"/>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-  <style>
-    header nav a.btn {
-      background:#2563eb;
-      color:#fff;
-      padding:6px 12px;
-      border-radius:6px;
-      text-decoration:none;
-      margin-right:8px;
-    }
-    header nav { margin-bottom:1rem; }
-    canvas.signature { border:1px solid #ccc; background:#fff; cursor:crosshair; }
-  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  
 </head>
 <body>
   <header>
@@ -49,8 +39,8 @@
       <input id="clientEmail" placeholder="Client Email"/>
       <input id="clientPhone" placeholder="Client Phone"/>
       <input id="clientAddress" placeholder="Client Address"/>
-      <input id="invoiceDate" class="js-date" placeholder="Invoice Date"/>
-      <input id="dueDate" class="js-date" placeholder="Due Date"/>
+      <input id="invoiceDate" class="js-date" placeholder="YYYY-MM-DD">
+      <input id="dueDate"     class="js-date" placeholder="YYYY-MM-DD">
       <input id="invoiceNumber" readonly placeholder="Invoice Number"/>
       <select id="status">
         <option>Draft</option>
@@ -107,13 +97,12 @@
 
     <!-- Actions -->
     <section>
-      <h2>⚙️ Actions</h2>
-      <button id="saveBtn">💾 Save Invoice</button>
-      <a href="invoices-list.html" class="btn">📋 Open Invoices List</a>
-    </section>
+    <section class="step actions">
+  <button id="saveBtn" class="btn-primary">💾 Save Invoice</button>
+  <a href="invoices-list.html" class="btn-primary">📋 Open Invoices List</a>
+</section>
   </main>
-
-  <footer>
+ <footer>
     <p>© 2025 SmartWerk</p>
   </footer>
 
@@ -198,16 +187,23 @@ function processReceipt(){
 window.processReceipt=processReceipt;
 
 // ==== Firestore Save ====
-async function generateInvoiceNumber(userId){
-  const ref=doc(db,"users",userId,"meta","counters");
-  return await runTransaction(db,async(tx)=>{
-    const snap=await tx.get(ref);
-    let last=0;
-    if(snap.exists()) last=snap.data().lastInvoiceNumber||0;
-    const next=last+1;
-    tx.set(ref,{lastInvoiceNumber:next},{merge:true});
-    return "INV-2025-"+String(next).padStart(3,"0");
+async function generateInvoiceNumber(uid) {
+  const ref = doc(db, "users", uid, "meta", "counters");
+  const year = new Date().getFullYear();
+  return await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const last = snap.exists() ? (snap.data().lastInvoiceNumber || 0) : 0;
+    const next = last + 1;
+    tx.set(ref, { lastInvoiceNumber: next }, { merge: true });
+    return `INV-${year}-${String(next).padStart(3, "0")}`;
   });
+}
+
+// ... усередині saveInvoice():
+let invoiceNumber = document.getElementById("invoiceNumber").value.trim();
+if (!invoiceNumber) {
+  invoiceNumber = await generateInvoiceNumber(user.uid);
+  document.getElementById("invoiceNumber").value = invoiceNumber;
 }
 
 async function saveInvoice(){
@@ -252,7 +248,25 @@ async function saveInvoice(){
   else{await addDoc(collection(db,"users",uid,"invoices"),data);}
   alert("✅ Saved!");
 }
-document.getElementById("saveBtn").onclick=saveInvoice;
+document.getElementById("saveBtn").addEventListener("click", saveInvoice);
+
+  
+  // === Preview Invoice Number ===
+  async function previewNextInvoiceNumber(uid) {
+    try {
+      const ref  = doc(db, "users", uid, "meta", "counters");
+      const snap = await getDoc(ref);
+      const last = snap.exists() ? (snap.data().lastInvoiceNumber || 0) : 0;
+      const next = last + 1;
+      const preview = `INV-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
+      const el = document.getElementById("invoiceNumber");
+      if (el && !el.value) {
+        el.placeholder = preview; // показуємо користувачу
+      }
+    } catch (e) {
+      console.error("Preview error:", e);
+    }
+  }
 
 // ==== Init ====
 onAuthStateChanged(auth,user=>{
