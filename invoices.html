@@ -5,20 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk Invoice Manager</title>
 
-  <link rel="stylesheet" href="style-invoices.css?v=4" />
+  <link rel="stylesheet" href="style-invoices.css?v=5" />
 
-  <!-- Flatpickr -->
+  <!-- Flatpickr (календар) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-  <!-- OCR + PDF -->
+  <!-- OCR + PDF (можеш лишити, якщо користуєшся) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
   <style>
-    .signature { border:1px solid #444; background:#fff; cursor:crosshair; }
-    .step { margin:20px 0; padding:15px; border:1px solid #333; border-radius:8px; }
+    .signature { border:1px solid #444; background:#fff; cursor:crosshair; display:block }
+    .step { margin:20px 0; padding:16px; border:1px solid #2a2a2a; border-radius:12px }
+    table { width:100%; border-collapse: collapse }
+    th, td { padding:8px; border-bottom:1px solid #2a2a2a }
+    .btn { display:inline-block; padding:8px 12px; border:1px solid #3b82f6; color:#fff; background:#2563eb; border-radius:8px; text-decoration:none }
+    .btn:hover { filter:brightness(1.05) }
   </style>
 </head>
 <body>
@@ -53,9 +57,9 @@
       <input id="clientPhone" type="tel" placeholder="Client Phone" />
       <input id="clientAddress" placeholder="Client Address" />
 
-      <input id="invoiceDate" class="js-date" placeholder="Invoice Date" />
-      <input id="dueDate" class="js-date" placeholder="Due Date" />
-      <input id="invoiceNumber" placeholder="Invoice Number" />
+      <input id="invoiceDate" class="js-date" placeholder="Invoice Date (YYYY-MM-DD)" />
+      <input id="dueDate" class="js-date" placeholder="Due Date (YYYY-MM-DD)" />
+      <input id="invoiceNumber" placeholder="Invoice Number (auto)" />
 
       <label>Status:
         <select id="status">
@@ -70,10 +74,14 @@
     <section class="step">
       <h2>📝 Items</h2>
       <table>
-        <thead><tr><th>Description</th><th>Qty</th><th>Price</th><th>VAT %</th><th>Total</th><th></th></tr></thead>
+        <thead>
+          <tr>
+            <th>Description</th><th>Qty</th><th>Price</th><th>VAT %</th><th>Total</th><th></th>
+          </tr>
+        </thead>
         <tbody id="itemsBody"></tbody>
       </table>
-      <button onclick="addItem()">➕ Add Item</button>
+      <button class="btn" onclick="addItem()">➕ Add Item</button>
     </section>
 
     <!-- Summary -->
@@ -89,7 +97,7 @@
     <section class="step">
       <h2>📷 Receipt OCR</h2>
       <input type="file" id="receiptInput" accept="image/*" />
-      <button onclick="processReceipt()">Scan</button>
+      <button class="btn" onclick="processReceipt()">Scan</button>
       <pre id="receiptText"></pre>
     </section>
 
@@ -99,13 +107,13 @@
       <div>
         <h3>Business Signature</h3>
         <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
-        <button onclick="clearSignature('signatureBusiness')">Clear</button>
+        <button class="btn" onclick="clearSignature('signatureBusiness')">Clear</button>
         <p>Date: <span id="signatureBusinessDate"></span></p>
       </div>
-      <div>
+      <div style="margin-top:12px">
         <h3>Client Signature</h3>
         <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-        <button onclick="clearSignature('signatureClient')">Clear</button>
+        <button class="btn" onclick="clearSignature('signatureClient')">Clear</button>
         <p>Date: <span id="signatureClientDate"></span></p>
       </div>
     </section>
@@ -113,104 +121,259 @@
     <!-- Actions -->
     <section class="step">
       <h2>⚙️ Actions</h2>
-      <button onclick="saveInvoice()">💾 Save Invoice</button>
+      <button class="btn" onclick="saveInvoice()">💾 Save Invoice</button>
       <a href="invoices-list.html" class="btn">📋 Open Invoices List</a>
     </section>
   </main>
 
-<script type="module">
-/* ================= FIREBASE ================= */
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <script type="module">
+    /* ============== Firebase ============== */
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1",
-};
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-let currentUser = null;
-onAuthStateChanged(auth, (user)=>{ if(user) currentUser=user; else window.location.href="login.html"; });
+    /* ============== Shortcuts ============== */
+    const $ = (id) => document.getElementById(id);
+    const todayISO = () => new Date().toISOString().slice(0,10);
 
-/* ================= HELPERS ================= */
-function $(id){ return document.getElementById(id); }
-function clearSignature(id){ const c=$(id),ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); }
-function addItem(desc="",qty=1,price=0,vat=21){
-  const tr=document.createElement("tr");
-  tr.innerHTML=`<td><input class="desc" value="${desc}"></td>
-  <td><input type="number" class="qty" value="${qty}"></td>
-  <td><input type="number" class="price" value="${price}"></td>
-  <td><select class="vat"><option>0</option><option>9</option><option selected>21</option></select></td>
-  <td class="item-total">€0.00</td>
-  <td><button onclick="this.closest('tr').remove();updateTotals()">❌</button></td>`;
-  $("itemsBody").appendChild(tr);
-  updateTotals();
-}
-function updateTotals(){
-  let sub=0,vatSum=0;
-  $("itemsBody").querySelectorAll("tr").forEach(tr=>{
-    const qty=+tr.querySelector(".qty").value||0;
-    const price=+tr.querySelector(".price").value||0;
-    const vat=+tr.querySelector(".vat").value||0;
-    const tot=qty*price; const vatAmt=tot*vat/100;
-    sub+=tot; vatSum+=vatAmt;
-    tr.querySelector(".item-total").innerText="€"+(tot+vatAmt).toFixed(2);
-  });
-  $("subtotal").innerText="€"+sub.toFixed(2);
-  $("totalVat").innerText="€"+vatSum.toFixed(2);
-  $("grandTotal").innerText="€"+(sub+vatSum).toFixed(2);
-}
-function processReceipt(){
-  const file=$("receiptInput").files[0]; if(!file) return;
-  $("receiptText").innerText="⏳ Processing...";
-  const r=new FileReader();
-  r.onload=()=>Tesseract.recognize(r.result,'eng').then(({data:{text}})=>$("receiptText").innerText=text);
-  r.readAsDataURL(file);
-}
+    /* ============== Date pickers ============== */
+    function initDatepickers(){
+      if (typeof flatpickr === "function") {
+        const fmt = { dateFormat:"Y-m-d", allowInput:true };
+        flatpickr("#invoiceDate", {
+          ...fmt,
+          onChange() { suggestDueDate(); }
+        });
+        flatpickr("#dueDate", fmt);
+      }
+      if (!$("invoiceDate").value) $("invoiceDate").value = todayISO();
+      suggestDueDate();
+    }
+    function suggestDueDate(){
+      const inv = $("invoiceDate"); const due = $("dueDate");
+      if (!inv || !due || !inv.value) return;
+      const d = new Date(inv.value);
+      if (isNaN(d)) return;
+      d.setDate(d.getDate()+14);
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      due.value = `${y}-${m}-${dd}`;
+    }
 
-/* ================= SAVE ================= */
-window.saveInvoice=async function(){
-  if(!currentUser) return alert("Not logged in");
-  const invoice={
-    userId:currentUser.uid,
-    businessName:$("businessName").value,
-    kvk:$("kvk").value,
-    iban:$("iban").value,
-    btw:$("btw").value,
-    businessEmail:$("businessEmail").value,
-    businessPhone:$("businessPhone").value,
-    businessAddress:$("businessAddress").value,
-    clientName:$("clientName").value,
-    clientEmail:$("clientEmail").value,
-    clientPhone:$("clientPhone").value,
-    clientAddress:$("clientAddress").value,
-    invoiceNumber:$("invoiceNumber").value||("INV-"+Date.now()),
-    invoiceDate:$("invoiceDate").value,
-    dueDate:$("dueDate").value,
-    note:$("note").value,
-    status:$("status").value,
-    items:[],
-    subtotal:$("subtotal").innerText,
-    totalVat:$("totalVat").innerText,
-    grandTotal:$("grandTotal").innerText,
-    createdAt:new Date().toISOString()
-  };
-  $("itemsBody").querySelectorAll("tr").forEach(tr=>{
-    invoice.items.push({
-      desc:tr.querySelector(".desc").value,
-      qty:+tr.querySelector(".qty").value,
-      price:+tr.querySelector(".price").value,
-      vat:+tr.querySelector(".vat").value
+    /* ============== Items & totals ============== */
+    function addItem(desc="", qty=1, price=0, vat=21){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input class="desc" placeholder="Description" value="${desc}"></td>
+        <td><input type="number" class="qty" min="0" step="1" value="${qty}"></td>
+        <td><input type="number" class="price" min="0" step="0.01" value="${price}"></td>
+        <td>
+          <select class="vat">
+            <option value="0">0</option>
+            <option value="9">9</option>
+            <option value="21" selected>21</option>
+          </select>
+        </td>
+        <td class="item-total">€0.00</td>
+        <td><button type="button" onclick="this.closest('tr').remove(); updateTotals()">❌</button></td>
+      `;
+      $("itemsBody").appendChild(tr);
+      // вішаємо перерахунок
+      tr.querySelectorAll("input, select").forEach(el=>{
+        el.addEventListener("input", updateTotals);
+        el.addEventListener("change", updateTotals);
+      });
+      updateTotals();
+    }
+    function updateTotals(){
+      let sub=0, vatSum=0;
+      $("itemsBody").querySelectorAll("tr").forEach(tr=>{
+        const qty = parseFloat(tr.querySelector(".qty")?.value) || 0;
+        const price = parseFloat(tr.querySelector(".price")?.value) || 0;
+        const vat = parseFloat(tr.querySelector(".vat")?.value) || 0;
+        const t = qty * price;
+        const tVat = t * vat / 100;
+        sub += t; vatSum += tVat;
+        tr.querySelector(".item-total").innerText = "€" + (t + tVat).toFixed(2);
+      });
+      $("subtotal").innerText = "€" + sub.toFixed(2);
+      $("totalVat").innerText = "€" + vatSum.toFixed(2);
+      $("grandTotal").innerText = "€" + (sub + vatSum).toFixed(2);
+    }
+
+    /* ============== Signatures ============== */
+    function initSignature(canvasId, dateSpanId){
+      const canvas = $(canvasId);
+      const dateSpan = $(dateSpanId);
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let drawing = false;
+
+      function start(e){
+        drawing = true;
+        ctx.beginPath();
+        const pos = getPos(e);
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+      }
+      function move(e){
+        if (!drawing) return;
+        const pos = getPos(e);
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#000";
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+      }
+      function end(){
+        if (!drawing) return;
+        drawing = false;
+        dateSpan.textContent = new Date().toLocaleDateString("nl-NL");
+      }
+      function getPos(e){
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      }
+
+      // mouse
+      canvas.addEventListener("mousedown", start);
+      canvas.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", end);
+      // touch
+      canvas.addEventListener("touchstart", start, {passive:false});
+      canvas.addEventListener("touchmove", move, {passive:false});
+      window.addEventListener("touchend", end);
+    }
+    function clearSignature(id){
+      const canvas = $(id);
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (id === "signatureBusiness") $("signatureBusinessDate").textContent = "";
+      if (id === "signatureClient") $("signatureClientDate").textContent = "";
+    }
+
+    /* ============== OCR ============== */
+    function processReceipt(){
+      const file = $("receiptInput").files?.[0];
+      if (!file) { $("receiptText").textContent = "⚠️ No file selected"; return; }
+      $("receiptText").textContent = "⏳ Processing...";
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const { data: { text } } = await Tesseract.recognize(reader.result, 'eng');
+          $("receiptText").textContent = text.trim();
+        } catch (e) {
+          $("receiptText").textContent = "❌ OCR failed";
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /* ============== Invoice number (Firestore) ============== */
+    async function getNextInvoiceNumber(uid){
+      // читаємо всі інвойси користувача (за бажанням — обмеж)
+      const snap = await getDocs(collection(db, "users", uid, "invoices"));
+      let maxSeq = 0;
+      const year = new Date().getFullYear().toString();
+      snap.forEach(doc=>{
+        const num = (doc.data().invoiceNumber || "").toString();
+        const m = /^INV-(\d{4})-(\d+)$/.exec(num);
+        if (!m) return;
+        if (m[1] !== year) return;
+        const seq = parseInt(m[2], 10);
+        if (seq > maxSeq) maxSeq = seq;
+      });
+      const next = (maxSeq + 1).toString().padStart(3, "0");
+      return `INV-${year}-${next}`;
+    }
+
+    /* ============== Save to Firestore ============== */
+    async function saveInvoice(){
+      if (!auth.currentUser) return alert("Not logged in");
+      updateTotals(); // на випадок, якщо користувач щось не підтвердив клавіатурою
+
+      const invoice = {
+        userId: auth.currentUser.uid,
+        businessName: $("businessName").value,
+        kvk: $("kvk").value,
+        iban: $("iban").value,
+        btw: $("btw").value,
+        businessEmail: $("businessEmail").value,
+        businessPhone: $("businessPhone").value,
+        businessAddress: $("businessAddress").value,
+        clientName: $("clientName").value,
+        clientEmail: $("clientEmail").value,
+        clientPhone: $("clientPhone").value,
+        clientAddress: $("clientAddress").value,
+        invoiceNumber: $("invoiceNumber").value || ("INV-" + Date.now()),
+        invoiceDate: $("invoiceDate").value,
+        dueDate: $("dueDate").value,
+        note: $("note").value,
+        status: $("status").value,
+        items: Array.from($("itemsBody").querySelectorAll("tr")).map(tr => ({
+          desc: tr.querySelector(".desc").value,
+          qty: +tr.querySelector(".qty").value || 0,
+          price: +tr.querySelector(".price").value || 0,
+          vat: +tr.querySelector(".vat").value || 0
+        })),
+        subtotal: $("subtotal").innerText,
+        totalVat: $("totalVat").innerText,
+        grandTotal: $("grandTotal").innerText,
+        signatures: {
+          business: $("signatureBusiness").toDataURL(),
+          client: $("signatureClient").toDataURL(),
+          businessDate: $("signatureBusinessDate").textContent || "",
+          clientDate: $("signatureClientDate").textContent || ""
+        },
+        createdAt: new Date().toISOString()
+      };
+
+      await addDoc(collection(db, "users", auth.currentUser.uid, "invoices"), invoice);
+      alert("✅ Invoice saved!");
+    }
+
+    /* ============== Auth + init ============== */
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = "login.html"; return; }
+
+      // календарі + дефолтні значення
+      initDatepickers();
+
+      // авто-номер інвойсу з Firestore
+      try {
+        $("invoiceNumber").value = await getNextInvoiceNumber(user.uid);
+      } catch { /* fallback */ if (!$("invoiceNumber").value) $("invoiceNumber").value = "INV-" + Date.now(); }
+
+      // мінімум 1 рядок
+      if (!$("itemsBody").querySelector("tr")) addItem();
+
+      // підписи (mouse + touch)
+      initSignature("signatureBusiness", "signatureBusinessDate");
+      initSignature("signatureClient", "signatureClientDate");
     });
-  });
-  await addDoc(collection(db,"users",currentUser.uid,"invoices"),invoice);
-  alert("✅ Invoice saved!");
-}
-</script>
+
+    /* ============== Прив’язка до window для HTML-онкліків ============== */
+    window.addItem = addItem;
+    window.updateTotals = updateTotals;
+    window.clearSignature = clearSignature;
+    window.processReceipt = processReceipt;
+    window.saveInvoice = saveInvoice;
+  </script>
 </body>
 </html>
