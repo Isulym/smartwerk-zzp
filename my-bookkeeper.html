@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Bookkeeper | SmartWerk</title>
   <link rel="stylesheet" href="style-bookkeeper.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <header>
@@ -85,29 +88,8 @@
     <p>© 2025–2030 SmartWerk. All rights reserved.</p>
   </footer>
 
-  <!-- Вбудований JS -->
-  <script type="module">
-    import {
-      initializeApp,
-      getApps,
-      getApp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-    import {
-      getFirestore,
-      collection,
-      getDocs,
-      query,
-      where
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    import {
-      getAuth,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-   import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js";
-
+  <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -115,38 +97,29 @@
       appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
 
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Init
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
     const $ = sel => document.querySelector(sel);
     let invoicesChartInstance = null;
 
-    window.refreshBookkeeper = () => location.reload();
-    window.exportAllData = () => alert("Exporting all data (in progress)...");
-    window.filterBy = (period) => alert(`Filtering by: ${period}`);
-    window.filterByMonth = (month) => alert(`Filtering by month: ${month}`);
+    function refreshBookkeeper() {
+      location.reload();
+    }
 
-    window.updateFilters = async function () {
-      const user = auth.currentUser;
-      if (!user) return;
-      const uid = user.uid;
-      const month = $("#monthSelect").value;
-      const status = $("#statusSelect").value;
-      const type = $("#chartType").value;
+    function exportAllData() {
+      alert("Export in progress...");
+    }
 
-      const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
-      const invoices = invoicesSnap.docs.map(doc => doc.data());
+    function filterBy(period) {
+      alert("Filtering by: " + period);
+    }
 
-      const filtered = invoices.filter(i => {
-        const iMonth = (i.date || "").substring(0, 7);
-        const statusMatch = status === "all" || i.status === status;
-        const monthMatch = month === "all" || iMonth === month;
-        return statusMatch && monthMatch;
-      });
-
-      updateChart(filtered, type);
-    };
+    function filterByMonth(month) {
+      alert("Custom filter by month: " + month);
+    }
 
     function updateChart(data, type) {
       const monthly = {};
@@ -160,7 +133,6 @@
       const values = labels.map(l => monthly[l]);
 
       if (invoicesChartInstance) invoicesChartInstance.destroy();
-
       const ctx = document.getElementById("invoicesChart").getContext("2d");
       invoicesChartInstance = new Chart(ctx, {
         type: type,
@@ -180,18 +152,41 @@
       });
     }
 
-    onAuthStateChanged(auth, async (user) => {
+    function updateFilters() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const uid = user.uid;
+      const month = $("#monthSelect").value;
+      const status = $("#statusSelect").value;
+      const type = $("#chartType").value;
+
+      db.collection("invoices").where("userId", "==", uid).get().then(snap => {
+        const invoices = snap.docs.map(doc => doc.data());
+
+        const filtered = invoices.filter(i => {
+          const iMonth = (i.date || "").substring(0, 7);
+          const statusMatch = status === "all" || i.status === status;
+          const monthMatch = month === "all" || iMonth === month;
+          return statusMatch && monthMatch;
+        });
+
+        updateChart(filtered, type);
+      });
+    }
+
+    auth.onAuthStateChanged(async (user) => {
       if (!user) return (window.location.href = "login.html");
       const uid = user.uid;
 
-      const monthSelect = document.getElementById("monthSelect");
+      // Populate months
+      const monthSelect = $("#monthSelect");
       if (monthSelect) {
         monthSelect.innerHTML = "";
         const optAll = document.createElement("option");
         optAll.value = "all";
         optAll.textContent = "All";
         monthSelect.appendChild(optAll);
-
         const now = new Date();
         for (let i = 0; i < 12; i++) {
           const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -204,13 +199,14 @@
         }
       }
 
-      const invoicesSnap = await getDocs(query(collection(db, "invoices"), where("userId", "==", uid)));
+      const [invoicesSnap, expensesSnap, remindersSnap] = await Promise.all([
+        db.collection("invoices").where("userId", "==", uid).get(),
+        db.collection("expenses").where("userId", "==", uid).get(),
+        db.collection("reminders").where("userId", "==", uid).get()
+      ]);
+
       const invoices = invoicesSnap.docs.map(doc => doc.data());
-
-      const expensesSnap = await getDocs(query(collection(db, "expenses"), where("userId", "==", uid)));
       const expenses = expensesSnap.docs.map(doc => doc.data());
-
-      const remindersSnap = await getDocs(query(collection(db, "reminders"), where("userId", "==", uid)));
       const reminders = remindersSnap.docs.map(doc => doc.data());
 
       const income = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
