@@ -248,14 +248,14 @@ docPDF.text(`Total Due: ${inv.grandTotal || "€" + (Number(inv.subtotal||0)+Num
 
   if (inv.signatures?.business) {
   docPDF.addImage(inv.signatures.business, "PNG", 14, docPDF.lastAutoTable.finalY + 30, 60, 20);
+    docPDF.text("Business Signature", 14, docPDF.lastAutoTable.finalY + 62);
   docPDF.text("_________________________", 14, docPDF.lastAutoTable.finalY + 55);
-  docPDF.text("Business Signature", 14, docPDF.lastAutoTable.finalY + 62);
   if (inv.signatures.businessDate) docPDF.text(`Date: ${inv.signatures.businessDate}`, 14, docPDF.lastAutoTable.finalY + 69);
 }
 if (inv.signatures?.client) {
   docPDF.addImage(inv.signatures.client, "PNG", 120, docPDF.lastAutoTable.finalY + 30, 60, 20);
+   docPDF.text("Client Signature", 120, docPDF.lastAutoTable.finalY + 62);
   docPDF.text("_________________________", 120, docPDF.lastAutoTable.finalY + 55);
-  docPDF.text("Client Signature", 120, docPDF.lastAutoTable.finalY + 62);
   if (inv.signatures.clientDate) docPDF.text(`Date: ${inv.signatures.clientDate}`, 120, docPDF.lastAutoTable.finalY + 69);
 }
 
