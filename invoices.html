@@ -279,7 +279,7 @@
           vat:  parseFloat(tr.querySelector(".vat")?.value)||0,
         });
       });
-      }
+      
      
 
       // signatures
@@ -342,6 +342,7 @@ const data = {
 // Завжди після збереження чистимо editInvoiceId
 localStorage.removeItem("editInvoiceId");
 location.href="invoices-list.html";
+      }
     window.saveInvoice = saveInvoice;
 
     /* ========== LOAD FOR EDIT ========== */
