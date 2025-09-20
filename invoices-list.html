@@ -132,7 +132,7 @@ function renderInvoices() {
         <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
         <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
         <button onclick="downloadPDF('${inv.id}', true)">📄 PDF</button>
-        <button onclick="downloadPDF('${inv.id}', false)">PRO 📄 PDF</button>
+        <button onclick="downloadPDF('${inv.id}', false)">PRO 📄 PDF without branding</button>
       </td>`;
     body.appendChild(tr);
   });
