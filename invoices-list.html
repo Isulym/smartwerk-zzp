@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📋 SmartWerk — Invoices List</title>
   <link rel="stylesheet" href="style-invoices.css?v=7"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -20,8 +19,8 @@
 
 <section class="filters">
   <h3>📅 Filters & Search</h3>
-  From: <input id="fromDate" class="js-date" placeholder="YYYY-MM-DD">
-  To: <input id="toDate" class="js-date" placeholder="YYYY-MM-DD">
+  From: <input type="date" id="fromDate">
+  To: <input type="date" id="toDate">
   <label>Status:
     <select id="statusFilter">
       <option value="all">All</option>
@@ -302,11 +301,7 @@ if (inv.signatures?.client) {
   docPDF.save(`${inv.invoiceNumber}.pdf`);
 };
 
-    import flatpickr from "https://cdn.jsdelivr.net/npm/flatpickr/dist/esm/index.js";
-
-  document.addEventListener("DOMContentLoaded", () => {
-  flatpickr(".js-date", { dateFormat: "Y-m-d" });
-});
+ 
 
 // ==== Filters ====
 window.resetFilters = () => {
