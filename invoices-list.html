@@ -300,6 +300,9 @@ if (inv.signatures?.client) {
 
   docPDF.save(`${inv.invoiceNumber}.pdf`);
 };
+
+    import flatpickr from "https://cdn.jsdelivr.net/npm/flatpickr/dist/esm/index.js";
+
   document.addEventListener("DOMContentLoaded", () => {
   flatpickr(".js-date", { dateFormat: "Y-m-d" });
 });
