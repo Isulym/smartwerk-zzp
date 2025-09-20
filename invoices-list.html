@@ -95,31 +95,49 @@ function renderInvoices() {
 
   let filtered = invoices.filter(inv => {
     let ok = true;
+
+    // Фільтр по статусу
     if (status !== "all") ok = ok && inv.status === status;
-    if (from) ok = ok && inv.invoiceDate >= from;
-    if (to) ok = ok && inv.invoiceDate <= to;
+
+    // Фільтр по даті
+    if (from) ok = ok && (inv.invoiceDate || "") >= from;
+    if (to) ok = ok && (inv.invoiceDate || "") <= to;
+
+    // Пошук (по клієнту, номеру і сумі)
     if (search) {
+      const totalStr = String(inv.grandTotal || "").toLowerCase();
       ok = ok && (
         (inv.clientName || "").toLowerCase().includes(search) ||
         (inv.invoiceNumber || "").toLowerCase().includes(search) ||
-        String(inv.grandTotal || "").toLowerCase().includes(search)
+        totalStr.includes(search)
       );
     }
+
     return ok;
   });
 
+  // Сортування
   filtered.sort((a, b) => {
     switch (sortBy) {
-      case "invoiceNumber_desc": return (b.invoiceNumber || "").localeCompare(a.invoiceNumber || "");
-      case "invoiceNumber_asc": return (a.invoiceNumber || "").localeCompare(b.invoiceNumber || "");
-      case "date_desc": return (b.invoiceDate || "").localeCompare(a.invoiceDate || "");
-      case "date_asc": return (a.invoiceDate || "").localeCompare(b.invoiceDate || "");
+      case "invoiceNumber_desc": {
+        const numA = parseInt((a.invoiceNumber || "").split("-").pop()) || 0;
+        const numB = parseInt((b.invoiceNumber || "").split("-").pop()) || 0;
+        return numB - numA;
+      }
+      case "invoiceNumber_asc": {
+        const numA = parseInt((a.invoiceNumber || "").split("-").pop()) || 0;
+        const numB = parseInt((b.invoiceNumber || "").split("-").pop()) || 0;
+        return numA - numB;
+      }
+      case "date_desc": return new Date(b.invoiceDate).getTime() - new Date(a.invoiceDate).getTime();
+      case "date_asc": return new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime();
       case "amount_desc": return (parseFloat(b.grandTotal) || 0) - (parseFloat(a.grandTotal) || 0);
       case "amount_asc": return (parseFloat(a.grandTotal) || 0) - (parseFloat(b.grandTotal) || 0);
     }
     return 0;
   });
 
+  // Рендер
   filtered.forEach(inv => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -127,7 +145,7 @@ function renderInvoices() {
       <td>${inv.clientName || "—"}</td>
       <td>${inv.status || "Draft"}</td>
       <td>${inv.invoiceDate || "—"}</td>
-      <td>€${parseFloat(inv.grandTotal || 0).toFixed(2)}</td>
+      <td>€${(parseFloat(inv.grandTotal) || 0).toFixed(2)}</td>
       <td>
         <button onclick="editInvoice('${inv.id}')">✏️ Edit</button>
         <button onclick="deleteInvoice('${inv.id}')">🗑 Delete</button>
@@ -137,6 +155,22 @@ function renderInvoices() {
     body.appendChild(tr);
   });
 }
+
+  // --- Live search & filters ---
+document.addEventListener("DOMContentLoaded", () => {
+  // пошук в реальному часі
+  $("#searchBox")?.addEventListener("input", renderInvoices);
+
+  // фільтр по датах
+  $("#fromDate")?.addEventListener("change", renderInvoices);
+  $("#toDate")?.addEventListener("change", renderInvoices);
+
+  // фільтр по статусу
+  $("#statusFilter")?.addEventListener("change", renderInvoices);
+
+  // сортування
+  $("#sortBy")?.addEventListener("change", renderInvoices);
+});
 
 // ==== Actions ====
 window.editInvoice = id => {
