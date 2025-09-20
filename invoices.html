@@ -279,17 +279,7 @@
           vat:  parseFloat(tr.querySelector(".vat")?.value)||0,
         });
       });
-
-      // totals (перерахунок для надійності)
      
-
-      // номер
-      let invoiceNumber = $("invoiceNumber").value.trim();
-      const editingId = localStorage.getItem("editInvoiceId") || null;
-      if(!editingId && !invoiceNumber) {
-        invoiceNumber = await generateInvoiceNumber(uid);
-        $("invoiceNumber").value = invoiceNumber;
-      }
 
       // signatures
      // === totals as numbers ===
@@ -340,16 +330,17 @@ const data = {
   updatedAt: new Date().toISOString(),
 };
 
-      if(editingId){
-        await setDoc(doc(db,"users",uid,"invoices",editingId), data, { merge:true });
-        localStorage.removeItem("editInvoiceId");
-        alert("✅ Invoice updated");
-      }else{
-        await addDoc(collection(db,"users",uid,"invoices"), data);
-        alert(`✅ Invoice saved${invoiceNumber ? " as "+invoiceNumber : ""}`);
-      }
-      location.href="invoices-list.html";
-    }
+     if(editingId){
+  await setDoc(doc(db,"users",uid,"invoices",editingId), data, { merge:true });
+  alert("✅ Invoice updated");
+}else{
+  await addDoc(collection(db,"users",uid,"invoices"), data);
+  alert(`✅ Invoice saved${invoiceNumber ? " as "+invoiceNumber : ""}`);
+}
+
+// Завжди після збереження чистимо editInvoiceId
+localStorage.removeItem("editInvoiceId");
+location.href="invoices-list.html";
     window.saveInvoice = saveInvoice;
 
     /* ========== LOAD FOR EDIT ========== */
