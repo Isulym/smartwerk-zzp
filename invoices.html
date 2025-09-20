@@ -292,6 +292,9 @@ const grandTotal = subtotal + totalVat;
 const businessSig = $("signatureBusiness").toDataURL();
 const clientSig   = $("signatureClient").toDataURL();
 
+const editingId = localStorage.getItem("editInvoiceId") || null;
+
+
 const data = {
   businessName: $("businessName").value,
   kvk: $("kvk").value,
