@@ -280,8 +280,6 @@
         });
       });
       
-     
-
       // signatures
      // === totals as numbers ===
 const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g, "")) || 0;
@@ -293,6 +291,12 @@ const businessSig = $("signatureBusiness").toDataURL();
 const clientSig   = $("signatureClient").toDataURL();
 
 const editingId = localStorage.getItem("editInvoiceId") || null;
+
+      let invoiceNumber = $("invoiceNumber").value.trim();
+if(!editingId && !invoiceNumber){
+  invoiceNumber = await generateInvoiceNumber(uid);
+  $("invoiceNumber").value = invoiceNumber; // показати у полі
+}
 
 
 const data = {
@@ -311,7 +315,7 @@ const data = {
 
   invoiceDate: $("invoiceDate").value,
   dueDate: $("dueDate").value,
-  invoiceNumber,
+  invoiceNumber: invoiceNumber || "",
   status: $("status").value,
   note: $("note").value,
 
