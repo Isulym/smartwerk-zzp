@@ -19,8 +19,8 @@
 
 <section class="filters">
   <h3>📅 Filters & Search</h3>
-  <label>From: <input type="date" id="fromDate"></label>
-  <label>To: <input type="date" id="toDate"></label>
+  From: <input id="fromDate" class="js-date" placeholder="YYYY-MM-DD">
+  To: <input id="toDate" class="js-date" placeholder="YYYY-MM-DD">
   <label>Status:
     <select id="statusFilter">
       <option value="all">All</option>
@@ -300,6 +300,9 @@ if (inv.signatures?.client) {
 
   docPDF.save(`${inv.invoiceNumber}.pdf`);
 };
+  document.addEventListener("DOMContentLoaded", () => {
+  flatpickr(".js-date", { dateFormat: "Y-m-d" });
+});
 
 // ==== Filters ====
 window.resetFilters = () => {
