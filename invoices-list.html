@@ -270,9 +270,9 @@ docPDF.autoTable({
   }
 });
 
-  docPDF.text(`Subtotal: ${inv.subtotal || "€" + (inv.subtotal||0).toFixed(2)}`, 150, docPDF.lastAutoTable.finalY + 10);
-docPDF.text(`VAT: ${inv.totalVat || "€" + (inv.totalVat||0).toFixed(2)}`, 150, docPDF.lastAutoTable.finalY + 16);
-docPDF.text(`Total Due: ${inv.grandTotal || "€" + (Number(inv.subtotal||0)+Number(inv.totalVat||0)).toFixed(2)}`, 150, docPDF.lastAutoTable.finalY + 22);
+ docPDF.text(`Subtotal: ${inv.subtotalFormatted}`, 150, docPDF.lastAutoTable.finalY + 10);
+docPDF.text(`VAT: ${inv.totalVatFormatted}`, 150, docPDF.lastAutoTable.finalY + 16);
+docPDF.text(`Total Due: ${inv.grandTotalFormatted}`, 150, docPDF.lastAutoTable.finalY + 22);
 
 
   if (inv.note) {
