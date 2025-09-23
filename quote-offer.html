@@ -1,617 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Quote / Offer</title>
-  <link rel="stylesheet" href="style-quote-offer.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <link rel="stylesheet" href="style-quote-offer.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
-  <div class="wrap">
-    <header class="topbar">
-      <nav class="left">
-        <a href="dashboard.html" class="btn">← Back to Dashboard</a>
-        <a href="templates.html" class="btn">← Back to Templates</a>
-      </nav>
-    </header>
+  <header>
+    <h1>📑 SmartWerk Quote / Offer</h1>
+    <nav>
+      <a href="index.html" class="btn">← Main Page</a>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="quote-offer-list.html" class="btn">📋 Quotes List</a>
+    </nav>
+  </header>
 
-    <section class="intro">
-      <h1>📄 Create a Quote / Offer 
-        <span class="info-icon" title="A quote is a professional offer sent before an invoice.">ℹ️</span>
-      </h1>
-      <p class="muted">Use this tool to create a professional offer for your client before sending an invoice.</p>
-     <p class="quote-valid">🗓️ Valid until: <span id="validUntilDisplay"></span></p>
+  <main>
+    <!-- Business Info -->
+    <section>
+      <h2>🏢 Business Info</h2>
+      <input id="businessName" placeholder="Business Name"/>
+      <input id="kvk" placeholder="KvK Number"/>
+      <input id="iban" placeholder="IBAN"/>
+      <input id="btw" placeholder="BTW"/>
+      <input id="email" placeholder="Business Email"/>
+      <input id="businessAddress" placeholder="Business Address"/>
+      <input id="businessPhone" placeholder="Business Phone"/>
     </section>
 
-    <form id="quoteForm">
-      <div class="form-section">
-        <h2>🧾 Business Info</h2>
-        <input type="text" id="businessName" placeholder="Your Business Name" required />
-        <input type="text" id="businessKvK" placeholder="KvK Number (optional)" />
-        <input type="text" id="businessVAT" placeholder="VAT Number (optional)" />
-        <input type="text" id="businessIBAN" placeholder="IBAN (optional)" />
-        <input type="text" id="businessPhone" placeholder="Phone (optional)" />
-        <input type="text" id="businessAddress" placeholder="Address (optional)" />
+    <!-- Client Info -->
+    <section>
+      <h2>👤 Client Info</h2>
+      <input id="clientName" placeholder="Client Name"/>
+      <input id="clientEmail" placeholder="Client Email"/>
+      <input id="clientPhone" placeholder="Client Phone"/>
+      <input id="clientAddress" placeholder="Client Address"/>
+      <input id="quoteDate" class="js-date" placeholder="YYYY-MM-DD">
+      <input id="dueDate" class="js-date" placeholder="YYYY-MM-DD">
+      <input id="quoteNumber" readonly placeholder="Quote Number"/>
+      <select id="status">
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Accepted">Accepted</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+    </section>
+
+    <!-- Items -->
+    <section>
+      <h2>📝 Items</h2>
+      <table>
+        <thead>
+          <tr><th>Description</th><th>Qty</th><th>Price</th><th>VAT %</th><th>Total</th><th></th></tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+      <button type="button" onclick="addItem()">➕ Add Item</button>
+    </section>
+
+    <!-- Summary -->
+    <section>
+      <h2>📦 Summary</h2>
+      <p>Subtotal: <span id="subtotal">€0.00</span></p>
+      <p>Total VAT: <span id="totalVat">€0.00</span></p>
+      <p>Total: <span id="grandTotal">€0.00</span></p>
+      <textarea id="note" placeholder="Notes..."></textarea>
+    </section>
+
+    <!-- Signatures -->
+    <section>
+      <h2>✍️ Signatures</h2>
+      <div>
+        <h3>Business</h3>
+        <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
+        <button onclick="clearSignature('signatureBusiness')">Clear</button>
+        <p>Date: <span id="signatureBusinessDate"></span></p>
       </div>
-
-      <div class="form-section">
-        <h2>👤 Client Info</h2>
-        <input type="text" id="clientName" placeholder="Client Name" required />
-        <input type="text" id="clientEmail" placeholder="Client Email (optional)" />
-        <input type="text" id="clientPhone" placeholder="Client Phone (optional)" />
-        <input type="text" id="clientAddress" placeholder="Client Address (optional)" />
-        <input type="text" id="quoteNo" value="QUOTE-2025-030" hidden />
-        <input type="text" id="validUntil" hidden />
-       
+      <div>
+        <h3>Client</h3>
+        <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+        <button onclick="clearSignature('signatureClient')">Clear</button>
+        <p>Date: <span id="signatureClientDate"></span></p>
       </div>
+    </section>
 
-      <div class="form-section">
-        <h2>📋 Services</h2>
-        <table id="servicesTable">
-          <thead>
-            <tr><th>Description</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr>
-          </thead>
-          <tbody id="itemsContainer">
-            <!-- Items will be injected here -->
-          </tbody>
-        </table>
-        <button type="button" id="addItemBtn" class="btn ghost">+ Add Item</button>
-      </div>
+    <!-- Actions -->
+    <section class="step actions">
+      <button id="saveBtn" class="btn-primary">💾 Save Quote</button>
+      <a href="quote-offer-list.html" class="btn">📋 Quotes List</a>
+      <button onclick="downloadPDF(true)" class="btn">📄 Export PDF</button>
+      <button onclick="downloadPDF(false)" class="btn">PRO 📄 Export PDF without branding</button>
+    </section>
+  </main>
 
-      <div class="form-section">
-        <h2>🧮 Summary</h2>
-        <p>Subtotal: <strong><span id="subtotal">€0.00</span></strong></p>
-        <p>VAT (21%): <strong><span id="vat">€0.00</span></strong></p>
-        <p><strong>Total: <span id="total">€0.00</span></strong></p>
-        <p>Currency: 
-          <select id="currency">
-            <option value="EUR">EUR (€)</option>
-            <option value="USD">USD ($)</option>
-            <option value="GBP">GBP (£)</option>
-          </select>
-        </p>
-      </div>
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
 
-      <div class="form-section">
-        <h2>📝 Quote Settings</h2>
-        <input type="text" id="quoteNumber" placeholder="Quote Number (e.g. QUOTE-2025-001)" />
-        <select id="quoteStatus">
-          <option value="draft">Draft</option>
-          <option value="sent">Sent</option>
-          <option value="accepted">Accepted</option>
-        </select>
-        <span id="statusBadge" class="status-badge draft">● Draft</span>
-      </div>
+  <!-- Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
-      <div class="form-section">
-        <h2>📝 Note to Client</h2>
-        <textarea id="clientNote" placeholder="This quote is valid for 14 days... (optional)"></textarea>
-      </div>
+  <!-- App -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-      <div class="form-section">
-        <h2>✍️ Signatures</h2>
-        <input type="text" id="signatureName" placeholder="Your Name / Signature" required />
-        <input type="text" id="clientSignature" placeholder="Client Name / Signature (optional)" />
-        <p>Signature Date: <span id="signatureDate"></span></p>
-      </div>
-
-      <div class="actions">
-        <button type="submit" class="btn primary">💾 Save</button>
-        <button type="button" class="btn" id="previewBtn">👁 Preview</button>
-       <button type="button" id="exportQuotePDF" class="btn">📄 Export PDF</button>
-        <button type="button" class="btn ghost" id="aiDraftBtn">⚡ AI Draft</button>
-      </div>
-
-      <div class="form-section">
-  <label>
-    <input type="checkbox" id="togglePro" />
-    Enable PRO (no branding in PDF)
-  </label>
-</div>
-    </form>
-
-    <footer class="foot-note">
-      <p class="muted">Generated with SmartWerk — smartwerk.nl</p>
-    </footer>
-  </div>
-
-  <section id="savedQuotesSection" class="form-section">
-  <h2>📁 Saved Quotes</h2>
-<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-  <input type="text" id="searchInput" placeholder="🔍 Search by client, quote no, or status" style="flex: 2; padding: 6px;" />
-  <select id="filterStatus" style="flex: 1; padding: 6px;">
-    <option value="">All Statuses</option>
-    <option value="draft">Draft</option>
-    <option value="sent">Sent</option>
-    <option value="accepted">Accepted</option>
-  </select>
-</div>
-    
-  <table id="savedQuotesTable">
-    <thead>
-      <tr>
-        <th>Quote No</th>
-        <th>Client</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Total</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="savedQuotesBody">
-      <!-- Dynamically filled -->
-    </tbody>
-  </table>
-</section>
-
-
-  <script>
-  // ✅ quote-offer.js — повна логіка SmartWerk Quote / Offer
-
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("quoteForm");
-  const addItemBtn = document.getElementById("addItemBtn");
-  const itemsContainer = document.getElementById("itemsContainer");
-  const subtotalEl = document.getElementById("subtotal");
-  const vatEl = document.getElementById("vat");
-  const totalEl = document.getElementById("total");
-  const quoteNumber = document.getElementById("quoteNumber");
-  const quoteStatus = document.getElementById("quoteStatus");
-  const statusBadge = document.getElementById("statusBadge");
-  const signatureName = document.getElementById("signatureName");
-  const currencySelect = document.getElementById("currency");
-
-   // Автоматично ставить "Valid Until" = сьогодні + 14 днів
-const validUntilInput = document.getElementById("validUntil");
-const validUntilDisplay = document.getElementById("validUntilDisplay");
-
-if (validUntilInput && validUntilDisplay) {
-  const today = new Date();
-  const future = new Date(today);
-  future.setDate(today.getDate() + 14); // +14 днів
-
-  const dd = String(future.getDate()).padStart(2, '0');
-  const mm = String(future.getMonth() + 1).padStart(2, '0');
-  const yyyy = future.getFullYear();
-  const formatted = `${dd}.${mm}.${yyyy}`;
-
-  validUntilInput.value = formatted;
-
-  const diffDays = 14;
-  validUntilDisplay.textContent = `${formatted} (in ${diffDays} days)`;
-}
-  autoGenerateQuoteNumber();
-  updateStatusColor();
-  lockSignature();
-  loadSavedQuotes();
-
-  addItemBtn.addEventListener("click", () => {
-    addItem();
-    calculateTotals();
-  });
-
-  quoteStatus.addEventListener("change", () => {
-    updateStatusColor();
-    lockSignature();
-  });
-
-  currencySelect.addEventListener("change", calculateTotals);
-
-  document.getElementById("aiDraftBtn")?.addEventListener("click", () => {
-    itemsContainer.innerHTML = "";
-    [
-      ["Design Website", 1, 750],
-      ["SEO Optimization", 1, 200],
-      ["Hosting Setup", 1, 100]
-    ].forEach(([desc, qty, price]) => addItem(desc, qty, price));
-    calculateTotals();
-  });
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    saveQuoteToLocalStorage();
-    alert("✅ Quote saved successfully!");
-    loadSavedQuotes();
-  });
-
-  function autoGenerateQuoteNumber() {
-    if (quoteNumber.value.trim()) return;
-    const year = new Date().getFullYear();
-    let counter = parseInt(localStorage.getItem("quoteCounter") || "1");
-    quoteNumber.value = `QUOTE-${year}-${String(counter).padStart(3, "0")}`;
-    localStorage.setItem("quoteCounter", counter + 1);
-  }
-
-  function updateStatusColor() {
-    const val = quoteStatus.value;
-    statusBadge.textContent = `● ${val.charAt(0).toUpperCase() + val.slice(1)}`;
-    statusBadge.className = "status-badge " + val;
-  }
-
-  function lockSignature() {
-    const locked = ["sent", "accepted"].includes(quoteStatus.value);
-    signatureName.disabled = locked;
-  }
-
-  function addItem(desc = "", qty = 1, price = 0.0) {
-    qty = parseFloat(qty) || 1;
-    price = parseFloat(price) || 0.0;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><input type="text" class="desc" value="${desc}" /></td>
-      <td><input type="number" class="qty" value="${qty}" min="1" /></td>
-      <td><input type="number" class="price" value="${price}" step="0.01" /></td>
-      <td class="rowTotal">0.00</td>
-      <td><button type="button" class="remove-btn">×</button></td>
-    `;
-    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", calculateTotals));
-    tr.querySelector(".remove-btn").addEventListener("click", () => {
-      tr.remove();
-      calculateTotals();
-    });
-    itemsContainer.appendChild(tr);
-    calculateTotals();
-  }
-
-  function calculateTotals() {
-    const currency = currencySelect.value;
-    let subtotal = 0;
-    document.querySelectorAll("#itemsContainer tr").forEach(row => {
-      const qty = parseFloat(row.querySelector(".qty").value) || 0;
-      const price = parseFloat(row.querySelector(".price").value) || 0;
-      const total = qty * price;
-      row.querySelector(".rowTotal").textContent = formatCurrency(total, currency);
-      subtotal += total;
-    });
-    const vat = subtotal * 0.21;
-    const grandTotal = subtotal + vat;
-    subtotalEl.textContent = formatCurrency(subtotal, currency);
-    vatEl.textContent = formatCurrency(vat, currency);
-    totalEl.textContent = formatCurrency(grandTotal, currency);
-  }
-
-  function formatCurrency(amount, currency) {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency: currency
-    }).format(amount);
-  }
-
-  function saveQuoteToLocalStorage() {
-    const quote = {
-      quoteNumber: quoteNumber.value,
-      businessName: document.getElementById("businessName").value,
-      businessKvK: document.getElementById("businessKvK").value,
-      businessVAT: document.getElementById("businessVAT").value,
-      businessIBAN: document.getElementById("businessIBAN").value,
-      businessPhone: document.getElementById("businessPhone").value,
-      businessAddress: document.getElementById("businessAddress").value,
-      clientName: document.getElementById("clientName").value,
-      clientEmail: document.getElementById("clientEmail").value,
-      clientPhone: document.getElementById("clientPhone").value,
-      clientAddress: document.getElementById("clientAddress").value,
-      currency: currencySelect.value,
-      validUntil: document.getElementById("validUntil").textContent,
-      quoteStatus: quoteStatus.value,
-      note: document.getElementById("clientNote").value,
-      signatureName: signatureName.value,
-      clientSignature: document.getElementById("clientSignature").value,
-      signatureDate: new Date().toLocaleDateString(),
-      total: totalEl.textContent,
-      items: []
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
-    document.querySelectorAll("#itemsContainer tr").forEach(row => {
-      quote.items.push({
-        desc: row.querySelector(".desc").value,
-        qty: row.querySelector(".qty").value,
-        price: row.querySelector(".price").value
-      });
-    });
-    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-    saved.push(quote);
-    localStorage.setItem("savedQuotes", JSON.stringify(saved));
-  }
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-  window.editQuote = function(index) {
-    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-    const quote = saved[index];
-    if (!quote) return;
-    document.getElementById("businessName").value = quote.businessName;
-    document.getElementById("businessKvK").value = quote.businessKvK;
-    document.getElementById("businessVAT").value = quote.businessVAT;
-    document.getElementById("businessIBAN").value = quote.businessIBAN;
-    document.getElementById("businessPhone").value = quote.businessPhone;
-    document.getElementById("businessAddress").value = quote.businessAddress;
-    document.getElementById("clientName").value = quote.clientName;
-    document.getElementById("clientEmail").value = quote.clientEmail;
-    document.getElementById("clientPhone").value = quote.clientPhone;
-    document.getElementById("clientAddress").value = quote.clientAddress;
-    document.getElementById("quoteNumber").value = quote.quoteNumber;
-    document.getElementById("quoteStatus").value = quote.quoteStatus;
-    document.getElementById("clientNote").value = quote.note;
-    document.getElementById("signatureName").value = quote.signatureName;
-    document.getElementById("clientSignature").value = quote.clientSignature;
-    document.getElementById("signatureDate").textContent = quote.signatureDate;
-    document.getElementById("currency").value = quote.currency;
-    document.getElementById("validUntil").textContent = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-NL');
+    const $ = (id) => document.getElementById(id);
 
-    updateStatusColor();
-    lockSignature();
-
-    itemsContainer.innerHTML = "";
-    quote.items.forEach(item => {
-      addItem(item.desc, item.qty, item.price);
-    });
-
-    calculateTotals();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  window.deleteQuote = function(index) {
-    if (!confirm("❌ Are you sure you want to delete this quote?")) return;
-    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-    saved.splice(index, 1);
-    localStorage.setItem("savedQuotes", JSON.stringify(saved));
-    loadSavedQuotes();
-  };
-
-  function loadSavedQuotes() {
-    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-    const tbody = document.getElementById("savedQuotesBody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-    saved.forEach((quote, index) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${quote.quoteNumber}</td>
-        <td>${quote.clientName}</td>
-        <td>${quote.validUntil}</td>
-        <td>${quote.quoteStatus}</td>
-        <td>${quote.total}</td>
+    /* ==== Items ==== */
+    function addItem(desc="", qty=1, price=0, vat=21){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td><input class="desc" value="${desc}"/></td>
+        <td><input class="qty" type="number" value="${qty}" min="1"/></td>
+        <td><input class="price" type="number" value="${price}" step="0.01"/></td>
         <td>
-          <button class="btn small" onclick="viewQuote(${index})">🔍 View</button>
-          <button class="btn small" onclick="editQuote(${index})">✏️ Edit</button>
-          <button class="btn small danger" onclick="deleteQuote(${index})">🗑️ Delete</button>
+          <select class="vat">
+            <option value="0">0</option>
+            <option value="9"${vat==9?" selected":""}>9</option>
+            <option value="21"${vat==21?" selected":""}>21</option>
+          </select>
         </td>
+        <td class="item-total">€0.00</td>
+        <td><button type="button" onclick="this.closest('tr').remove();updateTotals();">❌</button></td>
       `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  window.viewQuote = function(index) {
-    const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
-    const quote = saved[index];
-    alert(`Quote for ${quote.clientName}\nTotal: ${quote.total}\nStatus: ${quote.quoteStatus}`);
-  };
-});
-
-    // === Export PDF кнопка ===
-function exportQuotePDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const quoteNo = document.getElementById('quoteNumber')?.value || '';
-  const validUntil = document.getElementById('validUntil').textContent || '';
-
-  const businessName = document.getElementById('businessName')?.value || '';
-  const businessAddress = document.getElementById('businessAddress')?.value || '';
-  const businessKVK = document.getElementById('businessKvK')?.value || '';
-  const businessBTW = document.getElementById('businessVAT')?.value || '';
-  const businessIBAN = document.getElementById('businessIBAN')?.value || '';
-  const businessPhone = document.getElementById('businessPhone')?.value || '';
-
-  const clientName = document.getElementById('clientName')?.value || '';
-  const clientAddress = document.getElementById('clientAddress')?.value || '';
-  const clientEmail = document.getElementById('clientEmail')?.value || '';
-  const clientPhone = document.getElementById('clientPhone')?.value || '';
-
-  const noteToClient = document.getElementById('clientNote')?.value || '';
-  const signatureBusiness = document.getElementById('signatureName')?.value || '';
-  const signatureClient = document.getElementById('clientSignature')?.value || '';
-  const signatureDate = document.getElementById('signatureDate')?.textContent || '';
-
-  const currency = document.getElementById('currency')?.value || 'EUR';
-  const symbol = currencySymbol(currency);
-
-  const subtotal = document.getElementById('subtotal')?.textContent || '€0.00';
-  const vat = document.getElementById('vat')?.textContent || '€0.00';
-  const total = document.getElementById('total')?.textContent || '€0.00';
-
-  const serviceRows = document.querySelectorAll('#itemsContainer tr');
-  const serviceData = [];
-
-  serviceRows.forEach(row => {
-    const description = row.querySelector('.desc')?.value || '';
-    const qty = row.querySelector('.qty')?.value || '';
-    const price = row.querySelector('.price')?.value || '';
-    const total = row.querySelector('.rowTotal')?.textContent || '';
-    if (description) {
-      serviceData.push([description, qty, `${symbol}${price}`, total]);
+      tr.querySelectorAll("input,select").forEach(el=>el.oninput=updateTotals);
+      $("itemsBody").appendChild(tr);
+      updateTotals();
     }
-  });
+    window.addItem=addItem;
 
-  let y = 15;
-
-  // Header
-  doc.setFontSize(18);
-  doc.setFont(undefined, 'bold');
-  doc.text('Quote / Offer', 105, y, { align: 'center' });
-
-  y += 10;
-
-  // From
-  doc.setFontSize(10);
-  doc.setFont(undefined, 'bold');
-  doc.text('From:', 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(`${businessName}`, 15, y + 5);
-  doc.text(`Address: ${businessAddress}`, 15, y + 10);
-  doc.text(`KVK: ${businessKVK}`, 15, y + 15);
-  doc.text(`VAT: ${businessBTW}`, 15, y + 20);
-  doc.text(`IBAN: ${businessIBAN}`, 15, y + 25);
-  doc.text(`Phone: ${businessPhone}`, 15, y + 30);
-
-  // To
-  doc.setFont(undefined, 'bold');
-  doc.text('To:', 140, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(`${clientName}`, 140, y + 5);
-  doc.text(`${clientAddress}`, 140, y + 10);
-  doc.text(`Email: ${clientEmail}`, 140, y + 15);
-  doc.text(`Phone: ${clientPhone}`, 140, y + 20);
-
-  y += 40;
-
-  // Quote info
-  doc.setFontSize(11);
-  doc.setFont(undefined, 'bold');
-  doc.text(`Quote No:`, 15, y);
-  doc.setFont(undefined, 'normal');
-  doc.text(`${quoteNo}`, 40, y);
-
-  doc.setFont(undefined, 'bold');
-  doc.text(`Valid Until:`, 15, y + 7);
-  doc.setFont(undefined, 'normal');
-  doc.text(`${validUntil}`, 40, y + 7);
-
-  // Services table
-  y += 17;
-  doc.autoTable({
-    startY: y,
-    head: [['Description', 'Qty', 'Price', 'Total']],
-    body: serviceData,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-    columnStyles: {
-      0: { cellWidth: 70 },
-      1: { halign: 'right' },
-      2: { halign: 'right' },
-      3: { halign: 'right' }
+    function updateTotals(){
+      let subtotal=0,totalVat=0;
+      document.querySelectorAll("#itemsBody tr").forEach(r=>{
+        const qty=+r.querySelector(".qty").value||0;
+        const price=+r.querySelector(".price").value||0;
+        const vat=+r.querySelector(".vat").value||0;
+        const line=qty*price;
+        subtotal+=line; totalVat+=line*vat/100;
+        r.querySelector(".item-total").innerText="€"+(line+line*vat/100).toFixed(2);
+      });
+      $("subtotal").innerText="€"+subtotal.toFixed(2);
+      $("totalVat").innerText="€"+totalVat.toFixed(2);
+      $("grandTotal").innerText="€"+(subtotal+totalVat).toFixed(2);
     }
-  });
+    window.updateTotals=updateTotals;
 
-  let finalY = doc.lastAutoTable.finalY + 10;
+    /* ==== Signatures ==== */
+    function clearSignature(id){
+      const c=$(id),ctx=c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height);
+      if(id==="signatureBusiness") $("signatureBusinessDate").innerText="";
+      else $("signatureClientDate").innerText="";
+    }
+    window.clearSignature=clearSignature;
 
-  // Summary — right aligned
-  doc.setFont(undefined, 'bold');
-  doc.text('Subtotal:', 150, finalY, { align: 'right' });
-  doc.text('VAT (21%):', 150, finalY + 6, { align: 'right' });
-  doc.text('Total:', 150, finalY + 12, { align: 'right' });
-  doc.text('Currency:', 150, finalY + 18, { align: 'right' });
-
-  doc.setFont(undefined, 'normal');
-  doc.text(`${subtotal}`, 195, finalY, { align: 'right' });
-  doc.text(`${vat}`, 195, finalY + 6, { align: 'right' });
-  doc.text(`${total}`, 195, finalY + 12, { align: 'right' });
-  doc.text(`${currency}`, 195, finalY + 18, { align: 'right' });
-
-  // Note
-  finalY += 30;
-  if (noteToClient.trim() !== '') {
-    doc.setFont(undefined, 'bold');
-    doc.text('Note to Client:', 15, finalY);
-    doc.setFont(undefined, 'normal');
-    doc.text(noteToClient, 15, finalY + 6);
-    finalY += 15;
-  }
-
-  // Signatures
-  doc.setFont(undefined, 'bold');
-  doc.text('Signatures:', 15, finalY);
-  doc.setDrawColor(0);
-  doc.line(15, finalY + 10, 80, finalY + 10); // business line
-  doc.line(110, finalY + 10, 195, finalY + 10); // client line
-
-  doc.setFont(undefined, 'normal');
-  doc.text(`Business: ${signatureBusiness}`, 15, finalY + 16);
-  doc.text(`Client: ${signatureClient}`, 110, finalY + 16);
-  doc.text(`Date: ${signatureDate}`, 15, finalY + 24);
-
-  // Footer
-  const removeBranding = localStorage.getItem('proUser') === 'true';
-  if (!removeBranding) {
-    doc.setFontSize(8);
-    doc.setTextColor(150);
-    doc.text('Generated with SmartWerk — smartwerk.nl', 15, 285);
-  }
-
-  // Save PDF
-  doc.save(`Quote-${quoteNo}.pdf`);
-}
-
-function currencySymbol(code) {
-  switch (code) {
-    case 'EUR':
-      return '€';
-    case 'USD':
-      return '$';
-    case 'GBP':
-      return '£';
-    default:
-      return '';
-  }
-}
-
-   document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("exportQuotePDF").addEventListener("click", exportQuotePDF);
-  document.getElementById("searchInput").addEventListener("input", applyFilters);
-  document.getElementById("filterStatus").addEventListener("change", applyFilters);
-
-     
-
-  // ✅ PRO toggle switch — зберігає в localStorage
-  const togglePro = document.getElementById("togglePro");
-  if (togglePro) {
-    togglePro.checked = localStorage.getItem("proUser") === "true";
-    togglePro.addEventListener("change", (e) => {
-      localStorage.setItem("proUser", e.target.checked ? "true" : "false");
+    ["signatureBusiness","signatureClient"].forEach(id=>{
+      const c=$(id),ctx=c.getContext("2d");let draw=false;
+      c.addEventListener("mousedown",()=>{draw=true;ctx.beginPath();});
+      c.addEventListener("mouseup",()=>{draw=false;const now=new Date().toLocaleDateString();if(id==="signatureBusiness"){$("signatureBusinessDate").innerText=now;}else{$("signatureClientDate").innerText=now;}});
+      c.addEventListener("mousemove",e=>{if(!draw)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#2563eb";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
     });
-  }
-});
 
-    function applyFilters() {
-  const search = document.getElementById("searchInput").value.toLowerCase();
-  const statusFilter = document.getElementById("filterStatus").value;
-  const saved = JSON.parse(localStorage.getItem("savedQuotes") || "[]");
+    /* ==== Number generation ==== */
+    async function generateQuoteNumber(uid){
+      const ref=doc(db,"users",uid);
+      const year=new Date().getFullYear();
+      let num="";
+      await runTransaction(db,async(tx)=>{
+        const snap=await tx.get(ref);
+        const last=snap.exists()?(snap.data().lastQuoteNumber||0):0;
+        const next=last+1;
+        num=`QUO-${year}-${String(next).padStart(3,"0")}`;
+        tx.set(ref,{lastQuoteNumber:next},{merge:true});
+      });
+      return num;
+    }
 
-  const filtered = saved.filter(quote => {
-    const matchesSearch =
-      quote.clientName.toLowerCase().includes(search) ||
-      quote.quoteNumber.toLowerCase().includes(search) ||
-      quote.quoteStatus.toLowerCase().includes(search);
+    /* ==== Save ==== */
+    async function saveQuote(){
+      const user=auth.currentUser;if(!user) return location.href="login.html";
+      const uid=user.uid;
 
-    const matchesStatus = !statusFilter || quote.quoteStatus === statusFilter;
+      const items=[];
+      document.querySelectorAll("#itemsBody tr").forEach(r=>{
+        items.push({
+          desc:r.querySelector(".desc").value,
+          qty:+r.querySelector(".qty").value||0,
+          price:+r.querySelector(".price").value||0,
+          vat:+r.querySelector(".vat").value||0
+        });
+      });
 
-    return matchesSearch && matchesStatus;
-  });
+      const subtotal=parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,""))||0;
+      const totalVat=parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,""))||0;
+      const grandTotal=subtotal+totalVat;
 
-  renderFilteredQuotes(filtered);
-}
+      let quoteNumber=$("quoteNumber").value.trim();
+      if(!quoteNumber){
+        quoteNumber=await generateQuoteNumber(uid);
+        $("quoteNumber").value=quoteNumber;
+      }
 
-    function renderFilteredQuotes(list) {
-  const tbody = document.getElementById("savedQuotesBody");
-  tbody.innerHTML = "";
-  list.forEach((quote, index) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${quote.quoteNumber}</td>
-      <td>${quote.clientName}</td>
-      <td>${quote.validUntil}</td>
-      <td>${quote.quoteStatus}</td>
-      <td>${quote.total}</td>
-      <td>
-        <button class="btn small" onclick="viewQuote(${index})">🔍 View</button>
-        <button class="btn small" onclick="editQuote(${index})">✏️ Edit</button>
-        <button class="btn small danger" onclick="deleteQuote(${index})">🗑️ Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-    
- </script>
- 
+      const data={
+        businessName:$("businessName").value,
+        clientName:$("clientName").value,
+        quoteDate:$("quoteDate").value,
+        dueDate:$("dueDate").value,
+        quoteNumber,
+        status:$("status").value,
+        note:$("note").value,
+        items,
+        subtotal, totalVat, grandTotal,
+        signatures:{
+          business:$("signatureBusiness").toDataURL(),
+          client:$("signatureClient").toDataURL(),
+          businessDate:$("signatureBusinessDate").innerText||"",
+          clientDate:$("signatureClientDate").innerText||"",
+        },
+        userId:uid,
+        updatedAt:new Date().toISOString()
+      };
+
+      await addDoc(collection(db,"users",uid,"quotes"),data);
+      alert("✅ Quote saved!");
+      location.href="quote-offer-list.html";
+    }
+    window.saveQuote=saveQuote;
+
+    /* ==== PDF ==== */
+    window.downloadPDF=(withBranding=true)=>{
+      const { jsPDF }=window.jspdf;
+      const docPDF=new jsPDF();
+      docPDF.setFontSize(18);
+      docPDF.text("QUOTE / OFFER",105,15,{align:"center"});
+
+      docPDF.autoTable({
+        startY:30,
+        head:[["Quote #","Date","Due","Status"]],
+        body:[[
+          $("quoteNumber").value,
+          $("quoteDate").value,
+          $("dueDate").value,
+          $("status").value
+        ]],
+        styles:{fontSize:11,halign:"center"},
+        headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
+      });
+
+      const items=[];
+      document.querySelectorAll("#itemsBody tr").forEach(r=>{
+        const desc=r.querySelector(".desc").value;
+        const qty=+r.querySelector(".qty").value||0;
+        const price=+r.querySelector(".price").value||0;
+        const vat=+r.querySelector(".vat").value||0;
+        const total=qty*price*(1+vat/100);
+        items.push([desc,qty,"€"+price.toFixed(2),vat+"%","€"+total.toFixed(2)]);
+      });
+
+      docPDF.autoTable({
+        startY:docPDF.lastAutoTable.finalY+10,
+        head:[["Description","Qty","Unit Price","VAT","Total"]],
+        body:items,
+        styles:{fontSize:11,halign:"center"},
+        headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
+      });
+
+      docPDF.text(`Subtotal: €${$("subtotal").innerText.replace(/[^\d.-]/g,"")}`,150,docPDF.lastAutoTable.finalY+10);
+      docPDF.text(`VAT: €${$("totalVat").innerText.replace(/[^\d.-]/g,"")}`,150,docPDF.lastAutoTable.finalY+16);
+      docPDF.text(`Total Due: €${$("grandTotal").innerText.replace(/[^\d.-]/g,"")}`,150,docPDF.lastAutoTable.finalY+22);
+
+      if(withBranding){
+        docPDF.setFontSize(10);
+        docPDF.text("Generated with SmartWerk",105,290,{align:"center"});
+      }
+
+      docPDF.save(`${$("quoteNumber").value||"quote"}.pdf`);
+    };
+
+    /* ==== Init ==== */
+    onAuthStateChanged(auth,(user)=>{
+      if(!user) return location.href="login.html";
+      flatpickr(".js-date",{dateFormat:"Y-m-d"});
+      if(!document.querySelector("#itemsBody tr")) addItem();
+      updateTotals();
+    });
+  </script>
 </body>
 </html>
