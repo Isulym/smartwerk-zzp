@@ -245,19 +245,66 @@
 }
     
     /* ========== SAVE QUOTE ========== */
-    async function saveQuote() {
-  const user = auth.currentUser;
-  if (!user) { location.href = "login.html"; return; }
-  const uid = user.uid;
+   const user = auth.currentUser;
+if (!user) { window.location.href = "login.html"; return; }
+const uid = user.uid;
 
-  const editingId = localStorage.getItem("editQuoteId") || null;
-  let quoteNumber = $("quoteNumber").value.trim();
+// гарантовано рядок
+const quoteNumber = (document.getElementById('quoteNumber')?.value || '').trim();
 
-  // якщо немає номера — згенерувати
-  if (!editingId && !quoteNumber) {
-    quoteNumber = await generateQuoteNumber(uid);
-    $("quoteNumber").value = quoteNumber;
-  }
+// ...формуємо items та підсумки як у тебе...
+
+const data = {
+    businessName: $("businessName").value,
+    kvk: $("kvk").value,
+    iban: $("iban").value,
+    btw: $("btw").value,
+    email: $("email").value,
+    businessAddress: $("businessAddress").value,
+    businessPhone: $("businessPhone").value,
+
+    clientName: $("clientName").value,
+    clientEmail: $("clientEmail").value,
+    clientPhone: $("clientPhone").value,
+    clientAddress: $("clientAddress").value,
+
+    quoteDate: $("quoteDate").value,
+    validUntil: $("validUntil").value,
+    quoteNumber,
+    status: $("status").value,
+    note: $("note").value,
+
+    items,
+    subtotal,
+    totalVat,
+    grandTotal,
+    subtotalFormatted: "€" + subtotal.toFixed(2),
+    totalVatFormatted: "€" + totalVat.toFixed(2),
+    grandTotalFormatted: "€" + grandTotal.toFixed(2),
+
+    signatures: {
+      business: businessSig,
+      client: clientSig,
+      businessDate: $("signatureBusinessDate").innerText || "",
+      clientDate: $("signatureClientDate").innerText || "",
+    },
+};
+
+// видалимо undefined (на всякий)
+Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+
+// створення/оновлення
+const editingId = localStorage.getItem('editQuoteId') || null;
+if (editingId) {
+  await setDoc(doc(db, 'users', uid, 'quotes', editingId), data, { merge: true });
+  localStorage.removeItem('editQuoteId');
+  alert('✅ Quote updated');
+} else {
+  await addDoc(collection(db, 'users', uid, 'quotes'), data);
+  alert(`✅ Quote saved${quoteNumber ? ' as ' + quoteNumber : ''}`);
+}
+
+location.href = 'quote-offer-list.html';
 
   // items
   const items = [];
