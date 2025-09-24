@@ -232,7 +232,7 @@
     /* ========== FIRESTORE: NUMBER GENERATION ========== */
    // ==== GENERATE QUOTE NUMBER ====
 async function generateQuoteNumber(uid) {
-  const ref = doc(db, "users", uid, "meta", "counters");
+  const ref = doc(db, "users", uid,);
   const year = new Date().getFullYear();
   let final = "";
 
@@ -250,80 +250,83 @@ async function generateQuoteNumber(uid) {
 // ==== SAVE QUOTE ====
 async function saveQuote() {
   const user = auth.currentUser;
-  if (!user) { 
-    window.location.href = "login.html"; 
-    return;
-  }
+  if (!user) { window.location.href = "login.html"; return; }
   const uid = user.uid;
 
-  // items
+  // --- items
   const items = [];
   document.querySelectorAll("#itemsBody tr").forEach(tr => {
     items.push({
-      desc: tr.querySelector(".desc")?.value || "",
-      qty: parseFloat(tr.querySelector(".qty")?.value) || 0,
+      desc:  tr.querySelector(".desc")?.value || "",
+      qty:   parseFloat(tr.querySelector(".qty")?.value)   || 0,
       price: parseFloat(tr.querySelector(".price")?.value) || 0,
-      vat: parseFloat(tr.querySelector(".vat")?.value) || 0,
+      vat:   parseFloat(tr.querySelector(".vat")?.value)   || 0,
     });
   });
 
-  // totals
-  const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g, "")) || 0;
-  const totalVat = parseFloat($("totalVat").innerText.replace(/[^\d.-]/g, "")) || 0;
+  // --- totals (з екрана)
+  const subtotal   = parseFloat(document.getElementById("subtotal").innerText.replace(/[^\d.-]/g,"")) || 0;
+  const totalVat   = parseFloat(document.getElementById("totalVat").innerText.replace(/[^\d.-]/g,"")) || 0;
   const grandTotal = subtotal + totalVat;
 
-  // signatures
-  const businessSig = $("signatureBusiness").toDataURL();
-  const clientSig   = $("signatureClient").toDataURL();
+  // --- signatures
+  const businessSig = document.getElementById("signatureBusiness").toDataURL();
+  const clientSig   = document.getElementById("signatureClient").toDataURL();
 
-  // номер або новий, або існуючий
-  let quoteNumber = $("quoteNumber").value;
-  if (!quoteNumber) {
+  // --- номер
+  let quoteNumber = document.getElementById("quoteNumber").value.trim(); // значення, НЕ елемент!
+  const editingId = localStorage.getItem("editQuoteId") || null;
+  if (!editingId && !quoteNumber) {
     quoteNumber = await generateQuoteNumber(uid);
-    $("quoteNumber").value = quoteNumber;
+    document.getElementById("quoteNumber").value = quoteNumber;
   }
 
-  const editingId = localStorage.getItem("editQuoteId") || null;
-
+  // --- payload
   const data = {
-    businessName: $("businessName").value,
-    kvk: $("kvk").value,
-    iban: $("iban").value,
-    btw: $("btw").value,
-    email: $("email").value,
-    businessAddress: $("businessAddress").value,
-    businessPhone: $("businessPhone").value,
+    // Business
+    businessName: document.getElementById("businessName").value,
+    kvk:          document.getElementById("kvk").value,
+    iban:         document.getElementById("iban").value,
+    btw:          document.getElementById("btw").value,
+    email:        document.getElementById("email").value,
+    businessAddress: document.getElementById("businessAddress").value,
+    businessPhone:   document.getElementById("businessPhone").value,
 
-    clientName: $("clientName").value,
-    clientEmail: $("clientEmail").value,
-    clientPhone: $("clientPhone").value,
-    clientAddress: $("clientAddress").value,
+    // Client
+    clientName:    document.getElementById("clientName").value,
+    clientEmail:   document.getElementById("clientEmail").value,
+    clientPhone:   document.getElementById("clientPhone").value,
+    clientAddress: document.getElementById("clientAddress").value,
 
-    quoteDate: $("quoteDate").value,
-    validUntil: $("validUntil").value,
+    // Dates / status
+    quoteDate:      document.getElementById("quoteDate")?.value || document.getElementById("invoiceDate")?.value || "",
+    validUntil:     document.getElementById("validUntil")?.value || document.getElementById("dueDate")?.value || "",
     quoteNumber,
-    status: $("status").value,
-    note: $("note").value,
+    status:         document.getElementById("status").value,  // Draft / Sent / Accepted / Rejected
+    note:           document.getElementById("note").value,
 
+    // Money
     items,
     subtotal,
     totalVat,
     grandTotal,
-    subtotalFormatted: "€" + subtotal.toFixed(2),
-    totalVatFormatted: "€" + totalVat.toFixed(2),
+    subtotalFormatted:   "€" + subtotal.toFixed(2),
+    totalVatFormatted:   "€" + totalVat.toFixed(2),
     grandTotalFormatted: "€" + grandTotal.toFixed(2),
 
+    // Signatures
     signatures: {
       business: businessSig,
-      client: clientSig,
-      businessDate: $("signatureBusinessDate").innerText || "",
-      clientDate: $("signatureClientDate").innerText || "",
+      client:   clientSig,
+      businessDate: document.getElementById("signatureBusinessDate").innerText || "",
+      clientDate:   document.getElementById("signatureClientDate").innerText || "",
     },
 
     userId: uid,
     updatedAt: new Date().toISOString(),
   };
 
+  // --- create or update
   if (editingId) {
     await setDoc(doc(db, "users", uid, "quotes", editingId), data, { merge: true });
     localStorage.removeItem("editQuoteId");
@@ -333,9 +336,9 @@ async function saveQuote() {
     alert(`✅ Quote saved as ${quoteNumber}`);
   }
 
-  location.href = "quote-offer-list.html";
+  // --- go to list
+  window.location.href = "quote-offer-list.html";
 }
-
 window.saveQuote = saveQuote;
 
     /* ========== SEND QUOTE (stub) ========== */
@@ -401,15 +404,31 @@ window.saveQuote = saveQuote;
     }
 
     /* ========== INIT ========== */
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){location.href="login.html";return;}
-      initDates();
-      setupSignature("signatureBusiness","signatureBusinessDate");
-      setupSignature("signatureClient","signatureClientDate");
-      if(!document.querySelector("#itemsBody tr")) addItem();
-      updateTotals();
-      await loadForEdit(user.uid);
-    });
+   onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "login.html"; return; }
+
+  // дати
+  flatpickr(".js-date", { dateFormat: "Y-m-d" });
+
+  // підписи
+  setupSignature("signatureBusiness","signatureBusinessDate");
+  setupSignature("signatureClient","signatureClientDate");
+
+  // перший рядок
+  if (!document.querySelector("#itemsBody tr")) addItem();
+  updateTotals();
+
+  // прев’ю номера + якщо редагування — підвантажити
+  await previewNextQuoteNumber(user.uid);
+  await loadQuoteForEdit(user.uid);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("saveBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    saveQuote();
+  });
+});
 
     document.addEventListener("DOMContentLoaded",()=>{
       $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveQuote();});
