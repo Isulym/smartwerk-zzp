@@ -1,46 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>  
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk — Quotes List</title>
-  <link rel="stylesheet" href="style-quote-offer.css"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartWerk — Quote List</title>
+  <link rel="stylesheet" href="style-invoices.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <header>
-    <h1>📋 Quotes Overview</h1>
+    <h1>📑 SmartWerk Quotes</h1>
     <nav>
       <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="quote-offer.html" class="btn">➕ New Quote</a>
+      <a href="quote-offer-2.html" class="btn">➕ New Quote</a>
+      <a href="invoices-list.html" class="btn">🧾 Invoices</a>
     </nav>
   </header>
 
   <main>
-    <!-- Filters -->
-    <section class="filters">
-      <input id="searchBox" placeholder="🔍 Search by client, number, amount">
-      <select id="statusFilter">
-        <option value="all">All statuses</option>
-        <option value="Draft">Draft</option>
-        <option value="Sent">Sent</option>
-        <option value="Accepted">Accepted</option>
-        <option value="Rejected">Rejected</option>
-      </select>
-      <input id="fromDate" class="js-date" placeholder="From (YYYY-MM-DD)">
-      <input id="toDate" class="js-date" placeholder="To (YYYY-MM-DD)">
-      <select id="sortBy">
-        <option value="date_desc">Newest</option>
-        <option value="date_asc">Oldest</option>
-        <option value="number_desc">Quote # ↓</option>
-        <option value="number_asc">Quote # ↑</option>
-        <option value="amount_desc">Amount ↓</option>
-        <option value="amount_asc">Amount ↑</option>
-      </select>
-      <button onclick="renderQuotes()">Apply</button>
-    </section>
-
-    <!-- Table -->
+    <h2>📋 Saved Quotes</h2>
     <table>
       <thead>
         <tr>
@@ -60,206 +40,185 @@
     <p>© 2025 SmartWerk</p>
   </footer>
 
-  <!-- Libs -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, getDocs, deleteDoc, doc, getDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  <!-- App -->
-  <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { setDoc, doc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+  const $ = id => document.getElementById(id);
+  let quotes = [];
 
-    let quotes=[];
-    const $=id=>document.getElementById(id);
+  async function loadQuotes(uid){
+    const snap = await getDocs(collection(db,"users",uid,"quotes"));
+    quotes = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderQuotes();
+  }
 
-    /* ==== Load ==== */
-    async function loadQuotes(uid){
-      quotes=[];
-      const snap=await getDocs(collection(db,"users",uid,"quotes"));
-      snap.forEach(d=>quotes.push({...d.data(),id:d.id}));
-      renderQuotes();
-    }
-
-    /* ==== Render ==== */
-    window.renderQuotes=function(){
-      const body=$("quotesBody"); body.innerHTML="";
-      const status=$("statusFilter").value;
-      const search=$("searchBox").value.toLowerCase();
-      const from=$("fromDate").value; const to=$("toDate").value;
-      const sortBy=$("sortBy").value;
-
-      let filtered=quotes.filter(q=>{
-        let ok=true;
-        if(status!=="all") ok=ok&&q.status===status;
-        if(from) ok=ok&&q.quoteDate>=from;
-        if(to) ok=ok&&q.quoteDate<=to;
-        if(search){
-          ok=ok&&(
-            (q.clientName||"").toLowerCase().includes(search)||
-            (q.quoteNumber||"").toLowerCase().includes(search)||
-            String(q.grandTotal||"").includes(search)
-          );
-        }
-        return ok;
-      });
-
-      filtered.sort((a,b)=>{
-        switch(sortBy){
-          case "number_desc":return (b.quoteNumber||"").localeCompare(a.quoteNumber||"");
-          case "number_asc": return (a.quoteNumber||"").localeCompare(b.quoteNumber||"");
-          case "date_desc": return (b.quoteDate||"").localeCompare(a.quoteDate||"");
-          case "date_asc":  return (a.quoteDate||"").localeCompare(b.quoteDate||"");
-          case "amount_desc":return (b.grandTotal||0)-(a.grandTotal||0);
-          case "amount_asc": return (a.grandTotal||0)-(b.grandTotal||0);
-        }
-        return 0;
-      });
-
-      filtered.forEach(q=>{
-        const tr=document.createElement("tr");
-        tr.innerHTML=`
-          <td>${q.quoteNumber||"—"}</td>
-          <td>${q.clientName||"—"}</td>
-          <td>${q.status||"Draft"}</td>
-          <td>${q.quoteDate||"—"}</td>
-          <td>€${(q.grandTotal||0).toFixed(2)}</td>
-          <td>
-            <button onclick="editQuote('${q.id}')">✏️ Edit</button>
-            <button onclick="deleteQuote('${q.id}')">🗑 Delete</button>
-            <button onclick="downloadQuotePDF('${q.id}',true)">📄 PDF</button>
-            <button onclick="downloadQuotePDF('${q.id}',false)">PRO 📄 PDF</button>
-            <button onclick="convertToInvoice('${q.id}')">➔ Convert to Invoice</button>
-          </td>
-        `;
-        body.appendChild(tr);
-      });
-    };
-
-    /* ==== Edit ==== */
-    window.editQuote=id=>{
-      localStorage.setItem("editQuoteId",id);
-      location.href="quote-offer.html";
-    };
-
-    /* ==== Delete ==== */
-    window.deleteQuote=async(id)=>{
-      if(!confirm("Delete this quote?"))return;
-      const user=auth.currentUser;
-      await deleteDoc(doc(db,"users",user.uid,"quotes",id));
-      quotes=quotes.filter(q=>q.id!==id);
-      renderQuotes();
-    };
-
-    /* ==== PDF ==== */
-    window.downloadQuotePDF=(id,withBranding=true)=>{
-      const q=quotes.find(x=>x.id===id); if(!q) return;
-      const { jsPDF }=window.jspdf;
-      const docPDF=new jsPDF();
-      docPDF.setFontSize(18);
-      docPDF.text("QUOTE / OFFER",105,15,{align:"center"});
-
-      docPDF.autoTable({
-        startY:30,
-        head:[["Quote #","Date","Due","Status"]],
-        body:[[q.quoteNumber,q.quoteDate,q.dueDate,q.status]],
-        styles:{fontSize:11,halign:"center"},
-        headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
-      });
-
-      const items=(q.items||[]).map(it=>[
-        it.desc,it.qty,"€"+it.price.toFixed(2),it.vat+"%","€"+(it.qty*it.price*(1+it.vat/100)).toFixed(2)
-      ]);
-
-      docPDF.autoTable({
-        startY:docPDF.lastAutoTable.finalY+10,
-        head:[["Description","Qty","Unit Price","VAT","Total"]],
-        body:items,
-        styles:{fontSize:11,halign:"center"},
-        headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
-      });
-
-      docPDF.text(`Subtotal: €${(q.subtotal||0).toFixed(2)}`,150,docPDF.lastAutoTable.finalY+10);
-      docPDF.text(`VAT: €${(q.totalVat||0).toFixed(2)}`,150,docPDF.lastAutoTable.finalY+16);
-      docPDF.text(`Total: €${(q.grandTotal||0).toFixed(2)}`,150,docPDF.lastAutoTable.finalY+22);
-
-      if(withBranding){
-        docPDF.setFontSize(10);
-        docPDF.text("Generated with SmartWerk",105,290,{align:"center"});
-      }
-
-      docPDF.save(`${q.quoteNumber||"quote"}.pdf`);
-    };
-
-    /* ==== Init ==== */
-    onAuthStateChanged(auth,(user)=>{
-      if(!user) return location.href="login.html";
-      flatpickr(".js-date",{dateFormat:"Y-m-d"});
-      loadQuotes(user.uid);
+  function renderQuotes(){
+    const body = $("quotesBody");
+    body.innerHTML="";
+    quotes.forEach(inv=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${inv.quoteNumber||"—"}</td>
+        <td>${inv.clientName||"—"}</td>
+        <td>${inv.status||"Draft"}</td>
+        <td>${inv.quoteDate||"—"}</td>
+        <td>€${parseFloat(inv.grandTotal||0).toFixed(2)}</td>
+        <td>
+          <button onclick="editQuote('${inv.id}')">✏️ Edit</button>
+          <button onclick="deleteQuote('${inv.id}')">🗑 Delete</button>
+          <button onclick="downloadQuotePDF('${inv.id}', true)">📄 PDF</button>
+          <button onclick="downloadQuotePDF('${inv.id}', false)">PRO 📄 PDF without branding</button>
+          <button onclick="sendQuote('${inv.id}')">📧 Send Quote</button>
+          <button onclick="convertToInvoice('${inv.id}')">➡️ Convert to Invoice</button>
+        </td>`;
+      body.appendChild(tr);
     });
+  }
 
-    import { setDoc, doc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-window.convertToInvoice = async function(id){
-  const user = auth.currentUser;
-  if(!user) return location.href="login.html";
-
-  const quote = quotes.find(q=>q.id===id);
-  if(!quote) return;
-
-  // формуємо інвойс з даних пропозиції
-  const invoiceData = {
-    businessName: quote.businessName,
-    kvk: quote.kvk,
-    iban: quote.iban,
-    btw: quote.btw,
-    email: quote.email,
-    businessAddress: quote.businessAddress,
-    businessPhone: quote.businessPhone,
-
-    clientName: quote.clientName,
-    clientEmail: quote.clientEmail,
-    clientPhone: quote.clientPhone,
-    clientAddress: quote.clientAddress,
-
-    invoiceDate: new Date().toISOString().split("T")[0],
-    dueDate: "",
-    invoiceNumber: "", // буде згенеровано в invoices.html
-    status: "Draft",
-    note: quote.note || "",
-
-    items: quote.items || [],
-    subtotal: quote.subtotal || 0,
-    totalVat: quote.totalVat || 0,
-    grandTotal: quote.grandTotal || 0,
-
-    fromQuote: quote.quoteNumber, // зв’язок з пропозицією
-    userId: user.uid,
-    createdAt: new Date().toISOString(),
+  // === ACTIONS ===
+  window.editQuote = (id)=>{
+    localStorage.setItem("editQuoteId",id);
+    location.href="quote-offer-2.html";
   };
 
-  // створюємо інвойс у Firestore
-  const ref = await addDoc(collection(db,"users",user.uid,"invoices"), invoiceData);
+  window.deleteQuote = async(id)=>{
+    if(!confirm("❌ Delete this quote?")) return;
+    const user=auth.currentUser; if(!user) return;
+    await deleteDoc(doc(db,"users",user.uid,"quotes",id));
+    quotes=quotes.filter(q=>q.id!==id);
+    renderQuotes();
+  };
 
-  // оновлюємо статус пропозиції
-  await setDoc(doc(db,"users",user.uid,"quotes",id), { status: "Converted" }, { merge:true });
+  window.downloadQuotePDF = (id,withBranding=true)=>{
+    const inv = quotes.find(i=>i.id===id);
+    if(!inv) return;
+    const { jsPDF } = window.jspdf;
+    const docPDF = new jsPDF();
 
-  // відкриваємо invoices.html для редагування
-  localStorage.setItem("editInvoiceId", ref.id);
-  location.href="invoices.html";
-};
-  </script>
+    docPDF.setFontSize(18);
+    docPDF.text("QUOTE",105,15,{align:"center"});
+
+    docPDF.setFontSize(12);
+    docPDF.text("From:",14,30);
+    docPDF.text([
+      inv.businessName||"",
+      `KvK: ${inv.kvk||""}`,
+      `IBAN: ${inv.iban||""}`,
+      `Email: ${inv.email||""}`,
+      `BTW: ${inv.btw||""}`,
+      `Address: ${inv.businessAddress||""}`,
+      `Phone: ${inv.businessPhone||""}`
+    ],14,36);
+
+    docPDF.text("To:",120,30);
+    docPDF.text([
+      inv.clientName||"",
+      inv.clientEmail||"",
+      `Address: ${inv.clientAddress||""}`,
+      `Phone: ${inv.clientPhone||""}`
+    ],120,36);
+
+    // Загальна інформація
+    docPDF.autoTable({
+      startY: 80,
+      head: [["Quote #","Date","Status"]],
+      body: [[inv.quoteNumber,inv.quoteDate,inv.status]],
+      theme:"grid",
+      styles:{fontSize:11,cellPadding:4,halign:"center",valign:"middle"},
+      headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
+    });
+
+    // Items
+    const items = inv.items?.map(it=>[
+      it.desc,
+      it.qty,
+      `€${parseFloat(it.price).toFixed(2)}`,
+      `${it.vat}%`,
+      `€${(it.qty*it.price*(1+it.vat/100)).toFixed(2)}`
+    ])||[];
+
+    docPDF.autoTable({
+      startY: docPDF.lastAutoTable.finalY+10,
+      head:[["Description","Qty","Unit Price","VAT","Total"]],
+      body: items,
+      theme:"grid",
+      styles:{fontSize:11,cellPadding:4,halign:"center",valign:"middle"},
+      headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
+    });
+
+    docPDF.text(`Subtotal: €${parseFloat(inv.subtotal||0).toFixed(2)}`,150,docPDF.lastAutoTable.finalY+10);
+    docPDF.text(`VAT: €${parseFloat(inv.totalVat||0).toFixed(2)}`,150,docPDF.lastAutoTable.finalY+16);
+    docPDF.text(`Total: €${parseFloat(inv.grandTotal||0).toFixed(2)}`,150,docPDF.lastAutoTable.finalY+22);
+
+    if(withBranding){
+      docPDF.setFontSize(10);
+      docPDF.text("Generated with SmartWerk",105,290,{align:"center"});
+    }
+
+    docPDF.save(`${inv.quoteNumber||"quote"}.pdf`);
+  };
+
+  // Send Quote
+  window.sendQuote = async(id)=>{
+    const inv = quotes.find(q=>q.id===id);
+    if(!inv) return;
+    const subject = encodeURIComponent(`Quote ${inv.quoteNumber} from ${inv.businessName}`);
+    const body = encodeURIComponent(`Hello ${inv.clientName},\n\nPlease find attached your quote.\n\nRegards,\n${inv.businessName}`);
+    window.location.href = `mailto:${inv.clientEmail}?subject=${subject}&body=${body}`;
+  };
+
+  // Convert to Invoice
+  async function generateInvoiceNumber(uid){
+    const ref = doc(db,"users",uid);
+    const year = new Date().getFullYear();
+    let final="";
+    await runTransaction(db,async(tx)=>{
+      const snap=await tx.get(ref);
+      const last=snap.exists()?(snap.data().lastInvoiceNumber||0):0;
+      const next=last+1;
+      final=`INV-${year}-${String(next).padStart(3,"0")}`;
+      tx.set(ref,{lastInvoiceNumber:next},{merge:true});
+    });
+    return final;
+  }
+
+  window.convertToInvoice = async(quoteId)=>{
+    const user=auth.currentUser; if(!user) return;
+    const ref=doc(db,"users",user.uid,"quotes",quoteId);
+    const snap=await getDoc(ref);
+    if(!snap.exists()) return alert("Quote not found");
+    const quote=snap.data();
+    const invoiceNumber=await generateInvoiceNumber(user.uid);
+
+    const invoiceData={
+      ...quote,
+      invoiceNumber,
+      status:"Draft",
+      convertedFrom:quoteId,
+      updatedAt:new Date().toISOString()
+    };
+    await addDoc(collection(db,"users",user.uid,"invoices"),invoiceData);
+    alert(`✅ Converted to Invoice ${invoiceNumber}`);
+    location.href="invoices-list.html";
+  };
+
+  // INIT
+  onAuthStateChanged(auth,user=>{
+    if(!user) return location.href="login.html";
+    loadQuotes(user.uid);
+  });
+</script>
 </body>
 </html>
