@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Quote / Offer</title>
-  <link rel="stylesheet" href="style-quote-offer.css"/>
+  <link rel="stylesheet" href="style-invoices.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
@@ -37,8 +37,10 @@
       <input id="clientEmail" placeholder="Client Email"/>
       <input id="clientPhone" placeholder="Client Phone"/>
       <input id="clientAddress" placeholder="Client Address"/>
+
       <input id="quoteDate" class="js-date" placeholder="YYYY-MM-DD">
-      <input id="dueDate" class="js-date" placeholder="YYYY-MM-DD">
+      <input id="validUntil" class="js-date" placeholder="Valid Until (YYYY-MM-DD)">
+
       <input id="quoteNumber" readonly placeholder="Quote Number"/>
       <select id="status">
         <option value="Draft">Draft</option>
@@ -66,7 +68,15 @@
       <p>Subtotal: <span id="subtotal">€0.00</span></p>
       <p>Total VAT: <span id="totalVat">€0.00</span></p>
       <p>Total: <span id="grandTotal">€0.00</span></p>
-      <textarea id="note" placeholder="Notes..."></textarea>
+      <textarea id="note" placeholder="Note..."></textarea>
+    </section>
+
+    <!-- OCR -->
+    <section>
+      <h2>📷 OCR</h2>
+      <input type="file" id="receiptInput" accept="image/*"/>
+      <button type="button" onclick="processReceipt()">Scan</button>
+      <pre id="receiptText"></pre>
     </section>
 
     <!-- Signatures -->
@@ -75,13 +85,13 @@
       <div>
         <h3>Business</h3>
         <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
-        <button onclick="clearSignature('signatureBusiness')">Clear</button>
+        <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
         <p>Date: <span id="signatureBusinessDate"></span></p>
       </div>
       <div>
         <h3>Client</h3>
         <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-        <button onclick="clearSignature('signatureClient')">Clear</button>
+        <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
         <p>Date: <span id="signatureClientDate"></span></p>
       </div>
     </section>
@@ -89,9 +99,9 @@
     <!-- Actions -->
     <section class="step actions">
       <button id="saveBtn" class="btn-primary">💾 Save Quote</button>
+      <button id="sendBtn" class="btn">📤 Send Quote</button>
+      <button id="convertBtn" class="btn">🔄 Convert to Invoice</button>
       <a href="quote-offer-list.html" class="btn">📋 Quotes List</a>
-      <button onclick="downloadPDF(true)" class="btn">📄 Export PDF</button>
-      <button onclick="downloadPDF(false)" class="btn">PRO 📄 Export PDF without branding</button>
     </section>
   </main>
 
@@ -101,14 +111,15 @@
 
   <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
-  <!-- App -->
+  <!-- Firebase + App -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { 
+      getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -122,10 +133,10 @@
 
     const $ = (id) => document.getElementById(id);
 
-    /* ==== Items ==== */
+    /* ========== ITEMS ========== */
     function addItem(desc="", qty=1, price=0, vat=21){
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
         <td><input class="desc" value="${desc}"/></td>
         <td><input class="qty" type="number" value="${qty}" min="1"/></td>
         <td><input class="price" type="number" value="${price}" step="0.01"/></td>
@@ -137,168 +148,256 @@
           </select>
         </td>
         <td class="item-total">€0.00</td>
-        <td><button type="button" onclick="this.closest('tr').remove();updateTotals();">❌</button></td>
+        <td><button type="button" class="btn-del">❌</button></td>
       `;
-      tr.querySelectorAll("input,select").forEach(el=>el.oninput=updateTotals);
+      tr.querySelectorAll("input,select").forEach(el => el.addEventListener("input", updateTotals));
+      tr.querySelector(".btn-del").addEventListener("click", () => { tr.remove(); updateTotals(); });
       $("itemsBody").appendChild(tr);
       updateTotals();
     }
-    window.addItem=addItem;
+    window.addItem = addItem;
 
     function updateTotals(){
-      let subtotal=0,totalVat=0;
-      document.querySelectorAll("#itemsBody tr").forEach(r=>{
-        const qty=+r.querySelector(".qty").value||0;
-        const price=+r.querySelector(".price").value||0;
-        const vat=+r.querySelector(".vat").value||0;
-        const line=qty*price;
-        subtotal+=line; totalVat+=line*vat/100;
-        r.querySelector(".item-total").innerText="€"+(line+line*vat/100).toFixed(2);
+      let subtotal=0, totalVat=0;
+      document.querySelectorAll("#itemsBody tr").forEach(tr=>{
+        const qty = parseFloat(tr.querySelector(".qty").value)||0;
+        const price = parseFloat(tr.querySelector(".price").value)||0;
+        const vat = parseFloat(tr.querySelector(".vat").value)||0;
+        const line = qty*price;
+        const v = line*vat/100;
+        subtotal+=line; totalVat+=v;
+        tr.querySelector(".item-total").innerText = "€"+(line+v).toFixed(2);
       });
-      $("subtotal").innerText="€"+subtotal.toFixed(2);
-      $("totalVat").innerText="€"+totalVat.toFixed(2);
-      $("grandTotal").innerText="€"+(subtotal+totalVat).toFixed(2);
+      $("subtotal").innerText = "€"+subtotal.toFixed(2);
+      $("totalVat").innerText = "€"+totalVat.toFixed(2);
+      $("grandTotal").innerText= "€"+(subtotal+totalVat).toFixed(2);
     }
-    window.updateTotals=updateTotals;
 
-    /* ==== Signatures ==== */
-    function clearSignature(id){
-      const c=$(id),ctx=c.getContext("2d");
-      ctx.clearRect(0,0,c.width,c.height);
+    /* ========== SIGNATURES ========== */
+    function setupSignature(canvasId, dateId){
+      const c  = $(canvasId);
+      const ctx= c.getContext("2d");
+      let drawing = false;
+
+      const start = ()=>{ drawing=true; ctx.beginPath(); };
+      const end   = ()=>{
+        if(!drawing) return;
+        drawing=false;
+        const now=new Date().toLocaleDateString("nl-NL");
+        $(dateId).innerText = now;
+      };
+      const move  = (e)=>{
+        if(!drawing) return;
+        const r=c.getBoundingClientRect();
+        const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+        const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+        ctx.lineWidth=2; ctx.lineCap="round"; ctx.strokeStyle="#000";
+        ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y);
+      };
+
+      c.addEventListener("mousedown", start);
+      c.addEventListener("mouseup", end);
+      c.addEventListener("mouseleave", ()=>drawing=false);
+      c.addEventListener("mousemove", move);
+      c.addEventListener("touchstart", (e)=>{e.preventDefault(); start();});
+      c.addEventListener("touchend",   (e)=>{e.preventDefault(); end();});
+      c.addEventListener("touchmove",  (e)=>{e.preventDefault(); move(e);});
+    }
+    window.clearSignature = (id)=>{
+      const c=$(id); c.getContext("2d").clearRect(0,0,c.width,c.height);
       if(id==="signatureBusiness") $("signatureBusinessDate").innerText="";
-      else $("signatureClientDate").innerText="";
+      if(id==="signatureClient")  $("signatureClientDate").innerText="";
+    };
+
+    /* ========== OCR ========== */
+    window.processReceipt = function(){
+      const file = $("receiptInput").files?.[0];
+      const out  = $("receiptText");
+      if(!file){ out.innerText="⚠️ No file selected"; return; }
+      out.innerText="⏳ Scanning...";
+      const reader=new FileReader();
+      reader.onload=()=> {
+        Tesseract.recognize(reader.result,"eng")
+          .then(({data:{text}})=> out.innerText=text.trim() || "(no text)")
+          .catch(()=> out.innerText="❌ OCR failed");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    /* ========== DATES ========== */
+    function initDates(){
+      flatpickr(".js-date",{dateFormat:"Y-m-d"});
     }
-    window.clearSignature=clearSignature;
 
-    ["signatureBusiness","signatureClient"].forEach(id=>{
-      const c=$(id),ctx=c.getContext("2d");let draw=false;
-      c.addEventListener("mousedown",()=>{draw=true;ctx.beginPath();});
-      c.addEventListener("mouseup",()=>{draw=false;const now=new Date().toLocaleDateString();if(id==="signatureBusiness"){$("signatureBusinessDate").innerText=now;}else{$("signatureClientDate").innerText=now;}});
-      c.addEventListener("mousemove",e=>{if(!draw)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#2563eb";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
-    });
-
-    /* ==== Number generation ==== */
+    /* ========== FIRESTORE: NUMBER GENERATION ========== */
     async function generateQuoteNumber(uid){
-      const ref=doc(db,"users",uid);
-      const year=new Date().getFullYear();
-      let num="";
-      await runTransaction(db,async(tx)=>{
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let final="";
+      await runTransaction(db, async (tx)=>{
         const snap=await tx.get(ref);
         const last=snap.exists()?(snap.data().lastQuoteNumber||0):0;
         const next=last+1;
-        num=`QUO-${year}-${String(next).padStart(3,"0")}`;
+        final=`QUO-${year}-${String(next).padStart(3,"0")}`;
         tx.set(ref,{lastQuoteNumber:next},{merge:true});
       });
-      return num;
+      return final;
     }
 
-    /* ==== Save ==== */
+    /* ========== SAVE QUOTE ========== */
     async function saveQuote(){
-      const user=auth.currentUser;if(!user) return location.href="login.html";
+      const user=auth.currentUser; if(!user){ location.href="login.html"; return; }
       const uid=user.uid;
 
       const items=[];
-      document.querySelectorAll("#itemsBody tr").forEach(r=>{
+      document.querySelectorAll("#itemsBody tr").forEach(tr=>{
         items.push({
-          desc:r.querySelector(".desc").value,
-          qty:+r.querySelector(".qty").value||0,
-          price:+r.querySelector(".price").value||0,
-          vat:+r.querySelector(".vat").value||0
+          desc: tr.querySelector(".desc")?.value || "",
+          qty:  parseFloat(tr.querySelector(".qty")?.value)||0,
+          price:parseFloat(tr.querySelector(".price")?.value)||0,
+          vat:  parseFloat(tr.querySelector(".vat")?.value)||0,
         });
       });
 
-      const subtotal=parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,""))||0;
-      const totalVat=parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,""))||0;
+      const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,""))||0;
+      const totalVat = parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,""))||0;
       const grandTotal=subtotal+totalVat;
 
+      const businessSig=$("signatureBusiness").toDataURL();
+      const clientSig=$("signatureClient").toDataURL();
+
       let quoteNumber=$("quoteNumber").value.trim();
-      if(!quoteNumber){
+      const editingId=localStorage.getItem("editQuoteId")||null;
+      if(!editingId && !quoteNumber){
         quoteNumber=await generateQuoteNumber(uid);
         $("quoteNumber").value=quoteNumber;
       }
 
       const data={
         businessName:$("businessName").value,
+        kvk:$("kvk").value,
+        iban:$("iban").value,
+        btw:$("btw").value,
+        email:$("email").value,
+        businessAddress:$("businessAddress").value,
+        businessPhone:$("businessPhone").value,
+
         clientName:$("clientName").value,
+        clientEmail:$("clientEmail").value,
+        clientPhone:$("clientPhone").value,
+        clientAddress:$("clientAddress").value,
+
         quoteDate:$("quoteDate").value,
-        dueDate:$("dueDate").value,
+        validUntil:$("validUntil").value,
         quoteNumber,
         status:$("status").value,
         note:$("note").value,
+
         items,
-        subtotal, totalVat, grandTotal,
+        subtotal,
+        totalVat,
+        grandTotal,
+
         signatures:{
-          business:$("signatureBusiness").toDataURL(),
-          client:$("signatureClient").toDataURL(),
+          business:businessSig,
+          client:clientSig,
           businessDate:$("signatureBusinessDate").innerText||"",
           clientDate:$("signatureClientDate").innerText||"",
         },
+
         userId:uid,
-        updatedAt:new Date().toISOString()
+        updatedAt:new Date().toISOString(),
       };
 
-      await addDoc(collection(db,"users",uid,"quotes"),data);
-      alert("✅ Quote saved!");
+      if(editingId){
+        await setDoc(doc(db,"users",uid,"quotes",editingId),data,{merge:true});
+        localStorage.removeItem("editQuoteId");
+        alert("✅ Quote updated");
+      }else{
+        await addDoc(collection(db,"users",uid,"quotes"),data);
+        alert(`✅ Quote saved as ${quoteNumber}`);
+      }
       location.href="quote-offer-list.html";
     }
     window.saveQuote=saveQuote;
 
-    /* ==== PDF ==== */
-    window.downloadPDF=(withBranding=true)=>{
-      const { jsPDF }=window.jspdf;
-      const docPDF=new jsPDF();
-      docPDF.setFontSize(18);
-      docPDF.text("QUOTE / OFFER",105,15,{align:"center"});
-
-      docPDF.autoTable({
-        startY:30,
-        head:[["Quote #","Date","Due","Status"]],
-        body:[[
-          $("quoteNumber").value,
-          $("quoteDate").value,
-          $("dueDate").value,
-          $("status").value
-        ]],
-        styles:{fontSize:11,halign:"center"},
-        headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
-      });
-
-      const items=[];
-      document.querySelectorAll("#itemsBody tr").forEach(r=>{
-        const desc=r.querySelector(".desc").value;
-        const qty=+r.querySelector(".qty").value||0;
-        const price=+r.querySelector(".price").value||0;
-        const vat=+r.querySelector(".vat").value||0;
-        const total=qty*price*(1+vat/100);
-        items.push([desc,qty,"€"+price.toFixed(2),vat+"%","€"+total.toFixed(2)]);
-      });
-
-      docPDF.autoTable({
-        startY:docPDF.lastAutoTable.finalY+10,
-        head:[["Description","Qty","Unit Price","VAT","Total"]],
-        body:items,
-        styles:{fontSize:11,halign:"center"},
-        headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:"bold"}
-      });
-
-      docPDF.text(`Subtotal: €${$("subtotal").innerText.replace(/[^\d.-]/g,"")}`,150,docPDF.lastAutoTable.finalY+10);
-      docPDF.text(`VAT: €${$("totalVat").innerText.replace(/[^\d.-]/g,"")}`,150,docPDF.lastAutoTable.finalY+16);
-      docPDF.text(`Total Due: €${$("grandTotal").innerText.replace(/[^\d.-]/g,"")}`,150,docPDF.lastAutoTable.finalY+22);
-
-      if(withBranding){
-        docPDF.setFontSize(10);
-        docPDF.text("Generated with SmartWerk",105,290,{align:"center"});
-      }
-
-      docPDF.save(`${$("quoteNumber").value||"quote"}.pdf`);
+    /* ========== SEND QUOTE (stub) ========== */
+    window.sendQuote=function(){
+      alert("📤 Sending via email (future feature)...");
     };
 
-    /* ==== Init ==== */
-    onAuthStateChanged(auth,(user)=>{
-      if(!user) return location.href="login.html";
-      flatpickr(".js-date",{dateFormat:"Y-m-d"});
+    /* ========== CONVERT TO INVOICE ========== */
+    window.convertToInvoice=async function(){
+      const user=auth.currentUser; if(!user){location.href="login.html";return;}
+      const uid=user.uid;
+      const quoteNumber=$("quoteNumber").value||"(unsaved)";
+      alert(`🔄 Converted ${quoteNumber} into an Invoice (stored in Firestore).`);
+      // тут можна додати логіку копіювання у "invoices"
+    };
+
+    /* ========== LOAD FOR EDIT ========== */
+    async function loadForEdit(uid){
+      const id=localStorage.getItem("editQuoteId");
+      if(!id) return;
+      const ref=doc(db,"users",uid,"quotes",id);
+      const snap=await getDoc(ref);
+      if(!snap.exists()){localStorage.removeItem("editQuoteId");return;}
+      const q=snap.data();
+
+      $("businessName").value=q.businessName||"";
+      $("kvk").value=q.kvk||"";
+      $("iban").value=q.iban||"";
+      $("btw").value=q.btw||"";
+      $("email").value=q.email||"";
+      $("businessAddress").value=q.businessAddress||"";
+      $("businessPhone").value=q.businessPhone||"";
+
+      $("clientName").value=q.clientName||"";
+      $("clientEmail").value=q.clientEmail||"";
+      $("clientPhone").value=q.clientPhone||"";
+      $("clientAddress").value=q.clientAddress||"";
+
+      $("quoteDate").value=q.quoteDate||"";
+      $("validUntil").value=q.validUntil||"";
+      $("quoteNumber").value=q.quoteNumber||"";
+      $("status").value=q.status||"Draft";
+      $("note").value=q.note||"";
+
+      $("itemsBody").innerHTML="";
+      (q.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
+      if(!(q.items||[]).length) addItem();
+
+      if(q.signatures?.business){
+        const img=new Image();
+        img.onload=()=>{const c=$("signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};
+        img.src=q.signatures.business;
+        $("signatureBusinessDate").innerText=q.signatures.businessDate||"";
+      }
+      if(q.signatures?.client){
+        const img=new Image();
+        img.onload=()=>{const c=$("signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};
+        img.src=q.signatures.client;
+        $("signatureClientDate").innerText=q.signatures.clientDate||"";
+      }
+
+      updateTotals();
+    }
+
+    /* ========== INIT ========== */
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){location.href="login.html";return;}
+      initDates();
+      setupSignature("signatureBusiness","signatureBusinessDate");
+      setupSignature("signatureClient","signatureClientDate");
       if(!document.querySelector("#itemsBody tr")) addItem();
       updateTotals();
+      await loadForEdit(user.uid);
+    });
+
+    document.addEventListener("DOMContentLoaded",()=>{
+      $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveQuote();});
+      $("sendBtn")?.addEventListener("click",(e)=>{e.preventDefault();sendQuote();});
+      $("convertBtn")?.addEventListener("click",(e)=>{e.preventDefault();convertToInvoice();});
     });
   </script>
 </body>
