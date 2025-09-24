@@ -230,96 +230,106 @@
     }
 
     /* ========== FIRESTORE: NUMBER GENERATION ========== */
-    async function generateQuoteNumber(uid){
-      const ref = doc(db,"users",uid);
-      const year = new Date().getFullYear();
-      let final="";
-      await runTransaction(db, async (tx)=>{
-        const snap=await tx.get(ref);
-        const last=snap.exists()?(snap.data().lastQuoteNumber||0):0;
-        const next=last+1;
-        final=`QUO-${year}-${String(next).padStart(3,"0")}`;
-        tx.set(ref,{lastQuoteNumber:next},{merge:true});
-      });
-      return final;
-    }
-
+    async function generateQuoteNumber(uid) {
+  const ref = doc(db, "users", uid); 
+  const year = new Date().getFullYear();
+  let final = "";
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const last = snap.exists() ? (snap.data().lastQuoteNumber || 0) : 0;
+    const next = last + 1;
+    final = `QUO-${year}-${String(next).padStart(3, "0")}`;
+    tx.set(ref, { lastQuoteNumber: next }, { merge: true });
+  });
+  return final;
+}
+    
     /* ========== SAVE QUOTE ========== */
-    async function saveQuote(){
-      const user=auth.currentUser; if(!user){ location.href="login.html"; return; }
-      const uid=user.uid;
+    async function saveQuote() {
+  const user = auth.currentUser;
+  if (!user) { location.href = "login.html"; return; }
+  const uid = user.uid;
 
-      const items=[];
-      document.querySelectorAll("#itemsBody tr").forEach(tr=>{
-        items.push({
-          desc: tr.querySelector(".desc")?.value || "",
-          qty:  parseFloat(tr.querySelector(".qty")?.value)||0,
-          price:parseFloat(tr.querySelector(".price")?.value)||0,
-          vat:  parseFloat(tr.querySelector(".vat")?.value)||0,
-        });
-      });
+  const editingId = localStorage.getItem("editQuoteId") || null;
+  let quoteNumber = $("quoteNumber").value.trim();
 
-      const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,""))||0;
-      const totalVat = parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,""))||0;
-      const grandTotal=subtotal+totalVat;
+  // якщо немає номера — згенерувати
+  if (!editingId && !quoteNumber) {
+    quoteNumber = await generateQuoteNumber(uid);
+    $("quoteNumber").value = quoteNumber;
+  }
 
-      const businessSig=$("signatureBusiness").toDataURL();
-      const clientSig=$("signatureClient").toDataURL();
+  // items
+  const items = [];
+  document.querySelectorAll("#itemsBody tr").forEach(tr => {
+    items.push({
+      desc: tr.querySelector(".desc")?.value || "",
+      qty: parseFloat(tr.querySelector(".qty")?.value) || 0,
+      price: parseFloat(tr.querySelector(".price")?.value) || 0,
+      vat: parseFloat(tr.querySelector(".vat")?.value) || 0,
+    });
+  });
 
-      let quoteNumber=$("quoteNumber").value.trim();
-      const editingId=localStorage.getItem("editQuoteId")||null;
-      if(!editingId && !quoteNumber){
-        quoteNumber=await generateQuoteNumber(uid);
-        $("quoteNumber").value=quoteNumber;
-      }
+  // totals
+  const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g, "")) || 0;
+  const totalVat = parseFloat($("totalVat").innerText.replace(/[^\d.-]/g, "")) || 0;
+  const grandTotal = subtotal + totalVat;
 
-      const data={
-        businessName:$("businessName").value,
-        kvk:$("kvk").value,
-        iban:$("iban").value,
-        btw:$("btw").value,
-        email:$("email").value,
-        businessAddress:$("businessAddress").value,
-        businessPhone:$("businessPhone").value,
+  // signatures
+  const businessSig = $("signatureBusiness").toDataURL();
+  const clientSig   = $("signatureClient").toDataURL();
 
-        clientName:$("clientName").value,
-        clientEmail:$("clientEmail").value,
-        clientPhone:$("clientPhone").value,
-        clientAddress:$("clientAddress").value,
+  const data = {
+    businessName: $("businessName").value,
+    kvk: $("kvk").value,
+    iban: $("iban").value,
+    btw: $("btw").value,
+    email: $("email").value,
+    businessAddress: $("businessAddress").value,
+    businessPhone: $("businessPhone").value,
 
-        quoteDate:$("quoteDate").value,
-        validUntil:$("validUntil").value,
-        quoteNumber,
-        status:$("status").value,
-        note:$("note").value,
+    clientName: $("clientName").value,
+    clientEmail: $("clientEmail").value,
+    clientPhone: $("clientPhone").value,
+    clientAddress: $("clientAddress").value,
 
-        items,
-        subtotal,
-        totalVat,
-        grandTotal,
+    quoteDate: $("quoteDate").value,
+    validUntil: $("validUntil").value,
+    quoteNumber,
+    status: $("status").value,
+    note: $("note").value,
 
-        signatures:{
-          business:businessSig,
-          client:clientSig,
-          businessDate:$("signatureBusinessDate").innerText||"",
-          clientDate:$("signatureClientDate").innerText||"",
-        },
+    items,
+    subtotal,
+    totalVat,
+    grandTotal,
+    subtotalFormatted: "€" + subtotal.toFixed(2),
+    totalVatFormatted: "€" + totalVat.toFixed(2),
+    grandTotalFormatted: "€" + grandTotal.toFixed(2),
 
-        userId:uid,
-        updatedAt:new Date().toISOString(),
-      };
+    signatures: {
+      business: businessSig,
+      client: clientSig,
+      businessDate: $("signatureBusinessDate").innerText || "",
+      clientDate: $("signatureClientDate").innerText || "",
+    },
 
-      if(editingId){
-        await setDoc(doc(db,"users",uid,"quotes",editingId),data,{merge:true});
-        localStorage.removeItem("editQuoteId");
-        alert("✅ Quote updated");
-      }else{
-        await addDoc(collection(db,"users",uid,"quotes"),data);
-        alert(`✅ Quote saved as ${quoteNumber}`);
-      }
-      location.href="quote-offer-list.html";
-    }
-    window.saveQuote=saveQuote;
+    userId: uid,
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (editingId) {
+    await setDoc(doc(db, "users", uid, "quotes", editingId), data, { merge: true });
+    localStorage.removeItem("editQuoteId");
+    alert("✅ Quote updated");
+  } else {
+    await addDoc(collection(db, "users", uid, "quotes"), data);
+    alert(`✅ Quote saved as ${quoteNumber}`);
+  }
+
+  location.href = "quote-offer-list.html";
+}
+window.saveQuote = saveQuote;
 
     /* ========== SEND QUOTE (stub) ========== */
     window.sendQuote=function(){
