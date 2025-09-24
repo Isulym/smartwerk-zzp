@@ -70,6 +70,7 @@
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { setDoc, doc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -140,6 +141,7 @@
             <button onclick="deleteQuote('${q.id}')">🗑 Delete</button>
             <button onclick="downloadQuotePDF('${q.id}',true)">📄 PDF</button>
             <button onclick="downloadQuotePDF('${q.id}',false)">PRO 📄 PDF</button>
+            <button onclick="convertToInvoice('${q.id}')">➔ Convert to Invoice</button>
           </td>
         `;
         body.appendChild(tr);
@@ -207,6 +209,57 @@
       flatpickr(".js-date",{dateFormat:"Y-m-d"});
       loadQuotes(user.uid);
     });
+
+    import { setDoc, doc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+window.convertToInvoice = async function(id){
+  const user = auth.currentUser;
+  if(!user) return location.href="login.html";
+
+  const quote = quotes.find(q=>q.id===id);
+  if(!quote) return;
+
+  // формуємо інвойс з даних пропозиції
+  const invoiceData = {
+    businessName: quote.businessName,
+    kvk: quote.kvk,
+    iban: quote.iban,
+    btw: quote.btw,
+    email: quote.email,
+    businessAddress: quote.businessAddress,
+    businessPhone: quote.businessPhone,
+
+    clientName: quote.clientName,
+    clientEmail: quote.clientEmail,
+    clientPhone: quote.clientPhone,
+    clientAddress: quote.clientAddress,
+
+    invoiceDate: new Date().toISOString().split("T")[0],
+    dueDate: "",
+    invoiceNumber: "", // буде згенеровано в invoices.html
+    status: "Draft",
+    note: quote.note || "",
+
+    items: quote.items || [],
+    subtotal: quote.subtotal || 0,
+    totalVat: quote.totalVat || 0,
+    grandTotal: quote.grandTotal || 0,
+
+    fromQuote: quote.quoteNumber, // зв’язок з пропозицією
+    userId: user.uid,
+    createdAt: new Date().toISOString(),
+  };
+
+  // створюємо інвойс у Firestore
+  const ref = await addDoc(collection(db,"users",user.uid,"invoices"), invoiceData);
+
+  // оновлюємо статус пропозиції
+  await setDoc(doc(db,"users",user.uid,"quotes",id), { status: "Converted" }, { merge:true });
+
+  // відкриваємо invoices.html для редагування
+  localStorage.setItem("editInvoiceId", ref.id);
+  location.href="invoices.html";
+};
   </script>
 </body>
 </html>
