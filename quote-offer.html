@@ -245,14 +245,13 @@
 }
     
     /* ========== SAVE QUOTE ========== */
-   const user = auth.currentUser;
-if (!user) { window.location.href = "login.html"; return; }
-const uid = user.uid;
-
-// гарантовано рядок
-const quoteNumber = (document.getElementById('quoteNumber')?.value || '').trim();
-
-// ...формуємо items та підсумки як у тебе...
+ async function saveQuote() {
+  const user = auth.currentUser;
+  if (!user) { 
+    window.location.href = "login.html"; 
+    return; // ✅ тут return в середині функції, це дозволено
+  }
+  const uid = user.uid;
 
 const data = {
     businessName: $("businessName").value,
