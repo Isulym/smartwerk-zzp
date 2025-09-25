@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartWerk — Payment Reminders</title>
+  <link rel="stylesheet" href="style-invoices.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+  <header>
+    <h1>📋 SmartWerk — Payment Reminders</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="payment-reminder.html" class="btn" onclick="localStorage.removeItem('editReminderId')">➕ New Reminder</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Filters -->
+    <section>
+      <h2>🔎 Filters & Search</h2>
+      <label>Status:
+        <select id="statusFilter">
+          <option value="all">All</option>
+          <option value="Draft">Draft</option>
+          <option value="Sent">Sent</option>
+          <option value="Paid">Paid</option>
+        </select>
+      </label>
+      <label>Type:
+        <select id="typeFilter">
+          <option value="all">All</option>
+          <option value="First Reminder">First Reminder</option>
+          <option value="Second Reminder">Second Reminder</option>
+          <option value="Final Reminder">Final Reminder</option>
+        </select>
+      </label>
+      <label>From: <input id="fromDate" class="js-date" placeholder="YYYY-MM-DD"></label>
+      <label>To: <input id="toDate" class="js-date" placeholder="YYYY-MM-DD"></label>
+      <label>Search: <input id="searchBox" placeholder="Client / Reminder # / Amount"></label>
+      <label>Sort by:
+        <select id="sortBy">
+          <option value="date_desc">Date ↓</option>
+          <option value="date_asc">Date ↑</option>
+          <option value="reminderNumber_desc">Reminder # ↓</option>
+          <option value="reminderNumber_asc">Reminder # ↑</option>
+          <option value="amount_desc">Amount ↓</option>
+          <option value="amount_asc">Amount ↑</option>
+        </select>
+      </label>
+    </section>
+
+    <!-- Table -->
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Reminder ID</th>
+            <th>Linked Invoice</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="remindersBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
+
+  <!-- Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- App -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, addDoc, deleteDoc, setDoc,
+      onSnapshot, query, orderBy, runTransaction
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    /* Firebase */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* Helpers */
+    const $ = id => document.getElementById(id);
+    const fmt = v => "€" + (parseFloat(v||0)).toFixed(2);
+
+    let reminders = [];
+
+    /* Real-time load */
+    function startRealtime(uid){
+      const colRef = collection(db,"users",uid,"reminders");
+      const q = query(colRef, orderBy("reminderDate","desc"));
+      onSnapshot(q,(snap)=>{
+        reminders = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        render();
+      });
+    }
+
+    /* Render */
+    function render(){
+      const body = $("remindersBody");
+      body.innerHTML = "";
+
+      const from = $("fromDate").value;
+      const to   = $("toDate").value;
+      const status = $("statusFilter").value;
+      const type = $("typeFilter").value;
+      const search = $("searchBox").value.toLowerCase();
+      const sortBy = $("sortBy").value;
+
+      let list = reminders.filter(r=>{
+        let ok = true;
+        if(status!=="all") ok = ok && r.status === status;
+        if(type!=="all") ok = ok && r.type === type;
+        if(from) ok = ok && (r.reminderDate||"") >= from;
+        if(to)   ok = ok && (r.reminderDate||"") <= to;
+        if(search){
+          ok = ok && (
+            (r.clientName||"").toLowerCase().includes(search) ||
+            (r.reminderId||"").toLowerCase().includes(search) ||
+            String(r.amount||"").toLowerCase().includes(search)
+          );
+        }
+        return ok;
+      });
+
+      list.sort((a,b)=>{
+        switch (sortBy){
+          case "reminderNumber_desc": return (b.reminderId||"").localeCompare(a.reminderId||"");
+          case "reminderNumber_asc":  return (a.reminderId||"").localeCompare(b.reminderId||"");
+          case "date_desc":           return (b.reminderDate||"").localeCompare(a.reminderDate||"");
+          case "date_asc":            return (a.reminderDate||"").localeCompare(b.reminderDate||"");
+          case "amount_desc":         return (parseFloat(b.amount)||0) - (parseFloat(a.amount)||0);
+          case "amount_asc":          return (parseFloat(a.amount)||0) - (parseFloat(b.amount)||0);
+          default: return 0;
+        }
+      });
+
+      list.forEach(r=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.reminderId||"—"}</td>
+          <td>${r.linkedInvoice||"—"}</td>
+          <td>${r.clientName||"—"}</td>
+          <td>
+            <select onchange="updateReminderStatus('${r.id}', this.value)">
+              <option value="Draft" ${r.status==="Draft"?"selected":""}>Draft</option>
+              <option value="Sent" ${r.status==="Sent"?"selected":""}>Sent</option>
+              <option value="Paid" ${r.status==="Paid"?"selected":""}>Paid</option>
+            </select>
+          </td>
+          <td>${r.type||"—"}</td>
+          <td>${r.reminderDate||"—"}</td>
+          <td>${fmt(r.amount)}</td>
+          <td>
+            <button onclick="editReminder('${r.id}')">✏️ Edit</button>
+            <button onclick="deleteReminder('${r.id}')">🗑 Delete</button>
+            <button onclick="downloadPDF('${r.id}', true)">📄 PDF</button>
+            <button onclick="downloadPDF('${r.id}', false)">PRO 📄</button>
+            <button onclick="sendReminder('${r.id}')">📧 Send</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    /* Actions */
+    function editReminder(id){
+      localStorage.setItem("editReminderId", id);
+      location.href = "payment-reminder.html";
+    }
+    window.editReminder = editReminder;
+
+    window.deleteReminder = async (id)=>{
+      if(!confirm("Delete this reminder?")) return;
+      await deleteDoc(doc(db,"users",auth.currentUser.uid,"reminders",id));
+    };
+
+    window.updateReminderStatus = async (id,newStatus)=>{
+      try{
+        const uid = auth.currentUser.uid;
+        await setDoc(doc(db,"users",uid,"reminders",id), {
+          status: newStatus,
+          updatedAt: new Date().toISOString()
+        }, { merge:true });
+      }catch(e){
+        console.error(e);
+        alert("❌ Status update failed: " + e.message);
+      }
+    };
+
+    // PDF export
+    window.downloadPDF = (id, withBranding=true)=>{
+      const r = reminders.find(x=>x.id===id);
+      if(!r) return;
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+
+      pdf.setFontSize(18);
+      pdf.text("PAYMENT REMINDER", 105, 15, {align:"center"});
+
+      // Business / Client
+      pdf.setFontSize(12);
+      pdf.text("From:", 14, 28);
+      pdf.text([r.businessName||"", r.email||"", r.businessAddress||"", r.businessPhone||""], 14, 34);
+      pdf.text("To:", 120, 28);
+      pdf.text([r.clientName||"", r.clientEmail||"", r.clientAddress||""], 120, 34);
+
+      // Reminder info
+      pdf.autoTable({
+        startY: 70,
+        head:[["Reminder ID","Linked Invoice","Type","Status","Date","Amount"]],
+        body:[[r.reminderId||"—", r.linkedInvoice||"—", r.type||"—", r.status||"Draft", r.reminderDate||"—", fmt(r.amount)]],
+        theme:"grid",
+        styles:{ fontSize:11, cellPadding:4, halign:"center" },
+        headStyles:{ fillColor:[37,99,235], textColor:255 }
+      });
+
+      // Message
+      const y = pdf.lastAutoTable.finalY + 10;
+      if(r.message){
+        pdf.text("Message:", 14, y);
+        pdf.text(String(r.message), 14, y+6, {maxWidth:180});
+      }
+
+      // Signatures
+      let y2 = y + 30;
+      if(r.signatures?.business){
+        pdf.setDrawColor(0);
+        pdf.line(14, y2+22, 74, y2+22);
+        pdf.addImage(r.signatures.business, "PNG", 14, y2, 60, 20);
+        pdf.text("Business Signature", 14, y2+30);
+      }
+      if(r.signatures?.client){
+        pdf.setDrawColor(0);
+        pdf.line(120, y2+22, 180, y2+22);
+        pdf.addImage(r.signatures.client, "PNG", 120, y2, 60, 20);
+        pdf.text("Client Signature", 120, y2+30);
+      }
+
+      if(withBranding){
+        pdf.setFontSize(10);
+        pdf.text("Generated with SmartWerk", 105, 290, {align:"center"});
+      }
+
+      pdf.save(`${r.reminderId||"Reminder"}.pdf`);
+    };
+
+    // Send reminder (optional)
+    window.sendReminder = (id)=>{
+      alert("📧 Sending reminders via email will be part of SmartWerk PRO.");
+    };
+
+    /* INIT */
+    onAuthStateChanged(auth,(user)=>{
+      if(!user){ location.href="login.html"; return; }
+      flatpickr(".js-date",{ dateFormat:"Y-m-d" });
+      startRealtime(user.uid);
+      ["statusFilter","typeFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
+        $(id).addEventListener("input", render);
+      });
+    });
+  </script>
+</body>
+</html>
