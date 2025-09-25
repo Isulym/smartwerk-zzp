@@ -9,17 +9,17 @@
 </head>
 <body>
   <header>
-    <h1>📋 SmartWerk Quotes</h1>
+    <h1>📋 SmartWerk — Quotes</h1>
     <nav>
       <a href="dashboard.html" class="btn">← Dashboard</a>
       <a href="quote-offer.html" class="btn">➕ New Quote</a>
     </nav>
   </header>
 
-  <main> 
-    <!-- Фільтри -->
+  <main>
+    <!-- Filters -->
     <section>
-      <h2>🔎 Filters</h2>
+      <h2>🔎 Filters & Search</h2>
       <label>Status:
         <select id="statusFilter">
           <option value="all">All</option>
@@ -44,7 +44,7 @@
       </label>
     </section>
 
-    <!-- Таблиця -->
+    <!-- Table -->
     <section>
       <table>
         <thead>
@@ -66,18 +66,21 @@
     <p>© 2025 SmartWerk</p>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
+  <!-- App -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { 
-      getFirestore, collection, getDocs, deleteDoc, doc, setDoc, addDoc 
+    import {
+      getFirestore, collection, doc, addDoc, setDoc, deleteDoc,
+      onSnapshot, query, orderBy, runTransaction
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    /* Firebase */
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -88,35 +91,38 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
+    /* Helpers */
     const $ = id => document.getElementById(id);
+    const fmt = v => "€" + (parseFloat(v||0)).toFixed(2);
+
     let quotes = [];
 
-    /* Завантаження Quotes */
-    async function loadQuotes(uid){
-      quotes = [];
-      const snap = await getDocs(collection(db,"users",uid,"quotes"));
-      snap.forEach(docSnap=>{
-        quotes.push({id:docSnap.id,...docSnap.data()});
+    /* Real-time load */
+    function startRealtime(uid){
+      const colRef = collection(db,"users",uid,"quotes");
+      const q = query(colRef, orderBy("quoteDate","desc"));
+      onSnapshot(q,(snap)=>{
+        quotes = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        render();
       });
-      renderQuotes();
     }
 
-    /* Відображення Quotes */
-    function renderQuotes(){
+    /* Render */
+    function render(){
       const body = $("quotesBody");
       body.innerHTML = "";
 
       const from = $("fromDate").value;
-      const to = $("toDate").value;
+      const to   = $("toDate").value;
       const status = $("statusFilter").value;
       const search = $("searchBox").value.toLowerCase();
       const sortBy = $("sortBy").value;
 
-      let filtered = quotes.filter(q=>{
+      let list = quotes.filter(q=>{
         let ok = true;
-        if(status!=="all") ok = ok && q.status===status;
-        if(from) ok = ok && q.quoteDate >= from;
-        if(to) ok = ok && q.quoteDate <= to;
+        if(status!=="all") ok = ok && q.status === status;
+        if(from) ok = ok && (q.quoteDate||"") >= from;
+        if(to)   ok = ok && (q.quoteDate||"") <= to;
         if(search){
           ok = ok && (
             (q.clientName||"").toLowerCase().includes(search) ||
@@ -127,31 +133,31 @@
         return ok;
       });
 
-      filtered.sort((a,b)=>{
-        switch(sortBy){
+      list.sort((a,b)=>{
+        switch (sortBy){
           case "quoteNumber_desc": return (b.quoteNumber||"").localeCompare(a.quoteNumber||"");
-          case "quoteNumber_asc": return (a.quoteNumber||"").localeCompare(b.quoteNumber||"");
-          case "date_desc": return (b.quoteDate||"").localeCompare(a.quoteDate||"");
-          case "date_asc": return (a.quoteDate||"").localeCompare(b.quoteDate||"");
-          case "amount_desc": return (parseFloat(b.grandTotal)||0) - (parseFloat(a.grandTotal)||0);
-          case "amount_asc": return (parseFloat(a.grandTotal)||0) - (parseFloat(b.grandTotal)||0);
+          case "quoteNumber_asc":  return (a.quoteNumber||"").localeCompare(b.quoteNumber||"");
+          case "date_desc":        return (b.quoteDate||"").localeCompare(a.quoteDate||"");
+          case "date_asc":         return (a.quoteDate||"").localeCompare(b.quoteDate||"");
+          case "amount_desc":      return (parseFloat(b.grandTotal)||0) - (parseFloat(a.grandTotal)||0);
+          case "amount_asc":       return (parseFloat(a.grandTotal)||0) - (parseFloat(b.grandTotal)||0);
+          default: return 0;
         }
-        return 0;
       });
 
-      filtered.forEach(q=>{
+      list.forEach(q=>{
         const tr = document.createElement("tr");
-        tr.innerHTML=`
+        tr.innerHTML = `
           <td>${q.quoteNumber||"—"}</td>
           <td>${q.clientName||"—"}</td>
           <td>${q.status||"Draft"}</td>
           <td>${q.quoteDate||"—"}</td>
-          <td>€${parseFloat(q.grandTotal||0).toFixed(2)}</td>
+          <td>${fmt(q.grandTotal)}</td>
           <td>
             <button onclick="editQuote('${q.id}')">✏️ Edit</button>
             <button onclick="deleteQuote('${q.id}')">🗑 Delete</button>
-            <button onclick="downloadPDF('${q.id}',true)">📄 PDF</button>
-            <button onclick="downloadPDF('${q.id}',false)">PRO 📄 PDF</button>
+            <button onclick="downloadPDF('${q.id}', true)">📄 PDF</button>
+            <button onclick="downloadPDF('${q.id}', false)">PRO 📄</button>
             <button onclick="convertToInvoice('${q.id}')">🔄 Convert to Invoice</button>
           </td>
         `;
@@ -159,68 +165,176 @@
       });
     }
 
-    /* Edit */
-    window.editQuote = function(id){
-      localStorage.setItem("editQuoteId",id);
+    /* Actions */
+    window.editQuote = (id)=>{
+      localStorage.setItem("editQuoteId", id);
       location.href="quote-offer.html";
     };
 
-    /* Delete */
-    window.deleteQuote = async function(id){
-      if(!confirm("❌ Delete this quote?")) return;
+    window.deleteQuote = async (id)=>{
+      if(!confirm("Delete this quote?")) return;
       await deleteDoc(doc(db,"users",auth.currentUser.uid,"quotes",id));
-      quotes = quotes.filter(q=>q.id!==id);
-      renderQuotes();
     };
 
-    /* PDF */
-    window.downloadPDF = function(id,withBranding=true){
+    // Full professional PDF
+    window.downloadPDF = (id, withBranding=true)=>{
       const q = quotes.find(x=>x.id===id);
       if(!q) return;
       const { jsPDF } = window.jspdf;
-      const docPDF = new jsPDF();
+      const pdf = new jsPDF();
 
-      docPDF.setFontSize(18);
-      docPDF.text("Quote / Offer",14,20);
+      // Header
+      pdf.setFontSize(18);
+      pdf.text("QUOTE / OFFER", 105, 15, {align:"center"});
 
-      if(withBranding){
-        docPDF.setFontSize(10);
-        docPDF.text("Generated with SmartWerk",14,28);
-      }
+      // From
+      pdf.setFontSize(12);
+      pdf.text("From:", 14, 28);
+      pdf.text([
+        q.businessName||"",
+        `KvK: ${q.kvk||""}`,
+        `IBAN: ${q.iban||""}`,
+        `BTW: ${q.btw||""}`,
+        `Email: ${q.email||""}`,
+        `Address: ${q.businessAddress||""}`,
+        `Phone: ${q.businessPhone||""}`
+      ], 14, 34);
 
-      docPDF.autoTable({
-        startY:40,
-        head:[["Quote #","Client","Date","Status","Total"]],
-        body:[[q.quoteNumber,q.clientName,q.quoteDate,q.status,"€"+parseFloat(q.grandTotal||0).toFixed(2)]]
+      // To
+      pdf.text("To:", 120, 28);
+      pdf.text([
+        q.clientName||"",
+        q.clientEmail||"",
+        `Address: ${q.clientAddress||""}`,
+        `Phone: ${q.clientPhone||""}`
+      ], 120, 34);
+
+      // Quote info table
+      pdf.autoTable({
+        startY: 70,
+        head: [["Quote #","Date","Status","Total"]],
+        body: [[q.quoteNumber||"—", q.quoteDate||"—", q.status||"Draft", fmt(q.grandTotal)]],
+        theme:"grid",
+        styles:{ fontSize:11, cellPadding:4, halign:"center", valign:"middle" },
+        headStyles:{ fillColor:[37,99,235], textColor:255, fontStyle:"bold" }
       });
 
-      docPDF.save(`${q.quoteNumber}.pdf`);
+      // Items
+      const items = (q.items||[]).map(it=>[
+        it.desc||"",
+        it.qty||0,
+        fmt(it.price||0),
+        `${it.vat||0}%`,
+        fmt((it.qty||0)*(it.price||0)*(1+(it.vat||0)/100))
+      ]);
+      pdf.autoTable({
+        startY: pdf.lastAutoTable.finalY + 8,
+        head:[["Description","Qty","Unit Price","VAT","Total"]],
+        body: items,
+        theme:"grid",
+        styles:{ fontSize:11, cellPadding:4, halign:"center", valign:"middle" },
+        headStyles:{ fillColor:[37,99,235], textColor:255, fontStyle:"bold" }
+      });
+
+      // Totals + note
+      const y = pdf.lastAutoTable.finalY + 8;
+      pdf.text(`Subtotal: ${fmt(q.subtotal)}`, 150, y);
+      pdf.text(`VAT: ${fmt(q.totalVat)}`,     150, y+6);
+      pdf.text(`Total Due: ${fmt(q.grandTotal)}`, 150, y+12);
+      if(q.note){
+        pdf.text("Note:", 14, y);
+        pdf.text(String(q.note), 14, y+6, {maxWidth:120});
+      }
+
+      // Signatures (if saved as dataURL)
+      let y2 = y + 28;
+      if(q.signatures?.business){
+        pdf.addImage(q.signatures.business, "PNG", 14, y2, 60, 20);
+        pdf.text("Business Signature", 14, y2+26);
+        if(q.signatures.businessDate) pdf.text(`Signed: ${q.signatures.businessDate}`,14,y2+33);
+      }
+      if(q.signatures?.client){
+        pdf.addImage(q.signatures.client, "PNG", 120, y2, 60, 20);
+        pdf.text("Client Signature", 120, y2+26);
+        if(q.signatures.clientDate) pdf.text(`Signed: ${q.signatures.clientDate}`,120,y2+33);
+      }
+
+      if(withBranding){
+        pdf.setFontSize(10);
+        pdf.text("Generated with SmartWerk", 105, 290, {align:"center"});
+      }
+      pdf.save(`${q.quoteNumber||"Quote"}.pdf`);
     };
 
-    /* Convert to Invoice */
-    window.convertToInvoice = async function(id){
-      const q = quotes.find(x=>x.id===id);
-      if(!q) return;
-      const uid = auth.currentUser.uid;
-      const data = {
-        ...q,
-        invoiceNumber: q.quoteNumber.replace("QUO","INV"),
-        convertedFrom: q.quoteNumber,
-        status:"Draft"
-      };
-      await addDoc(collection(db,"users",uid,"invoices"),data);
-      alert("✅ Converted to Invoice!");
+    // Reserve next invoice number (global per user)
+    async function reserveInvoiceNumber(uid){
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out = "";
+      await runTransaction(db, async (tx)=>{
+        const snap = await tx.get(ref);
+        const last = snap.exists()? (snap.data().lastInvoiceNumber||0) : 0;
+        const next = last + 1;
+        tx.set(ref,{ lastInvoiceNumber: next },{ merge:true });
+        out = `INV-${year}-${String(next).padStart(3,"0")}`;
+      });
+      return out;
+    }
+
+    // Convert to Invoice + redirect to invoices.html to edit
+    window.convertToInvoice = async (id)=>{
+      try{
+        const uid = auth.currentUser.uid;
+        const q = quotes.find(x=>x.id===id);
+        if(!q) return;
+
+        const invNumber = await reserveInvoiceNumber(uid);
+        const now = new Date();
+        const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,"0"), d = String(now.getDate()).padStart(2,"0");
+        const invoiceDate = `${y}-${m}-${d}`;
+        const dueDateObj = new Date(now); dueDateObj.setDate(dueDateObj.getDate()+14);
+        const due = `${dueDateObj.getFullYear()}-${String(dueDateObj.getMonth()+1).padStart(2,"0")}-${String(dueDateObj.getDate()).padStart(2,"0")}`;
+
+        const data = {
+          // бізнес/клієнт
+          businessName:q.businessName||"", kvk:q.kvk||"", iban:q.iban||"", btw:q.btw||"",
+          email:q.email||"", businessAddress:q.businessAddress||"", businessPhone:q.businessPhone||"",
+          clientName:q.clientName||"", clientEmail:q.clientEmail||"", clientPhone:q.clientPhone||"", clientAddress:q.clientAddress||"",
+          // дати/номери/статуси
+          invoiceDate, dueDate: due, invoiceNumber: invNumber, status:"Draft",
+          // позиції/суми
+          items: q.items||[],
+          subtotal: parseFloat(q.subtotal||0),
+          totalVat: parseFloat(q.totalVat||0),
+          grandTotal: parseFloat(q.grandTotal||0),
+          subtotalFormatted: fmt(q.subtotal), totalVatFormatted: fmt(q.totalVat), grandTotalFormatted: fmt(q.grandTotal),
+          // підпис (якщо є)
+          signatures: q.signatures||{},
+          // зв'язок
+          convertedFrom: q.quoteNumber||"",
+          userId: uid,
+          updatedAt: new Date().toISOString()
+        };
+
+        const ref = await addDoc(collection(db,"users",uid,"invoices"), data);
+        // відкриваємо новий інвойс на редагування
+        localStorage.setItem("editInvoiceId", ref.id);
+        alert("✅ Converted to Invoice!");
+        location.href="invoices.html";
+      }catch(e){
+        console.error(e);
+        alert("❌ Convert failed: " + e.message);
+      }
     };
 
     /* INIT */
-    onAuthStateChanged(auth,async(user)=>{
+    onAuthStateChanged(auth, (user)=>{
       if(!user){ location.href="login.html"; return; }
-      flatpickr(".js-date",{dateFormat:"Y-m-d"});
-      await loadQuotes(user.uid);
-    });
-
-    ["statusFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
-      $(id).addEventListener("input",renderQuotes);
+      flatpickr(".js-date",{ dateFormat:"Y-m-d" });
+      startRealtime(user.uid);
+      ["statusFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
+        $(id).addEventListener("input", render);
+      });
     });
   </script>
 </body>
