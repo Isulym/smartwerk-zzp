@@ -337,7 +337,7 @@
     document.querySelectorAll("input, textarea").forEach(el=>{
       if(el.type!=="button" && el.type!=="submit") el.value="";
     });
-    $("itemsBody").innerHTML = "";
+    //$("itemsBody").innerHTML = "";
     addItem();
   } else {
     await loadQuoteForEdit(user.uid);
