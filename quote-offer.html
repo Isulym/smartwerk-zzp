@@ -269,85 +269,86 @@ async function generateQuoteNumber(uid){
         updatedAt:new Date().toISOString(),
       };
 
-     if(editingId){
-  await setDoc(doc(db,"users",uid,"quotes",editingId), data, {merge:true});
-  alert("✅ Quote updated");
-}else{
-  await addDoc(collection(db,"users",uid,"quotes"), data);
-  alert(`✅ Quote saved as ${quoteNumber}`);
-}
-  localStorage.removeItem("editQuoteId");     // ВАЖЛИВО!
-  location.href = "quote-offer-list.html";
-    window.saveQuote=saveQuote;
+        if(editingId){
+        await setDoc(doc(db,"users",uid,"quotes",editingId), data, {merge:true});
+        alert("✅ Quote updated");
+     }else{
+        await addDoc(collection(db,"users",uid,"quotes"), data);
+        alert(`✅ Quote saved as ${quoteNumber}`);
+     }
 
-    async function loadQuoteForEdit(uid){
-  const id = localStorage.getItem("editQuoteId");
-  if(!id) return;                       // створення нового — просто вийдемо
-  const snap = await getDoc(doc(db,"users",uid,"quotes",id));
-  if(!snap.exists()){ localStorage.removeItem("editQuoteId"); return; }
-  const q = snap.data();
+     localStorage.removeItem("editQuoteId");     // ВАЖЛИВО!
+     location.href = "quote-offer-list.html";
+   }   // ← закриваємо saveQuote()
 
-  // заповнюємо поля (назви підстав свої з форми)
-  $("#businessName").value = q.businessName||"";
-  $("#kvk").value = q.kvk||"";
-  $("#iban").value = q.iban||"";
-  $("#btw").value = q.btw||"";
-  $("#email").value = q.email||"";
-  $("#businessAddress").value = q.businessAddress||"";
-  $("#businessPhone").value = q.businessPhone||"";
+   window.saveQuote = saveQuote;
 
-  $("#clientName").value = q.clientName||"";
-  $("#clientEmail").value = q.clientEmail||"";
-  $("#clientPhone").value = q.clientPhone||"";
-  $("#clientAddress").value = q.clientAddress||"";
+   async function loadQuoteForEdit(uid){
+     const id = localStorage.getItem("editQuoteId");
+     if(!id) return;
+     const snap = await getDoc(doc(db,"users",uid,"quotes",id));
+     if(!snap.exists()){ localStorage.removeItem("editQuoteId"); return; }
+     const q = snap.data();
 
-  $("#quoteDate").value = q.quoteDate||"";
-  $("#quoteNumber").value = q.quoteNumber||"";
-  $("#status").value = q.status||"Draft";
-  $("#note").value = q.note||"";
+     // заповнюємо поля
+     $("#businessName").value = q.businessName||"";
+     $("#kvk").value = q.kvk||"";
+     $("#iban").value = q.iban||"";
+     $("#btw").value = q.btw||"";
+     $("#email").value = q.email||"";
+     $("#businessAddress").value = q.businessAddress||"";
+     $("#businessPhone").value = q.businessPhone||"";
 
-  // items
-  document.getElementById("itemsBody").innerHTML = "";
-  (q.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
-  if(!(q.items||[]).length) addItem();
+     $("#clientName").value = q.clientName||"";
+     $("#clientEmail").value = q.clientEmail||"";
+     $("#clientPhone").value = q.clientPhone||"";
+     $("#clientAddress").value = q.clientAddress||"";
 
-  // signatures (якщо є канва)
-  if(q.signatures?.business){
-    const img = new Image();
-    img.onload=()=>{ const c=$("#signatureBusiness"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
-    img.src=q.signatures.business;
-    $("#signatureBusinessDate").innerText = q.signatures.businessDate||"";
-  }
-  if(q.signatures?.client){
-    const img = new Image();
-    img.onload=()=>{ const c=$("#signatureClient"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
-    img.src=q.signatures.client;
-    $("#signatureClientDate").innerText = q.signatures.clientDate||"";
-  }
-  updateTotals();
-}
+     $("#quoteDate").value = q.quoteDate||"";
+     $("#validUntil").value = q.validUntil||"";     // ← додав пропущене поле
+     $("#quoteNumber").value = q.quoteNumber||"";
+     $("#status").value = q.status||"Draft";
+     $("#note").value = q.note||"";
 
-    /* INIT */
+     document.getElementById("itemsBody").innerHTML="";
+     (q.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
+     if(!(q.items||[]).length) addItem();
+
+     if(q.signatures?.business){
+       const img=new Image();
+       img.onload=()=>{ const c=$("#signatureBusiness"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
+       img.src=q.signatures.business;
+       $("#signatureBusinessDate").innerText = q.signatures.businessDate||"";
+     }
+     if(q.signatures?.client){
+       const img=new Image();
+       img.onload=()=>{ const c=$("#signatureClient"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
+       img.src=q.signatures.client;
+       $("#signatureClientDate").innerText = q.signatures.clientDate||"";
+     }
+     updateTotals();
+   }
+
+   /* INIT */
    onAuthStateChanged(auth, async (user)=>{
-    if(!user){ location.href="login.html"; return; }
+     if(!user){ location.href="login.html"; return; }
 
-    initDates();
-    setupSignature("signatureBusiness","signatureBusinessDate");
-    setupSignature("signatureClient","signatureClientDate");
-    if(!document.querySelector("#itemsBody tr")) addItem();
-    updateTotals();
+     flatpickr(".js-date",{dateFormat:"Y-m-d"});
+     setupSignature("signatureBusiness","signatureBusinessDate");
+     setupSignature("signatureClient","signatureClientDate");
+     if(!document.querySelector("#itemsBody tr")) addItem();
+     updateTotals();
 
-    // preview номер + якщо редагування — завантажити документ
-    await previewNextQuoteNumber(user.uid);
-    await loadForEdit(user.uid);
-  });
+     await previewNextQuoteNumber(user.uid);
+     await loadQuoteForEdit(user.uid);   // ← правильна назва
+   });
 
-  document.addEventListener("DOMContentLoaded", ()=>{
-    $("saveBtn")?.addEventListener("click",(e)=>{
-      e.preventDefault();
-      saveQuote();
-    });
-  });
+   document.addEventListener("DOMContentLoaded", ()=>{
+     $("saveBtn")?.addEventListener("click",(e)=>{
+       e.preventDefault();
+       saveQuote();
+     });
+   });
   </script>
 </body>
 </html>
