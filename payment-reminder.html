@@ -1,487 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Reminder — SmartWerk</title>
-  <link rel="stylesheet" href="style-payment-reminder.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Payment Reminder</title>
+  <link rel="stylesheet" href="style-invoices.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
-<div class="topbar">
-  <nav class="nav-buttons">
-    <a href="dashboard.html" class="btn blue">← Back to Dashboard</a>
-    <a href="templates.html" class="btn blue">← Back to Templates</a>
-  </nav>
-</div>
-  <div class="container">
-    <h1>📈 Payment Reminder</h1>
-    <p>Send professional reminders for unpaid invoices. Use AI assistance, export to PDF, or send by email.</p>
+  <header>
+    <h1>📬 SmartWerk — Payment Reminder</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="payment-reminder-list.html" class="btn">📋 Saved Reminders</a>
+    </nav>
+  </header>
 
-<section>
-  <h2>Sender & Recipient</h2>
-  <div class="form-section">
-    <div class="column">
-      <h3>Business Info (From)</h3>
-      <input type="text" placeholder="Business Name" id="fromName" />
-      <input type="text" placeholder="Business Email" id="fromEmail" />
-      <input type="text" placeholder="businessIBAN" id="fromIBAN" />
-      <input type="text" placeholder="Business Address" id="fromAddress" />
-    </div>
-    <div class="column">
-      <h3>Client Info (To)</h3>
-      <input type="text" placeholder="Client Name" id="clientName" />
-      <input type="text" placeholder="Client Email" id="clientEmail" />
-      <input type="text" placeholder="Client Address" id="clientAddress" />
-    </div>
-  </div>
-</section>
-
-
+  <main>
+    <!-- Business Info -->
     <section>
-      <h2>📄 Invoice Details</h2>
-      <input id="reminderId" placeholder="Reminder ID (e.g., REM-2025-001)" readonly />
-      <input id="invoiceNumber" placeholder="Invoice Number (e.g., INV-2025-001)" />
-      <input id="invoiceDate" type="date" placeholder="Invoice Date" />
-      <input id="dueDate" type="date" placeholder="Due Date" />
-      <input id="amount" placeholder="Amount Due (e.g., 500)" />
-      <select id="invoiceSelect">
-     <option>Select from saved invoices...</option>
-     </select>
+      <h2>🏢 Business Info</h2>
+      <input id="businessName" placeholder="Business Name"/>
+      <input id="kvk" placeholder="KvK Number"/>
+      <input id="iban" placeholder="IBAN"/>
+      <input id="btw" placeholder="BTW"/>
+      <input id="email" placeholder="Business Email"/>
+      <input id="businessAddress" placeholder="Business Address"/>
+      <input id="businessPhone" placeholder="Business Phone"/>
     </section>
 
+    <!-- Client Info -->
     <section>
-      <h2>📣 Reminder Type</h2>
-      <select id="reminderType">
-        <option value="First Reminder">First Reminder</option>
-        <option value="Second Notice">Second Notice</option>
-        <option value="Final Reminder">Final Reminder</option>
+      <h2>👤 Client Info</h2>
+      <input id="clientName" placeholder="Client Name"/>
+      <input id="clientEmail" placeholder="Client Email"/>
+      <input id="clientPhone" placeholder="Client Phone"/>
+      <input id="clientAddress" placeholder="Client Address"/>
+    </section>
+
+    <!-- Reminder Info -->
+    <section>
+      <h2>📄 Reminder Info</h2>
+      <input id="reminderDate" class="js-date" placeholder="YYYY-MM-DD">
+      <input id="reminderNumber" readonly placeholder="Reminder Number"/>
+      <select id="status">
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
       </select>
+      <label>Linked Invoice:
+        <select id="invoiceSelect"></select>
+      </label>
     </section>
 
+    <!-- Message -->
     <section>
-      <h2>💬 Message Body</h2>
-      <textarea id="messageBody" rows="6" placeholder="Message..."></textarea>
-      <div class="row">
-        <button id="btn-strict">💬 Make it more strict</button>
-        <button id="btn-friendly">👍 Make it more friendly</button>
+      <h2>✉️ Message</h2>
+      <textarea id="message" placeholder="Reminder message..."></textarea>
+      <textarea id="note" placeholder="Internal notes..."></textarea>
+    </section>
+
+    <!-- Signatures -->
+    <section>
+      <h2>✍️ Signatures</h2>
+      <div>
+        <h3>Business</h3>
+        <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
+        <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
+        <p>Date: <span id="signatureBusinessDate"></span></p>
+      </div>
+      <div>
+        <h3>Client</h3>
+        <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+        <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
+        <p>Date: <span id="signatureClientDate"></span></p>
       </div>
     </section>
 
-    <section>
-      <h2>🗓 Date & Location</h2>
-      <input id="city" placeholder="City" />
-      <input id="reminderDate" type="date" placeholder="Reminder Date" />
+    <!-- Actions -->
+    <section class="step actions">
+      <button id="saveBtn" class="btn-primary">💾 Save Reminder</button>
+      <a href="payment-reminder-list.html" class="btn">📋 Saved Reminders</a>
     </section>
+  </main>
 
-    <section>
-      <h2>✍️ Signature</h2>
-      <input id="signatureName" placeholder="Your Name" />
-      <input id="signaturePosition" placeholder="Position (optional)" />
-      <input id="signatureEmail" placeholder="Your Email" />
-    </section>
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
 
-    <section>
-      <h2>💳 Payment</h2>
-      <input id="paymentLink" placeholder="Payment Link (PayPal, Mollie, etc.)" />
-      <a id="btn-pay" class="btn-green" target="_blank">Pay Now</a>
-    </section>
+  <!-- Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <section>
-      <h2>📧 Attach Original Invoice</h2>
-      <input type="file" id="attachedFile" />
-    </section>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <div class="buttons">
-      <button id="aiFillBtn">🤖 AI Fill</button>
-      <button id="loadExampleBtn">Load Example</button>
-      <button id="translateBtn">Translate</button>
-      <button id="btn-save">📃 Save</button>
-      <button id="btn-view-saved">📂 Saved Reminders</button>
-      <button id="btn-preview">📅 Preview</button>
-      <button id="btn-send-email">Send via Email</button>
-      <button onclick="exportReminderPDF(true)">📄 Export PDF</button>
-      <button onclick="exportReminderPDF(false)">PRO 📄 Export without branding</button>
-      <button id="btn-print">🖨 Print</button>
-    </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-    <div id="savedRemindersModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="document.getElementById('savedRemindersModal').style.display='none'">&times;</span>
-        <h3>📂 Saved Reminders</h3>
-        <div id="savedRemindersList"></div>
-      </div>
-    </div>
+    const $ = id => document.getElementById(id);
 
-  </div>
-
-  <script>
-
-// payment-reminder.js (сумісний з останнім payment-reminder.html)
-
-document.addEventListener("DOMContentLoaded", () => {
-  const get = (id) => document.getElementById(id)?.value || "";
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-
-  // ✅ Автоматична генерація Reminder ID (REM-2025-001)
-  const reminderIdField = document.getElementById("reminderId");
-  if (reminderIdField) {
-    const savedReminders = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-    const year = new Date().getFullYear();
-    let counter = 1;
-    const used = savedReminders
-      .map(r => parseInt((r.reminderId || "").split("-")[2]))
-      .filter(n => !isNaN(n));
-    if (used.length) counter = Math.max(...used) + 1;
-    reminderIdField.value = `REM-${year}-${String(counter).padStart(3, "0")}`;
-  }
-
-  // ✅ Автоматична дата Reminder Date
-  const reminderDate = document.getElementById("reminderDate");
-  if (reminderDate) reminderDate.value = new Date().toISOString().slice(0, 10);
-
-  // ✅ Dropdown збережених інвойсів
-  // const invoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
-function populateInvoiceDropdown() {
- // const invoiceSelect = document.getElementById("invoiceSelect");
- // const invoiceText = invoiceSelect.options[invoiceSelect.selectedIndex]?.text || invoiceSelect.value;
-
-  const invoices = JSON.parse(localStorage.getItem("savedInvoices") || "[]");
-const selectedInvoice = invoices.find(inv => inv.id === invoiceNumber);
-const invoiceText = selectedInvoice ? `${selectedInvoice.number} (${selectedInvoice.date})` : invoiceNumber;
-
-  if (!invoiceSelect || invoices.length === 0) return;
-
-  invoiceSelect.innerHTML = '<option>Select from saved invoices...</option>';
-
-  invoices.forEach((inv, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = `${inv.invoiceNumber || `Invoice ${i + 1}`} — ${inv.clientName || "Client"}`;
-    invoiceSelect.appendChild(opt);
-  });
-
-  invoiceSelect.addEventListener("change", () => {
-    const selected = invoices[invoiceSelect.value];
-    if (!selected) return;
-
-    // Заповнення полів із обраного інвойсу
-    document.getElementById("invoiceNumber").value = selected.invoiceNumber || "";
-    document.getElementById("invoiceDate").value = selected.invoiceDate || "";
-    document.getElementById("dueDate").value = selected.dueDate || "";
-    document.getElementById("amount").value = selected.total || selected.amount || "";
-    document.getElementById("clientName").value = selected.clientName || "";
-    document.getElementById("clientEmail").value = selected.clientEmail || "";
-    document.getElementById("clientAddress").value = selected.clientAddress || "";
-    document.getElementById("fromName").value = selected.fromName || selected.fromName || "";
-    document.getElementById("fromEmail").value = selected.fromEmail || selected.fromEmail || "";
-    document.getElementById("fromAddress").value = selected.fromAddress || selected.fromAddress || "";
-    document.getElementById("fromIBAN").value = selected.fromIBAN || selected.fromIBAN || "";
-  });
-}
-
-// 🔃 Виклик функції
-populateInvoiceDropdown();
-
-
-
- 
-
-  // ... додай інші кнопки тут (AI Fill, Save, Export PDF тощо) ...
-
-  // AI Fill
-  document.getElementById("aiFillBtn")?.addEventListener("click", () => {
-    set("fromName", "SmartWerk B.V.");
-    set("fromEmail", "info@smartwerk.nl");
-    set("fromIBAN", "NL12BANK0123456789");
-    set("fromAddress", "Stationsstraat 12, 5211 AB, Den Bosch");
-    set("clientName", "John Doe");
-    set("clientEmail", "john@example.com");
-    set("clientAddress", "Clientstraat 5, 1011 AA Amsterdam");
-    set("invoiceNumber", "INV-2025-001");
-    set("invoiceDate", "2025-08-01");
-    set("dueDate", "2025-08-15");
-    set("amount", "500");
-    set("city", "Den Bosch");
-    set("signatureName", "Ihor Sulima");
-    set("signaturePosition", "Founder");
-    set("signatureEmail", "ihor@smartwerk.nl");
-    set("paymentLink", "https://pay.smartwerk.nl/12345");
-    set("messageBody", `Dear John,
-
-This is a friendly reminder that invoice INV-2025-001, dated 01.08.2025 for the amount of €500, is still unpaid. Please make the payment as soon as possible.
-
-Thank you.`);
-    generateReminderId();
-  });
-
-  // Generate Reminder ID
-  function generateReminderId() {
-  const year = new Date().getFullYear();
-  const saved = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-
-  let nextNumber = 1;
-  const ids = saved
-    .map(e => e.reminderId)
-    .filter(id => id && id.startsWith(`REM-${year}-`))
-    .map(id => parseInt(id.split("-")[2]))
-    .filter(n => !isNaN(n));
-
-  if (ids.length > 0) {
-    nextNumber = Math.max(...ids) + 1;
-  }
-
-  const newId = `REM-${year}-${String(nextNumber).padStart(3, "0")}`;
-  document.getElementById("reminderId").value = newId;
-}
-
-  // Translate
-  document.getElementById("translateBtn")?.addEventListener("click", () => {
-    const lang = prompt("Translate to (en/nl)?", "nl");
-    if (lang === "nl") {
-      set("messageBody", "Beste John,\n\nDit is een vriendelijke herinnering dat factuur INV-2025-001 van €500 nog niet is betaald. Gelieve zo snel mogelijk te betalen.\n\nDank u wel.");
-    } else {
-      set("messageBody", "Dear John,\n\nThis is a friendly reminder that invoice INV-2025-001 of €500 remains unpaid. Please pay soon.\n\nThank you.");
+    /* SIGNATURES */
+    function setupSignature(canvasId,dateId){
+      const c=$(canvasId); const ctx=c.getContext("2d");
+      let drawing=false;
+      const start=()=>{drawing=true;ctx.beginPath();};
+      const end=()=>{if(!drawing)return;drawing=false;$(dateId).innerText=new Date().toLocaleDateString("nl-NL");};
+      const move=(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};
+      c.addEventListener("mousedown",start);c.addEventListener("mouseup",end);c.addEventListener("mouseleave",()=>drawing=false);c.addEventListener("mousemove",move);
+      c.addEventListener("touchstart",(e)=>{e.preventDefault();start();});
+      c.addEventListener("touchend",(e)=>{e.preventDefault();end();});
+      c.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
     }
-  });
+    window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
 
-  // Friendly / Strict buttons
-  document.getElementById("btn-friendly")?.addEventListener("click", () => {
-    set("messageBody", "Hi John,\n\nJust a reminder about your unpaid invoice. Please process it soon.\nThanks!");
-  });
-  document.getElementById("btn-strict")?.addEventListener("click", () => {
-    set("messageBody", "Final Notice: Your invoice remains unpaid. Pay immediately to avoid further actions.");
-  });
-
-  // Payment Link
-  document.getElementById("paymentLink")?.addEventListener("input", (e) => {
-    const link = e.target.value;
-    const btn = document.getElementById("btn-pay");
-    if (link && btn) {
-      btn.href = link;
-      btn.style.display = "inline-block";
+    /* NUMBER GENERATION */
+    async function previewNextReminderNumber(uid){
+      try{
+        const ref = doc(db, "users", uid);
+        const snap = await getDoc(ref);
+        const last = snap.exists()? (snap.data().lastReminderNumber||0) : 0;
+        const next = last + 1;
+        const p = `REM-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
+        if(!$("reminderNumber").value) $("reminderNumber").placeholder = p;
+      }catch{}
     }
-  });
 
-  // Save Reminder
-document.getElementById("btn-save")?.addEventListener("click", () => {
-  const get = (id) => document.getElementById(id)?.value || "";
-  const reminders = JSON.parse(localStorage.getItem("savedReminders") || "[]");
+    async function generateReminderNumber(uid){
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out = "";
+      await runTransaction(db, async(tx)=>{
+        const snap = await tx.get(ref);
+        const last = snap.exists()? (snap.data().lastReminderNumber||0) : 0;
+        const next = last + 1;
+        tx.set(ref,{ lastReminderNumber: next },{ merge:true });
+        out = `REM-${year}-${String(next).padStart(3,"0")}`;
+      });
+      return out;
+    }
 
-  const newReminder = {
-    fromName: get("fromName"),
-    fromEmail: get("fromEmail"),
-    fromIBAN: get("fromIBAN"),
-    fromAddress: get("fromAddress"),
-    clientName: get("clientName"),
-    clientEmail: get("clientEmail"),
-    clientAddress: get("clientAddress"),
-    invoiceNumber: get("invoiceNumber"),
-    invoiceDate: get("invoiceDate"),
-    dueDate: get("dueDate"),
-    amount: get("amount"),
-    reminderId: get("reminderId"),
-    reminderType: get("reminderType"),
-    messageBody: get("messageBody"),
-    city: get("city"),
-    reminderDate: get("reminderDate"),
-    signatureName: get("signatureName"),
-    signaturePosition: get("signaturePosition"),
-    signatureEmail: get("signatureEmail"),
-    paymentLink: get("paymentLink")
-  };
+    /* LOAD INVOICES */
+    async function loadInvoices(uid){
+      const sel=$("invoiceSelect");
+      sel.innerHTML="<option value=''>— Select Invoice —</option>";
+      const snap=await getDocs(collection(db,"users",uid,"invoices"));
+      snap.forEach(d=>{
+        const inv=d.data();
+        sel.innerHTML+=`<option value="${inv.invoiceNumber||d.id}">${inv.invoiceNumber||d.id} — ${inv.clientName||""} (€${inv.grandTotal||0})</option>`;
+      });
+    }
 
-  reminders.push(newReminder);
-  localStorage.setItem("savedReminders", JSON.stringify(reminders));
-  alert("✅ Reminder saved!");
+    /* SAVE */
+    async function saveReminder(){
+      const user=auth.currentUser;if(!user){location.href="login.html";return;}
+      const uid=user.uid;
 
-  // 🟠 Оновити статус інвойсу
-const savedInvoices = JSON.parse(localStorage.getItem("invoices") || "[]");
-const invoiceNumber = document.getElementById("invoiceNumber")?.value;
+      let reminderNumber=$("reminderNumber").value.trim();
+      const editingId=localStorage.getItem("editReminderId")||null;
+      if(!editingId && !reminderNumber){
+        reminderNumber=await generateReminderNumber(uid);
+        $("reminderNumber").value=reminderNumber;
+      }
 
-const updatedInvoices = savedInvoices.map(inv => {
-  if (inv.invoiceNumber === invoiceNumber) {
-    return { ...inv, status: "Reminder Sent" };
-  }
-  return inv;
-});
+      const businessSig=$("signatureBusiness").toDataURL();
+      const clientSig=$("signatureClient").toDataURL();
 
-localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
-  });
+      const data={
+        businessName:$("businessName").value,
+        kvk:$("kvk").value,
+        iban:$("iban").value,
+        btw:$("btw").value,
+        email:$("email").value,
+        businessAddress:$("businessAddress").value,
+        businessPhone:$("businessPhone").value,
 
-  // View Saved
-  document.getElementById("btn-view-saved")?.addEventListener("click", () => {
-    const modal = document.getElementById("savedRemindersModal");
-    const list = document.getElementById("savedRemindersList");
-    const saved = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-    list.innerHTML = saved.map((r, i) => `
-      <div class="email-entry">
-        <strong>${r.reminderId}</strong> — ${r.clientName} (€${r.amount})<br/>
-        <button onclick="loadReminder(${i})">Load</button>
-        <button onclick="deleteReminder(${i})">Delete</button>
-      </div>
-    `).join("");
-    modal.style.display = "block";
-  });
+        clientName:$("clientName").value,
+        clientEmail:$("clientEmail").value,
+        clientPhone:$("clientPhone").value,
+        clientAddress:$("clientAddress").value,
 
-  window.loadReminder = function(index) {
-    const r = JSON.parse(localStorage.getItem("savedReminders") || "[]")[index];
-    if (!r) return;
-    for (let key in r) set(key, r[key]);
-    document.getElementById("savedRemindersModal").style.display = "none";
-  };
+        reminderDate:$("reminderDate").value,
+        reminderNumber,
+        status:$("status").value,
+        linkedInvoice:$("invoiceSelect").value,
+        message:$("message").value,
+        note:$("note").value,
 
-  window.deleteReminder = function(index) {
-    const saved = JSON.parse(localStorage.getItem("savedReminders") || "[]");
-    if (!confirm("Delete this reminder?")) return;
-    saved.splice(index, 1);
-    localStorage.setItem("savedReminders", JSON.stringify(saved));
-    document.getElementById("btn-view-saved").click(); // Reload list
-  };
+        signatures:{
+          business:businessSig,
+          client:clientSig,
+          businessDate:$("signatureBusinessDate").innerText||"",
+          clientDate:$("signatureClientDate").innerText||""
+        },
 
-// ======= 📄 EXPORT PDF FUNCTION FOR PAYMENT REMINDER =======
-window.exportReminderPDF = function(withBranding = true) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+        userId:uid,
+        updatedAt:new Date().toISOString()
+      };
 
-  const clean = (v) => (v || "").toString().trim();
+      if(editingId){
+        await setDoc(doc(db,"users",uid,"reminders",editingId), data, {merge:true});
+        alert("✅ Reminder updated");
+      }else{
+        await addDoc(collection(db,"users",uid,"reminders"), data);
+        alert(`✅ Reminder saved as ${reminderNumber}`);
+      }
 
-  const invoiceSelect = document.getElementById("invoiceSelect");
-  const invoiceText = invoiceSelect.options[invoiceSelect.selectedIndex]?.text || invoiceSelect.value;
-  
-  const businessName = clean(document.getElementById("fromName").value);
-  const businessEmail = clean(document.getElementById("fromEmail").value);
-  const businessAddress = clean(document.getElementById("fromAddress").value);
-  const businessIBAN = clean(document.getElementById("fromIBAN").value);
+      localStorage.removeItem("editReminderId");
+      location.href="payment-reminder-list.html";
+    }
+    window.saveReminder=saveReminder;
 
-  const clientName = clean(document.getElementById("clientName").value);
-  const clientEmail = clean(document.getElementById("clientEmail").value);
-  const clientAddress = clean(document.getElementById("clientAddress").value);
+    /* LOAD FOR EDIT */
+    async function loadReminderForEdit(uid){
+      const id=localStorage.getItem("editReminderId");
+      if(!id) return;
+      const snap=await getDoc(doc(db,"users",uid,"reminders",id));
+      if(!snap.exists()){localStorage.removeItem("editReminderId");return;}
+      const r=snap.data();
 
-  const reminderId = clean(document.getElementById("reminderId").value);
-  const reminderDate = clean(document.getElementById("reminderDate").value);
-  const reminderType = clean(document.getElementById("reminderType").value);
-  const invoiceNumber = clean(document.getElementById("invoiceSelect").value);
-  const dueDate = clean(document.getElementById("dueDate").value);
-  const amountDue = clean(document.getElementById("amount").value);
- 
+      $("businessName").value=r.businessName||"";
+      $("kvk").value=r.kvk||"";
+      $("iban").value=r.iban||"";
+      $("btw").value=r.btw||"";
+      $("email").value=r.email||"";
+      $("businessAddress").value=r.businessAddress||"";
+      $("businessPhone").value=r.businessPhone||"";
 
-  const messageBody = clean(document.getElementById("messageBody").value);
-  const paymentLink = clean(document.getElementById("paymentLink").value);
+      $("clientName").value=r.clientName||"";
+      $("clientEmail").value=r.clientEmail||"";
+      $("clientPhone").value=r.clientPhone||"";
+      $("clientAddress").value=r.clientAddress||"";
 
-  const city = clean(document.getElementById("city").value);
-  const name = clean(document.getElementById("signatureName").value);
-  const position = clean(document.getElementById("signaturePosition").value);
-  const email = clean(document.getElementById("signatureEmail").value);
+      $("reminderDate").value=r.reminderDate||"";
+      $("reminderNumber").value=r.reminderNumber||"";
+      $("status").value=r.status||"Draft";
+      $("invoiceSelect").value=r.linkedInvoice||"";
+      $("message").value=r.message||"";
+      $("note").value=r.note||"";
 
+      if(r.signatures?.business){
+        const img=new Image();
+        img.onload=()=>{$("signatureBusiness").getContext("2d").drawImage(img,0,0);};
+        img.src=r.signatures.business;
+        $("signatureBusinessDate").innerText=r.signatures.businessDate||"";
+      }
+      if(r.signatures?.client){
+        const img=new Image();
+        img.onload=()=>{$("signatureClient").getContext("2d").drawImage(img,0,0);};
+        img.src=r.signatures.client;
+        $("signatureClientDate").innerText=r.signatures.clientDate||"";
+      }
+    }
 
+    /* INIT */
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){location.href="login.html";return;}
 
-  // Header
-  doc.setFontSize(18);
-  doc.text("Payment Reminder", 105, 20, null, null, "center");
+      flatpickr(".js-date",{dateFormat:"Y-m-d"});
+      setupSignature("signatureBusiness","signatureBusinessDate");
+      setupSignature("signatureClient","signatureClientDate");
 
- 
-  doc.setFontSize(12);
-  doc.text(`Reminder ID: ${reminderId}`, 20, 30);
-  doc.text(`Date: ${reminderDate}`, 20, 36);
-  doc.text(`Invoice: ${invoiceText}`, 20, 42);
-  doc.text(`Reminder Type: ${reminderType}`, 105, 42);  
+      await previewNextReminderNumber(user.uid);
+      await loadInvoices(user.uid);
+      await loadReminderForEdit(user.uid);
+    });
 
-
-  // Business Info
-  doc.setFont(undefined, "bold");
-  doc.text("From:", 20, 60);
-  doc.setFont(undefined, "normal");
-  doc.text(`${businessName}`, 20, 66);
-  doc.text(`${businessEmail}`, 20, 72);
-  doc.text(`${businessAddress}`, 20, 78);
-
-  // Client Info
-  doc.setFont(undefined, "bold");
-  doc.text("To:", 105, 60);
-  doc.setFont(undefined, "normal");
-  doc.text(`${clientName}`, 105, 66);
-  doc.text(`${clientEmail}`, 105, 72);
-  doc.text(`${clientAddress}`, 105, 78);
-
-  // Amount Due
-  doc.setFont(undefined, "bold");
-  doc.text("Amount Due:", 20, 90);
-  doc.setFont(undefined, "normal");
-  doc.text(`€ ${amountDue}`, 50, 90);
-
-  // Due Date
-  doc.setFont(undefined, "bold");
-  doc.text("Due Date:", 105, 90);
-  doc.setFont(undefined, "normal");
-  doc.text(`${dueDate}`, 135, 90);
-
-  // Message
-  doc.setFont(undefined, "bold");
-  doc.text("Message:", 20, 105);
-  doc.setFont(undefined, "normal");
-  const messageLines = doc.splitTextToSize(messageBody, 170);
-  doc.text(messageLines, 20, 112);
-
-  // Payment Link
-  if (paymentLink) {
-    doc.setFont(undefined, "bold");
-    doc.text("Pay Now:", 20, 120 + messageLines.length * 5);
-    doc.setFont(undefined, "normal");
-    doc.setTextColor(33, 150, 243);
-    doc.textWithLink(paymentLink, 20, 126 + messageLines.length * 5, { url: paymentLink });
-    doc.setTextColor(0, 0, 0);
-  }
-
- // Signature block
-let y = 130 + messageLines.length * 5 + 10;
-
-doc.setDrawColor(0);
-doc.line(20, y, 80, y);
-
-y += 6;
-doc.setFont(undefined, "bold");
-doc.text("Signature:", 20, y);
-
-doc.setFont(undefined, "normal");
-doc.setFontSize(11);
-
-y += 6;
-doc.text(`${name}`, 20, y);
-
-y += 6;
-doc.text(`${businessName}`, 20, y);
-
-y += 6;
-doc.text(`${businessEmail}`, 20, y);
-
-y += 6;
-doc.text(`${city}, ${reminderDate}`, 20, y);
-  
-  // Footer: branding
-  if (withBranding) {
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 105, 290, null, null, "center");
-  }
-
-  // Save
-  doc.save(`${reminderId}.pdf`);
-}
-
-  // Print
-  document.getElementById("btn-print")?.addEventListener("click", () => {
-    window.print();
-  });
-
-  // Preview
-  document.getElementById("btn-preview")?.addEventListener("click", () => {
-    alert("🔍 Preview coming soon — in next PRO version!");
-  });
-});
-
-
-    
+    document.addEventListener("DOMContentLoaded",()=>{
+      $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveReminder();});
+    });
   </script>
 </body>
 </html>
