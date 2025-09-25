@@ -257,22 +257,27 @@
       await loadReminderForEdit(user.uid);
 
       // Заповнити інвойси у select
-      onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
-        const sel=$("linkedInvoice");
-        sel.innerHTML="<option>— Select Invoice —</option>";
-        snap.docs.forEach(d=>{
-          const inv=d.data();
-          const opt=document.createElement("option");
-          opt.value=inv.invoiceNumber||d.id;
-          opt.text=inv.invoiceNumber||d.id;
-          opt.dataset.date=inv.invoiceDate||"";
-          opt.dataset.due=inv.dueDate||"";
-          opt.dataset.amount=inv.grandTotalFormatted||"";
-          // якщо редагуємо — вибрати збережений
-          if(inv.invoiceNumber===($("#linkedInvoice").value)) opt.selected=true;
-          sel.appendChild(opt);
-        });
-      });
+onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
+  const sel=$("linkedInvoice");
+  const saved = sel.value; // значення при редагуванні
+  sel.innerHTML="<option value=''>— Select Invoice —</option>";
+
+  snap.docs.forEach(d=>{
+    const inv=d.data();
+    const val = inv.invoiceNumber || d.id;
+    const opt=document.createElement("option");
+    opt.value=val;
+    opt.text=val;
+    opt.dataset.date=inv.invoiceDate||"";
+    opt.dataset.due=inv.dueDate||"";
+    opt.dataset.amount=inv.grandTotalFormatted||"";
+
+    // якщо це редагування і співпадає збережене значення
+    if(val===saved) opt.selected=true;
+
+    sel.appendChild(opt);
+  });
+});
 
       $("linkedInvoice").addEventListener("change",(e)=>{
         const opt=e.target.selectedOptions[0];
