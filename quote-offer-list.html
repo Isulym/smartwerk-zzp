@@ -73,12 +73,12 @@
 
   <!-- App -->
   <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, collection, doc, addDoc, deleteDoc,
-      onSnapshot, query, orderBy, runTransaction
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, collection, doc, addDoc, deleteDoc, setDoc,
+    onSnapshot, query, orderBy, runTransaction
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     /* Firebase */
     const firebaseConfig = {
@@ -334,17 +334,25 @@ pdf.save(`${q.quoteNumber||"Quote"}.pdf`);
       }
     };
 
-      window.updateQuoteStatus = async (id, newStatus) => {
+     window.updateQuoteStatus = async (id, newStatus) => {
   try {
     const uid = auth.currentUser.uid;
-    await setDoc(doc(db,"users",uid,"quotes",id), {
+    const ref = doc(db, "users", uid, "quotes", id);
+
+    // (необов'язково) заблокуємо селект під час оновлення
+    const sel = document.querySelector(`select[onchange*="'${id}'"]`);
+    if (sel) sel.disabled = true;
+
+    await setDoc(ref, {
       status: newStatus,
       updatedAt: new Date().toISOString()
-    }, { merge:true });
-    console.log(`✅ Status updated to ${newStatus}`);
-  } catch(e){
+    }, { merge: true });
+
+  } catch (e) {
     console.error("❌ Status update failed", e);
     alert("Status update failed: " + e.message);
+  } finally {
+    if (sel) sel.disabled = false;
   }
 };
 
