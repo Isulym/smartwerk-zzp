@@ -328,19 +328,26 @@ async function generateQuoteNumber(uid){
 }
 
     /* INIT */
-    onAuthStateChanged(auth,async(user)=>{
-      if(!user){location.href="login.html";return;}
-      flatpickr(".js-date",{dateFormat:"Y-m-d"});
-      setupSignature("signatureBusiness","signatureBusinessDate");
-      setupSignature("signatureClient","signatureClientDate");
-      if(!document.querySelector("#itemsBody tr")) addItem();
-      updateTotals();
-      await previewNextQuoteNumber(user.uid);
-    });
+   onAuthStateChanged(auth, async (user)=>{
+    if(!user){ location.href="login.html"; return; }
 
-    document.addEventListener("DOMContentLoaded",()=>{
-      $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveQuote();});
+    initDates();
+    setupSignature("signatureBusiness","signatureBusinessDate");
+    setupSignature("signatureClient","signatureClientDate");
+    if(!document.querySelector("#itemsBody tr")) addItem();
+    updateTotals();
+
+    // preview номер + якщо редагування — завантажити документ
+    await previewNextQuoteNumber(user.uid);
+    await loadForEdit(user.uid);
+  });
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    $("saveBtn")?.addEventListener("click",(e)=>{
+      e.preventDefault();
+      saveQuote();
     });
+  });
   </script>
 </body>
 </html>
