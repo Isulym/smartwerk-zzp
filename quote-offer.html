@@ -366,12 +366,12 @@
       await loadQuoteForEdit(user.uid);
     });
 
-    document.addEventListener("DOMContentLoaded", ()=>{
-      $("saveBtn")?.addEventListener("click",(e)=>{
-        e.preventDefault();
-        saveQuote();
-      });
-    });
+    document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("saveBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    saveQuote();
+  });
+});
   </script>
 </body>
 </html>
