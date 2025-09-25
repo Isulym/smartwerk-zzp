@@ -317,14 +317,28 @@
     };
 
     /* INIT */
-    onAuthStateChanged(auth,(user)=>{
-      if(!user){ location.href="login.html"; return; }
-      flatpickr(".js-date",{ dateFormat:"Y-m-d" });
-      startRealtime(user.uid);
-      ["statusFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
-        $(id).addEventListener("input", render);
-      });
+    onAuthStateChanged(auth, async (user)=>{
+  if(!user){ location.href="login.html"; return; }
+
+  flatpickr(".js-date",{dateFormat:"Y-m-d"});
+  setupSignature("signatureBusiness","signatureBusinessDate");
+  setupSignature("signatureClient","signatureClientDate");
+  if(!document.querySelector("#itemsBody tr")) addItem();
+  updateTotals();
+
+  await previewNextQuoteNumber(user.uid);
+
+  // 🔹 Якщо створюємо новий — очистити форму
+  if(!localStorage.getItem("editQuoteId")){
+    document.querySelectorAll("input, textarea").forEach(el=>{
+      if(el.type!=="button" && el.type!=="submit") el.value="";
     });
+    $("itemsBody").innerHTML = "";
+    addItem();
+  } else {
+    await loadQuoteForEdit(user.uid);
+  }
+});
   </script>
 </body>
 </html>
