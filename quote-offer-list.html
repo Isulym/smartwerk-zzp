@@ -150,7 +150,14 @@
         tr.innerHTML = `
           <td>${q.quoteNumber||"—"}</td>
           <td>${q.clientName||"—"}</td>
-          <td>${q.status||"Draft"}</td>
+          <td>
+         <select onchange="updateQuoteStatus('${q.id}', this.value)">
+         <option value="Draft" ${q.status==="Draft"?"selected":""}>Draft</option>
+         <option value="Sent" ${q.status==="Sent"?"selected":""}>Sent</option>
+         <option value="Accepted" ${q.status==="Accepted"?"selected":""}>Accepted</option>
+         <option value="Rejected" ${q.status==="Rejected"?"selected":""}>Rejected</option>
+        </select>
+         </td>
           <td>${q.quoteDate||"—"}</td>
           <td>${fmt(q.grandTotal)}</td>
           <td>
@@ -327,6 +334,20 @@ if(q.signatures?.client){
       }
     };
 
+      window.updateQuoteStatus = async (id, newStatus) => {
+  try {
+    const uid = auth.currentUser.uid;
+    await setDoc(doc(db,"users",uid,"quotes",id), {
+      status: newStatus,
+      updatedAt: new Date().toISOString()
+    }, { merge:true });
+    console.log(`✅ Status updated to ${newStatus}`);
+  } catch(e){
+    console.error("❌ Status update failed", e);
+    alert("Status update failed: " + e.message);
+  }
+};
+
     /* INIT */
    onAuthStateChanged(auth, (user)=>{
     if (!user) { location.href = "login.html"; return; }
@@ -348,7 +369,6 @@ if(q.signatures?.client){
       });
   });
 
- 
 
   </script>
 </body>
