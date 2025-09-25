@@ -101,9 +101,8 @@
 
   <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
-  <!-- Firebase App -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -177,32 +176,31 @@
     window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
 
     /* NUMBER GENERATION */
-   // Поруч із generateInvoiceNumber робити НЕ треба. Додай до блоку з функціями QUOTE:
-async function previewNextQuoteNumber(uid){
-  try{
-    const ref = doc(db, "users", uid);
-    const snap = await getDoc(ref);
-    const last = snap.exists()? (snap.data().lastQuoteNumber||0) : 0;
-    const next = last + 1;
-    const p = `QUO-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
-    const el = document.getElementById("quoteNumber");
-    if(el && !el.value) el.placeholder = p;
-  }catch{}
-}
+    async function previewNextQuoteNumber(uid){
+      try{
+        const ref = doc(db, "users", uid);
+        const snap = await getDoc(ref);
+        const last = snap.exists()? (snap.data().lastQuoteNumber||0) : 0;
+        const next = last + 1;
+        const p = `QUO-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
+        const el = document.getElementById("quoteNumber");
+        if(el && !el.value) el.placeholder = p;
+      }catch{}
+    }
 
-async function generateQuoteNumber(uid){
-  const ref = doc(db,"users",uid);
-  const year = new Date().getFullYear();
-  let out = "";
-  await runTransaction(db, async(tx)=>{
-    const snap = await tx.get(ref);
-    const last = snap.exists()? (snap.data().lastQuoteNumber||0) : 0;
-    const next = last + 1;
-    tx.set(ref,{ lastQuoteNumber: next },{ merge:true });
-    out = `QUO-${year}-${String(next).padStart(3,"0")}`;
-  });
-  return out;
-}
+    async function generateQuoteNumber(uid){
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out = "";
+      await runTransaction(db, async(tx)=>{
+        const snap = await tx.get(ref);
+        const last = snap.exists()? (snap.data().lastQuoteNumber||0) : 0;
+        const next = last + 1;
+        tx.set(ref,{ lastQuoteNumber: next },{ merge:true });
+        out = `QUO-${year}-${String(next).padStart(3,"0")}`;
+      });
+      return out;
+    }
 
     /* SAVE */
     async function saveQuote(){
@@ -225,8 +223,8 @@ async function generateQuoteNumber(uid){
       let quoteNumber = document.getElementById("quoteNumber").value.trim();
       const editingId = localStorage.getItem("editQuoteId") || null;
       if(!editingId && !quoteNumber){
-      quoteNumber = await generateQuoteNumber(uid);
-      document.getElementById("quoteNumber").value = quoteNumber;
+        quoteNumber = await generateQuoteNumber(uid);
+        document.getElementById("quoteNumber").value = quoteNumber;
       }
 
       const businessSig=$("signatureBusiness").toDataURL();
@@ -269,86 +267,85 @@ async function generateQuoteNumber(uid){
         updatedAt:new Date().toISOString(),
       };
 
-        if(editingId){
+      if(editingId){
         await setDoc(doc(db,"users",uid,"quotes",editingId), data, {merge:true});
         alert("✅ Quote updated");
-     }else{
+      }else{
         await addDoc(collection(db,"users",uid,"quotes"), data);
         alert(`✅ Quote saved as ${quoteNumber}`);
-     }
+      }
 
-     localStorage.removeItem("editQuoteId");     // ВАЖЛИВО!
-     location.href = "quote-offer-list.html";
-   }   // ← закриваємо saveQuote()
+      localStorage.removeItem("editQuoteId");
+      location.href = "quote-offer-list.html";
+    }
+    window.saveQuote=saveQuote;
 
-   window.saveQuote = saveQuote;
+    /* LOAD FOR EDIT */
+    async function loadQuoteForEdit(uid){
+      const id = localStorage.getItem("editQuoteId");
+      if(!id) return;
+      const snap = await getDoc(doc(db,"users",uid,"quotes",id));
+      if(!snap.exists()){ localStorage.removeItem("editQuoteId"); return; }
+      const q = snap.data();
 
-   async function loadQuoteForEdit(uid){
-     const id = localStorage.getItem("editQuoteId");
-     if(!id) return;
-     const snap = await getDoc(doc(db,"users",uid,"quotes",id));
-     if(!snap.exists()){ localStorage.removeItem("editQuoteId"); return; }
-     const q = snap.data();
+      $("#businessName").value = q.businessName||"";
+      $("#kvk").value = q.kvk||"";
+      $("#iban").value = q.iban||"";
+      $("#btw").value = q.btw||"";
+      $("#email").value = q.email||"";
+      $("#businessAddress").value = q.businessAddress||"";
+      $("#businessPhone").value = q.businessPhone||"";
 
-     // заповнюємо поля
-     $("#businessName").value = q.businessName||"";
-     $("#kvk").value = q.kvk||"";
-     $("#iban").value = q.iban||"";
-     $("#btw").value = q.btw||"";
-     $("#email").value = q.email||"";
-     $("#businessAddress").value = q.businessAddress||"";
-     $("#businessPhone").value = q.businessPhone||"";
+      $("#clientName").value = q.clientName||"";
+      $("#clientEmail").value = q.clientEmail||"";
+      $("#clientPhone").value = q.clientPhone||"";
+      $("#clientAddress").value = q.clientAddress||"";
 
-     $("#clientName").value = q.clientName||"";
-     $("#clientEmail").value = q.clientEmail||"";
-     $("#clientPhone").value = q.clientPhone||"";
-     $("#clientAddress").value = q.clientAddress||"";
+      $("#quoteDate").value = q.quoteDate||"";
+      $("#validUntil").value = q.validUntil||"";
+      $("#quoteNumber").value = q.quoteNumber||"";
+      $("#status").value = q.status||"Draft";
+      $("#note").value = q.note||"";
 
-     $("#quoteDate").value = q.quoteDate||"";
-     $("#validUntil").value = q.validUntil||"";     // ← додав пропущене поле
-     $("#quoteNumber").value = q.quoteNumber||"";
-     $("#status").value = q.status||"Draft";
-     $("#note").value = q.note||"";
+      document.getElementById("itemsBody").innerHTML = "";
+      (q.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
+      if(!(q.items||[]).length) addItem();
 
-     document.getElementById("itemsBody").innerHTML="";
-     (q.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
-     if(!(q.items||[]).length) addItem();
+      if(q.signatures?.business){
+        const img=new Image();
+        img.onload=()=>{ const c=$("#signatureBusiness"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
+        img.src=q.signatures.business;
+        $("#signatureBusinessDate").innerText = q.signatures.businessDate||"";
+      }
+      if(q.signatures?.client){
+        const img=new Image();
+        img.onload=()=>{ const c=$("#signatureClient"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
+        img.src=q.signatures.client;
+        $("#signatureClientDate").innerText = q.signatures.clientDate||"";
+      }
+      updateTotals();
+    }
 
-     if(q.signatures?.business){
-       const img=new Image();
-       img.onload=()=>{ const c=$("#signatureBusiness"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
-       img.src=q.signatures.business;
-       $("#signatureBusinessDate").innerText = q.signatures.businessDate||"";
-     }
-     if(q.signatures?.client){
-       const img=new Image();
-       img.onload=()=>{ const c=$("#signatureClient"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
-       img.src=q.signatures.client;
-       $("#signatureClientDate").innerText = q.signatures.clientDate||"";
-     }
-     updateTotals();
-   }
+    /* INIT */
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href="login.html"; return; }
 
-   /* INIT */
-   onAuthStateChanged(auth, async (user)=>{
-     if(!user){ location.href="login.html"; return; }
+      flatpickr(".js-date",{dateFormat:"Y-m-d"});
+      setupSignature("signatureBusiness","signatureBusinessDate");
+      setupSignature("signatureClient","signatureClientDate");
+      if(!document.querySelector("#itemsBody tr")) addItem();
+      updateTotals();
 
-     flatpickr(".js-date",{dateFormat:"Y-m-d"});
-     setupSignature("signatureBusiness","signatureBusinessDate");
-     setupSignature("signatureClient","signatureClientDate");
-     if(!document.querySelector("#itemsBody tr")) addItem();
-     updateTotals();
+      await previewNextQuoteNumber(user.uid);
+      await loadQuoteForEdit(user.uid);
+    });
 
-     await previewNextQuoteNumber(user.uid);
-     await loadQuoteForEdit(user.uid);   // ← правильна назва
-   });
-
-   document.addEventListener("DOMContentLoaded", ()=>{
-     $("saveBtn")?.addEventListener("click",(e)=>{
-       e.preventDefault();
-       saveQuote();
-     });
-   });
+    document.addEventListener("DOMContentLoaded", ()=>{
+      $("saveBtn")?.addEventListener("click",(e)=>{
+        e.preventDefault();
+        saveQuote();
+      });
+    });
   </script>
 </body>
 </html>
