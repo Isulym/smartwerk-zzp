@@ -204,84 +204,95 @@
 
     /* SAVE */
     async function saveQuote(){
-      const user=auth.currentUser;if(!user){location.href="login.html";return;}
-      const uid=user.uid;
+  const user = auth.currentUser;
+  if(!user){ location.href="login.html"; return; }
+  const uid = user.uid;
 
-      const items=[];document.querySelectorAll("#itemsBody tr").forEach(tr=>{
-        items.push({
-          desc:tr.querySelector(".desc")?.value||"",
-          qty:parseFloat(tr.querySelector(".qty")?.value)||0,
-          price:parseFloat(tr.querySelector(".price")?.value)||0,
-          vat:parseFloat(tr.querySelector(".vat")?.value)||0
-        });
-      });
+  // items
+  const items = [];
+  document.querySelectorAll("#itemsBody tr").forEach(tr=>{
+    items.push({
+      desc: tr.querySelector(".desc")?.value || "",
+      qty: parseFloat(tr.querySelector(".qty")?.value) || 0,
+      price: parseFloat(tr.querySelector(".price")?.value) || 0,
+      vat: parseFloat(tr.querySelector(".vat")?.value) || 0
+    });
+  });
 
-      const subtotal=parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,""))||0;
-      const totalVat=parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,""))||0;
-      const grandTotal=subtotal+totalVat;
+  // totals
+  const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,"")) || 0;
+  const totalVat = parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,"")) || 0;
+  const grandTotal = subtotal + totalVat;
 
-      let quoteNumber = document.getElementById("quoteNumber").value.trim();
-      const editingId = localStorage.getItem("editQuoteId") || null;
-      if(!editingId && !quoteNumber){
-        quoteNumber = await generateQuoteNumber(uid);
-        document.getElementById("quoteNumber").value = quoteNumber;
-      }
+  // quote number
+  let quoteNumber = $("quoteNumber").value.trim();
+  const editingId = localStorage.getItem("editQuoteId") || null;
+  if(!editingId && !quoteNumber){
+    quoteNumber = await generateQuoteNumber(uid);
+    $("quoteNumber").value = quoteNumber;
+  }
 
-      const businessSig=$("signatureBusiness").toDataURL();
-      const clientSig=$("signatureClient").toDataURL();
+  // signatures
+  const businessSig = $("signatureBusiness").toDataURL();
+  const clientSig   = $("signatureClient").toDataURL();
 
-      const data={
-        businessName:$("businessName").value,
-        kvk:$("kvk").value,
-        iban:$("iban").value,
-        btw:$("btw").value,
-        email:$("email").value,
-        businessAddress:$("businessAddress").value,
-        businessPhone:$("businessPhone").value,
+  // final data
+  const data = {
+    businessName: $("businessName").value,
+    kvk: $("kvk").value,
+    iban: $("iban").value,
+    btw: $("btw").value,
+    email: $("email").value,
+    businessAddress: $("businessAddress").value,
+    businessPhone: $("businessPhone").value,
 
-        clientName:$("clientName").value,
-        clientEmail:$("clientEmail").value,
-        clientPhone:$("clientPhone").value,
-        clientAddress:$("clientAddress").value,
+    clientName: $("clientName").value,
+    clientEmail: $("clientEmail").value,
+    clientPhone: $("clientPhone").value,
+    clientAddress: $("clientAddress").value,
 
-        quoteDate:$("quoteDate").value,
-        validUntil:$("validUntil").value,
-        quoteNumber,
-        status:$("status").value,
-        note:$("note").value,
+    quoteDate: $("quoteDate").value,
+    validUntil: $("validUntil").value,
+    quoteNumber,
+    status: $("status").value,
+    note: $("note").value,
 
-        items,
-        subtotal,totalVat,grandTotal,
-        subtotalFormatted:"€"+subtotal.toFixed(2),
-        totalVatFormatted:"€"+totalVat.toFixed(2),
-        grandTotalFormatted:"€"+grandTotal.toFixed(2),
+    items,
+    subtotal,
+    totalVat,
+    grandTotal,
+    subtotalFormatted: "€"+subtotal.toFixed(2),
+    totalVatFormatted: "€"+totalVat.toFixed(2),
+    grandTotalFormatted: "€"+grandTotal.toFixed(2),
 
-        signatures:{
-          business:businessSig,
-          client:clientSig,
-          businessDate:$("signatureBusinessDate").innerText||"",
-          clientDate:$("signatureClientDate").innerText||""
-        },
+    signatures: {
+      business: businessSig,
+      client: clientSig,
+      businessDate: $("signatureBusinessDate").innerText || "",
+      clientDate: $("signatureClientDate").innerText || ""
+    },
 
-        userId:uid,
-        updatedAt:new Date().toISOString(),
-      };
+    userId: uid,
+    updatedAt: new Date().toISOString(),
+  };
 
-      if(editingId){
-        await setDoc(doc(db,"users",uid,"quotes",editingId), data, {merge:true});
-        alert("✅ Quote updated");
-      }else{
-        await addDoc(collection(db,"users",uid,"quotes"), data);
-        alert(`✅ Quote saved as ${quoteNumber}`);
-      }
+  // save
+  if(editingId){
+    await setDoc(doc(db,"users",uid,"quotes",editingId), data, { merge:true });
+    alert("✅ Quote updated");
+  } else {
+    await addDoc(collection(db,"users",uid,"quotes"), data);
+    alert(`✅ Quote saved as ${quoteNumber}`);
+  }
 
-      localStorage.removeItem("editQuoteId");
-      location.href = "quote-offer-list.html";
-    }
-    window.saveQuote=saveQuote;
+  // clean edit mode always!
+  localStorage.removeItem("editQuoteId");
+  location.href = "quote-offer-list.html";
+}
+window.saveQuote = saveQuote;
 
     /* LOAD FOR EDIT */
-  async function loadQuoteForEdit(uid) {
+ async function loadQuoteForEdit(uid) {
   const id = localStorage.getItem("editQuoteId");
   if (!id) return;
 
@@ -315,9 +326,12 @@
   if ($("#note")) $("#note").value = q.note || "";
 
   // Items
-  $("itemsBody").innerHTML = "";
-  (q.items || []).forEach(it => addItem(it.desc, it.qty, it.price, it.vat));
-  if (!(q.items || []).length) addItem();
+  const body = $("itemsBody");
+  if (body) {
+    body.innerHTML = "";
+    (q.items || []).forEach(it => addItem(it.desc, it.qty, it.price, it.vat));
+    if (!(q.items || []).length) addItem();
+  }
 
   // Signatures
   if (q.signatures?.business && $("#signatureBusiness")) {
@@ -344,6 +358,7 @@
     $("#signatureClientDate").innerText = q.signatures.clientDate || "";
   }
 
+  // Обновлюємо суми після відновлення
   updateTotals();
 }
 
