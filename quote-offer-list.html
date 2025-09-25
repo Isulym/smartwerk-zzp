@@ -170,6 +170,7 @@
   localStorage.setItem("editQuoteId", id);
   location.href = "quote-offer.html";
 }
+    window.editQuote = editQuote;
 
     window.deleteQuote = async (id)=>{
       if(!confirm("Delete this quote?")) return;
