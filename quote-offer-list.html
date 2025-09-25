@@ -80,8 +80,6 @@ import {
   onSnapshot, query, orderBy, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-   window.setDoc = setDoc;
-   window.doc = doc;
 
     /* Firebase */
     const firebaseConfig = {
@@ -338,12 +336,16 @@ pdf.save(`${q.quoteNumber||"Quote"}.pdf`);
     };
 
      window.updateQuoteStatus = async (id, newStatus) => {
-  try {
-    const uid = auth.currentUser.uid;
-    const ref = doc(db, "users", uid, "quotes", id);
+  const user = auth.currentUser;
+  if (!user) { alert("Please sign in again."); return; }
 
-    // (необов'язково) заблокуємо селект під час оновлення
-    const sel = document.querySelector(`select[onchange*="'${id}'"]`);
+  const uid = user.uid;
+  const ref = doc(db, "users", uid, "quotes", id);
+
+  // знайдемо саме той select, що викликав зміну
+  let sel = document.querySelector(`select[onchange*="'${id}'"]`);
+
+  try {
     if (sel) sel.disabled = true;
 
     await setDoc(ref, {
@@ -351,6 +353,8 @@ pdf.save(`${q.quoteNumber||"Quote"}.pdf`);
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
+    // onSnapshot сам перерендерить таблицю
+    console.log(`✅ Status updated to ${newStatus}`);
   } catch (e) {
     console.error("❌ Status update failed", e);
     alert("Status update failed: " + e.message);
