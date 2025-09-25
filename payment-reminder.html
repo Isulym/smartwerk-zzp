@@ -158,8 +158,11 @@
       const user=auth.currentUser;if(!user){location.href="login.html";return;}
       const uid=user.uid;
 
-      let reminderId=$("reminderId").value.trim();
-      if(!reminderId){ reminderId=await generateReminderId(uid); $("reminderId").value=reminderId; }
+     let reminderId = r?.reminderId || null;
+     if(!editingId && !reminderId){
+     reminderId = await generateReminderId(uid);
+     }
+     data.reminderId = reminderId;
 
       const data={
         businessName:$("businessName").value,
