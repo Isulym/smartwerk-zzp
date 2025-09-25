@@ -317,31 +317,27 @@
     };
 
     /* INIT */
-  onAuthStateChanged(auth, (user)=>{
-  if(!user){ location.href="login.html"; return; }
+   onAuthStateChanged(auth, (user)=>{
+    if (!user) { location.href = "login.html"; return; }
 
-  // ініціалізація календарів
-  flatpickr(".js-date",{ dateFormat:"Y-m-d" });
+    // Тільки дата-фільтри + список
+    flatpickr(".js-date", { dateFormat: "Y-m-d" });
 
-  // підключаємо список у реальному часі
-  startRealtime(user.uid);
+    // Підтягнути список в реальному часі
+    startRealtime(user.uid);
 
-  // слухачі для фільтрів
-  ["statusFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
-    $(id).addEventListener("input", render);
+    // Живі фільтри/пошук/сортування
+    ["statusFilter","fromDate","toDate","searchBox","sortBy"]
+      .forEach(id => document.getElementById(id)?.addEventListener("input", render));
+
+    // Кнопка "New Quote" має СТВОРЮВАТИ новий документ, а не редагувати старий
+    document.querySelector('a[href="quote-offer.html"]')
+      ?.addEventListener("click", () => {
+        localStorage.removeItem("editQuoteId");
+      });
   });
-});
 
-  // 🔹 Якщо створюємо новий — очистити форму
-  if(!localStorage.getItem("editQuoteId")){
-    document.querySelectorAll("input, textarea").forEach(el=>{
-      if(el.type!=="button" && el.type!=="submit") el.value="";
-    });
-    //$("itemsBody").innerHTML = "";
-    addItem();
-  } else {
-    await loadQuoteForEdit(user.uid);
-  }
+ 
 
   </script>
 </body>
