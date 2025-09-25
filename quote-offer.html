@@ -203,7 +203,8 @@
     }
 
     /* SAVE */
-    async function saveQuote(){
+  /* SAVE */
+async function saveQuote(){
   const user = auth.currentUser;
   if(!user){ location.href="login.html"; return; }
   const uid = user.uid;
@@ -232,11 +233,10 @@
     $("quoteNumber").value = quoteNumber;
   }
 
-  // signatures
+  // signatures (з перевіркою)
   const businessSig = $("signatureBusiness").toDataURL();
   const clientSig   = $("signatureClient").toDataURL();
 
-  // final data
   const data = {
     businessName: $("businessName").value,
     kvk: $("kvk").value,
@@ -258,9 +258,7 @@
     note: $("note").value,
 
     items,
-    subtotal,
-    totalVat,
-    grandTotal,
+    subtotal, totalVat, grandTotal,
     subtotalFormatted: "€"+subtotal.toFixed(2),
     totalVatFormatted: "€"+totalVat.toFixed(2),
     grandTotalFormatted: "€"+grandTotal.toFixed(2),
@@ -276,7 +274,6 @@
     updatedAt: new Date().toISOString(),
   };
 
-  // save
   if(editingId){
     await setDoc(doc(db,"users",uid,"quotes",editingId), data, { merge:true });
     alert("✅ Quote updated");
@@ -285,7 +282,6 @@
     alert(`✅ Quote saved as ${quoteNumber}`);
   }
 
-  // clean edit mode always!
   localStorage.removeItem("editQuoteId");
   location.href = "quote-offer-list.html";
 }
