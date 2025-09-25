@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Payment Reminder</title>
   <link rel="stylesheet" href="style-invoices.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -21,11 +21,9 @@
     <section>
       <h2>🏢 Business Info</h2>
       <input id="businessName" placeholder="Business Name"/>
-      <input id="businessEmail" placeholder="Business Email"/>
+      <input id="email" placeholder="Business Email"/>
       <input id="businessAddress" placeholder="Business Address"/>
       <input id="businessPhone" placeholder="Business Phone"/>
-      <input id="iban" placeholder="IBAN"/>
-      <input id="bic" placeholder="BIC"/>
     </section>
 
     <!-- Client Info -->
@@ -34,54 +32,46 @@
       <input id="clientName" placeholder="Client Name"/>
       <input id="clientEmail" placeholder="Client Email"/>
       <input id="clientAddress" placeholder="Client Address"/>
-      <input id="clientPhone" placeholder="Client Phone"/>
+    </section>
+
+    <!-- Linked Invoice -->
+    <section>
+      <h2>📑 Linked Invoice</h2>
+      <select id="linkedInvoice"><option>— Select Invoice —</option></select>
+      <p>Invoice Date: <span id="invoiceDate">—</span></p>
+      <p>Due Date: <span id="dueDate">—</span></p>
+      <p>Invoice Amount: <span id="invoiceAmount">—</span></p>
     </section>
 
     <!-- Reminder Details -->
     <section>
-      <h2>📑 Reminder Details</h2>
-      <input id="reminderId" readonly placeholder="REM-2025-001"/>
-      <label>Linked Invoice:
-        <select id="linkedInvoice"></select>
-      </label>
-      <input id="invoiceDate" class="js-date" placeholder="Invoice Date"/>
-      <input id="dueDate" class="js-date" placeholder="Due Date"/>
+      <h2>⏰ Reminder Details</h2>
       <input id="reminderDate" class="js-date" placeholder="Reminder Date"/>
       <select id="status">
         <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
+      </select>
+      <select id="type">
         <option value="First Reminder">First Reminder</option>
         <option value="Second Reminder">Second Reminder</option>
         <option value="Final Reminder">Final Reminder</option>
-        <option value="Paid">Paid</option>
       </select>
-    </section>
-
-    <!-- Amounts -->
-    <section>
-      <h2>💶 Amounts</h2>
-      <p>Subtotal: <span id="subtotal">€0.00</span></p>
-      <p>VAT: <span id="totalVat">€0.00</span></p>
-      <p>Total: <span id="grandTotal">€0.00</span></p>
+      <input id="amount" placeholder="Amount (e.g. €500)"/>
     </section>
 
     <!-- Message -->
     <section>
       <h2>💬 Message</h2>
-      <textarea id="message" placeholder="Write your reminder message..."></textarea>
-      <div class="ai-tools">
-        <button type="button" onclick="aiFill()">🤖 AI Fill</button>
-        <button type="button" onclick="aiDraft()">✍️ AI Draft</button>
-        <button type="button" onclick="makeStrict()">💬 Make it more strict</button>
-        <button type="button" onclick="makeFriendly()">👍 Make it more friendly</button>
-        <button type="button" onclick="translateEN()">🌐 EN</button>
-        <button type="button" onclick="translateNL()">🌐 NL</button>
+      <textarea id="message" placeholder="Message body..."></textarea>
+      <div class="actions">
+        <button type="button">🤖 AI Fill</button>
+        <button type="button">✍️ AI Draft</button>
+        <button type="button">💬 Strict</button>
+        <button type="button">👍 Friendly</button>
+        <button type="button">🌐 EN</button>
+        <button type="button">🌐 NL</button>
       </div>
-    </section>
-
-    <!-- Payment Info -->
-    <section>
-      <h2>💳 Payment Info</h2>
-      <input id="paymentLink" placeholder="Payment Link (optional)"/>
     </section>
 
     <!-- Signatures -->
@@ -115,11 +105,11 @@
   <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-  <!-- Firebase + Logic -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -133,120 +123,143 @@
 
     const $ = id => document.getElementById(id);
 
-    /* Signature setup */
+    /* Signatures */
     function setupSignature(canvasId,dateId){
-      const c=$(canvasId); const ctx=c.getContext("2d");
+      const c=$(canvasId);const ctx=c.getContext("2d");
       let drawing=false;
       const start=()=>{drawing=true;ctx.beginPath();};
       const end=()=>{if(!drawing)return;drawing=false;$(dateId).innerText=new Date().toLocaleDateString("nl-NL");};
-      const move=(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.lineWidth=2;ctx.strokeStyle="#000";ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};
+      const move=(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};
       c.addEventListener("mousedown",start);c.addEventListener("mouseup",end);c.addEventListener("mouseleave",()=>drawing=false);c.addEventListener("mousemove",move);
       c.addEventListener("touchstart",(e)=>{e.preventDefault();start();});
       c.addEventListener("touchend",(e)=>{e.preventDefault();end();});
       c.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
     }
-    window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);};
-
-    /* Number generation */
-    async function generateReminderNumber(uid){
-      const ref = doc(db,"users",uid);
-      const year = new Date().getFullYear();
-      let out="";
-      await runTransaction(db, async(tx)=>{
-        const snap = await tx.get(ref);
-        const last = snap.exists()? (snap.data().lastReminderNumber||0) : 0;
-        const next = last+1;
-        tx.set(ref,{ lastReminderNumber: next },{ merge:true });
-        out=`REM-${year}-${String(next).padStart(3,"0")}`;
-      });
-      return out;
-    }
+    window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
 
     /* Save */
     async function saveReminder(){
-      const user=auth.currentUser; if(!user){location.href="login.html";return;}
+      const user=auth.currentUser;if(!user){location.href="login.html";return;}
       const uid=user.uid;
 
-      let reminderId=$("reminderId").value.trim();
-      if(!reminderId) reminderId=await generateReminderNumber(uid);
+      const businessSig=$("signatureBusiness").toDataURL();
+      const clientSig=$("signatureClient").toDataURL();
 
       const data={
         businessName:$("businessName").value,
-        businessEmail:$("businessEmail").value,
+        email:$("email").value,
         businessAddress:$("businessAddress").value,
         businessPhone:$("businessPhone").value,
-        iban:$("iban").value,
-        bic:$("bic").value,
 
         clientName:$("clientName").value,
         clientEmail:$("clientEmail").value,
         clientAddress:$("clientAddress").value,
-        clientPhone:$("clientPhone").value,
 
-        reminderId,
         linkedInvoice:$("linkedInvoice").value,
-        invoiceDate:$("invoiceDate").value,
-        dueDate:$("dueDate").value,
+        invoiceDate:$("invoiceDate").innerText,
+        dueDate:$("dueDate").innerText,
+        invoiceAmount:$("invoiceAmount").innerText,
+
         reminderDate:$("reminderDate").value,
         status:$("status").value,
-
-        subtotal:$("subtotal").innerText,
-        totalVat:$("totalVat").innerText,
-        grandTotal:$("grandTotal").innerText,
-
+        type:$("type").value,
+        amount:$("amount").value,
         message:$("message").value,
-        paymentLink:$("paymentLink").value,
 
         signatures:{
-          business:$("signatureBusiness").toDataURL(),
-          client:$("signatureClient").toDataURL(),
-          businessDate:$("signatureBusinessDate").innerText,
-          clientDate:$("signatureClientDate").innerText
+          business:businessSig,
+          client:clientSig,
+          businessDate:$("signatureBusinessDate").innerText||"",
+          clientDate:$("signatureClientDate").innerText||""
         },
 
         userId:uid,
-        updatedAt:new Date().toISOString()
+        updatedAt:new Date().toISOString(),
       };
 
-      await addDoc(collection(db,"users",uid,"reminders"), data);
-      alert(`✅ Reminder saved as ${reminderId}`);
+      const editingId = localStorage.getItem("editReminderId") || null;
+      if(editingId){
+        await setDoc(doc(db,"users",uid,"reminders",editingId), data, {merge:true});
+        alert("✅ Reminder updated");
+      }else{
+        await addDoc(collection(db,"users",uid,"reminders"), data);
+        alert("✅ Reminder saved");
+      }
+      localStorage.removeItem("editReminderId");
       location.href="payment-reminder-list.html";
     }
     window.saveReminder=saveReminder;
 
-    /* Linked Invoices */
-    async function populateInvoices(uid){
-      const sel=$("linkedInvoice");
-      sel.innerHTML=`<option value="">— Select Invoice —</option>`;
-      const snap=await getDocs(collection(db,"users",uid,"invoices"));
-      snap.forEach(d=>{
-        const inv=d.data();
-        const opt=document.createElement("option");
-        opt.value=inv.invoiceNumber;
-        opt.textContent=`${inv.invoiceNumber} — ${inv.clientName||""} (${inv.grandTotalFormatted||""})`;
-        sel.appendChild(opt);
-      });
+    /* Load for edit */
+    async function loadReminderForEdit(uid){
+      const id=localStorage.getItem("editReminderId");
+      if(!id)return;
+      const snap=await getDoc(doc(db,"users",uid,"reminders",id));
+      if(!snap.exists()){localStorage.removeItem("editReminderId");return;}
+      const r=snap.data();
+
+      $("#businessName").value=r.businessName||"";
+      $("#email").value=r.email||"";
+      $("#businessAddress").value=r.businessAddress||"";
+      $("#businessPhone").value=r.businessPhone||"";
+
+      $("#clientName").value=r.clientName||"";
+      $("#clientEmail").value=r.clientEmail||"";
+      $("#clientAddress").value=r.clientAddress||"";
+
+      $("#linkedInvoice").value=r.linkedInvoice||"";
+      $("#invoiceDate").innerText=r.invoiceDate||"";
+      $("#dueDate").innerText=r.dueDate||"";
+      $("#invoiceAmount").innerText=r.invoiceAmount||"";
+
+      $("#reminderDate").value=r.reminderDate||"";
+      $("#status").value=r.status||"Draft";
+      $("#type").value=r.type||"First Reminder";
+      $("#amount").value=r.amount||"";
+      $("#message").value=r.message||"";
+
+      if(r.signatures?.business){
+        const img=new Image();img.onload=()=>{const c=$("#signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.business;
+        $("#signatureBusinessDate").innerText=r.signatures.businessDate||"";
+      }
+      if(r.signatures?.client){
+        const img=new Image();img.onload=()=>{const c=$("#signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.client;
+        $("#signatureClientDate").innerText=r.signatures.clientDate||"";
+      }
     }
 
-    /* AI tools — поки що прості заглушки */
-    window.aiFill=()=>{ $("message").value="This is a polite payment reminder. Please settle the outstanding invoice."; };
-    window.aiDraft=()=>{ $("message").value="We kindly remind you that your payment is overdue. Please make the payment as soon as possible."; };
-    window.makeStrict=()=>{ $("message").value="Your payment is overdue. Settle immediately to avoid legal actions."; };
-    window.makeFriendly=()=>{ $("message").value="Just a friendly reminder 😊 Please don’t forget to pay your invoice."; };
-    window.translateEN=()=>{ $("message").value="This is an English version of your reminder message."; };
-    window.translateNL=()=>{ $("message").value="Dit is een Nederlandse versie van uw betalingsherinnering."; };
-
-    /* INIT */
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href="login.html"; return; }
+    /* Init */
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){location.href="login.html";return;}
       flatpickr(".js-date",{dateFormat:"Y-m-d"});
       setupSignature("signatureBusiness","signatureBusinessDate");
       setupSignature("signatureClient","signatureClientDate");
-      await populateInvoices(user.uid);
-    });
+      await loadReminderForEdit(user.uid);
 
-    document.getElementById("saveBtn")?.addEventListener("click",(e)=>{
-      e.preventDefault(); saveReminder();
+      // Заповнити інвойси у select
+      onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
+        const sel=$("linkedInvoice");
+        sel.innerHTML="<option>— Select Invoice —</option>";
+        snap.docs.forEach(d=>{
+          const inv=d.data();
+          const opt=document.createElement("option");
+          opt.value=inv.invoiceNumber||d.id;
+          opt.text=inv.invoiceNumber||d.id;
+          opt.dataset.date=inv.invoiceDate||"";
+          opt.dataset.due=inv.dueDate||"";
+          opt.dataset.amount=inv.grandTotalFormatted||"";
+          sel.appendChild(opt);
+        });
+      });
+
+      $("linkedInvoice").addEventListener("change",(e)=>{
+        const opt=e.target.selectedOptions[0];
+        $("invoiceDate").innerText=opt.dataset.date||"";
+        $("dueDate").innerText=opt.dataset.due||"";
+        $("invoiceAmount").innerText=opt.dataset.amount||"";
+      });
+
+      $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveReminder();});
     });
   </script>
 </body>
