@@ -317,16 +317,20 @@
     };
 
     /* INIT */
-    onAuthStateChanged(auth, async (user)=>{
+  onAuthStateChanged(auth, (user)=>{
   if(!user){ location.href="login.html"; return; }
 
-  flatpickr(".js-date",{dateFormat:"Y-m-d"});
-  setupSignature("signatureBusiness","signatureBusinessDate");
-  setupSignature("signatureClient","signatureClientDate");
-  if(!document.querySelector("#itemsBody tr")) addItem();
-  updateTotals();
+  // ініціалізація календарів
+  flatpickr(".js-date",{ dateFormat:"Y-m-d" });
 
-  await previewNextQuoteNumber(user.uid);
+  // підключаємо список у реальному часі
+  startRealtime(user.uid);
+
+  // слухачі для фільтрів
+  ["statusFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
+    $(id).addEventListener("input", render);
+  });
+});
 
   // 🔹 Якщо створюємо новий — очистити форму
   if(!localStorage.getItem("editQuoteId")){
