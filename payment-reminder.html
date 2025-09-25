@@ -12,7 +12,7 @@
     <h1>📬 SmartWerk — Payment Reminder</h1>
     <nav>
       <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="payment-reminder-list.html" class="btn">📋 Saved Reminders</a>
+      <a href="payment-reminder-list.html" class="btn">📂 Saved Reminders</a>
     </nav>
   </header>
 
@@ -38,26 +38,41 @@
       <input id="clientAddress" placeholder="Client Address"/>
     </section>
 
-    <!-- Reminder Info -->
+    <!-- Reminder Details -->
     <section>
-      <h2>📄 Reminder Info</h2>
-      <input id="reminderDate" class="js-date" placeholder="YYYY-MM-DD">
-      <input id="reminderNumber" readonly placeholder="Reminder Number"/>
+      <h2>📑 Reminder Details</h2>
+      <input id="reminderId" readonly placeholder="Reminder ID"/>
+      <input id="invoiceNumber" placeholder="Invoice Number"/>
+      <input id="invoiceDate" class="js-date" placeholder="Invoice Date"/>
+      <input id="dueDate" class="js-date" placeholder="Due Date"/>
+      <select id="reminderType">
+        <option value="First Reminder">First Reminder</option>
+        <option value="Final Reminder">Final Reminder</option>
+      </select>
       <select id="status">
         <option value="Draft">Draft</option>
         <option value="Sent">Sent</option>
+        <option value="Overdue">Overdue</option>
         <option value="Paid">Paid</option>
       </select>
-      <label>Linked Invoice:
-        <select id="invoiceSelect"></select>
-      </label>
+      <input id="amount" type="number" step="0.01" placeholder="Outstanding Amount"/>
     </section>
 
     <!-- Message -->
     <section>
-      <h2>✉️ Message</h2>
-      <textarea id="message" placeholder="Reminder message..."></textarea>
-      <textarea id="note" placeholder="Internal notes..."></textarea>
+      <h2>💬 Message</h2>
+      <textarea id="messageBody" placeholder="Reminder message..."></textarea>
+      <div class="actions-inline">
+        <button type="button" id="aiFillBtn">🤖 AI Draft</button>
+        <button type="button" id="translateBtn">🌐 Translate EN/NL</button>
+      </div>
+    </section>
+
+    <!-- Payment Info -->
+    <section>
+      <h2>💳 Payment Info</h2>
+      <input id="payIban" placeholder="Payment IBAN"/>
+      <input id="payLink" placeholder="Pay Now Link (optional)"/>
     </section>
 
     <!-- Signatures -->
@@ -80,7 +95,9 @@
     <!-- Actions -->
     <section class="step actions">
       <button id="saveBtn" class="btn-primary">💾 Save Reminder</button>
-      <a href="payment-reminder-list.html" class="btn">📋 Saved Reminders</a>
+      <button id="pdfBtn" class="btn">📄 Export PDF</button>
+      <button id="pdfProBtn" class="btn">PRO 📄 Export PDF</button>
+      <a href="payment-reminder-list.html" class="btn">📂 Saved Reminders</a>
     </section>
   </main>
 
@@ -91,11 +108,11 @@
   <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-  <!-- Firebase -->
+  <!-- Firebase + Logic -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, addDoc, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -109,7 +126,7 @@
 
     const $ = id => document.getElementById(id);
 
-    /* SIGNATURES */
+    /* Signature setup */
     function setupSignature(canvasId,dateId){
       const c=$(canvasId); const ctx=c.getContext("2d");
       let drawing=false;
@@ -123,57 +140,32 @@
     }
     window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
 
-    /* NUMBER GENERATION */
-    async function previewNextReminderNumber(uid){
-      try{
-        const ref = doc(db, "users", uid);
-        const snap = await getDoc(ref);
-        const last = snap.exists()? (snap.data().lastReminderNumber||0) : 0;
-        const next = last + 1;
-        const p = `REM-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
-        if(!$("reminderNumber").value) $("reminderNumber").placeholder = p;
-      }catch{}
-    }
-
-    async function generateReminderNumber(uid){
+    /* Generate Reminder ID */
+    async function generateReminderId(uid){
       const ref = doc(db,"users",uid);
       const year = new Date().getFullYear();
-      let out = "";
+      let out="";
       await runTransaction(db, async(tx)=>{
         const snap = await tx.get(ref);
         const last = snap.exists()? (snap.data().lastReminderNumber||0) : 0;
-        const next = last + 1;
+        const next = last+1;
         tx.set(ref,{ lastReminderNumber: next },{ merge:true });
-        out = `REM-${year}-${String(next).padStart(3,"0")}`;
+        out=`REM-${year}-${String(next).padStart(3,"0")}`;
       });
       return out;
     }
 
-    /* LOAD INVOICES */
-    async function loadInvoices(uid){
-      const sel=$("invoiceSelect");
-      sel.innerHTML="<option value=''>— Select Invoice —</option>";
-      const snap=await getDocs(collection(db,"users",uid,"invoices"));
-      snap.forEach(d=>{
-        const inv=d.data();
-        sel.innerHTML+=`<option value="${inv.invoiceNumber||d.id}">${inv.invoiceNumber||d.id} — ${inv.clientName||""} (€${inv.grandTotal||0})</option>`;
-      });
-    }
-
-    /* SAVE */
+    /* Save Reminder */
     async function saveReminder(){
       const user=auth.currentUser;if(!user){location.href="login.html";return;}
       const uid=user.uid;
 
-      let reminderNumber=$("reminderNumber").value.trim();
-      const editingId=localStorage.getItem("editReminderId")||null;
-      if(!editingId && !reminderNumber){
-        reminderNumber=await generateReminderNumber(uid);
-        $("reminderNumber").value=reminderNumber;
+      const editingId = localStorage.getItem("editReminderId") || null;
+      let reminderId = $("reminderId").value.trim();
+      if(!editingId && !reminderId){
+        reminderId = await generateReminderId(uid);
+        $("reminderId").value = reminderId;
       }
-
-      const businessSig=$("signatureBusiness").toDataURL();
-      const clientSig=$("signatureClient").toDataURL();
 
       const data={
         businessName:$("businessName").value,
@@ -189,16 +181,21 @@
         clientPhone:$("clientPhone").value,
         clientAddress:$("clientAddress").value,
 
-        reminderDate:$("reminderDate").value,
-        reminderNumber,
+        reminderId,
+        invoiceNumber:$("invoiceNumber").value,
+        invoiceDate:$("invoiceDate").value,
+        dueDate:$("dueDate").value,
+        reminderType:$("reminderType").value,
         status:$("status").value,
-        linkedInvoice:$("invoiceSelect").value,
-        message:$("message").value,
-        note:$("note").value,
+        amount:parseFloat($("amount").value)||0,
+
+        messageBody:$("messageBody").value,
+        payIban:$("payIban").value,
+        payLink:$("payLink").value,
 
         signatures:{
-          business:businessSig,
-          client:clientSig,
+          business:$("signatureBusiness").toDataURL(),
+          client:$("signatureClient").toDataURL(),
           businessDate:$("signatureBusinessDate").innerText||"",
           clientDate:$("signatureClientDate").innerText||""
         },
@@ -212,7 +209,7 @@
         alert("✅ Reminder updated");
       }else{
         await addDoc(collection(db,"users",uid,"reminders"), data);
-        alert(`✅ Reminder saved as ${reminderNumber}`);
+        alert(`✅ Reminder saved as ${reminderId}`);
       }
 
       localStorage.removeItem("editReminderId");
@@ -220,59 +217,12 @@
     }
     window.saveReminder=saveReminder;
 
-    /* LOAD FOR EDIT */
-    async function loadReminderForEdit(uid){
-      const id=localStorage.getItem("editReminderId");
-      if(!id) return;
-      const snap=await getDoc(doc(db,"users",uid,"reminders",id));
-      if(!snap.exists()){localStorage.removeItem("editReminderId");return;}
-      const r=snap.data();
-
-      $("businessName").value=r.businessName||"";
-      $("kvk").value=r.kvk||"";
-      $("iban").value=r.iban||"";
-      $("btw").value=r.btw||"";
-      $("email").value=r.email||"";
-      $("businessAddress").value=r.businessAddress||"";
-      $("businessPhone").value=r.businessPhone||"";
-
-      $("clientName").value=r.clientName||"";
-      $("clientEmail").value=r.clientEmail||"";
-      $("clientPhone").value=r.clientPhone||"";
-      $("clientAddress").value=r.clientAddress||"";
-
-      $("reminderDate").value=r.reminderDate||"";
-      $("reminderNumber").value=r.reminderNumber||"";
-      $("status").value=r.status||"Draft";
-      $("invoiceSelect").value=r.linkedInvoice||"";
-      $("message").value=r.message||"";
-      $("note").value=r.note||"";
-
-      if(r.signatures?.business){
-        const img=new Image();
-        img.onload=()=>{$("signatureBusiness").getContext("2d").drawImage(img,0,0);};
-        img.src=r.signatures.business;
-        $("signatureBusinessDate").innerText=r.signatures.businessDate||"";
-      }
-      if(r.signatures?.client){
-        const img=new Image();
-        img.onload=()=>{$("signatureClient").getContext("2d").drawImage(img,0,0);};
-        img.src=r.signatures.client;
-        $("signatureClientDate").innerText=r.signatures.clientDate||"";
-      }
-    }
-
     /* INIT */
     onAuthStateChanged(auth, async (user)=>{
-      if(!user){location.href="login.html";return;}
-
+      if(!user){ location.href="login.html"; return; }
       flatpickr(".js-date",{dateFormat:"Y-m-d"});
       setupSignature("signatureBusiness","signatureBusinessDate");
       setupSignature("signatureClient","signatureClientDate");
-
-      await previewNextReminderNumber(user.uid);
-      await loadInvoices(user.uid);
-      await loadReminderForEdit(user.uid);
     });
 
     document.addEventListener("DOMContentLoaded",()=>{
