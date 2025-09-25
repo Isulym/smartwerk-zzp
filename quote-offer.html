@@ -183,8 +183,7 @@
         const last = snap.exists()? (snap.data().lastQuoteNumber||0) : 0;
         const next = last + 1;
         const p = `QUO-${new Date().getFullYear()}-${String(next).padStart(3,"0")}`;
-        const el = document.getElementById("quoteNumber");
-        if(el && !el.value) el.placeholder = p;
+        if(!$("quoteNumber").value) $("quoteNumber").placeholder = p;
       }catch{}
     }
 
@@ -203,160 +202,128 @@
     }
 
     /* SAVE */
-  /* SAVE */
-async function saveQuote(){
-  const user = auth.currentUser;
-  if(!user){ location.href="login.html"; return; }
-  const uid = user.uid;
+    async function saveQuote(){
+      const user=auth.currentUser;if(!user){location.href="login.html";return;}
+      const uid=user.uid;
 
-  // items
-  const items = [];
-  document.querySelectorAll("#itemsBody tr").forEach(tr=>{
-    items.push({
-      desc: tr.querySelector(".desc")?.value || "",
-      qty: parseFloat(tr.querySelector(".qty")?.value) || 0,
-      price: parseFloat(tr.querySelector(".price")?.value) || 0,
-      vat: parseFloat(tr.querySelector(".vat")?.value) || 0
-    });
-  });
+      const items=[];document.querySelectorAll("#itemsBody tr").forEach(tr=>{
+        items.push({
+          desc:tr.querySelector(".desc")?.value||"",
+          qty:parseFloat(tr.querySelector(".qty")?.value)||0,
+          price:parseFloat(tr.querySelector(".price")?.value)||0,
+          vat:parseFloat(tr.querySelector(".vat")?.value)||0
+        });
+      });
 
-  // totals
-  const subtotal = parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,"")) || 0;
-  const totalVat = parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,"")) || 0;
-  const grandTotal = subtotal + totalVat;
+      const subtotal=parseFloat($("subtotal").innerText.replace(/[^\d.-]/g,""))||0;
+      const totalVat=parseFloat($("totalVat").innerText.replace(/[^\d.-]/g,""))||0;
+      const grandTotal=subtotal+totalVat;
 
-  // quote number
-  let quoteNumber = $("quoteNumber").value.trim();
-  const editingId = localStorage.getItem("editQuoteId") || null;
-  if(!editingId && !quoteNumber){
-    quoteNumber = await generateQuoteNumber(uid);
-    $("quoteNumber").value = quoteNumber;
-  }
+      let quoteNumber = $("quoteNumber").value.trim();
+      const editingId = localStorage.getItem("editQuoteId") || null;
+      if(!editingId && !quoteNumber){
+        quoteNumber = await generateQuoteNumber(uid);
+        $("quoteNumber").value = quoteNumber;
+      }
 
-  // signatures (з перевіркою)
-  const businessSig = $("signatureBusiness").toDataURL();
-  const clientSig   = $("signatureClient").toDataURL();
+      const businessSig=$("signatureBusiness").toDataURL();
+      const clientSig=$("signatureClient").toDataURL();
 
-  const data = {
-    businessName: $("businessName").value,
-    kvk: $("kvk").value,
-    iban: $("iban").value,
-    btw: $("btw").value,
-    email: $("email").value,
-    businessAddress: $("businessAddress").value,
-    businessPhone: $("businessPhone").value,
+      const data={
+        businessName:$("businessName").value,
+        kvk:$("kvk").value,
+        iban:$("iban").value,
+        btw:$("btw").value,
+        email:$("email").value,
+        businessAddress:$("businessAddress").value,
+        businessPhone:$("businessPhone").value,
 
-    clientName: $("clientName").value,
-    clientEmail: $("clientEmail").value,
-    clientPhone: $("clientPhone").value,
-    clientAddress: $("clientAddress").value,
+        clientName:$("clientName").value,
+        clientEmail:$("clientEmail").value,
+        clientPhone:$("clientPhone").value,
+        clientAddress:$("clientAddress").value,
 
-    quoteDate: $("quoteDate").value,
-    validUntil: $("validUntil").value,
-    quoteNumber,
-    status: $("status").value,
-    note: $("note").value,
+        quoteDate:$("quoteDate").value,
+        validUntil:$("validUntil").value,
+        quoteNumber,
+        status:$("status").value,
+        note:$("note").value,
 
-    items,
-    subtotal, totalVat, grandTotal,
-    subtotalFormatted: "€"+subtotal.toFixed(2),
-    totalVatFormatted: "€"+totalVat.toFixed(2),
-    grandTotalFormatted: "€"+grandTotal.toFixed(2),
+        items, subtotal,totalVat,grandTotal,
+        subtotalFormatted:"€"+subtotal.toFixed(2),
+        totalVatFormatted:"€"+totalVat.toFixed(2),
+        grandTotalFormatted:"€"+grandTotal.toFixed(2),
 
-    signatures: {
-      business: businessSig,
-      client: clientSig,
-      businessDate: $("signatureBusinessDate").innerText || "",
-      clientDate: $("signatureClientDate").innerText || ""
-    },
+        signatures:{
+          business: businessSig,
+          client: clientSig,
+          businessDate:$("signatureBusinessDate").innerText||"",
+          clientDate:$("signatureClientDate").innerText||""
+        },
 
-    userId: uid,
-    updatedAt: new Date().toISOString(),
-  };
+        userId:uid,
+        updatedAt:new Date().toISOString(),
+      };
 
-  if(editingId){
-    await setDoc(doc(db,"users",uid,"quotes",editingId), data, { merge:true });
-    alert("✅ Quote updated");
-  } else {
-    await addDoc(collection(db,"users",uid,"quotes"), data);
-    alert(`✅ Quote saved as ${quoteNumber}`);
-  }
+      if(editingId){
+        await setDoc(doc(db,"users",uid,"quotes",editingId), data, { merge:true });
+        alert("✅ Quote updated");
+      }else{
+        await addDoc(collection(db,"users",uid,"quotes"), data);
+        alert(`✅ Quote saved as ${quoteNumber}`);
+      }
 
-  localStorage.removeItem("editQuoteId");
-  location.href = "quote-offer-list.html";
-}
-window.saveQuote = saveQuote;
+      localStorage.removeItem("editQuoteId");
+      location.href="quote-offer-list.html";
+    }
+    window.saveQuote=saveQuote;
 
     /* LOAD FOR EDIT */
- async function loadQuoteForEdit(uid) {
-  const id = localStorage.getItem("editQuoteId");
-  if (!id) return;
+    async function loadQuoteForEdit(uid){
+      const id = localStorage.getItem("editQuoteId");
+      if(!id) return;
+      const snap = await getDoc(doc(db,"users",uid,"quotes",id));
+      if(!snap.exists()){ localStorage.removeItem("editQuoteId"); return; }
+      const q = snap.data();
 
-  const snap = await getDoc(doc(db, "users", uid, "quotes", id));
-  if (!snap.exists()) {
-    localStorage.removeItem("editQuoteId");
-    return;
-  }
-  const q = snap.data();
+      $("businessName").value = q.businessName||"";
+      $("kvk").value = q.kvk||"";
+      $("iban").value = q.iban||"";
+      $("btw").value = q.btw||"";
+      $("email").value = q.email||"";
+      $("businessAddress").value = q.businessAddress||"";
+      $("businessPhone").value = q.businessPhone||"";
 
-  // Business Info
-  if ($("#businessName")) $("#businessName").value = q.businessName || "";
-  if ($("#kvk")) $("#kvk").value = q.kvk || "";
-  if ($("#iban")) $("#iban").value = q.iban || "";
-  if ($("#btw")) $("#btw").value = q.btw || "";
-  if ($("#email")) $("#email").value = q.email || "";
-  if ($("#businessAddress")) $("#businessAddress").value = q.businessAddress || "";
-  if ($("#businessPhone")) $("#businessPhone").value = q.businessPhone || "";
+      $("clientName").value = q.clientName||"";
+      $("clientEmail").value = q.clientEmail||"";
+      $("clientPhone").value = q.clientPhone||"";
+      $("clientAddress").value = q.clientAddress||"";
 
-  // Client Info
-  if ($("#clientName")) $("#clientName").value = q.clientName || "";
-  if ($("#clientEmail")) $("#clientEmail").value = q.clientEmail || "";
-  if ($("#clientPhone")) $("#clientPhone").value = q.clientPhone || "";
-  if ($("#clientAddress")) $("#clientAddress").value = q.clientAddress || "";
+      $("quoteDate").value = q.quoteDate||"";
+      $("validUntil").value = q.validUntil||"";
+      $("quoteNumber").value = q.quoteNumber||"";
+      $("status").value = q.status||"Draft";
+      $("note").value = q.note||"";
 
-  // Dates / status
-  if ($("#quoteDate")) $("#quoteDate").value = q.quoteDate || "";
-  if ($("#validUntil")) $("#validUntil").value = q.validUntil || "";
-  if ($("#quoteNumber")) $("#quoteNumber").value = q.quoteNumber || "";
-  if ($("#status")) $("#status").value = q.status || "Draft";
-  if ($("#note")) $("#note").value = q.note || "";
+      $("itemsBody").innerHTML="";
+      (q.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
+      if(!(q.items||[]).length) addItem();
 
-  // Items
-  const body = $("itemsBody");
-  if (body) {
-    body.innerHTML = "";
-    (q.items || []).forEach(it => addItem(it.desc, it.qty, it.price, it.vat));
-    if (!(q.items || []).length) addItem();
-  }
+      if(q.signatures?.business){
+        const img=new Image();
+        img.onload=()=>{const c=$("signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};
+        img.src=q.signatures.business;
+        $("signatureBusinessDate").innerText=q.signatures.businessDate||"";
+      }
+      if(q.signatures?.client){
+        const img=new Image();
+        img.onload=()=>{const c=$("signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};
+        img.src=q.signatures.client;
+        $("signatureClientDate").innerText=q.signatures.clientDate||"";
+      }
 
-  // Signatures
-  if (q.signatures?.business && $("#signatureBusiness")) {
-    const img = new Image();
-    img.onload = () => {
-      const c = $("#signatureBusiness");
-      const ctx = c.getContext("2d");
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.drawImage(img, 0, 0);
-    };
-    img.src = q.signatures.business;
-    $("#signatureBusinessDate").innerText = q.signatures.businessDate || "";
-  }
-
-  if (q.signatures?.client && $("#signatureClient")) {
-    const img = new Image();
-    img.onload = () => {
-      const c = $("#signatureClient");
-      const ctx = c.getContext("2d");
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.drawImage(img, 0, 0);
-    };
-    img.src = q.signatures.client;
-    $("#signatureClientDate").innerText = q.signatures.clientDate || "";
-  }
-
-  // Обновлюємо суми після відновлення
-  updateTotals();
-}
+      updateTotals();
+    }
 
     /* INIT */
     onAuthStateChanged(auth, async (user)=>{
@@ -372,12 +339,9 @@ window.saveQuote = saveQuote;
       await loadQuoteForEdit(user.uid);
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("saveBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    saveQuote();
-  });
-});
+    document.addEventListener("DOMContentLoaded", ()=>{
+      $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveQuote();});
+    });
   </script>
 </body>
 </html>
