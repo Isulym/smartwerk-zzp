@@ -281,72 +281,67 @@
     window.saveQuote=saveQuote;
 
     /* LOAD FOR EDIT */
-   async function loadQuoteForEdit(uid){
+  async function loadQuoteForEdit(uid) {
   const id = localStorage.getItem("editQuoteId");
-  if(!id) return;
-  const snap = await getDoc(doc(db,"users",uid,"quotes",id));
-  if(!snap.exists()){ 
-    localStorage.removeItem("editQuoteId"); 
-    return; 
+  if (!id) return;
+
+  const snap = await getDoc(doc(db, "users", uid, "quotes", id));
+  if (!snap.exists()) {
+    localStorage.removeItem("editQuoteId");
+    return;
   }
   const q = snap.data();
 
   // Business Info
-  if($("#businessName")) $("#businessName").value = q.businessName || "";
-  if($("#kvk")) $("#kvk").value = q.kvk || "";
-  if($("#iban")) $("#iban").value = q.iban || "";
-  if($("#btw")) $("#btw").value = q.btw || "";
-  if($("#email")) $("#email").value = q.email || "";
-  if($("#businessAddress")) $("#businessAddress").value = q.businessAddress || "";
-  if($("#businessPhone")) $("#businessPhone").value = q.businessPhone || "";
+  if ($("#businessName")) $("#businessName").value = q.businessName || "";
+  if ($("#kvk")) $("#kvk").value = q.kvk || "";
+  if ($("#iban")) $("#iban").value = q.iban || "";
+  if ($("#btw")) $("#btw").value = q.btw || "";
+  if ($("#email")) $("#email").value = q.email || "";
+  if ($("#businessAddress")) $("#businessAddress").value = q.businessAddress || "";
+  if ($("#businessPhone")) $("#businessPhone").value = q.businessPhone || "";
 
   // Client Info
-  if($("#clientName")) $("#clientName").value = q.clientName || "";
-  if($("#clientEmail")) $("#clientEmail").value = q.clientEmail || "";
-  if($("#clientPhone")) $("#clientPhone").value = q.clientPhone || "";
-  if($("#clientAddress")) $("#clientAddress").value = q.clientAddress || "";
+  if ($("#clientName")) $("#clientName").value = q.clientName || "";
+  if ($("#clientEmail")) $("#clientEmail").value = q.clientEmail || "";
+  if ($("#clientPhone")) $("#clientPhone").value = q.clientPhone || "";
+  if ($("#clientAddress")) $("#clientAddress").value = q.clientAddress || "";
 
-  // Quote Info
-  if($("#quoteDate")) $("#quoteDate").value = q.quoteDate || "";
-  if($("#validUntil")) $("#validUntil").value = q.validUntil || "";
-  if($("#quoteNumber")) $("#quoteNumber").value = q.quoteNumber || "";
-  if($("#status")) $("#status").value = q.status || "Draft";
-  if($("#note")) $("#note").value = q.note || "";
+  // Dates / status
+  if ($("#quoteDate")) $("#quoteDate").value = q.quoteDate || "";
+  if ($("#validUntil")) $("#validUntil").value = q.validUntil || "";
+  if ($("#quoteNumber")) $("#quoteNumber").value = q.quoteNumber || "";
+  if ($("#status")) $("#status").value = q.status || "Draft";
+  if ($("#note")) $("#note").value = q.note || "";
 
   // Items
-  const body = document.getElementById("itemsBody");
-  if(body){
-    body.innerHTML = "";
-    (q.items || []).forEach(it => addItem(it.desc, it.qty, it.price, it.vat));
-    if(!(q.items || []).length) addItem();
-  }
+  $("itemsBody").innerHTML = "";
+  (q.items || []).forEach(it => addItem(it.desc, it.qty, it.price, it.vat));
+  if (!(q.items || []).length) addItem();
 
   // Signatures
-  if(q.signatures?.business){
+  if (q.signatures?.business && $("#signatureBusiness")) {
     const img = new Image();
-    img.onload = ()=>{ 
-      const c = $("#signatureBusiness"); 
-      if(c){ 
-        const ctx = c.getContext("2d"); 
-        ctx.clearRect(0,0,c.width,c.height); 
-        ctx.drawImage(img,0,0); 
-      }
+    img.onload = () => {
+      const c = $("#signatureBusiness");
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0);
     };
     img.src = q.signatures.business;
-    if($("#signatureBusinessDate")) $("#signatureBusinessDate").innerText = q.signatures.businessDate || "";
+    $("#signatureBusinessDate").innerText = q.signatures.businessDate || "";
   }
-  if(q.signatures?.client){
+
+  if (q.signatures?.client && $("#signatureClient")) {
     const img = new Image();
-    img.onload = ()=>{ 
-      const c = $("#signatureClient"); 
-      if(c){ 
-        const ctx = c.getContext("2d"); 
-        ctx.clearRect(0,0,c.width,c.height); 
-        ctx.drawImage(img,0,0); 
-      }
+    img.onload = () => {
+      const c = $("#signatureClient");
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0);
     };
     img.src = q.signatures.client;
-    if($("#signatureClientDate")) $("#signatureClientDate").innerText = q.signatures.clientDate || "";
+    $("#signatureClientDate").innerText = q.signatures.clientDate || "";
   }
 
   updateTotals();
