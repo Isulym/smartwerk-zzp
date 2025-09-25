@@ -76,7 +76,7 @@
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
-      getFirestore, collection, doc, addDoc, setDoc, deleteDoc,
+      getFirestore, collection, doc, addDoc, deleteDoc,
       onSnapshot, query, orderBy, runTransaction
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -166,10 +166,10 @@
     }
 
     /* Actions */
-   function editQuote(id){
-  localStorage.setItem("editQuoteId", id);
-  location.href = "quote-offer.html";
-}
+    function editQuote(id){
+      localStorage.setItem("editQuoteId", id);
+      location.href = "quote-offer.html";
+    }
     window.editQuote = editQuote;
 
     window.deleteQuote = async (id)=>{
@@ -177,18 +177,17 @@
       await deleteDoc(doc(db,"users",auth.currentUser.uid,"quotes",id));
     };
 
-    // Full professional PDF
+    // Full PDF (branding / PRO)
     window.downloadPDF = (id, withBranding=true)=>{
       const q = quotes.find(x=>x.id===id);
       if(!q) return;
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF();
 
-      // Header
       pdf.setFontSize(18);
       pdf.text("QUOTE / OFFER", 105, 15, {align:"center"});
 
-      // From
+      // Business + Client
       pdf.setFontSize(12);
       pdf.text("From:", 14, 28);
       pdf.text([
@@ -201,7 +200,6 @@
         `Phone: ${q.businessPhone||""}`
       ], 14, 34);
 
-      // To
       pdf.text("To:", 120, 28);
       pdf.text([
         q.clientName||"",
@@ -210,14 +208,14 @@
         `Phone: ${q.clientPhone||""}`
       ], 120, 34);
 
-      // Quote info table
+      // Info
       pdf.autoTable({
         startY: 70,
         head: [["Quote #","Date","Status","Total"]],
         body: [[q.quoteNumber||"—", q.quoteDate||"—", q.status||"Draft", fmt(q.grandTotal)]],
         theme:"grid",
-        styles:{ fontSize:11, cellPadding:4, halign:"center", valign:"middle" },
-        headStyles:{ fillColor:[37,99,235], textColor:255, fontStyle:"bold" }
+        styles:{ fontSize:11, cellPadding:4, halign:"center" },
+        headStyles:{ fillColor:[37,99,235], textColor:255 }
       });
 
       // Items
@@ -233,31 +231,30 @@
         head:[["Description","Qty","Unit Price","VAT","Total"]],
         body: items,
         theme:"grid",
-        styles:{ fontSize:11, cellPadding:4, halign:"center", valign:"middle" },
-        headStyles:{ fillColor:[37,99,235], textColor:255, fontStyle:"bold" }
+        styles:{ fontSize:11, cellPadding:4, halign:"center" },
+        headStyles:{ fillColor:[37,99,235], textColor:255 }
       });
 
-      // Totals + note
+      // Totals
       const y = pdf.lastAutoTable.finalY + 8;
       pdf.text(`Subtotal: ${fmt(q.subtotal)}`, 150, y);
       pdf.text(`VAT: ${fmt(q.totalVat)}`,     150, y+6);
       pdf.text(`Total Due: ${fmt(q.grandTotal)}`, 150, y+12);
+
       if(q.note){
         pdf.text("Note:", 14, y);
         pdf.text(String(q.note), 14, y+6, {maxWidth:120});
       }
 
-      // Signatures (if saved as dataURL)
+      // Signatures
       let y2 = y + 28;
       if(q.signatures?.business){
         pdf.addImage(q.signatures.business, "PNG", 14, y2, 60, 20);
         pdf.text("Business Signature", 14, y2+26);
-        if(q.signatures.businessDate) pdf.text(`Signed: ${q.signatures.businessDate}`,14,y2+33);
       }
       if(q.signatures?.client){
         pdf.addImage(q.signatures.client, "PNG", 120, y2, 60, 20);
         pdf.text("Client Signature", 120, y2+26);
-        if(q.signatures.clientDate) pdf.text(`Signed: ${q.signatures.clientDate}`,120,y2+33);
       }
 
       if(withBranding){
@@ -267,22 +264,22 @@
       pdf.save(`${q.quoteNumber||"Quote"}.pdf`);
     };
 
-    // Reserve next invoice number (global per user)
+    // Reserve invoice #
     async function reserveInvoiceNumber(uid){
       const ref = doc(db,"users",uid);
       const year = new Date().getFullYear();
-      let out = "";
-      await runTransaction(db, async (tx)=>{
+      let out="";
+      await runTransaction(db, async(tx)=>{
         const snap = await tx.get(ref);
         const last = snap.exists()? (snap.data().lastInvoiceNumber||0) : 0;
-        const next = last + 1;
+        const next = last+1;
         tx.set(ref,{ lastInvoiceNumber: next },{ merge:true });
-        out = `INV-${year}-${String(next).padStart(3,"0")}`;
+        out=`INV-${year}-${String(next).padStart(3,"0")}`;
       });
       return out;
     }
 
-    // Convert to Invoice + redirect to invoices.html to edit
+    // Convert to Invoice
     window.convertToInvoice = async (id)=>{
       try{
         const uid = auth.currentUser.uid;
@@ -297,39 +294,30 @@
         const due = `${dueDateObj.getFullYear()}-${String(dueDateObj.getMonth()+1).padStart(2,"0")}-${String(dueDateObj.getDate()).padStart(2,"0")}`;
 
         const data = {
-          // бізнес/клієнт
           businessName:q.businessName||"", kvk:q.kvk||"", iban:q.iban||"", btw:q.btw||"",
           email:q.email||"", businessAddress:q.businessAddress||"", businessPhone:q.businessPhone||"",
           clientName:q.clientName||"", clientEmail:q.clientEmail||"", clientPhone:q.clientPhone||"", clientAddress:q.clientAddress||"",
-          // дати/номери/статуси
           invoiceDate, dueDate: due, invoiceNumber: invNumber, status:"Draft",
-          // позиції/суми
-          items: q.items||[],
-          subtotal: parseFloat(q.subtotal||0),
-          totalVat: parseFloat(q.totalVat||0),
-          grandTotal: parseFloat(q.grandTotal||0),
+          items:q.items||[], subtotal:parseFloat(q.subtotal||0), totalVat:parseFloat(q.totalVat||0), grandTotal:parseFloat(q.grandTotal||0),
           subtotalFormatted: fmt(q.subtotal), totalVatFormatted: fmt(q.totalVat), grandTotalFormatted: fmt(q.grandTotal),
-          // підпис (якщо є)
-          signatures: q.signatures||{},
-          // зв'язок
+          signatures:q.signatures||{},
           convertedFrom: q.quoteNumber||"",
           userId: uid,
           updatedAt: new Date().toISOString()
         };
 
         const ref = await addDoc(collection(db,"users",uid,"invoices"), data);
-        // відкриваємо новий інвойс на редагування
         localStorage.setItem("editInvoiceId", ref.id);
         alert("✅ Converted to Invoice!");
         location.href="invoices.html";
       }catch(e){
         console.error(e);
-        alert("❌ Convert failed: " + e.message);
+        alert("❌ Convert failed: "+e.message);
       }
     };
 
     /* INIT */
-    onAuthStateChanged(auth, (user)=>{
+    onAuthStateChanged(auth,(user)=>{
       if(!user){ location.href="login.html"; return; }
       flatpickr(".js-date",{ dateFormat:"Y-m-d" });
       startRealtime(user.uid);
