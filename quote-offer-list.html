@@ -166,10 +166,10 @@
     }
 
     /* Actions */
-    window.editQuote = (id)=>{
-      localStorage.setItem("editQuoteId", id);
-      location.href="quote-offer.html";
-    };
+   function editQuote(id){
+  localStorage.setItem("editQuoteId", id);
+  location.href = "quote-offer.html";
+}
 
     window.deleteQuote = async (id)=>{
       if(!confirm("Delete this quote?")) return;
