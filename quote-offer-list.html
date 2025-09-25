@@ -254,19 +254,14 @@
       }
 
       // Signatures
-      // Signatures (if saved as dataURL)
+// Signatures (if saved as dataURL)
 let y2 = y + 28;
 
 // Business signature
 if(q.signatures?.business){
-  // Лінія для підпису
   pdf.setDrawColor(0);
   pdf.line(14, y2+22, 74, y2+22);
-
-  // Сам підпис
   pdf.addImage(q.signatures.business, "PNG", 14, y2, 60, 20);
-
-  // Текст підпису
   pdf.text("Business Signature", 14, y2+30);
   if(q.signatures.businessDate) pdf.text(`Signed: ${q.signatures.businessDate}`,14,y2+37);
 }
@@ -275,12 +270,17 @@ if(q.signatures?.business){
 if(q.signatures?.client){
   pdf.setDrawColor(0);
   pdf.line(120, y2+22, 180, y2+22);
-
   pdf.addImage(q.signatures.client, "PNG", 120, y2, 60, 20);
-
   pdf.text("Client Signature", 120, y2+30);
   if(q.signatures.clientDate) pdf.text(`Signed: ${q.signatures.clientDate}`,120,y2+37);
 }
+      if(withBranding){
+  pdf.setFontSize(10);
+  pdf.text("Generated with SmartWerk", 105, 290, {align:"center"});
+}
+
+pdf.save(`${q.quoteNumber||"Quote"}.pdf`);
+};   // ← закриття window.downloadPDF
 
     // Reserve invoice #
     async function reserveInvoiceNumber(uid){
