@@ -208,40 +208,77 @@
   window.saveReminder=saveReminder;
 
   /* Load for edit */
-  async function loadReminderForEdit(uid){
-    const id=localStorage.getItem("editReminderId");
-    if(!id)return;
-    const snap=await getDoc(doc(db,"users",uid,"reminders",id));
-    if(!snap.exists()){localStorage.removeItem("editReminderId");return;}
-    const r=snap.data();
+  /* Хелпери */
+const $ = id => document.getElementById(id);
+const setVal  = (id,val="") => { const el=$(id); if(el) el.value = val ?? ""; };
+const setText = (id,val="") => { const el=$(id); if(el) el.innerText = val ?? ""; };
 
-    $("#businessName").value=r.businessName||"";
-    $("#email").value=r.email||"";
-    $("#businessAddress").value=r.businessAddress||"";
-    $("#businessPhone").value=r.businessPhone||"";
-    $("#clientName").value=r.clientName||"";
-    $("#clientEmail").value=r.clientEmail||"";
-    $("#clientAddress").value=r.clientAddress||"";
-    $("#reminderId").value=r.reminderId||"";
-    $("#linkedInvoice").value=r.linkedInvoice||"";
-    $("#invoiceDate").innerText=r.invoiceDate||"";
-    $("#dueDate").innerText=r.dueDate||"";
-    $("#invoiceAmount").innerText=r.invoiceAmount||"";
-    $("#reminderDate").value=r.reminderDate||"";
-    $("#status").value=r.status||"Draft";
-    $("#type").value=r.type||"First Reminder";
-    $("#amount").value=r.amount||"";
-    $("#message").value=r.message||"";
+/* Load for edit */
+async function loadReminderForEdit(uid){
+  const id = localStorage.getItem("editReminderId");
+  if(!id) return;
 
-    if(r.signatures?.business){
-      const img=new Image();img.onload=()=>{const c=$("#signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.business;
-      $("#signatureBusinessDate").innerText=r.signatures.businessDate||"";
-    }
-    if(r.signatures?.client){
-      const img=new Image();img.onload=()=>{const c=$("#signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.client;
-      $("#signatureClientDate").innerText=r.signatures.clientDate||"";
-    }
+  const snap = await getDoc(doc(db,"users",uid,"reminders",id));
+  if(!snap.exists()){
+    localStorage.removeItem("editReminderId");
+    return;
   }
+
+  const r = snap.data();
+
+  // Business Info
+  setVal("businessName", r.businessName);
+  setVal("email", r.email);
+  setVal("businessAddress", r.businessAddress);
+  setVal("businessPhone", r.businessPhone);
+
+  // Client Info
+  setVal("clientName", r.clientName);
+  setVal("clientEmail", r.clientEmail);
+  setVal("clientAddress", r.clientAddress);
+
+  // Linked Invoice
+  setVal("reminderId", r.reminderId);
+  setVal("linkedInvoice", r.linkedInvoice);
+  setText("invoiceDate", r.invoiceDate);
+  setText("dueDate", r.dueDate);
+  setText("invoiceAmount", r.invoiceAmount);
+
+  // Reminder Details
+  setVal("reminderDate", r.reminderDate);
+  setVal("status", r.status || "Draft");
+  setVal("type", r.type || "First Reminder");
+  setVal("amount", r.amount);
+  setVal("message", r.message);
+
+  // Signatures
+  if(r.signatures?.business){
+    const img=new Image();
+    img.onload=()=>{
+      const c=$("signatureBusiness");
+      if(c){
+        const ctx=c.getContext("2d");
+        ctx.clearRect(0,0,c.width,c.height);
+        ctx.drawImage(img,0,0);
+      }
+    };
+    img.src=r.signatures.business;
+    setText("signatureBusinessDate", r.signatures.businessDate);
+  }
+  if(r.signatures?.client){
+    const img=new Image();
+    img.onload=()=>{
+      const c=$("signatureClient");
+      if(c){
+        const ctx=c.getContext("2d");
+        ctx.clearRect(0,0,c.width,c.height);
+        ctx.drawImage(img,0,0);
+      }
+    };
+    img.src=r.signatures.client;
+    setText("signatureClientDate", r.signatures.clientDate);
+  }
+}
 
   /* AI Helpers (заглушки) */
   window.aiFill=()=>{$("message").value="Dear client,\n\nThis is a polite reminder that your invoice is overdue. Please arrange payment.\n\nBest regards,\nSmartWerk";};
