@@ -155,57 +155,64 @@
 
   /* Save */
   async function saveReminder(){
-    const user=auth.currentUser;if(!user){location.href="login.html";return;}
-    const uid=user.uid;
+  const user = auth.currentUser;
+  if(!user){ location.href="login.html"; return; }
+  const uid = user.uid;
 
-    const editingId = localStorage.getItem("editReminderId") || null;
+  const editingId = localStorage.getItem("editReminderId") || null;
 
-    // Генеруємо ID тільки для нового Reminder
-    let reminderId = $("#reminderId").value;
-    if(!editingId && !reminderId){
-      reminderId = await generateReminderId(uid);
-      $("#reminderId").value = reminderId;
-    }
-
-    const data={
-      businessName:$("businessName").value,
-      email:$("email").value,
-      businessAddress:$("businessAddress").value,
-      businessPhone:$("businessPhone").value,
-      clientName:$("clientName").value,
-      clientEmail:$("clientEmail").value,
-      clientAddress:$("clientAddress").value,
-      linkedInvoice:$("linkedInvoice").value,
-      invoiceDate:$("invoiceDate").innerText,
-      dueDate:$("dueDate").innerText,
-      invoiceAmount:$("invoiceAmount").innerText,
-      reminderId,
-      reminderDate:$("reminderDate").value,
-      status:$("status").value,
-      type:$("type").value,
-      amount:$("amount").value,
-      message:$("message").value,
-      signatures:{
-        business:$("signatureBusiness").toDataURL(),
-        client:$("signatureClient").toDataURL(),
-        businessDate:$("signatureBusinessDate").innerText||"",
-        clientDate:$("signatureClientDate").innerText||""
-      },
-      userId:uid,
-      updatedAt:new Date().toISOString(),
-    };
-
-    if(editingId){
-      await setDoc(doc(db,"users",uid,"reminders",editingId), data, {merge:true});
-      alert("✅ Reminder updated");
-    }else{
-      await addDoc(collection(db,"users",uid,"reminders"), data);
-      alert(`✅ Reminder saved as ${reminderId}`);
-    }
-    localStorage.removeItem("editReminderId");
-    location.href="payment-reminder-list.html";
+  // Генеруємо ID тільки для нового Reminder
+  let reminderId = $("#reminderId")?.value || "";
+  if(!editingId && !reminderId){
+    reminderId = await generateReminderId(uid);
+    if($("#reminderId")) $("#reminderId").value = reminderId;
   }
-  window.saveReminder=saveReminder;
+
+  const data = {
+    businessName: $("#businessName")?.value || "",
+    email: $("#email")?.value || "",
+    businessAddress: $("#businessAddress")?.value || "",
+    businessPhone: $("#businessPhone")?.value || "",
+
+    clientName: $("#clientName")?.value || "",
+    clientEmail: $("#clientEmail")?.value || "",
+    clientAddress: $("#clientAddress")?.value || "",
+
+    linkedInvoice: $("#linkedInvoice")?.value || "",
+    invoiceDate: $("#invoiceDate")?.innerText || "",
+    dueDate: $("#dueDate")?.innerText || "",
+    invoiceAmount: $("#invoiceAmount")?.innerText || "",
+
+    reminderId,
+    reminderDate: $("#reminderDate")?.value || "",
+    status: $("#status")?.value || "Draft",
+    type: $("#type")?.value || "First Reminder",
+    amount: $("#amount")?.value || "",
+    message: $("#message")?.value || "",
+
+    signatures:{
+      business: $("#signatureBusiness")?.toDataURL() || "",
+      client: $("#signatureClient")?.toDataURL() || "",
+      businessDate: $("#signatureBusinessDate")?.innerText || "",
+      clientDate: $("#signatureClientDate")?.innerText || ""
+    },
+
+    userId: uid,
+    updatedAt: new Date().toISOString(),
+  };
+
+  if(editingId){
+    await setDoc(doc(db,"users",uid,"reminders",editingId), data, {merge:true});
+    alert("✅ Reminder updated");
+  } else {
+    await addDoc(collection(db,"users",uid,"reminders"), data);
+    alert(`✅ Reminder saved as ${reminderId}`);
+  }
+
+  localStorage.removeItem("editReminderId");
+  location.href = "payment-reminder-list.html";
+}
+window.saveReminder = saveReminder;
 
   /* Load for edit */
   /* Хелпери */
