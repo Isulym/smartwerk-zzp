@@ -1,329 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>📃 Freelance Contract - SmartWerk</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style-Freelance-Contract.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Freelance Contract</title>
+  <link rel="stylesheet" href="style-invoices.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
-  <div class="container">
-  <div class="back-buttons">
-    <a href="dashboard.html">← Back to Dashboard</a>
-    <a href="templates.html">← Back to Templates</a>
-  </div>
+  <header>
+    <h1>📃 SmartWerk — Freelance Contract</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="contract-list.html" class="btn">📋 Saved Contracts</a>
+    </nav>
+  </header>
 
- <h1>📃 Freelance Contract</h1>
-  <p class="small-note">Fill in the contract details, generate PDF/DOCX, save locally or use AI to help you.</p>
+  <main>
+    <!-- Business Info -->
+    <section>
+      <h2>🏢 Business Info</h2>
+      <input id="businessName" placeholder="Business Name"/>
+      <input id="businessEmail" placeholder="Business Email"/>
+      <input id="businessAddress" placeholder="Business Address"/>
+      <input id="businessPhone" placeholder="Business Phone"/>
+    </section>
 
-<div class="row section">
-    <div class="column">
-      <h2>Business Info </h2>
-    <input id="businessName" placeholder="Your Business Name" />
-    <input id="businessKvK" placeholder="KvK Number (optional)" />
-    <input id="businessVAT" placeholder="VAT Number (optional)" />
-    <input id="businessIBAN" placeholder="IBAN (optional)" />
-  </div>
-  </div>
+    <!-- Client Info -->
+    <section>
+      <h2>👤 Client Info</h2>
+      <input id="clientName" placeholder="Client Name"/>
+      <input id="clientEmail" placeholder="Client Email"/>
+      <input id="clientAddress" placeholder="Client Address"/>
+    </section>
 
- <div class="column">
-  <h2>Client Info</h2>
-    <input id="clientName" placeholder="Client Name" />
-    <input id="clientAddress" placeholder="Client Address (optional)" />
-  </div>
+    <!-- Contract Details -->
+    <section>
+      <h2>📄 Contract Details</h2>
+      <input id="contractId" placeholder="Contract ID (auto)" readonly/>
+      <input id="contractDate" class="js-date" placeholder="Contract Date"/>
+      <select id="status">
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Signed">Signed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <textarea id="projectDescription" placeholder="Project Description..."></textarea>
+      <textarea id="deliverables" placeholder="Deliverables..."></textarea>
+      <textarea id="paymentTerms" placeholder="Payment Terms..."></textarea>
+      <textarea id="legal" placeholder="Legal Notes..."></textarea>
+    </section>
 
-  <div class="section">
-    <h2>Project</h2>
-    <textarea id="projectDescription" placeholder="Describe the project scope..."></textarea>
-    <textarea id="timeline" placeholder="Timeline / Milestones (optional)"></textarea>
-  </div>
+    <!-- Message / AI -->
+    <section>
+      <h2>🤖 AI Assistance</h2>
+      <div class="actions">
+        <button type="button" onclick="aiDraft()">✍️ AI Draft</button>
+        <button type="button" onclick="aiStrict()">💬 Strict</button>
+        <button type="button" onclick="aiFriendly()">👍 Friendly</button>
+        <button type="button" onclick="translateMsg('en')">🌐 EN</button>
+        <button type="button" onclick="translateMsg('nl')">🌐 NL</button>
+      </div>
+    </section>
 
-  <div class="section">
-    <h2>Payment Terms</h2>
-    <input id="rate" placeholder="Total Rate / Hourly Rate" />
-    <textarea id="paymentTerms" placeholder="E.g. 50% upfront, 50% after delivery (optional)"></textarea>
-  </div>
+    <!-- Signatures -->
+    <section>
+      <h2>✍️ Signatures</h2>
+      <div>
+        <h3>Business</h3>
+        <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
+        <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
+        <p>Date: <span id="signatureBusinessDate"></span></p>
+      </div>
+      <div>
+        <h3>Client</h3>
+        <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+        <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
+        <p>Date: <span id="signatureClientDate"></span></p>
+      </div>
+    </section>
 
-  <div class="section">
-    <h2>Legal</h2>
-    <textarea id="terminationClause" placeholder="Termination terms, cancellation period, etc."></textarea>
-    <textarea id="jurisdiction" placeholder="This contract is governed by the laws of the Netherlands."></textarea>
-  </div>
+    <!-- Actions -->
+    <section class="step actions">
+      <button id="saveBtn" class="btn-primary">💾 Save Contract</button>
+      <a href="contract-list.html" class="btn">📋 Saved Contracts</a>
+    </section>
+  </main>
 
-  <div class="section">
-    <h2>Signature</h2>
-    <input id="signatureName" placeholder="Your Name" />
-    <input type="date" id="contractDate" />
-  </div>
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
 
-  <div class="buttons">
-    <button onclick="fillAI()">⚡ AI Fill</button>
-    <button onclick="saveContract()">💾 Save Contract</button>
-    <button onclick="viewSavedContracts()">📂 View Saved Contracts</button>
-    <button onclick="generateFreelanceContractPDF()">📄 Export PDF</button>
-    <button onclick="downloadDOCX()">Download DOCX</button>
-  </div>
-  <div class="form-section">
-  <label>
-    <input type="checkbox" id="togglePro" />
-    Enable PRO (no branding in PDF)
-  </label>
-</div>
+  <!-- Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-  <div class="section">
-    <h2>Preview</h2>
-    <div id="contractPreview" style="white-space: pre-line;">Contract will appear here...</div>
-  </div>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  <div class="section" id="savedContractsSection" style="display:none">
-    <h2>Saved Contracts</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Client</th>
-          <th>Project</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="savedContractsBody"></tbody>
-    </table>
-  </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-  <script>
-    function generateContractText() {
-      const today = new Date().toLocaleDateString();
-      return `
-FREELANCE CONTRACT
+    const $ = id => document.getElementById(id);
 
-Date: ${document.getElementById('contractDate').value || today}
-Business: ${businessName.value}
-KvK: ${businessKvK.value}
-VAT: ${businessVAT.value}
-IBAN: ${businessIBAN.value}
-
-Client: ${clientName.value}
-Address: ${clientAddress.value}
-
-Project:
-${projectDescription.value}
-
-Timeline:
-${timeline.value}
-
-Payment Terms:
-${rate.value}
-${paymentTerms.value}
-
-Legal:
-${terminationClause.value}
-${jurisdiction.value}
-
-Signature: ${signatureName.value}
-      `.trim();
-    }
-
-    function updatePreview() {
-      document.getElementById('contractPreview').textContent = generateContractText();
-    }
-
-    document.querySelectorAll("input, textarea").forEach(f => f.addEventListener("input", updatePreview));
-    updatePreview();
-
-    function fillAI() {
-      businessName.value = "SmartWerk Freelance";
-      businessKvK.value = "12345678";
-      businessVAT.value = "NL000099998B57";
-      businessIBAN.value = "NL99BANK0123456789";
-      clientName.value = "Client Company B.V.";
-      clientAddress.value = "Keizersgracht 123, 1015CJ Amsterdam";
-      projectDescription.value = "Develop a multilingual responsive website for online services.";
-      timeline.value = "Week 1: UI/UX. Week 2: Dev. Week 3: Testing.";
-      rate.value = "€3500 fixed";
-      paymentTerms.value = "50% upfront, 50% upon delivery";
-      terminationClause.value = "Termination with 7 days notice from either side.";
-      jurisdiction.value = "This contract is governed by the laws of the Netherlands.";
-      signatureName.value = "John Freelancer";
-      contractDate.value = new Date().toISOString().split('T')[0];
-      updatePreview();
-    }
-
-    function saveContract() {
-      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
-      saved.push({
-        client: clientName.value,
-        project: projectDescription.value.slice(0, 50),
-        date: contractDate.value || new Date().toLocaleDateString(),
-        text: generateContractText()
+    /* AUTO CONTRACT ID */
+    async function generateContractId(uid){
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out="";
+      await runTransaction(db, async(tx)=>{
+        const snap=await tx.get(ref);
+        const last=snap.exists()?(snap.data().lastContractNumber||0):0;
+        const next=last+1;
+        tx.set(ref,{lastContractNumber:next},{merge:true});
+        out=`CTR-${year}-${String(next).padStart(3,"0")}`;
       });
-      localStorage.setItem("contracts", JSON.stringify(saved));
-      alert("✅ Contract saved!");
+      return out;
     }
 
-    function viewSavedContracts() {
-      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
-      const section = document.getElementById("savedContractsSection");
-      const tbody = document.getElementById("savedContractsBody");
-      section.style.display = "block";
-      tbody.innerHTML = "";
-      saved.forEach((c, i) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${c.client}</td>
-          <td>${c.project}</td>
-          <td>${c.date}</td>
-          <td>
-            <button onclick="loadContract(${i})">👁 View</button>
-            <button onclick="deleteContract(${i})">🗑 Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
+    /* Signatures */
+    function setupSignature(canvasId,dateId){
+      const c=$(canvasId);const ctx=c.getContext("2d");
+      let drawing=false;
+      const start=()=>{drawing=true;ctx.beginPath();};
+      const end=()=>{if(!drawing)return;drawing=false;$(dateId).innerText=new Date().toLocaleDateString("nl-NL");};
+      const move=(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};
+      c.addEventListener("mousedown",start);c.addEventListener("mouseup",end);c.addEventListener("mouseleave",()=>drawing=false);c.addEventListener("mousemove",move);
+      c.addEventListener("touchstart",(e)=>{e.preventDefault();start();});
+      c.addEventListener("touchend",(e)=>{e.preventDefault();end();});
+      c.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
+    }
+    window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
+
+    /* SAVE */
+    async function saveContract(){
+      const user=auth.currentUser;if(!user){location.href="login.html";return;}
+      const uid=user.uid;
+
+      const editingId = localStorage.getItem("editContractId") || null;
+
+      // Генеруємо ID тільки для нового контракту
+      let contractId = $("#contractId").value;
+      if(!editingId && !contractId){
+        contractId = await generateContractId(uid);
+        $("#contractId").value = contractId;
+      }
+
+      const data={
+        businessName:$("businessName").value,
+        businessEmail:$("businessEmail").value,
+        businessAddress:$("businessAddress").value,
+        businessPhone:$("businessPhone").value,
+        clientName:$("clientName").value,
+        clientEmail:$("clientEmail").value,
+        clientAddress:$("clientAddress").value,
+        contractId,
+        contractDate:$("contractDate").value,
+        status:$("status").value,
+        projectDescription:$("projectDescription").value,
+        deliverables:$("deliverables").value,
+        paymentTerms:$("paymentTerms").value,
+        legal:$("legal").value,
+        signatures:{
+          business:$("signatureBusiness").toDataURL(),
+          client:$("signatureClient").toDataURL(),
+          businessDate:$("signatureBusinessDate").innerText||"",
+          clientDate:$("signatureClientDate").innerText||""
+        },
+        userId:uid,
+        updatedAt:new Date().toISOString(),
+      };
+
+      if(editingId){
+        await setDoc(doc(db,"users",uid,"contracts",editingId), data, {merge:true});
+        alert("✅ Contract updated");
+      }else{
+        await addDoc(collection(db,"users",uid,"contracts"), data);
+        alert(`✅ Contract saved as ${contractId}`);
+      }
+      localStorage.removeItem("editContractId");
+      location.href="contract-list.html";
+    }
+    window.saveContract=saveContract;
+
+    /* LOAD FOR EDIT */
+    async function loadContractForEdit(uid){
+      const id=localStorage.getItem("editContractId");
+      if(!id)return;
+      const snap=await getDoc(doc(db,"users",uid,"contracts",id));
+      if(!snap.exists()){localStorage.removeItem("editContractId");return;}
+      const cData=snap.data();
+
+      $("#businessName").value=cData.businessName||"";
+      $("#businessEmail").value=cData.businessEmail||"";
+      $("#businessAddress").value=cData.businessAddress||"";
+      $("#businessPhone").value=cData.businessPhone||"";
+      $("#clientName").value=cData.clientName||"";
+      $("#clientEmail").value=cData.clientEmail||"";
+      $("#clientAddress").value=cData.clientAddress||"";
+      $("#contractId").value=cData.contractId||"";
+      $("#contractDate").value=cData.contractDate||"";
+      $("#status").value=cData.status||"Draft";
+      $("#projectDescription").value=cData.projectDescription||"";
+      $("#deliverables").value=cData.deliverables||"";
+      $("#paymentTerms").value=cData.paymentTerms||"";
+      $("#legal").value=cData.legal||"";
+
+      if(cData.signatures?.business){
+        const img=new Image();img.onload=()=>{const c=$("#signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=cData.signatures.business;
+        $("#signatureBusinessDate").innerText=cData.signatures.businessDate||"";
+      }
+      if(cData.signatures?.client){
+        const img=new Image();img.onload=()=>{const c=$("#signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=cData.signatures.client;
+        $("#signatureClientDate").innerText=cData.signatures.clientDate||"";
+      }
     }
 
-    function loadContract(index) {
-      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
-      const c = saved[index];
-      if (!c) return;
-      alert("Loaded contract:\n\n" + c.text);
-    }
+    /* AI Helpers (заглушки) */
+    window.aiDraft=()=>{$("projectDescription").value="This contract outlines the collaboration between the business and the client. Deliverables, payment terms, and legal obligations are described below.";};
+    window.aiStrict=()=>{$("legal").value="This contract is legally binding. Any breach will result in legal consequences.";};
+    window.aiFriendly=()=>{$("deliverables").value="We will do our best to complete the project in a way that makes you happy. 😊";};
+    window.translateMsg=(lang)=>{ 
+      if(lang==="nl") $("projectDescription").value="Dit contract beschrijft de samenwerking tussen het bedrijf en de klant. Leveringen, betalingsvoorwaarden en wettelijke verplichtingen worden hieronder beschreven.";
+      if(lang==="en") $("projectDescription").value="This contract outlines the collaboration between the business and the client. Deliverables, payment terms, and legal obligations are described below.";
+    };
 
-    function deleteContract(index) {
-      const saved = JSON.parse(localStorage.getItem("contracts") || "[]");
-      saved.splice(index, 1);
-      localStorage.setItem("contracts", JSON.stringify(saved));
-      viewSavedContracts();
-    }
- function generateFreelanceContractPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+    /* INIT */
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){location.href="login.html";return;}
+      flatpickr(".js-date",{dateFormat:"Y-m-d"});
+      setupSignature("signatureBusiness","signatureBusinessDate");
+      setupSignature("signatureClient","signatureClientDate");
+      await loadContractForEdit(user.uid);
 
-  // Дані з форми
-  const today = new Date().toISOString().split('T')[0];
-  const businessName = document.getElementById("businessName").value;
-  const kvk = document.getElementById("businessKvK").value;
-  const vat = document.getElementById("businessVAT").value;
-  const iban = document.getElementById("businessIBAN").value;
-
-  const clientName = document.getElementById("clientName").value;
-  const clientAddress = document.getElementById("clientAddress").value;
-
-  const project = document.getElementById("projectDescription").value;
-  const timeline = document.getElementById("timeline").value;
-
-  const rate = document.getElementById("rate").value;
-  const paymentTerms = document.getElementById("paymentTerms").value;
-
-  const termination = document.getElementById("terminationClause").value;
-  const jurisdiction = document.getElementById("jurisdiction").value;
-
-  const signature = document.getElementById("signatureName").value;
-  const signDate = document.getElementById("contractDate").value;
-
-  let y = 20;
-
-  // Заголовок
-  doc.setFontSize(16);
-  doc.text("FREELANCE CONTRACT", 105, y, { align: "center" });
-  y += 10;
-
-  doc.setFontSize(10);
-  //doc.text(`Date: ${today}`, 14, y);
-  //y += 8;
-
-  // Business & Client Info (дві колонки)
-  doc.setFont(undefined, "bold");
-  doc.text("Business Info", 14, y);
-  doc.text("Client Info", 110, y);
-  doc.setFont(undefined, "normal");
-  y += 6;
-  doc.text(`${businessName}`, 14, y);
-  doc.text(`${clientName}`, 110, y);
-  y += 5;
-  if (kvk) doc.text(`KvK: ${kvk}`, 14, y);
-  if (clientAddress) doc.text(`Address: ${clientAddress}`, 110, y);
-  y += 5;
-  if (vat) doc.text(`VAT: ${vat}`, 14, y);
-  y += 5;
-  if (iban) doc.text(`IBAN: ${iban}`, 14, y);
-  y += 10;
-
-  // Проєкт
-  doc.setFont(undefined, "bold");
-  doc.text("Project", 14, y);
-  doc.setFont(undefined, "normal");
-  y += 6;
-  const splitProject = doc.splitTextToSize(project, 180);
-  doc.text(splitProject, 14, y);
-  y += splitProject.length * 6;
-
-  // Timeline
-  if (timeline) {
-    doc.setFont(undefined, "bold");
-    doc.text("Timeline", 14, y);
-    doc.setFont(undefined, "normal");
-    y += 6;
-    const splitTimeline = doc.splitTextToSize(timeline, 180);
-    doc.text(splitTimeline, 14, y);
-    y += splitTimeline.length * 6;
-  }
-
-  // Payment
-  doc.setFont(undefined, "bold");
-  doc.text("Payment Terms", 14, y);
-  doc.setFont(undefined, "normal");
-  y += 6;
-  const paymentFull = `Rate: ${rate}\n${paymentTerms}`;
-  const splitPayment = doc.splitTextToSize(paymentFull, 180);
-  doc.text(splitPayment, 14, y);
-  y += splitPayment.length * 6;
-
-  // Legal
-  if (termination || jurisdiction) {
-    doc.setFont(undefined, "bold");
-    doc.text("Legal", 14, y);
-    doc.setFont(undefined, "normal");
-    y += 6;
-    const legalText = `${termination}\n${jurisdiction}`;
-    const splitLegal = doc.splitTextToSize(legalText, 180);
-    doc.text(splitLegal, 14, y);
-    y += splitLegal.length * 6;
-  }
-
-  // Підпис
-  y += 10;
-  doc.setFont(undefined, "bold");
-  doc.text("Signature:", 14, y);
-  doc.setFont(undefined, "normal");
-  doc.text(signature, 40, y);
-  y += 6;
-  doc.text(`Date: ${signDate}`, 14, y);
-
-  // Footer
-  doc.setFontSize(8);
-  doc.setTextColor(150);
-  doc.text("Generated with SmartWerk Freelance Contract Tool", 105, 290, { align: "center" });
-
-  doc.save("Freelance-Contract.pdf");
-}
-    function downloadDOCX() {
-      const text = generateContractText();
-      const blob = new Blob([text], { type: "application/msword" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `SmartWerk-Freelance-Contract.doc`;
-      link.click();
-    }
-
-    // PRO toggle switch
-const togglePro = document.getElementById("togglePro");
-if (togglePro) {
-  togglePro.checked = localStorage.getItem("proUser") === "true";
-  togglePro.addEventListener("change", (e) => {
-    localStorage.setItem("proUser", e.target.checked ? "true" : "false");
-  });
-}
+      $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveContract();});
+    });
   </script>
 </body>
 </html>
