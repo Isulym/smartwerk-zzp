@@ -86,7 +86,7 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore, collection, doc, addDoc, deleteDoc, setDoc,
-      onSnapshot, query, orderBy, runTransaction
+      onSnapshot, query, orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     /* Firebase */
@@ -102,7 +102,14 @@
 
     /* Helpers */
     const $ = id => document.getElementById(id);
-    const fmt = v => "€" + (parseFloat(v||0)).toFixed(2);
+    const toNum = (v)=>{
+      if(typeof v === "number") return v;
+      if(!v) return 0;
+      const s = String(v).replace(/[^\d.,-]/g,"").replace(",",".");
+      const n = parseFloat(s);
+      return Number.isNaN(n) ? 0 : n;
+    };
+    const fmt = v => "€" + toNum(v).toFixed(2);
 
     let reminders = [];
 
@@ -150,8 +157,8 @@
           case "reminderNumber_asc":  return (a.reminderId||"").localeCompare(b.reminderId||"");
           case "date_desc":           return (b.reminderDate||"").localeCompare(a.reminderDate||"");
           case "date_asc":            return (a.reminderDate||"").localeCompare(b.reminderDate||"");
-          case "amount_desc":         return (parseFloat(b.amount)||0) - (parseFloat(a.amount)||0);
-          case "amount_asc":          return (parseFloat(a.amount)||0) - (parseFloat(b.amount)||0);
+          case "amount_desc":         return toNum(b.amount) - toNum(a.amount);
+          case "amount_asc":          return toNum(a.amount) - toNum(b.amount);
           default: return 0;
         }
       });
@@ -184,19 +191,20 @@
       });
     }
 
-    /* Actions */
+    /* Actions (export to window) */
     function editReminder(id){
       localStorage.setItem("editReminderId", id);
       location.href = "payment-reminder.html";
     }
     window.editReminder = editReminder;
 
-    window.deleteReminder = async (id)=>{
+    async function deleteReminder(id){
       if(!confirm("Delete this reminder?")) return;
       await deleteDoc(doc(db,"users",auth.currentUser.uid,"reminders",id));
-    };
+    }
+    window.deleteReminder = deleteReminder;
 
-    window.updateReminderStatus = async (id,newStatus)=>{
+    async function updateReminderStatus(id,newStatus){
       try{
         const uid = auth.currentUser.uid;
         await setDoc(doc(db,"users",uid,"reminders",id), {
@@ -207,10 +215,11 @@
         console.error(e);
         alert("❌ Status update failed: " + e.message);
       }
-    };
+    }
+    window.updateReminderStatus = updateReminderStatus;
 
     // PDF export
-    window.downloadPDF = (id, withBranding=true)=>{
+    function downloadPDF(id, withBranding=true){
       const r = reminders.find(x=>x.id===id);
       if(!r) return;
       const { jsPDF } = window.jspdf;
@@ -264,12 +273,13 @@
       }
 
       pdf.save(`${r.reminderId||"Reminder"}.pdf`);
-    };
+    }
+    window.downloadPDF = downloadPDF;
 
-    // Send reminder (optional)
-    window.sendReminder = (id)=>{
+    function sendReminder(id){
       alert("📧 Sending reminders via email will be part of SmartWerk PRO.");
-    };
+    }
+    window.sendReminder = sendReminder;
 
     /* INIT */
     onAuthStateChanged(auth,(user)=>{
