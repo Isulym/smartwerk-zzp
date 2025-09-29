@@ -17,7 +17,6 @@
   </header>
 
   <main>
-    <!-- Filters -->
     <section>
       <h2>🔎 Filters & Search</h2>
       <label>Status:
@@ -51,7 +50,6 @@
       </label>
     </section>
 
-    <!-- Table -->
     <section>
       <table>
         <thead>
@@ -75,21 +73,15 @@
     <p>© 2025 SmartWerk</p>
   </footer>
 
-  <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- App -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, collection, doc, addDoc, deleteDoc, setDoc,
-      onSnapshot, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, doc, addDoc, deleteDoc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    /* Firebase */
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -100,20 +92,16 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* Helpers */
     const $ = id => document.getElementById(id);
-    const toNum = (v)=>{
+    const asNumber = (v) => {
       if(typeof v === "number") return v;
-      if(!v) return 0;
-      const s = String(v).replace(/[^\d.,-]/g,"").replace(",",".");
-      const n = parseFloat(s);
-      return Number.isNaN(n) ? 0 : n;
+      const s = String(v??"").replace(/[^\d,.\-]/g,"").replace(",",".");
+      return parseFloat(s)||0;
     };
-    const fmt = v => "€" + toNum(v).toFixed(2);
+    const fmt = v => "€" + asNumber(v).toFixed(2);
 
     let reminders = [];
 
-    /* Real-time load */
     function startRealtime(uid){
       const colRef = collection(db,"users",uid,"reminders");
       const q = query(colRef, orderBy("reminderDate","desc"));
@@ -123,7 +111,6 @@
       });
     }
 
-    /* Render */
     function render(){
       const body = $("remindersBody");
       body.innerHTML = "";
@@ -145,7 +132,7 @@
           ok = ok && (
             (r.clientName||"").toLowerCase().includes(search) ||
             (r.reminderId||"").toLowerCase().includes(search) ||
-            String(r.amount||"").toLowerCase().includes(search)
+            String(asNumber(r.amount)).includes(search)
           );
         }
         return ok;
@@ -157,8 +144,8 @@
           case "reminderNumber_asc":  return (a.reminderId||"").localeCompare(b.reminderId||"");
           case "date_desc":           return (b.reminderDate||"").localeCompare(a.reminderDate||"");
           case "date_asc":            return (a.reminderDate||"").localeCompare(b.reminderDate||"");
-          case "amount_desc":         return toNum(b.amount) - toNum(a.amount);
-          case "amount_asc":          return toNum(a.amount) - toNum(b.amount);
+          case "amount_desc":         return asNumber(b.amount) - asNumber(a.amount);
+          case "amount_asc":          return asNumber(a.amount) - asNumber(b.amount);
           default: return 0;
         }
       });
@@ -191,20 +178,18 @@
       });
     }
 
-    /* Actions (export to window) */
     function editReminder(id){
       localStorage.setItem("editReminderId", id);
       location.href = "payment-reminder.html";
     }
     window.editReminder = editReminder;
 
-    async function deleteReminder(id){
+    window.deleteReminder = async (id)=>{
       if(!confirm("Delete this reminder?")) return;
       await deleteDoc(doc(db,"users",auth.currentUser.uid,"reminders",id));
-    }
-    window.deleteReminder = deleteReminder;
+    };
 
-    async function updateReminderStatus(id,newStatus){
+    window.updateReminderStatus = async (id,newStatus)=>{
       try{
         const uid = auth.currentUser.uid;
         await setDoc(doc(db,"users",uid,"reminders",id), {
@@ -215,11 +200,9 @@
         console.error(e);
         alert("❌ Status update failed: " + e.message);
       }
-    }
-    window.updateReminderStatus = updateReminderStatus;
+    };
 
-    // PDF export
-    function downloadPDF(id, withBranding=true){
+    window.downloadPDF = (id, withBranding=true)=>{
       const r = reminders.find(x=>x.id===id);
       if(!r) return;
       const { jsPDF } = window.jspdf;
@@ -228,31 +211,27 @@
       pdf.setFontSize(18);
       pdf.text("PAYMENT REMINDER", 105, 15, {align:"center"});
 
-      // Business / Client
       pdf.setFontSize(12);
       pdf.text("From:", 14, 28);
       pdf.text([r.businessName||"", r.email||"", r.businessAddress||"", r.businessPhone||""], 14, 34);
       pdf.text("To:", 120, 28);
       pdf.text([r.clientName||"", r.clientEmail||"", r.clientAddress||""], 120, 34);
 
-      // Reminder info
       pdf.autoTable({
         startY: 70,
         head:[["Reminder ID","Linked Invoice","Type","Status","Date","Amount"]],
-        body:[[r.reminderId||"—", r.linkedInvoice||"—", r.type||"—", r.status||"Draft", r.reminderDate||"—", fmt(r.amount)]],
+        body:[[r.reminderId||"—", r.linkedInvoice||"—", r.type||"—", r.status||"Draft", r.reminderDate||"—", "€"+asNumber(r.amount).toFixed(2)]],
         theme:"grid",
         styles:{ fontSize:11, cellPadding:4, halign:"center" },
         headStyles:{ fillColor:[37,99,235], textColor:255 }
       });
 
-      // Message
       const y = pdf.lastAutoTable.finalY + 10;
       if(r.message){
         pdf.text("Message:", 14, y);
         pdf.text(String(r.message), 14, y+6, {maxWidth:180});
       }
 
-      // Signatures
       let y2 = y + 30;
       if(r.signatures?.business){
         pdf.setDrawColor(0);
@@ -273,15 +252,12 @@
       }
 
       pdf.save(`${r.reminderId||"Reminder"}.pdf`);
-    }
-    window.downloadPDF = downloadPDF;
+    };
 
-    function sendReminder(id){
+    window.sendReminder = (id)=>{
       alert("📧 Sending reminders via email will be part of SmartWerk PRO.");
-    }
-    window.sendReminder = sendReminder;
+    };
 
-    /* INIT */
     onAuthStateChanged(auth,(user)=>{
       if(!user){ location.href="login.html"; return; }
       flatpickr(".js-date",{ dateFormat:"Y-m-d" });
