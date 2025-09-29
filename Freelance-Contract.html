@@ -53,8 +53,9 @@
 
     <!-- Message / AI -->
     <section>
-      <h2>🤖 AI Assistance</h2>
+      <h2>🤖 Smart AI Assistance</h2>
       <div class="actions">
+        <button type="button" onclick="aiFill()">🤖 AI Fill</button>
         <button type="button" onclick="aiDraft()">✍️ AI Draft</button>
         <button type="button" onclick="aiStrict()">💬 Strict</button>
         <button type="button" onclick="aiFriendly()">👍 Friendly</button>
@@ -127,7 +128,7 @@
       return out;
     }
 
-    /* Signatures */
+    /* SIGNATURES */
     function setupSignature(canvasId,dateId){
       const c=$(canvasId);const ctx=c.getContext("2d");
       let drawing=false;
@@ -148,7 +149,7 @@
 
       const editingId = localStorage.getItem("editContractId") || null;
 
-      // Генеруємо ID тільки для нового контракту
+      // Auto Contract ID
       let contractId = $("#contractId").value;
       if(!editingId && !contractId){
         contractId = await generateContractId(uid);
@@ -198,40 +199,41 @@
       if(!id)return;
       const snap=await getDoc(doc(db,"users",uid,"contracts",id));
       if(!snap.exists()){localStorage.removeItem("editContractId");return;}
-      const cData=snap.data();
+      const c=snap.data();
 
-      $("#businessName").value=cData.businessName||"";
-      $("#businessEmail").value=cData.businessEmail||"";
-      $("#businessAddress").value=cData.businessAddress||"";
-      $("#businessPhone").value=cData.businessPhone||"";
-      $("#clientName").value=cData.clientName||"";
-      $("#clientEmail").value=cData.clientEmail||"";
-      $("#clientAddress").value=cData.clientAddress||"";
-      $("#contractId").value=cData.contractId||"";
-      $("#contractDate").value=cData.contractDate||"";
-      $("#status").value=cData.status||"Draft";
-      $("#projectDescription").value=cData.projectDescription||"";
-      $("#deliverables").value=cData.deliverables||"";
-      $("#paymentTerms").value=cData.paymentTerms||"";
-      $("#legal").value=cData.legal||"";
+      $("#businessName").value=c.businessName||"";
+      $("#businessEmail").value=c.businessEmail||"";
+      $("#businessAddress").value=c.businessAddress||"";
+      $("#businessPhone").value=c.businessPhone||"";
+      $("#clientName").value=c.clientName||"";
+      $("#clientEmail").value=c.clientEmail||"";
+      $("#clientAddress").value=c.clientAddress||"";
+      $("#contractId").value=c.contractId||"";
+      $("#contractDate").value=c.contractDate||"";
+      $("#status").value=c.status||"Draft";
+      $("#projectDescription").value=c.projectDescription||"";
+      $("#deliverables").value=c.deliverables||"";
+      $("#paymentTerms").value=c.paymentTerms||"";
+      $("#legal").value=c.legal||"";
 
-      if(cData.signatures?.business){
-        const img=new Image();img.onload=()=>{const c=$("#signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=cData.signatures.business;
-        $("#signatureBusinessDate").innerText=cData.signatures.businessDate||"";
+      if(c.signatures?.business){
+        const img=new Image();img.onload=()=>{const cnv=$("#signatureBusiness");const ctx=cnv.getContext("2d");ctx.clearRect(0,0,cnv.width,cnv.height);ctx.drawImage(img,0,0);};img.src=c.signatures.business;
+        $("#signatureBusinessDate").innerText=c.signatures.businessDate||"";
       }
-      if(cData.signatures?.client){
-        const img=new Image();img.onload=()=>{const c=$("#signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=cData.signatures.client;
-        $("#signatureClientDate").innerText=cData.signatures.clientDate||"";
+      if(c.signatures?.client){
+        const img=new Image();img.onload=()=>{const cnv=$("#signatureClient");const ctx=cnv.getContext("2d");ctx.clearRect(0,0,cnv.width,cnv.height);ctx.drawImage(img,0,0);};img.src=c.signatures.client;
+        $("#signatureClientDate").innerText=c.signatures.clientDate||"";
       }
     }
 
-    /* AI Helpers (заглушки) */
-    window.aiDraft=()=>{$("projectDescription").value="This contract outlines the collaboration between the business and the client. Deliverables, payment terms, and legal obligations are described below.";};
-    window.aiStrict=()=>{$("legal").value="This contract is legally binding. Any breach will result in legal consequences.";};
-    window.aiFriendly=()=>{$("deliverables").value="We will do our best to complete the project in a way that makes you happy. 😊";};
+    /* AI Helpers */
+    window.aiFill=()=>{$("projectDescription").value="This contract covers the agreed freelance project including scope, deliverables, and terms.";};
+    window.aiDraft=()=>{$("paymentTerms").value="Payment will be made within 14 days of invoice date. Late fees may apply.";};
+    window.aiStrict=()=>{$("legal").value="This agreement is legally binding. Failure to comply will result in legal action.";};
+    window.aiFriendly=()=>{$("legal").value="This agreement is based on mutual trust and professionalism between both parties.";};
     window.translateMsg=(lang)=>{ 
-      if(lang==="nl") $("projectDescription").value="Dit contract beschrijft de samenwerking tussen het bedrijf en de klant. Leveringen, betalingsvoorwaarden en wettelijke verplichtingen worden hieronder beschreven.";
-      if(lang==="en") $("projectDescription").value="This contract outlines the collaboration between the business and the client. Deliverables, payment terms, and legal obligations are described below.";
+      if(lang==="nl") $("projectDescription").value="Dit contract dekt het overeengekomen freelanceproject inclusief reikwijdte, deliverables en voorwaarden.";
+      if(lang==="en") $("projectDescription").value="This contract covers the agreed freelance project including scope, deliverables, and terms.";
     };
 
     /* INIT */
