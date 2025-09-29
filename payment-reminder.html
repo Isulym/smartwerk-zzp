@@ -108,193 +108,189 @@
 
   <!-- Firebase -->
   <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, doc, getDoc, setDoc, addDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1",
+  };
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
 
-    const $ = id => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
-    /* AUTO REMINDER ID */
-    async function generateReminderId(uid){
-  const ref = doc(db,"users",uid);
-  const year = new Date().getFullYear();
-  let out="";
-  await runTransaction(db, async(tx)=>{
-    const snap=await tx.get(ref);
-    const last=snap.exists()?(snap.data().lastReminderNumber||0):0;
-    const next=last+1;
-    tx.set(ref,{lastReminderNumber:next},{merge:true});
-    out=`REM-${year}-${String(next).padStart(3,"0")}`;
-  });
-  return out;
-}
-
-    /* Signatures */
-    function setupSignature(canvasId,dateId){
-  const c=$(canvasId);const ctx=c.getContext("2d");
-  let drawing=false;
-  const start=()=>{drawing=true;ctx.beginPath();};
-  const end=()=>{if(!drawing)return;drawing=false;$(dateId).innerText=new Date().toLocaleDateString("nl-NL");};
-  const move=(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};
-  c.addEventListener("mousedown",start);c.addEventListener("mouseup",end);c.addEventListener("mouseleave",()=>drawing=false);c.addEventListener("mousemove",move);
-  c.addEventListener("touchstart",(e)=>{e.preventDefault();start();});
-  c.addEventListener("touchend",(e)=>{e.preventDefault();end();});
-  c.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
-}
-window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
-
-/* Save */
-async function saveReminder(){
-
-    /* Save */
-    async function saveReminder(){
-  const user=auth.currentUser;if(!user){location.href="login.html";return;}
-  const uid=user.uid;
-
-  const editingId = localStorage.getItem("editReminderId") || null;
-
-  // Генеруємо ID тільки для нового Reminder
-  let reminderId = $("#reminderId").value;
-  if(!editingId && !reminderId){
-    reminderId = await generateReminderId(uid);
-    $("#reminderId").value = reminderId;
+  /* AUTO REMINDER ID */
+  async function generateReminderId(uid){
+    const ref = doc(db,"users",uid);
+    const year = new Date().getFullYear();
+    let out="";
+    await runTransaction(db, async(tx)=>{
+      const snap=await tx.get(ref);
+      const last=snap.exists()?(snap.data().lastReminderNumber||0):0;
+      const next=last+1;
+      tx.set(ref,{lastReminderNumber:next},{merge:true});
+      out=`REM-${year}-${String(next).padStart(3,"0")}`;
+    });
+    return out;
   }
 
-  const data={
-    businessName:$("businessName").value,
-    email:$("email").value,
-    businessAddress:$("businessAddress").value,
-    businessPhone:$("businessPhone").value,
-    clientName:$("clientName").value,
-    clientEmail:$("clientEmail").value,
-    clientAddress:$("clientAddress").value,
-    linkedInvoice:$("linkedInvoice").value,
-    invoiceDate:$("invoiceDate").innerText,
-    dueDate:$("dueDate").innerText,
-    invoiceAmount:$("invoiceAmount").innerText,
-    reminderId,
-    reminderDate:$("reminderDate").value,
-    status:$("status").value,
-    type:$("type").value,
-    amount:$("amount").value,
-    message:$("message").value,
-    signatures:{
-      business:$("signatureBusiness").toDataURL(),
-      client:$("signatureClient").toDataURL(),
-      businessDate:$("signatureBusinessDate").innerText||"",
-      clientDate:$("signatureClientDate").innerText||""
-    },
-    userId:uid,
-    updatedAt:new Date().toISOString(),
+  /* Signatures */
+  function setupSignature(canvasId,dateId){
+    const c=$(canvasId);const ctx=c.getContext("2d");
+    let drawing=false;
+    const start=()=>{drawing=true;ctx.beginPath();};
+    const end=()=>{if(!drawing)return;drawing=false;$(dateId).innerText=new Date().toLocaleDateString("nl-NL");};
+    const move=(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};
+    c.addEventListener("mousedown",start);c.addEventListener("mouseup",end);c.addEventListener("mouseleave",()=>drawing=false);c.addEventListener("mousemove",move);
+    c.addEventListener("touchstart",(e)=>{e.preventDefault();start();});
+    c.addEventListener("touchend",(e)=>{e.preventDefault();end();});
+    c.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
+  }
+  window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
+
+  /* Save */
+  async function saveReminder(){
+    const user=auth.currentUser;if(!user){location.href="login.html";return;}
+    const uid=user.uid;
+
+    const editingId = localStorage.getItem("editReminderId") || null;
+
+    // Генеруємо ID тільки для нового Reminder
+    let reminderId = $("#reminderId").value;
+    if(!editingId && !reminderId){
+      reminderId = await generateReminderId(uid);
+      $("#reminderId").value = reminderId;
+    }
+
+    const data={
+      businessName:$("businessName").value,
+      email:$("email").value,
+      businessAddress:$("businessAddress").value,
+      businessPhone:$("businessPhone").value,
+      clientName:$("clientName").value,
+      clientEmail:$("clientEmail").value,
+      clientAddress:$("clientAddress").value,
+      linkedInvoice:$("linkedInvoice").value,
+      invoiceDate:$("invoiceDate").innerText,
+      dueDate:$("dueDate").innerText,
+      invoiceAmount:$("invoiceAmount").innerText,
+      reminderId,
+      reminderDate:$("reminderDate").value,
+      status:$("status").value,
+      type:$("type").value,
+      amount:$("amount").value,
+      message:$("message").value,
+      signatures:{
+        business:$("signatureBusiness").toDataURL(),
+        client:$("signatureClient").toDataURL(),
+        businessDate:$("signatureBusinessDate").innerText||"",
+        clientDate:$("signatureClientDate").innerText||""
+      },
+      userId:uid,
+      updatedAt:new Date().toISOString(),
+    };
+
+    if(editingId){
+      await setDoc(doc(db,"users",uid,"reminders",editingId), data, {merge:true});
+      alert("✅ Reminder updated");
+    }else{
+      await addDoc(collection(db,"users",uid,"reminders"), data);
+      alert(`✅ Reminder saved as ${reminderId}`);
+    }
+    localStorage.removeItem("editReminderId");
+    location.href="payment-reminder-list.html";
+  }
+  window.saveReminder=saveReminder;
+
+  /* Load for edit */
+  async function loadReminderForEdit(uid){
+    const id=localStorage.getItem("editReminderId");
+    if(!id)return;
+    const snap=await getDoc(doc(db,"users",uid,"reminders",id));
+    if(!snap.exists()){localStorage.removeItem("editReminderId");return;}
+    const r=snap.data();
+
+    $("#businessName").value=r.businessName||"";
+    $("#email").value=r.email||"";
+    $("#businessAddress").value=r.businessAddress||"";
+    $("#businessPhone").value=r.businessPhone||"";
+    $("#clientName").value=r.clientName||"";
+    $("#clientEmail").value=r.clientEmail||"";
+    $("#clientAddress").value=r.clientAddress||"";
+    $("#reminderId").value=r.reminderId||"";
+    $("#linkedInvoice").value=r.linkedInvoice||"";
+    $("#invoiceDate").innerText=r.invoiceDate||"";
+    $("#dueDate").innerText=r.dueDate||"";
+    $("#invoiceAmount").innerText=r.invoiceAmount||"";
+    $("#reminderDate").value=r.reminderDate||"";
+    $("#status").value=r.status||"Draft";
+    $("#type").value=r.type||"First Reminder";
+    $("#amount").value=r.amount||"";
+    $("#message").value=r.message||"";
+
+    if(r.signatures?.business){
+      const img=new Image();img.onload=()=>{const c=$("#signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.business;
+      $("#signatureBusinessDate").innerText=r.signatures.businessDate||"";
+    }
+    if(r.signatures?.client){
+      const img=new Image();img.onload=()=>{const c=$("#signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.client;
+      $("#signatureClientDate").innerText=r.signatures.clientDate||"";
+    }
+  }
+
+  /* AI Helpers (заглушки) */
+  window.aiFill=()=>{$("message").value="Dear client,\n\nThis is a polite reminder that your invoice is overdue. Please arrange payment.\n\nBest regards,\nSmartWerk";};
+  window.aiDraft=()=>{$("message").value="We kindly remind you of your pending invoice. Please pay before the due date.";};
+  window.aiStrict=()=>{$("message").value="FINAL NOTICE: Your invoice is overdue. Please transfer the outstanding amount immediately.";};
+  window.aiFriendly=()=>{$("message").value="Hey! Just a friendly reminder 🙂 Don’t forget to complete your payment.";};
+  window.translateMsg=(lang)=>{ 
+    if(lang==="nl") $("message").value="Beste klant,\n\nDit is een herinnering voor uw openstaande factuur. Gelieve zo snel mogelijk te betalen.\n\nMet vriendelijke groet,\nSmartWerk";
+    if(lang==="en") $("message").value="Dear client,\n\nThis is a reminder for your outstanding invoice. Please make the payment soon.\n\nBest regards,\nSmartWerk";
   };
 
-  if(editingId){
-    await setDoc(doc(db,"users",uid,"reminders",editingId), data, {merge:true});
-    alert("✅ Reminder updated");
-  }else{
-    await addDoc(collection(db,"users",uid,"reminders"), data);
-    alert(`✅ Reminder saved as ${reminderId}`);
-  }
-  localStorage.removeItem("editReminderId");
-  location.href="payment-reminder-list.html";
-}
-window.saveReminder=saveReminder;
+  /* Init */
+  onAuthStateChanged(auth, async(user)=>{
+    if(!user){location.href="login.html";return;}
+    flatpickr(".js-date",{dateFormat:"Y-m-d"});
+    setupSignature("signatureBusiness","signatureBusinessDate");
+    setupSignature("signatureClient","signatureClientDate");
+    await loadReminderForEdit(user.uid);
 
-    /* Load for edit */
-    async function loadReminderForEdit(uid){
-  const id=localStorage.getItem("editReminderId");
-  if(!id)return;
-  const snap=await getDoc(doc(db,"users",uid,"reminders",id));
-  if(!snap.exists()){localStorage.removeItem("editReminderId");return;}
-  const r=snap.data();
+    // Заповнити інвойси у select
+    onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
+      const sel=$("linkedInvoice");
+      const saved = sel.value;
+      sel.innerHTML="<option value=''>— Select Invoice —</option>";
 
-  $("#businessName").value=r.businessName||"";
-  $("#email").value=r.email||"";
-  $("#businessAddress").value=r.businessAddress||"";
-  $("#businessPhone").value=r.businessPhone||"";
-  $("#clientName").value=r.clientName||"";
-  $("#clientEmail").value=r.clientEmail||"";
-  $("#clientAddress").value=r.clientAddress||"";
-  $("#reminderId").value=r.reminderId||"";
-  $("#linkedInvoice").value=r.linkedInvoice||"";
-  $("#invoiceDate").innerText=r.invoiceDate||"";
-  $("#dueDate").innerText=r.dueDate||"";
-  $("#invoiceAmount").innerText=r.invoiceAmount||"";
-  $("#reminderDate").value=r.reminderDate||"";
-  $("#status").value=r.status||"Draft";
-  $("#type").value=r.type||"First Reminder";
-  $("#amount").value=r.amount||"";
-  $("#message").value=r.message||"";
-
-  if(r.signatures?.business){
-    const img=new Image();img.onload=()=>{const c=$("#signatureBusiness");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.business;
-    $("#signatureBusinessDate").innerText=r.signatures.businessDate||"";
-  }
-  if(r.signatures?.client){
-    const img=new Image();img.onload=()=>{const c=$("#signatureClient");const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0);};img.src=r.signatures.client;
-    $("#signatureClientDate").innerText=r.signatures.clientDate||"";
-  }
-}
-
-    /* AI Helpers (заглушки) */
-    window.aiFill=()=>{$("message").value="Dear client,\n\nThis is a polite reminder that your invoice is overdue. Please arrange payment.\n\nBest regards,\nSmartWerk";};
-window.aiDraft=()=>{$("message").value="We kindly remind you of your pending invoice. Please pay before the due date.";};
-window.aiStrict=()=>{$("message").value="FINAL NOTICE: Your invoice is overdue. Please transfer the outstanding amount immediately.";};
-window.aiFriendly=()=>{$("message").value="Hey! Just a friendly reminder 🙂 Don’t forget to complete your payment.";};
-window.translateMsg=(lang)=>{ 
-  if(lang==="nl") $("message").value="Beste klant,\n\nDit is een herinnering voor uw openstaande factuur. Gelieve zo snel mogelijk te betalen.\n\nMet vriendelijke groet,\nSmartWerk";
-  if(lang==="en") $("message").value="Dear client,\n\nThis is a reminder for your outstanding invoice. Please make the payment soon.\n\nBest regards,\nSmartWerk";
-};
-
-    /* Init */
-    onAuthStateChanged(auth, async(user)=>{
-  if(!user){location.href="login.html";return;}
-  flatpickr(".js-date",{dateFormat:"Y-m-d"});
-  setupSignature("signatureBusiness","signatureBusinessDate");
-  setupSignature("signatureClient","signatureClientDate");
-  await loadReminderForEdit(user.uid);
-
-  // Заповнити інвойси у select
-  onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
-    const sel=$("linkedInvoice");
-    const saved = sel.value;
-    sel.innerHTML="<option value=''>— Select Invoice —</option>";
-
-    snap.docs.forEach(d=>{
-      const inv=d.data();
-      const val = inv.invoiceNumber || d.id;
-      const opt=document.createElement("option");
-      opt.value=val;
-      opt.text=val;
-      opt.dataset.date=inv.invoiceDate||"";
-      opt.dataset.due=inv.dueDate||"";
-      opt.dataset.amount=inv.grandTotalFormatted||"";
-      if(val===saved) opt.selected=true;
-      sel.appendChild(opt);
+      snap.docs.forEach(d=>{
+        const inv=d.data();
+        const val = inv.invoiceNumber || d.id;
+        const opt=document.createElement("option");
+        opt.value=val;
+        opt.text=val;
+        opt.dataset.date=inv.invoiceDate||"";
+        opt.dataset.due=inv.dueDate||"";
+        opt.dataset.amount=inv.grandTotalFormatted||"";
+        if(val===saved) opt.selected=true;
+        sel.appendChild(opt);
+      });
     });
-  });
 
-  $("linkedInvoice").addEventListener("change",(e)=>{
-    const opt=e.target.selectedOptions[0];
-    $("invoiceDate").innerText=opt.dataset.date||"";
-    $("dueDate").innerText=opt.dataset.due||"";
-    $("invoiceAmount").innerText=opt.dataset.amount||"";
-    $("amount").value=opt.dataset.amount||"";
-  });
+    $("linkedInvoice").addEventListener("change",(e)=>{
+      const opt=e.target.selectedOptions[0];
+      $("invoiceDate").innerText=opt.dataset.date||"";
+      $("dueDate").innerText=opt.dataset.due||"";
+      $("invoiceAmount").innerText=opt.dataset.amount||"";
+      $("amount").value=opt.dataset.amount||"";
+    });
 
-  $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveReminder();});ʼ
-      };
-});
-  </script>
+    $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveReminder();});
+  });
+</script>
 </body>
 </html>
