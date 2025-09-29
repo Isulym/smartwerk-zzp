@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Freelance Contracts</title>
+  <link rel="stylesheet" href="style-Freelance-Contract.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+  <header>
+    <h1>📋 SmartWerk — Freelance Contracts</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="contract.html" class="btn" onclick="localStorage.removeItem('editContractId')">➕ New Contract</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Filters -->
+    <section>
+      <h2>🔎 Filters & Search</h2>
+      <label>Status:
+        <select id="statusFilter">
+          <option value="all">All</option>
+          <option value="Draft">Draft</option>
+          <option value="Sent">Sent</option>
+          <option value="Signed">Signed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </label>
+      <label>From: <input id="fromDate" class="js-date" placeholder="YYYY-MM-DD"></label>
+      <label>To: <input id="toDate" class="js-date" placeholder="YYYY-MM-DD"></label>
+      <label>Search: <input id="searchBox" placeholder="Client / Contract ID"></label>
+      <label>Sort by:
+        <select id="sortBy">
+          <option value="date_desc">Date ↓</option>
+          <option value="date_asc">Date ↑</option>
+          <option value="contract_desc">Contract # ↓</option>
+          <option value="contract_asc">Contract # ↑</option>
+        </select>
+      </label>
+    </section>
+
+    <!-- Table -->
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Contract ID</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Project</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="contractsBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
+
+  <!-- Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, doc, deleteDoc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const $ = id => document.getElementById(id);
+    let contracts = [];
+
+    /* Real-time load */
+    function startRealtime(uid){
+      const colRef = collection(db,"users",uid,"contracts");
+      const q = query(colRef, orderBy("contractDate","desc"));
+      onSnapshot(q,(snap)=>{
+        contracts = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        render();
+      });
+    }
+
+    /* Render */
+    function render(){
+      const body = $("contractsBody");
+      body.innerHTML = "";
+
+      const from = $("fromDate").value;
+      const to   = $("toDate").value;
+      const status = $("statusFilter").value;
+      const search = $("searchBox").value.toLowerCase();
+      const sortBy = $("sortBy").value;
+
+      let list = contracts.filter(c=>{
+        let ok = true;
+        if(status!=="all") ok = ok && c.status === status;
+        if(from) ok = ok && (c.contractDate||"") >= from;
+        if(to)   ok = ok && (c.contractDate||"") <= to;
+        if(search){
+          ok = ok && (
+            (c.clientName||"").toLowerCase().includes(search) ||
+            (c.contractId||"").toLowerCase().includes(search)
+          );
+        }
+        return ok;
+      });
+
+      list.sort((a,b)=>{
+        switch (sortBy){
+          case "contract_desc": return (b.contractId||"").localeCompare(a.contractId||"");
+          case "contract_asc":  return (a.contractId||"").localeCompare(b.contractId||"");
+          case "date_desc":     return (b.contractDate||"").localeCompare(a.contractDate||"");
+          case "date_asc":      return (a.contractDate||"").localeCompare(b.contractDate||"");
+          default: return 0;
+        }
+      });
+
+      list.forEach(c=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.contractId||"—"}</td>
+          <td>${c.clientName||"—"}</td>
+          <td>
+            <select onchange="updateContractStatus('${c.id}', this.value)">
+              <option value="Draft" ${c.status==="Draft"?"selected":""}>Draft</option>
+              <option value="Sent" ${c.status==="Sent"?"selected":""}>Sent</option>
+              <option value="Signed" ${c.status==="Signed"?"selected":""}>Signed</option>
+              <option value="Cancelled" ${c.status==="Cancelled"?"selected":""}>Cancelled</option>
+            </select>
+          </td>
+          <td>${c.contractDate||"—"}</td>
+          <td>${(c.projectDescription||"").substring(0,30)}...</td>
+          <td>
+            <button onclick="editContract('${c.id}')">✏️ Edit</button>
+            <button onclick="deleteContract('${c.id}')">🗑 Delete</button>
+            <button onclick="downloadPDF('${c.id}', true)">📄 PDF</button>
+            <button onclick="downloadPDF('${c.id}', false)">PRO 📄</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    /* Actions */
+    window.editContract = (id)=>{
+      localStorage.setItem("editContractId", id);
+      location.href = "contract.html";
+    };
+
+    window.deleteContract = async (id)=>{
+      if(!confirm("Delete this contract?")) return;
+      await deleteDoc(doc(db,"users",auth.currentUser.uid,"contracts",id));
+    };
+
+    window.updateContractStatus = async (id,newStatus)=>{
+      try{
+        const uid = auth.currentUser.uid;
+        await setDoc(doc(db,"users",uid,"contracts",id), {
+          status: newStatus,
+          updatedAt: new Date().toISOString()
+        }, { merge:true });
+      }catch(e){
+        console.error(e);
+        alert("❌ Status update failed: " + e.message);
+      }
+    };
+
+    /* PDF Export */
+    window.downloadPDF = (id, withBranding=true)=>{
+      const c = contracts.find(x=>x.id===id);
+      if(!c) return;
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+
+      pdf.setFontSize(18);
+      pdf.text("FREELANCE CONTRACT", 105, 15, {align:"center"});
+
+      pdf.setFontSize(12);
+      pdf.text("Business Info:", 14, 28);
+      pdf.text([c.businessName||"", c.businessEmail||"", c.businessAddress||"", c.businessPhone||""], 14, 34);
+
+      pdf.text("Client Info:", 120, 28);
+      pdf.text([c.clientName||"", c.clientEmail||"", c.clientAddress||""], 120, 34);
+
+      pdf.autoTable({
+        startY: 70,
+        head:[["Contract ID","Date","Status"]],
+        body:[[c.contractId||"—", c.contractDate||"—", c.status||"Draft"]],
+        theme:"grid",
+        styles:{ fontSize:11, cellPadding:4, halign:"center" },
+        headStyles:{ fillColor:[37,99,235], textColor:255 }
+      });
+
+      let y = pdf.lastAutoTable.finalY + 10;
+      pdf.text("Project Description:", 14, y);
+      pdf.text(String(c.projectDescription||""), 14, y+6, {maxWidth:180});
+      y += 30;
+      pdf.text("Deliverables:", 14, y);
+      pdf.text(String(c.deliverables||""), 14, y+6, {maxWidth:180});
+      y += 30;
+      pdf.text("Payment Terms:", 14, y);
+      pdf.text(String(c.paymentTerms||""), 14, y+6, {maxWidth:180});
+      y += 30;
+      pdf.text("Legal:", 14, y);
+      pdf.text(String(c.legal||""), 14, y+6, {maxWidth:180});
+
+      if(withBranding){
+        pdf.setFontSize(10);
+        pdf.text("Generated with SmartWerk", 105, 290, {align:"center"});
+      }
+
+      pdf.save(`${c.contractId||"Contract"}.pdf`);
+    };
+
+    /* INIT */
+    onAuthStateChanged(auth,(user)=>{
+      if(!user){ location.href="login.html"; return; }
+      flatpickr(".js-date",{ dateFormat:"Y-m-d" });
+      startRealtime(user.uid);
+      ["statusFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
+        $(id).addEventListener("input", render);
+      });
+    });
+  </script>
+</body>
+</html>
