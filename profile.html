@@ -1,255 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>SmartWerk — Profile Control</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Profile</title>
+  <link rel="stylesheet" href="style-invoices.css"/>
   <style>
-    :root{
-      --bg:#0e1014; --card:#151823; --muted:#9aa3b2; --ok:#27c693; --warn:#ffb020; --err:#ff5470; --line:#232a42;
-      --panel:#151b28; --panel2:#141827; --accent:#3b79ff; --input:#0f1422;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Arial;color:#e9edf5;background:radial-gradient(1200px 600px at 10% -10%,#1d2233 0%,#0e1014 40%),linear-gradient(#0e1014,#0e1014)}
-    .wrap{max-width:880px;margin:0 auto;padding:22px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-    .brand{font-weight:700;font-size:18px}
-    .btn{background:#2b3350;border:1px solid #3b4567;color:#e9edf5;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-    .btn:hover{filter:brightness(1.1)}
-    .btn.primary{background:#3b79ff;border-color:#4d86ff}
-    .btn.ghost{background:transparent;border:1px solid #3b4567;color:#9aa3b2}
-    .card{background:linear-gradient(180deg,#161b28,#141827);border:1px solid #232a42;border-radius:16px;padding:18px}
-    h2{margin:0 0 12px 0}
-    label{display:block;margin-top:14px;color:#cdd5e3}
-    input, textarea, select{
-      width:100%;margin-top:6px;padding:12px 12px;border-radius:10px;border:1px solid #2a3557;background:var(--input);color:#e9edf5;
-      outline:none
-    }
-    input[disabled]{opacity:.7;background:#0c1220}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-    .muted{color:var(--muted)}
-    .msg{margin-top:12px;padding:10px 12px;border-radius:10px;display:none}
-    .msg.err{display:block;background:#3a1b24;border:1px solid #6a2c40;color:#ffd9df}
-    .msg.ok{display:block;background:#17352a;border:1px solid #1f5e46;color:#d6ffef}
+    body { background:#0f172a; color:#e5e7eb; font-family:Inter,sans-serif; }
+    header, footer { text-align:center; padding:1rem; }
+    h1 { color:#3b82f6; }
+    section { margin:1.5rem auto; max-width:700px; padding:1rem; background:#1e293b; border-radius:12px; }
+    section h2 { margin-bottom:.5rem; color:#93c5fd; }
+    input, select, textarea { width:100%; margin:.3rem 0 1rem; padding:.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; }
+    button { background:#3b82f6; border:none; color:#fff; padding:.7rem 1.2rem; border-radius:8px; cursor:pointer; margin-top:.5rem; }
+    button:hover { background:#2563eb; }
+    .signature { border:1px solid #475569; background:#fff; }
+    #msg { margin:1rem auto; max-width:700px; padding:.8rem; border-radius:8px; display:none; }
+    #msg.ok { background:#16a34a; color:white; }
+    #msg.err { background:#dc2626; color:white; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">👤 SmartWerk — Profile Control</div>
-      <div class="right">
-        <a href="dashboard.html" class="btn ghost">← Dashboard</a>
-        <a href="index.html" class="btn">Main Page</a>
-      </div>
-    </div>
+  <header>
+    <h1>👤 SmartWerk — Profile</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+    </nav>
+  </header>
 
-    <div class="card">
-      <h2>User Profile</h2>
-      <div class="muted" id="userEmailTop">—</div>
+  <main>
+    <div id="msg"></div>
 
-      <form id="profileForm">
-        <label>Email
-          <input type="email" id="emailDisplay" class="ro" disabled />
-        </label>
+    <!-- Profile -->
+    <section>
+      <h2>🏢 Business Info</h2>
+      <input id="fullName" placeholder="Full Name / Business Name"/>
+      <input id="email" placeholder="Business Email"/>
+      <input id="address" placeholder="Business Address"/>
+      <input id="phone" placeholder="Phone Number"/>
+      <input id="kvk" placeholder="KvK (8 digits)" maxlength="8"/>
+      <input id="iban" placeholder="IBAN"/>
+      <label>Business Logo:</label>
+      <input type="file" id="logoUpload" accept="image/*"/>
+      <img id="logoPreview" style="max-width:200px; display:none; margin-top:1rem;"/>
+    </section>
 
-        <div class="row">
-          <label>Full Name
-            <input type="text" id="fullName" placeholder="John Doe" />
-          </label>
-          <label>Phone Number
-            <input type="text" id="phone" placeholder="+31 6 12 34 56 78" />
-          </label>
-        </div>
+    <!-- Preferences -->
+    <section>
+      <h2>⚙️ Preferences</h2>
+      <label>Currency:
+        <select id="currency">
+          <option value="EUR">EUR €</option>
+          <option value="USD">USD $</option>
+          <option value="GBP">GBP £</option>
+        </select>
+      </label>
+      <label>Default VAT %:
+        <input id="vatRate" type="number" placeholder="21"/>
+      </label>
+      <label>Language:
+        <select id="language">
+          <option value="en">English</option>
+          <option value="nl">Nederlands</option>
+          <option value="ua">Українська</option>
+          <option value="pl">Polski</option>
+        </select>
+      </label>
+    </section>
 
-        <label>Address
-          <input type="text" id="address" placeholder="Street, City, Postcode" />
-        </label>
+    <!-- Signature -->
+    <section>
+      <h2>✍️ Signature</h2>
+      <canvas id="signature" class="signature" width="300" height="100"></canvas>
+      <br>
+      <button type="button" onclick="clearSignature()">Clear</button>
+      <p>Date: <span id="signatureDate"></span></p>
+    </section>
 
-        <div class="row">
-          <label>KvK Number
-            <input type="text" id="kvk" placeholder="8 digits (e.g. 12345678)" />
-          </label>
-          <label>IBAN
-            <input type="text" id="iban" placeholder="NL00 BANK 0123 4567 89" />
-          </label>
-        </div>
+    <!-- Actions -->
+    <section>
+      <button id="saveBtn">💾 Save Profile</button>
+    </section>
+  </main>
 
-        <div class="actions">
-          <button type="submit" id="btnSave" class="btn primary">Save Profile</button>
-          <a href="login.html" class="btn ghost">Login</a>
-        </div>
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
 
-        <div id="msg" class="msg"></div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Firebase (modules) -->
+  <!-- Firebase -->
   <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
       projectId: "smartwerk8520",
+      storageBucket: "smartwerk8520.appspot.com",
       appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
-
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
+    const storage = getStorage(app);
 
-    const $ = (id)=>document.getElementById(id);
-    const msg = $("msg");
+    const $ = id => document.getElementById(id);
 
-    let ORIGINAL_KVK = ""; // збережемо KvK, який був у профілі до редагування
+    /* Signature setup */
+    const c=$("signature"); const ctx=c.getContext("2d");
+    let drawing=false;
+    c.addEventListener("mousedown",()=>{drawing=true;ctx.beginPath();});
+    c.addEventListener("mouseup",()=>{drawing=false;$("signatureDate").innerText=new Date().toLocaleDateString("nl-NL");});
+    c.addEventListener("mousemove",(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
+    window.clearSignature=()=>{ctx.clearRect(0,0,c.width,c.height);$("signatureDate").innerText="";};
 
-    function showMsg(text, type="err"){
-      msg.textContent = text;
-      msg.className = "msg " + (type === "ok" ? "ok" : "err");
-    }
-    function clearMsg(){ msg.textContent = ""; msg.className = "msg"; msg.style.display="none"; }
-    const show = (t, type="err") => { msg.style.display="block"; showMsg(t, type); };
+    /* Save Profile */
+    async function saveProfile(uid){
+      try{
+        let logoUrl="";
+        const file=$("logoUpload").files[0];
+        if(file){
+          const storageRef=ref(storage,`users/${uid}/logo.png`);
+          await uploadBytes(storageRef,file);
+          logoUrl=await getDownloadURL(storageRef);
+        }
 
-    // Нормалізація KvK: лишаємо тільки цифри/букви, великий регістр
-    function normalizeKvK(v){
-      return (v || "").toString().replace(/[^0-9A-Za-z]/g,"").toUpperCase();
-    }
-    // Базова валідація: 8 цифр (класичний формат KvK)
-    function isValidKvK(v){
-      const n = (v||"").replace(/\D/g,"");
-      return n.length === 8;
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { location.href = "login.html"; return; }
-
-      $("userEmailTop").textContent = user.email || "—";
-      $("emailDisplay").value = user.email || "";
-
-      const userRef = doc(db, "users", user.uid);
-      let snap = await getDoc(userRef);
-
-      if (!snap.exists()) {
-        await setDoc(userRef, {
-          email: user.email || "",
-          pro: false,
-          fullName: "",
-          address: "",
-          kvk: "",
-          iban: "",
-          phone: "",
-          invoiceCount: 0
-        });
-        snap = await getDoc(userRef);
+        const data={
+          fullName:$("fullName").value,
+          email:$("email").value,
+          address:$("address").value,
+          phone:$("phone").value,
+          kvk:$("kvk").value,
+          iban:$("iban").value,
+          currency:$("currency").value,
+          vatRate:$("vatRate").value,
+          language:$("language").value,
+          logo:logoUrl,
+          signature:c.toDataURL(),
+          signatureDate:$("signatureDate").innerText,
+          updatedAt:new Date().toISOString()
+        };
+        await setDoc(doc(db,"users",uid),data,{merge:true});
+        showMsg("✅ Profile saved","ok");
+      }catch(e){
+        console.error(e);
+        showMsg("❌ Error: "+e.message,"err");
       }
+    }
 
-      const data = snap.data() || {};
-      ORIGINAL_KVK = data.kvk || "";
-
-      $("fullName").value = data.fullName || "";
-      $("address").value  = data.address  || "";
-      $("kvk").value      = data.kvk      || "";
-      $("iban").value     = data.iban     || "";
-      $("phone").value    = data.phone    || "";
-    });
-
-    $("profileForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      clearMsg();
-
-      const btn = $("btnSave");
-      btn.disabled = true;
-
-      try {
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const fullName = $("fullName").value.trim();
-        const address  = $("address").value.trim();
-        const kvkRaw   = $("kvk").value.trim();
-        const iban     = $("iban").value.trim();
-        const phone    = $("phone").value.trim();
-
-        const newKvK   = kvkRaw;
-        const oldKvK   = ORIGINAL_KVK;
-
-        const userRef  = doc(db, "users", user.uid);
-
-        // Якщо KvK не змінювався — проста updateDoc
-        if ((newKvK || "") === (oldKvK || "")) {
-          await updateDoc(userRef, { fullName, address, iban, phone });
-          show("✅ Profile saved.", "ok");
-          return;
-        }
-
-        // Якщо змінюється KvK:
-        // 1) Валідація (дозволимо також очистити KvK — тоді просто звільнимо індекс)
-        const newKvKId = normalizeKvK(newKvK);
-        const oldKvKId = normalizeKvK(oldKvK);
-
-        if (newKvK && !isValidKvK(newKvK)) {
-          show("❌ KvK must be exactly 8 digits (e.g. 12345678).");
-          return;
-        }
-
-        // 2) Транзакція: звільняємо старий індекс (якщо належить цьому користувачу),
-        //    створюємо новий індекс (якщо вільний), оновлюємо профіль
-        await runTransaction(db, async (tx) => {
-          // Прочитаємо юзер-док (для безпеки, але не обов'язково)
-          await tx.get(userRef);
-
-          // Якщо був попередній KvK → видаляємо відповідний індекс, якщо ресурс належить нам
-          if (oldKvKId) {
-            const oldIdxRef = doc(db, "kvkIndex", oldKvKId);
-            const oldSnap = await tx.get(oldIdxRef);
-            if (oldSnap.exists()) {
-              const owner = oldSnap.data()?.uid;
-              if (owner === user.uid) {
-                tx.delete(oldIdxRef);
-              } // якщо з якоїсь причини не ми власники — пропускаємо
-            }
-          }
-
-          // Якщо новий KvK непорожній → перевіряємо, що індекс ВІЛЬНИЙ
-          if (newKvKId) {
-            const newIdxRef = doc(db, "kvkIndex", newKvKId);
-            const newSnap = await tx.get(newIdxRef);
-            if (newSnap.exists()) {
-              // зайнято — кидаємо помилку (транзакція відкотиться)
-              throw new Error("KVK_TAKEN");
-            }
-            // резервуємо
-            tx.set(newIdxRef, {
-              uid: user.uid,
-              email: user.email || "",
-              createdAt: serverTimestamp()
-            });
-          }
-
-          // Оновлюємо сам профіль (включно з новим KvK)
-          tx.update(userRef, { fullName, address, iban, phone, kvk: newKvK });
-        });
-
-        // Успіх
-        ORIGINAL_KVK = newKvK;
-        show("✅ Profile saved. KvK updated.", "ok");
-
-      } catch (err) {
-        if (String(err && err.message).includes("KVK_TAKEN")) {
-          show("❌ This KvK number is already used by another account. Please enter a different KvK.");
-        } else {
-          console.error(err);
-          show("❌ Failed to save profile. Please try again.");
-        }
-      } finally {
-        $("btnSave").disabled = false;
+    /* Load Profile */
+    async function loadProfile(uid){
+      const snap=await getDoc(doc(db,"users",uid));
+      if(!snap.exists()) return;
+      const p=snap.data();
+      $("fullName").value=p.fullName||"";
+      $("email").value=p.email||"";
+      $("address").value=p.address||"";
+      $("phone").value=p.phone||"";
+      $("kvk").value=p.kvk||"";
+      $("iban").value=p.iban||"";
+      $("currency").value=p.currency||"EUR";
+      $("vatRate").value=p.vatRate||"";
+      $("language").value=p.language||"en";
+      if(p.logo){$("logoPreview").src=p.logo;$("logoPreview").style.display="block";}
+      if(p.signature){
+        const img=new Image();img.onload=()=>ctx.drawImage(img,0,0);img.src=p.signature;
+        $("signatureDate").innerText=p.signatureDate||"";
       }
+    }
+
+    function showMsg(txt,type){const m=$("msg");m.innerText=txt;m.className=type;m.style.display="block";setTimeout(()=>m.style.display="none",3000);}
+
+    onAuthStateChanged(auth,(user)=>{
+      if(!user){location.href="login.html";return;}
+      loadProfile(user.uid);
+      $("saveBtn").onclick=()=>saveProfile(user.uid);
     });
   </script>
 </body>
