@@ -1,115 +1,141 @@
 body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background: #0f172a;
-  color: #e5e7eb;
-  display: flex;
+  margin:0;
+  font-family:Inter, sans-serif;
+  background:#0f172a;
+  color:#e5e7eb;
+  display:flex;
 }
 
 .sidebar {
-  width: 250px;
-  background: #1e293b;
-  padding: 1rem;
-  height: 100vh;
-  position: fixed;
-  overflow-y: auto;
+  width:260px;
+  background:#111827;
+  color:#e5e7eb;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  position:fixed;
+  left:0;
+  top:0;
+  padding:1rem;
 }
-.sidebar .logo {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #3b82f6;
+
+.logo {
+  font-size:1.4rem;
+  font-weight:bold;
+  color:#3b82f6;
+  margin-bottom:1rem;
 }
-.sidebar h3 {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #93c5fd;
+
+.plan-box {
+  background:#1e293b;
+  padding:1rem;
+  border-radius:8px;
+  margin-bottom:1.5rem;
+  text-align:center;
 }
-.sidebar a {
-  display: block;
-  padding: 0.4rem 0.6rem;
-  border-radius: 6px;
-  color: #e5e7eb;
-  text-decoration: none;
+.plan-box p { font-weight:bold; margin:0; }
+.progress {
+  background:#374151;
+  height:6px;
+  border-radius:4px;
+  margin:8px 0;
 }
-.sidebar a:hover {
-  background: #3b82f6;
+#planProgress {
+  background:#3b82f6;
+  height:6px;
+  border-radius:4px;
+  width:0%;
 }
+.plan-box button {
+  margin-top:.5rem;
+  background:#3b82f6;
+  border:none;
+  padding:.4rem .8rem;
+  border-radius:6px;
+  cursor:pointer;
+  color:white;
+}
+.plan-box button:hover { background:#2563eb; }
+
+.menu {
+  flex:1;
+  overflow-y:auto;
+}
+.menu h4 {
+  margin:1rem 0 .3rem;
+  font-size:.9rem;
+  color:#93c5fd;
+}
+.menu a {
+  display:block;
+  padding:.4rem .6rem;
+  border-radius:6px;
+  color:#e5e7eb;
+  text-decoration:none;
+  font-size:.9rem;
+}
+.menu a:hover { background:#2563eb; }
+
 .logout {
-  margin-top: 1.5rem;
-  width: 100%;
-  background: #dc2626;
-  color: white;
-  border: none;
-  padding: 0.6rem;
-  border-radius: 6px;
-  cursor: pointer;
+  margin-top:auto;
+  background:#ef4444;
+  border:none;
+  padding:.5rem;
+  border-radius:6px;
+  cursor:pointer;
+  color:white;
 }
-.logout:hover { background: #b91c1c; }
+.logout:hover { background:#dc2626; }
 
-.content {
-  margin-left: 250px;
-  padding: 1.5rem;
-  flex: 1;
-}
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.main {
+  margin-left:260px;
+  padding:2rem;
+  flex:1;
 }
 
-.badge {
-  padding: 0.3rem 0.7rem;
-  border-radius: 6px;
-  font-weight: bold;
-}
-.badge.free { background: #1e40af; color: #fff; }
-.badge.pro { background: #16a34a; color: #fff; }
+.welcome h1 { margin:0; color:#3b82f6; }
 
-.grid2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-top: 1rem;
+.kpi-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1rem;
+  margin:2rem 0;
 }
-.grid3 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-  gap: 1.5rem;
+.kpi-card {
+  background:#1e293b;
+  padding:1rem;
+  border-radius:10px;
+  text-align:center;
 }
+.kpi-card h2 { margin:.3rem 0; color:#f9fafb; }
 
-.card {
-  background: #1e293b;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
-.card h2, .card h3 {
-  color: #93c5fd;
+.chart-box {
+  background:#1e293b;
+  padding:1rem;
+  border-radius:10px;
+  margin-bottom:2rem;
 }
 
-.btn {
-  display: inline-block;
-  background: #3b82f6;
-  color: #fff;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  margin: 0.3rem 0.2rem 0 0;
-  text-decoration: none;
+.tools-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1rem;
 }
-.btn.secondary {
-  background: #475569;
+.tool-card {
+  background:#1e293b;
+  padding:1rem;
+  border-radius:10px;
 }
-.btn:hover {
-  background: #2563eb;
+.tool-card h3 { margin-top:0; color:#93c5fd; }
+.tool-card p { font-size:.9rem; margin:.5rem 0 1rem; }
+.tool-card .btn {
+  display:inline-block;
+  background:#3b82f6;
+  color:white;
+  padding:.4rem .8rem;
+  border-radius:6px;
+  text-decoration:none;
+  margin-right:.5rem;
+  font-size:.85rem;
 }
-.upgrade {
-  margin-top: 0.5rem;
-  background: #16a34a;
-  color: white;
-  border: none;
-  padding: 0.6rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
+.tool-card .btn:hover { background:#2563eb; }
