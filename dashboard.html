@@ -5,143 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Dashboard</title>
   <link rel="stylesheet" href="style-dashboard.css"/>
-  <style>
-    body {
-      margin: 0;
-      font-family: Inter, sans-serif;
-      display: flex;
-      background: #0f172a;
-      color: #e5e7eb;
-    }
-    /* Sidebar */
-    .sidebar {
-      position: fixed;
-      top: 0; left: 0;
-      width: 260px;
-      height: 100vh;
-      background: #1e293b;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid #334155;
-    }
-    .sidebar h1 {
-      color: #3b82f6;
-      font-size: 1.3rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    .sidebar nav a {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      color: #e5e7eb;
-      text-decoration: none;
-      padding: .6rem .8rem;
-      border-radius: 8px;
-      margin-bottom: .3rem;
-      transition: background .2s;
-    }
-    .sidebar nav a:hover,
-    .sidebar nav a.active {
-      background: #3b82f6;
-      color: #fff;
-    }
-    .sidebar nav h3 {
-      margin: 1rem 0 .4rem;
-      font-size: .9rem;
-      color: #93c5fd;
-      text-transform: uppercase;
-    }
-
-    /* Main */
-    main {
-      margin-left: 260px;
-      padding: 2rem;
-      flex: 1;
-    }
-    header {
-      margin-bottom: 2rem;
-    }
-    header h2 {
-      font-size: 1.5rem;
-      color: #fff;
-    }
-    .welcome {
-      background: #1e293b;
-      padding: 1.5rem;
-      border-radius: 12px;
-    }
-    .welcome p {
-      color: #cbd5e1;
-    }
-
-    /* Responsive */
-    @media(max-width: 800px){
-      .sidebar {
-        width: 70px;
-        padding: .5rem;
-      }
-      .sidebar h1 { display:none; }
-      .sidebar nav a {
-        justify-content: center;
-        gap: 0;
-        font-size: 1.2rem;
-      }
-      main { margin-left: 70px; }
-      .sidebar nav h3 { display:none; }
-    }
-  </style>
 </head>
 <body>
   <!-- Sidebar -->
   <aside class="sidebar">
-    <h1>⚡ SmartWerk</h1>
+    <div class="logo">⚡ SmartWerk</div>
     <nav>
-      <h3>Documents</h3>
-      <a href="quote-offer.html">📄 Quote / Offer</a>
+      <h3>💰 Invoices</h3>
+      <a href="invoice.html">📄 Create Invoice</a>
+      <a href="invoices-list.html">📋 Saved Invoices</a>
+
+      <h3>📑 Quotes</h3>
+      <a href="quote-offer.html">📄 Create Quote</a>
       <a href="quote-offer-list.html">📋 Saved Quotes</a>
-      <a href="invoice.html">🧾 Invoices</a>
-      <a href="invoices-list.html">📂 Saved Invoices</a>
-      <a href="contract.html">📃 Freelance Contract</a>
-      <a href="contract-list.html">📂 Saved Contracts</a>
-      <a href="email-gemeente.html">📩 Email to Gemeente</a>
-      <a href="payment-reminder.html">💸 Payment Reminder</a>
+
+      <h3>📃 Contracts</h3>
+      <a href="contract.html">📄 Create Contract</a>
+      <a href="contract-list.html">📋 Saved Contracts</a>
+
+      <h3>📬 Reminders</h3>
+      <a href="payment-reminder.html">💸 Create Reminder</a>
       <a href="payment-reminder-list.html">📋 Saved Reminders</a>
 
-      <h3>Tools</h3>
-      <a href="expense-tracker.html">🧮 Expense Tracker</a>
-      <a href="roi-estimator.html">📊 ROI Estimator</a>
+      <h3>📂 Templates</h3>
+      <a href="email-gemeente.html">📩 Email to Gemeente</a>
       <a href="cv.html">📄 CV / Portfolio</a>
 
-      <h3>Analytics</h3>
+      <h3>📊 Analytics</h3>
       <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
       <a href="summary.html">📊 Summary</a>
+      <a href="roi-estimator.html">🧮 ROI Estimator</a>
       <a href="tax-calculator.html">🧮 Tax Calculator</a>
 
-      <h3>Other</h3>
-      <a href="ai-assistant.html">🤖 AI Assistant <small>(PRO)</small></a>
-      <a href="profile.html">⚙️ Settings / Profile</a>
+      <h3>⚙️ Settings</h3>
+      <a href="profile.html">👤 Profile</a>
     </nav>
+    <div class="logout">
+      <button id="logoutBtn">🚪 Logout</button>
+    </div>
   </aside>
 
-  <!-- Main content -->
-  <main>
+  <!-- Main Content -->
+  <main class="content">
     <header>
-      <h2>👋 Welcome to SmartWerk Dashboard</h2>
+      <h1 id="welcome">Welcome 👋</h1>
+      <div id="planStatus" class="plan-status">
+        <p>🆓 Free Plan — <span id="usage">0 / 25 uses</span></p>
+        <div class="progress"><div id="progressBar"></div></div>
+        <button id="upgradeBtn">🚀 Upgrade to PRO</button>
+      </div>
     </header>
-    <section class="welcome">
-      <h3>Your Smart Business Hub</h3>
-      <p>All your documents, invoices, contracts and reminders in one place.  
-         Use the sidebar to navigate through tools.  
-         Data is securely stored in Firebase and synced across your account.</p>
+
+    <!-- Grid of tools -->
+    <section class="grid">
+      <div class="card">
+        <h2>📄 Invoices</h2>
+        <p>Create & manage invoices</p>
+        <div class="actions">
+          <a href="invoice.html" class="btn">Create</a>
+          <a href="invoices-list.html" class="btn">Saved</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📑 Quotes</h2>
+        <p>Send offers to clients</p>
+        <div class="actions">
+          <a href="quote-offer.html" class="btn">Create</a>
+          <a href="quote-offer-list.html" class="btn">Saved</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📃 Contracts</h2>
+        <p>Sign freelance agreements</p>
+        <div class="actions">
+          <a href="contract.html" class="btn">Create</a>
+          <a href="contract-list.html" class="btn">Saved</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📬 Reminders</h2>
+        <p>Polite payment reminders</p>
+        <div class="actions">
+          <a href="payment-reminder.html" class="btn">Create</a>
+          <a href="payment-reminder-list.html" class="btn">Saved</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📂 Templates</h2>
+        <p>Emails & CV/Portfolio</p>
+        <div class="actions">
+          <a href="email-gemeente.html" class="btn">Gemeente</a>
+          <a href="cv.html" class="btn">CV</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📊 Analytics</h2>
+        <p>Track your finances</p>
+        <div class="actions">
+          <a href="my-bookkeeper.html" class="btn">Bookkeeper</a>
+          <a href="summary.html" class="btn">Summary</a>
+          <a href="roi-estimator.html" class="btn">ROI</a>
+          <a href="tax-calculator.html" class="btn">Tax</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>⚙️ Settings</h2>
+        <p>Manage your profile</p>
+        <div class="actions">
+          <a href="profile.html" class="btn">Profile</a>
+        </div>
+      </div>
     </section>
   </main>
 
-  <!-- Firebase check -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -151,10 +138,23 @@
     };
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-    onAuthStateChanged(auth,(user)=>{
-      if(!user){ location.href="login.html"; }
+    const $ = id => document.getElementById(id);
+
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href="login.html"; return; }
+      const snap = await getDoc(doc(db,"users",user.uid));
+      if(snap.exists()){
+        const p = snap.data();
+        $("welcome").innerText = `Welcome, ${p.fullName || "User"} 👋`;
+      }
+      // план (заглушка: Free / PRO)
+      $("usage").innerText = "12 / 25 uses";
+      $("progressBar").style.width = "48%";
     });
+
+    $("logoutBtn").addEventListener("click",()=>signOut(auth));
   </script>
 </body>
 </html>
