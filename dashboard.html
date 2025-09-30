@@ -9,7 +9,7 @@
 <body>
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="logo">⚡ SmartWerk</div>
+    <div class="logo">🚀 SmartWerk</div>
     <nav>
       <h3>💰 Invoices</h3>
       <a href="invoice.html">📄 Create Invoice</a>
@@ -31,92 +31,115 @@
       <a href="email-gemeente.html">📩 Email to Gemeente</a>
       <a href="cv.html">📄 CV / Portfolio</a>
 
+      <h3>🤖 AI Tools</h3>
+      <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
+
       <h3>📊 Analytics</h3>
       <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
       <a href="summary.html">📊 Summary</a>
       <a href="roi-estimator.html">🧮 ROI Estimator</a>
       <a href="tax-calculator.html">🧮 Tax Calculator</a>
+      <a href="expense-csv.html">🧮 Expense CSV</a>
 
       <h3>⚙️ Settings</h3>
       <a href="profile.html">👤 Profile</a>
     </nav>
-    <button class="logout">🚪 Logout</button>
+    <button id="logoutBtn" class="logout">🚪 Logout</button>
   </aside>
 
-  <!-- Main Content -->
+  <!-- Main content -->
   <main class="content">
-    <!-- Top bar -->
     <header class="topbar">
-      <h1>Welcome, User 👋</h1>
-      <div class="plan-status">
-        <span class="badge free">FREE</span>
-        <!-- Якщо PRO -->
-        <!-- <span class="badge pro">PRO</span> -->
-      </div>
+      <h1>SmartWerk — Dashboard</h1>
+      <div id="planBadge" class="badge">FREE</div>
     </header>
 
-    <!-- Profile & Plan -->
-    <section class="grid2">
-      <div class="card">
-        <h2>👤 Profile</h2>
-        <p><b>Name:</b> —</p>
-        <p><b>Email:</b> —</p>
-        <p><b>KvK:</b> —</p>
-        <p><b>IBAN:</b> —</p>
-        <p><b>Phone:</b> —</p>
-        <button>Edit Profile</button>
-      </div>
-      <div class="card">
-        <h2>📊 Plan & Limits</h2>
-        <p>Plan: Free</p>
-        <p>Invoices/Quotes/Reminders this month: <b>0 / 25</b></p>
-        <p>Status: <span class="ok">OK</span></p>
-        <button class="upgrade">Upgrade to PRO</button>
-      </div>
+    <!-- Profile Info -->
+    <section class="card">
+      <h2>👤 Profile</h2>
+      <p><strong>Name:</strong> <span id="pName">—</span></p>
+      <p><strong>Email:</strong> <span id="pEmail">—</span></p>
+      <p><strong>Address:</strong> <span id="pAddress">—</span></p>
+      <p><strong>KvK:</strong> <span id="pKvK">—</span></p>
+      <p><strong>IBAN:</strong> <span id="pIban">—</span></p>
+      <p><strong>Phone:</strong> <span id="pPhone">—</span></p>
+      <p><strong>Plan:</strong> <span id="pPlan">Free</span></p>
+      <button onclick="location.href='profile.html'">Edit Profile</button>
+      <button id="upgradeBtn" class="pro">Upgrade to PRO</button>
     </section>
 
-    <!-- Tools -->
-    <section>
-      <h2>🚀 Tools</h2>
-      <div class="grid3">
-        <div class="card tool">
-          <h3>📄 Invoice Generator</h3>
-          <p>Create and manage invoices easily.</p>
-          <a href="invoice.html" class="btn">Create</a>
-          <a href="invoices-list.html" class="btn secondary">Saved</a>
-        </div>
-        <div class="card tool">
-          <h3>📑 Quotes / Offers</h3>
-          <p>Send professional offers to clients.</p>
-          <a href="quote-offer.html" class="btn">Create</a>
-          <a href="quote-offer-list.html" class="btn secondary">Saved</a>
-        </div>
-        <div class="card tool">
-          <h3>📃 Freelance Contract</h3>
-          <p>Generate and save freelance contracts.</p>
-          <a href="contract.html" class="btn">Create</a>
-          <a href="contract-list.html" class="btn secondary">Saved</a>
-        </div>
-        <div class="card tool">
-          <h3>💸 Payment Reminder</h3>
-          <p>Remind clients to pay on time.</p>
-          <a href="payment-reminder.html" class="btn">Create</a>
-          <a href="payment-reminder-list.html" class="btn secondary">Saved</a>
-        </div>
-        <div class="card tool">
-          <h3>📂 Templates</h3>
-          <p>Emails, CVs and more ready-to-use templates.</p>
-          <a href="email-gemeente.html" class="btn">Email</a>
-          <a href="cv.html" class="btn secondary">CV / Portfolio</a>
-        </div>
-        <div class="card tool">
-          <h3>📊 Analytics</h3>
-          <p>Track income, expenses and ROI.</p>
-          <a href="summary.html" class="btn">Summary</a>
-          <a href="my-bookkeeper.html" class="btn secondary">Bookkeeper</a>
-        </div>
-      </div>
+    <!-- Plan & Limits -->
+    <section class="card">
+      <h2>📊 Plan & Limits</h2>
+      <p>Invoices created: <span id="invoiceCount">0</span></p>
+      <p>Limit: <span id="invoiceLimit">3</span></p>
+      <p>Status: <span id="planStatus">OK</span></p>
+    </section>
+
+    <!-- Notices -->
+    <section class="card">
+      <h2>🔔 Notices</h2>
+      <div id="notices">No new notifications.</div>
     </section>
   </main>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const $ = id => document.getElementById(id);
+
+    async function loadProfile(uid){
+      const snap = await getDoc(doc(db,"users",uid));
+      if(!snap.exists()) return;
+      const p = snap.data();
+
+      $("pName").innerText = p.fullName || "—";
+      $("pEmail").innerText = p.email || "—";
+      $("pAddress").innerText = p.address || "—";
+      $("pKvK").innerText = p.kvk || "—";
+      $("pIban").innerText = p.iban || "—";
+      $("pPhone").innerText = p.phone || "—";
+
+      const plan = p.plan || "Free";
+      $("pPlan").innerText = plan;
+      $("planBadge").innerText = plan.toUpperCase();
+      $("planBadge").className = "badge " + (plan==="Pro"?"pro":"free");
+
+      $("invoiceLimit").innerText = (plan==="Pro") ? "Unlimited" : "25 / month";
+    }
+
+    async function loadInvoiceCount(uid){
+      const snap = await getDocs(collection(db,"users",uid,"invoices"));
+      $("invoiceCount").innerText = snap.size;
+      const limit = $("invoiceLimit").innerText;
+      if(limit!=="Unlimited" && snap.size >= 25){
+        $("planStatus").innerText = "Limit Reached ❌";
+      } else {
+        $("planStatus").innerText = "OK ✅";
+      }
+    }
+
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href="login.html"; return; }
+      await loadProfile(user.uid);
+      await loadInvoiceCount(user.uid);
+    });
+
+    $("logoutBtn").onclick = ()=>signOut(auth);
+    $("upgradeBtn").onclick = ()=>alert("Upgrade flow via Stripe will be added.");
+  </script>
 </body>
 </html>
