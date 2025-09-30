@@ -1,162 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Dashboard</title>
-  <link rel="stylesheet" href="style-dashboard.css">
+  <link rel="stylesheet" href="style-dashboard.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="dashboard">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">⚡ SmartWerk</div>
-      <div class="plan-box">
-        <span id="planLabel">Free Plan</span>
-        <small id="limits">3/25 documents used</small>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">⚡ SmartWerk</div>
+    <nav>
+      <div class="accordion">
+        <button class="accordion-btn">💰 Invoices</button>
+        <div class="accordion-panel">
+          <a href="invoice.html">📄 Create Invoice</a>
+          <a href="invoices-list.html">📋 Saved Invoices</a>
+        </div>
+
+        <button class="accordion-btn">📑 Quotes</button>
+        <div class="accordion-panel">
+          <a href="quote-offer.html">📄 Create Quote</a>
+          <a href="quote-offer-list.html">📋 Saved Quotes</a>
+        </div>
+
+        <button class="accordion-btn">📃 Contracts</button>
+        <div class="accordion-panel">
+          <a href="contract.html">📄 Create Contract</a>
+          <a href="contract-list.html">📋 Saved Contracts</a>
+        </div>
+
+        <button class="accordion-btn">📬 Reminders</button>
+        <div class="accordion-panel">
+          <a href="payment-reminder.html">💸 Create Reminder</a>
+          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+        </div>
+
+        <button class="accordion-btn">📂 Templates</button>
+        <div class="accordion-panel">
+          <a href="email-gemeente.html">📩 Email to Gemeente</a>
+          <a href="cv.html">📄 CV / Portfolio</a>
+        </div>
+
+        <button class="accordion-btn">📊 Analytics</button>
+        <div class="accordion-panel">
+          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+          <a href="summary.html">📊 Summary</a>
+          <a href="roi-estimator.html">🧮 ROI Estimator</a>
+          <a href="tax-calculator.html">🧮 Tax Calculator</a>
+        </div>
+
+        <button class="accordion-btn">⚙️ Settings</button>
+        <div class="accordion-panel">
+          <a href="profile.html">👤 Profile</a>
+        </div>
       </div>
-      <nav>
-        <!-- Invoices -->
-        <div class="menu-group">
-          <button class="menu-toggle">💰 Invoices</button>
-          <div class="submenu">
-            <a href="invoice.html">📄 Create Invoice</a>
-            <a href="invoices-list.html">📋 Saved Invoices</a>
-          </div>
+    </nav>
+    <button id="logoutBtn" class="logout">🚪 Logout</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div id="welcome">👋 Welcome</div>
+      <div id="planBox" class="plan-box">
+        <span id="planName">FREE</span>
+        <div class="progress">
+          <div id="planProgress"></div>
         </div>
+        <small id="planUsage">0 / 25</small>
+        <button id="upgradeBtn">⚡ Upgrade</button>
+      </div>
+    </header>
 
-        <!-- Quotes -->
-        <div class="menu-group">
-          <button class="menu-toggle">📑 Quotes</button>
-          <div class="submenu">
-            <a href="quote-offer.html">📄 Create Quote</a>
-            <a href="quote-offer-list.html">📋 Saved Quotes</a>
-          </div>
-        </div>
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <button onclick="location.href='invoice.html'">➕ Invoice</button>
+      <button onclick="location.href='quote-offer.html'">➕ Quote</button>
+      <button onclick="location.href='contract.html'">➕ Contract</button>
+      <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
+    </section>
 
-        <!-- Contracts -->
-        <div class="menu-group">
-          <button class="menu-toggle">📃 Contracts</button>
-          <div class="submenu">
-            <a href="contract.html">📄 Create Contract</a>
-            <a href="contract-list.html">📋 Saved Contracts</a>
-          </div>
-        </div>
+    <!-- KPI -->
+    <section class="kpis">
+      <div class="kpi">💰 Revenue <span id="kpiRevenue">€0</span></div>
+      <div class="kpi">📄 Invoices <span id="kpiInvoices">0</span></div>
+      <div class="kpi">📑 Quotes <span id="kpiQuotes">0</span></div>
+      <div class="kpi">📬 Reminders <span id="kpiReminders">0</span></div>
+      <div class="kpi">👥 Clients <span id="kpiClients">0</span></div>
+      <div class="kpi">⚠️ Unpaid <span id="kpiUnpaid">0</span></div>
+    </section>
 
-        <!-- Reminders -->
-        <div class="menu-group">
-          <button class="menu-toggle">📬 Reminders</button>
-          <div class="submenu">
-            <a href="payment-reminder.html">💸 Create Reminder</a>
-            <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-          </div>
-        </div>
+    <!-- Charts -->
+    <section class="charts">
+      <canvas id="revenueChart"></canvas>
+      <canvas id="invoiceChart"></canvas>
+    </section>
 
-        <!-- Templates -->
-        <div class="menu-group">
-          <button class="menu-toggle">📂 Templates</button>
-          <div class="submenu">
-            <a href="email-gemeente.html">📩 Email to Gemeente</a>
-            <a href="cv.html">📄 CV / Portfolio</a>
-          </div>
-        </div>
+    <!-- Suggestions -->
+    <section class="suggestions">
+      <h2>🔔 Smart Suggestions</h2>
+      <ul id="suggestionsList"><li>No alerts</li></ul>
+    </section>
 
-        <!-- Analytics -->
-        <div class="menu-group">
-          <button class="menu-toggle">📊 Analytics</button>
-          <div class="submenu">
-            <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-            <a href="summary.html">📊 Summary</a>
-            <a href="roi-estimator.html">🧮 ROI Estimator</a>
-            <a href="tax-calculator.html">🧮 Tax Calculator</a>
-          </div>
-        </div>
+    <!-- Recent Activity -->
+    <section class="activity">
+      <h2>📌 Recent Activity</h2>
+      <ul id="activityList"><li>No activity</li></ul>
+    </section>
+  </main>
 
-        <!-- Settings -->
-        <div class="menu-group">
-          <button class="menu-toggle">⚙️ Settings</button>
-          <div class="submenu">
-            <a href="profile.html">👤 Profile</a>
-          </div>
-        </div>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        <!-- AI Assistant -->
-        <div class="menu-group">
-          <button class="menu-toggle">🤖 AI Assistant (PRO)</button>
-          <div class="submenu">
-            <a href="ai-assistant.html">💬 Open Assistant</a>
-          </div>
-        </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
 
-        <!-- Expense CSV -->
-        <div class="menu-group">
-          <button class="menu-toggle">🧮 Expense CSV</button>
-          <div class="submenu">
-            <a href="expense.csv" download>⬇️ Download Example</a>
-          </div>
-        </div>
-      </nav>
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-      <button id="logoutBtn" class="logout">🚪 Logout</button>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="content">
-      <header>
-        <h1 id="welcomeMsg">Welcome 👋</h1>
-      </header>
-
-      <section class="grid">
-        <div class="card">
-          <h3>💰 Invoices</h3>
-          <p>Create and manage invoices for your clients.</p>
-          <a href="invoice.html" class="btn">Create</a>
-          <a href="invoices-list.html" class="btn">Saved</a>
-        </div>
-
-        <div class="card">
-          <h3>📑 Quotes</h3>
-          <p>Send professional quotes and offers.</p>
-          <a href="quote-offer.html" class="btn">Create</a>
-          <a href="quote-offer-list.html" class="btn">Saved</a>
-        </div>
-
-        <div class="card">
-          <h3>📃 Contracts</h3>
-          <p>Build, save and export contracts (NL/EN).</p>
-          <a href="contract.html" class="btn">Create</a>
-          <a href="contract-list.html" class="btn">Saved</a>
-        </div>
-
-        <div class="card">
-          <h3>📬 Reminders</h3>
-          <p>Remind your clients about pending payments.</p>
-          <a href="payment-reminder.html" class="btn">Create</a>
-          <a href="payment-reminder-list.html" class="btn">Saved</a>
-        </div>
-
-        <div class="card">
-          <h3>📂 Templates</h3>
-          <p>Use ready-to-go templates for your business.</p>
-          <a href="email-gemeente.html" class="btn">Email Gemeente</a>
-          <a href="cv.html" class="btn">CV / Portfolio</a>
-        </div>
-
-        <div class="card">
-          <h3>📊 Analytics</h3>
-          <p>Track your finances with SmartWerk tools.</p>
-          <a href="my-bookkeeper.html" class="btn">Bookkeeper</a>
-          <a href="summary.html" class="btn">Summary</a>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <script>
-    document.querySelectorAll(".menu-toggle").forEach(btn=>{
+    // Accordion
+    document.querySelectorAll(".accordion-btn").forEach(btn=>{
       btn.addEventListener("click",()=>{
-        btn.parentElement.classList.toggle("open");
+        btn.classList.toggle("active");
+        const panel = btn.nextElementSibling;
+        panel.style.display = panel.style.display==="block" ? "none" : "block";
       });
+    });
+
+    // Load Dashboard Data
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href="login.html"; return; }
+
+      const uid = user.uid;
+      const snap = await getDoc(doc(db,"users",uid));
+      if(snap.exists()){
+        const d = snap.data();
+        document.getElementById("welcome").innerText = `👋 Welcome, ${d.fullName||"User"}`;
+        document.getElementById("planName").innerText = d.plan || "FREE";
+
+        // Usage
+        const used = d.usage || 0;
+        const limit = d.plan==="PRO"?999:25;
+        document.getElementById("planUsage").innerText = `${used} / ${limit}`;
+        document.getElementById("planProgress").style.width = `${Math.min((used/limit)*100,100)}%`;
+      }
+
+      // Logout
+      document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+    });
+
+    // Dummy Charts
+    new Chart(document.getElementById("revenueChart"),{
+      type:"line",
+      data:{labels:["Jan","Feb","Mar"], datasets:[{label:"Revenue", data:[0,200,400], borderColor:"#3b82f6"}]},
+      options:{responsive:true}
+    });
+    new Chart(document.getElementById("invoiceChart"),{
+      type:"doughnut",
+      data:{labels:["Paid","Unpaid","Draft"], datasets:[{data:[2,1,3], backgroundColor:["#22c55e","#ef4444","#94a3b8"]}]},
+      options:{responsive:true}
     });
   </script>
 </body>
