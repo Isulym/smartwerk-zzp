@@ -40,121 +40,83 @@
       <h3>⚙️ Settings</h3>
       <a href="profile.html">👤 Profile</a>
     </nav>
-    <div class="logout">
-      <button id="logoutBtn">🚪 Logout</button>
-    </div>
+    <button class="logout">🚪 Logout</button>
   </aside>
 
   <!-- Main Content -->
   <main class="content">
-    <header>
-      <h1 id="welcome">Welcome 👋</h1>
-      <div id="planStatus" class="plan-status">
-        <p>🆓 Free Plan — <span id="usage">0 / 25 uses</span></p>
-        <div class="progress"><div id="progressBar"></div></div>
-        <button id="upgradeBtn">🚀 Upgrade to PRO</button>
+    <!-- Top bar -->
+    <header class="topbar">
+      <h1>Welcome, User 👋</h1>
+      <div class="plan-status">
+        <span class="badge free">FREE</span>
+        <!-- Якщо PRO -->
+        <!-- <span class="badge pro">PRO</span> -->
       </div>
     </header>
 
-    <!-- Grid of tools -->
-    <section class="grid">
+    <!-- Profile & Plan -->
+    <section class="grid2">
       <div class="card">
-        <h2>📄 Invoices</h2>
-        <p>Create & manage invoices</p>
-        <div class="actions">
+        <h2>👤 Profile</h2>
+        <p><b>Name:</b> —</p>
+        <p><b>Email:</b> —</p>
+        <p><b>KvK:</b> —</p>
+        <p><b>IBAN:</b> —</p>
+        <p><b>Phone:</b> —</p>
+        <button>Edit Profile</button>
+      </div>
+      <div class="card">
+        <h2>📊 Plan & Limits</h2>
+        <p>Plan: Free</p>
+        <p>Invoices/Quotes/Reminders this month: <b>0 / 25</b></p>
+        <p>Status: <span class="ok">OK</span></p>
+        <button class="upgrade">Upgrade to PRO</button>
+      </div>
+    </section>
+
+    <!-- Tools -->
+    <section>
+      <h2>🚀 Tools</h2>
+      <div class="grid3">
+        <div class="card tool">
+          <h3>📄 Invoice Generator</h3>
+          <p>Create and manage invoices easily.</p>
           <a href="invoice.html" class="btn">Create</a>
-          <a href="invoices-list.html" class="btn">Saved</a>
+          <a href="invoices-list.html" class="btn secondary">Saved</a>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>📑 Quotes</h2>
-        <p>Send offers to clients</p>
-        <div class="actions">
+        <div class="card tool">
+          <h3>📑 Quotes / Offers</h3>
+          <p>Send professional offers to clients.</p>
           <a href="quote-offer.html" class="btn">Create</a>
-          <a href="quote-offer-list.html" class="btn">Saved</a>
+          <a href="quote-offer-list.html" class="btn secondary">Saved</a>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>📃 Contracts</h2>
-        <p>Sign freelance agreements</p>
-        <div class="actions">
+        <div class="card tool">
+          <h3>📃 Freelance Contract</h3>
+          <p>Generate and save freelance contracts.</p>
           <a href="contract.html" class="btn">Create</a>
-          <a href="contract-list.html" class="btn">Saved</a>
+          <a href="contract-list.html" class="btn secondary">Saved</a>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>📬 Reminders</h2>
-        <p>Polite payment reminders</p>
-        <div class="actions">
+        <div class="card tool">
+          <h3>💸 Payment Reminder</h3>
+          <p>Remind clients to pay on time.</p>
           <a href="payment-reminder.html" class="btn">Create</a>
-          <a href="payment-reminder-list.html" class="btn">Saved</a>
+          <a href="payment-reminder-list.html" class="btn secondary">Saved</a>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>📂 Templates</h2>
-        <p>Emails & CV/Portfolio</p>
-        <div class="actions">
-          <a href="email-gemeente.html" class="btn">Gemeente</a>
-          <a href="cv.html" class="btn">CV</a>
+        <div class="card tool">
+          <h3>📂 Templates</h3>
+          <p>Emails, CVs and more ready-to-use templates.</p>
+          <a href="email-gemeente.html" class="btn">Email</a>
+          <a href="cv.html" class="btn secondary">CV / Portfolio</a>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>📊 Analytics</h2>
-        <p>Track your finances</p>
-        <div class="actions">
-          <a href="my-bookkeeper.html" class="btn">Bookkeeper</a>
+        <div class="card tool">
+          <h3>📊 Analytics</h3>
+          <p>Track income, expenses and ROI.</p>
           <a href="summary.html" class="btn">Summary</a>
-          <a href="roi-estimator.html" class="btn">ROI</a>
-          <a href="tax-calculator.html" class="btn">Tax</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>⚙️ Settings</h2>
-        <p>Manage your profile</p>
-        <div class="actions">
-          <a href="profile.html" class="btn">Profile</a>
+          <a href="my-bookkeeper.html" class="btn secondary">Bookkeeper</a>
         </div>
       </div>
     </section>
   </main>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    const $ = id => document.getElementById(id);
-
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user){ location.href="login.html"; return; }
-      const snap = await getDoc(doc(db,"users",user.uid));
-      if(snap.exists()){
-        const p = snap.data();
-        $("welcome").innerText = `Welcome, ${p.fullName || "User"} 👋`;
-      }
-      // план (заглушка: Free / PRO)
-      $("usage").innerText = "12 / 25 uses";
-      $("progressBar").style.width = "48%";
-    });
-
-    $("logoutBtn").addEventListener("click",()=>signOut(auth));
-  </script>
 </body>
 </html>
