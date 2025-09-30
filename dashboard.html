@@ -5,108 +5,124 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Dashboard</title>
   <link rel="stylesheet" href="style-dashboard.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 </head>
 <body>
-  <div class="dashboard">
+  <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">🚀 SmartWerk</div>
-      <div class="plan-box" id="planBox">Plan: <span id="planName">FREE</span> <div class="progress"><div id="planProgress"></div></div></div>
-      <nav class="menu">
-        <div class="accordion">
-          <button class="accordion-btn">💰 Invoices</button>
-          <div class="accordion-panel">
-            <a href="invoice.html">📄 Create Invoice</a>
-            <a href="invoices-list.html">📋 Saved Invoices</a>
-          </div>
+      <div class="brand">⚡ SmartWerk</div>
 
-          <button class="accordion-btn">📑 Quotes</button>
-          <div class="accordion-panel">
-            <a href="quote-offer.html">📄 Create Quote</a>
-            <a href="quote-offer-list.html">📋 Saved Quotes</a>
-          </div>
+      <nav class="nav">
+        <!-- Invoices -->
+        <button class="acc-btn">💰 Invoices</button>
+        <div class="acc-panel">
+          <a href="invoice.html">📄 Create Invoice</a>
+          <a href="invoices-list.html">📋 Saved Invoices</a>
+        </div>
 
-          <button class="accordion-btn">📃 Contracts</button>
-          <div class="accordion-panel">
-            <a href="contract.html">📄 Create Contract</a>
-            <a href="contract-list.html">📋 Saved Contracts</a>
-          </div>
+        <!-- Quotes -->
+        <button class="acc-btn">📑 Quotes</button>
+        <div class="acc-panel">
+          <a href="quote-offer.html">📄 Create Quote</a>
+          <a href="quote-offer-list.html">📋 Saved Quotes</a>
+        </div>
 
-          <button class="accordion-btn">📬 Reminders</button>
-          <div class="accordion-panel">
-            <a href="payment-reminder.html">💸 Create Reminder</a>
-            <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-          </div>
+        <!-- Contracts -->
+        <button class="acc-btn">📃 Contracts</button>
+        <div class="acc-panel">
+          <a href="contract.html">📄 Create Contract</a>
+          <a href="contract-list.html">📋 Saved Contracts</a>
+        </div>
 
-          <button class="accordion-btn">📂 Templates</button>
-          <div class="accordion-panel">
-            <a href="email-gemeente.html">📩 Email to Gemeente</a>
-            <a href="cv.html">📄 CV / Portfolio</a>
-            <a href="expense.csv">🧮 Expense CSV</a>
-          </div>
+        <!-- Reminders -->
+        <button class="acc-btn">📬 Reminders</button>
+        <div class="acc-panel">
+          <a href="payment-reminder.html">💸 Create Reminder</a>
+          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+        </div>
 
-          <button class="accordion-btn">📊 Analytics</button>
-          <div class="accordion-panel">
-            <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-            <a href="summary.html">📊 Summary</a>
-            <a href="roi-estimator.html">🧮 ROI Estimator</a>
-            <a href="tax-calculator.html">🧮 Tax Calculator</a>
-          </div>
+        <!-- Templates -->
+        <button class="acc-btn">📂 Templates</button>
+        <div class="acc-panel">
+          <a href="email-gemeente.html">📩 Email to Gemeente</a>
+          <a href="cv.html">📄 CV / Portfolio</a>
+          <a href="expense.csv">🧮 Expense CSV</a>
+        </div>
 
-          <button class="accordion-btn">⚙️ Settings</button>
-          <div class="accordion-panel">
-            <a href="profile.html">👤 Profile</a>
-          </div>
+        <!-- Analytics -->
+        <button class="acc-btn">📊 Analytics</button>
+        <div class="acc-panel">
+          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+          <a href="summary.html">📊 Summary</a>
+          <a href="roi-estimator.html">🧮 ROI Estimator</a>
+          <a href="tax-calculator.html">🧮 Tax Calculator</a>
+        </div>
+
+        <!-- Settings -->
+        <button class="acc-btn">⚙️ Settings</button>
+        <div class="acc-panel">
+          <a href="profile.html">👤 Profile</a>
         </div>
       </nav>
+
       <button id="logoutBtn" class="logout">🚪 Logout</button>
     </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <header class="topbar">
-        <h1 id="welcomeText">Welcome 👋</h1>
+    <!-- Main -->
+    <main class="main">
+      <header class="top">
+        <h1 id="welcome">Welcome 👋</h1>
+        <div class="plan-badge" id="planBadge">
+          <span id="planLabel">FREE</span>
+          <span class="sep">•</span>
+          <span id="usageText">0/25</span>
+          <div class="progress">
+            <div id="progressBar" style="width:0%"></div>
+          </div>
+        </div>
       </header>
 
-      <!-- Quick Actions -->
-      <section class="quick-actions">
-        <button onclick="location.href='invoice.html'">➕ Invoice</button>
-        <button onclick="location.href='quote-offer.html'">➕ Quote</button>
-        <button onclick="location.href='contract.html'">➕ Contract</button>
-        <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
+      <!-- Quick actions -->
+      <section class="quick">
+        <button onclick="location.href='invoice.html'">+ Invoice</button>
+        <button onclick="location.href='quote-offer.html'">+ Quote</button>
+        <button onclick="location.href='contract.html'">+ Contract</button>
+        <button onclick="location.href='payment-reminder.html'">+ Reminder</button>
       </section>
 
-      <!-- KPI Cards -->
-      <section class="kpi">
-        <div class="card"><h3>Revenue</h3><p id="kpiRevenue">€0</p></div>
-        <div class="card"><h3>Unpaid</h3><p id="kpiUnpaid">€0</p></div>
-        <div class="card"><h3>Invoices This Month</h3><p id="kpiInvoices">0</p></div>
-        <div class="card"><h3>Quotes Accepted %</h3><p id="kpiQuotes">0%</p></div>
-        <div class="card"><h3>New Clients</h3><p id="kpiClients">0</p></div>
-        <div class="card"><h3>Reminders Sent</h3><p id="kpiReminders">0</p></div>
+      <!-- KPI -->
+      <section class="kpis">
+        <div class="kpi"><div>💶 Revenue</div><b id="kpiRevenue">€0</b></div>
+        <div class="kpi"><div>⚠️ Unpaid</div><b id="kpiUnpaid">€0</b></div>
+        <div class="kpi"><div>🧾 Invoices (month)</div><b id="kpiInvoices">0</b></div>
+        <div class="kpi"><div>📈 Quotes accepted</div><b id="kpiQuotes">0%</b></div>
+        <div class="kpi"><div>👥 New clients</div><b id="kpiClients">0</b></div>
+        <div class="kpi"><div>🔔 Reminders</div><b id="kpiReminders">0</b></div>
       </section>
 
       <!-- Charts -->
       <section class="charts">
-        <canvas id="revenueChart"></canvas>
-        <canvas id="invoiceStatusChart"></canvas>
+        <div class="card">
+          <h3>Revenue (last 6 months)</h3>
+          <canvas id="revenueChart" height="300"></canvas>
+        </div>
+        <div class="card">
+          <h3>Invoice status</h3>
+          <canvas id="statusChart" height="300"></canvas>
+        </div>
       </section>
 
-      <!-- Smart Suggestions -->
-      <section class="suggestions">
-        <h2>💡 Smart Suggestions</h2>
-        <ul id="suggestionList">
-          <li>No suggestions yet.</li>
-        </ul>
-      </section>
-
-      <!-- Recent Activity -->
-      <section class="recent-activity">
-        <h2>🕑 Recent Activity</h2>
-        <ul id="activityList">
-          <li>No recent activity.</li>
-        </ul>
+      <section class="split">
+        <div class="card">
+          <h3>💡 Smart Suggestions</h3>
+          <ul id="suggestions"><li>—</li></ul>
+        </div>
+        <div class="card">
+          <h3>🕑 Recent Activity</h3>
+          <ul id="activity"><li>—</li></ul>
+        </div>
       </section>
     </main>
   </div>
@@ -115,7 +131,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, orderBy, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -127,44 +143,160 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* Accordion Sidebar */
-    document.querySelectorAll(".accordion-btn").forEach(btn=>{
+    const $ = s => document.querySelector(s);
+
+    /* Sidebar accordion */
+    document.querySelectorAll(".acc-btn").forEach(btn=>{
       btn.addEventListener("click",()=>{
         btn.classList.toggle("active");
-        const panel=btn.nextElementSibling;
-        panel.style.display = panel.style.display==="block" ? "none" : "block";
+        const p = btn.nextElementSibling;
+        p.style.display = (p.style.display==="block") ? "none" : "block";
       });
     });
 
-    /* Firebase User */
-    onAuthStateChanged(auth, async(user)=>{
+    /* Helpers */
+    const euro = n => "€" + (Number(n||0).toFixed(2));
+    const monthKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+
+    /* Charts holders */
+    let revenueChart, statusChart;
+
+    onAuthStateChanged(auth, async user=>{
       if(!user){ location.href="login.html"; return; }
-      const snap = await getDoc(doc(db,"users",user.uid));
-      if(snap.exists()){
-        const p=snap.data();
-        document.getElementById("welcomeText").innerText=`Welcome, ${p.fullName||"User"} 👋`;
 
-        // Plan
-        const plan=p.plan||"FREE";
-        document.getElementById("planName").innerText=plan;
-        if(plan==="FREE"){
-          const used=(p.usage||0);
-          const limit=25;
-          document.getElementById("planProgress").style.width=(used/limit*100)+"%";
-        }else{
-          document.getElementById("planProgress").style.width="100%";
+      // Profile + Plan
+      const profSnap = await getDoc(doc(db,"users",user.uid));
+      const prof = profSnap.exists() ? profSnap.data() : {};
+      $("#welcome").textContent = `Welcome, ${prof.fullName || "User"} 👋`;
+
+      const plan = (prof.plan || "FREE").toUpperCase();
+      const used = Number(prof.usage || 0);
+      const limitFree = 25;
+      $("#planLabel").textContent = plan;
+      $("#usageText").textContent = plan==="FREE" ? `${used}/${limitFree}` : "PRO";
+      $("#progressBar").style.width = plan==="FREE" ? Math.min(100, used/limitFree*100) + "%" : "100%";
+
+      // Load collections (simple, без індексів)
+      const [invSnap, quoSnap, remSnap] = await Promise.all([
+        getDocs(collection(db,"users",user.uid,"invoices")),
+        getDocs(collection(db,"users",user.uid,"quotes")),
+        getDocs(collection(db,"users",user.uid,"reminders")),
+      ]);
+
+      const invoices = invSnap.docs.map(d=>({id:d.id, ...d.data()}));
+      const quotes   = quoSnap.docs.map(d=>({id:d.id, ...d.data()}));
+      const reminders= remSnap.docs.map(d=>({id:d.id, ...d.data()}));
+
+      // KPI: revenue, unpaid, invoices this month
+      const now = new Date();
+      const thisMonth = monthKey(now);
+
+      const paid = invoices.filter(i => (i.status||"").toLowerCase()==="paid");
+      const revenue = paid.reduce((s,i)=> s + Number(i.grandTotal || i.total || 0), 0);
+
+      const unpaid = invoices.filter(i => (i.status||"").toLowerCase()!=="paid");
+      const unpaidSum = unpaid.reduce((s,i)=> s + Number(i.grandTotal || i.total || 0), 0);
+
+      const invThisMonth = invoices.filter(i => String(i.invoiceDate||"").startsWith(thisMonth)).length;
+
+      const accepted = quotes.filter(q => (q.status||"").toLowerCase()==="accepted").length;
+      const quotesPct = quotes.length ? Math.round(accepted/quotes.length*100) : 0;
+
+      $("#kpiRevenue").textContent  = euro(revenue);
+      $("#kpiUnpaid").textContent   = euro(unpaidSum);
+      $("#kpiInvoices").textContent = invThisMonth;
+      $("#kpiQuotes").textContent   = quotesPct + "%";
+      $("#kpiClients").textContent  = new Set(invoices.map(i=>i.clientEmail || i.clientName)).size;
+      $("#kpiReminders").textContent= reminders.length;
+
+      // Charts
+      // Revenue by month (last 6)
+      const months = [...Array(6)].map((_,k)=>{
+        const d = new Date(now.getFullYear(), now.getMonth()-5+k, 1);
+        return monthKey(d);
+      });
+      const revenueByMonth = months.map(m=>{
+        const monthPaid = invoices.filter(i => String(i.invoiceDate||"").startsWith(m) && (i.status||"").toLowerCase()==="paid");
+        return monthPaid.reduce((s,i)=> s + Number(i.grandTotal || i.total || 0), 0);
+      });
+
+      const paidCount    = invoices.filter(i => (i.status||"").toLowerCase()==="paid").length;
+      const unpaidCount  = invoices.filter(i => (i.status||"").toLowerCase()==="unpaid").length;
+      const draftCount   = invoices.filter(i => (i.status||"").toLowerCase()==="draft").length;
+
+      const ctx1 = document.getElementById("revenueChart").getContext("2d");
+      const ctx2 = document.getElementById("statusChart").getContext("2d");
+      revenueChart && revenueChart.destroy();
+      statusChart  && statusChart.destroy();
+
+      revenueChart = new Chart(ctx1,{
+        type:"line",
+        data:{ labels: months, datasets:[{ label:"Revenue", data: revenueByMonth, borderColor:"#3b82f6", tension:.3 }]},
+        options:{
+          plugins:{ legend:{ labels:{ color:"#e5e7eb" } } },
+          scales:{
+            x:{ ticks:{ color:"#9ca3af" }, grid:{ color:"rgba(148,163,184,.15)"}},
+            y:{ ticks:{ color:"#9ca3af" }, grid:{ color:"rgba(148,163,184,.15)"}}
+          }
         }
-      }
-    });
+      });
 
-    /* Charts */
-    const ctx1=document.getElementById("revenueChart");
-    new Chart(ctx1,{type:"line",data:{labels:["Jan","Feb","Mar"],datasets:[{label:"Revenue",data:[500,1000,750],borderColor:"#3b82f6"}]}});
-    const ctx2=document.getElementById("invoiceStatusChart");
-    new Chart(ctx2,{type:"doughnut",data:{labels:["Paid","Unpaid","Draft"],datasets:[{data:[5,3,2],backgroundColor:["#22c55e","#ef4444","#64748b"]}]}});
-    
-    /* Logout */
-    document.getElementById("logoutBtn").addEventListener("click",()=>signOut(auth));
+      statusChart = new Chart(ctx2,{
+        type:"doughnut",
+        data:{
+          labels:["Paid","Unpaid","Draft"],
+          datasets:[{ data:[paidCount,unpaidCount,draftCount], backgroundColor:["#22c55e","#ef4444","#64748b"] }]
+        },
+        options:{
+          plugins:{ legend:{ labels:{ color:"#e5e7eb" } } }
+        }
+      });
+
+      // Smart Suggestions
+      const suggestions = [];
+      // 1) Прострочені інвойси (dueDate < today і не Paid)
+      const today = new Date().toISOString().slice(0,10);
+      const overdue = invoices.filter(i => (i.dueDate||"") < today && (i.status||"").toLowerCase()!=="paid");
+      if(overdue.length){
+        const n = overdue.length;
+        suggestions.push(`⚠️ ${n} invoice${n>1?"s":""} overdue → <a href="payment-reminder-list.html">Send Reminders</a>`);
+      }
+
+      // 2) Є інвойси “Sent” без оплати 14+ днів
+      const oldSent = invoices.filter(i=>{
+        const d = i.invoiceDate || i.updatedAt || "";
+        if(!d) return false;
+        const dt = new Date(d);
+        const age = (Date.now() - dt.getTime())/(1000*60*60*24);
+        return (i.status||"").toLowerCase()==="sent" && age>=14;
+      });
+      if(oldSent.length){
+        suggestions.push(`⏳ ${oldSent.length} sent ≥14 days → consider Reminder`);
+      }
+
+      // 3) Профіль не заповнений
+      if(!prof.fullName || !prof.iban || !prof.kvk){
+        suggestions.push(`🪪 Complete <a href="profile.html">Profile</a> to auto-fill all documents.`);
+      }
+
+      $("#suggestions").innerHTML = suggestions.length
+        ? suggestions.map(s=>`<li>${s}</li>`).join("")
+        : `<li>No suggestions — nice work! ✅</li>`;
+
+      // Recent Activity (останні 5 оновлень)
+      // беремо invoices як найчастіше; за бажанням можна додати quotes/reminders
+      let recent = invoices
+        .map(i=>({t:"Invoice", n:i.invoiceNumber || i.id, d:i.updatedAt || i.invoiceDate || ""}))
+        .sort((a,b)=>String(b.d).localeCompare(String(a.d)))
+        .slice(0,5);
+
+      $("#activity").innerHTML = recent.length
+        ? recent.map(r=>`<li>🧾 ${r.t} ${r.n} — ${r.d||"—"}</li>`).join("")
+        : `<li>No recent activity.</li>`;
+
+      // Logout
+      $("#logoutBtn").addEventListener("click",()=>signOut(auth));
+    });
   </script>
 </body>
 </html>
