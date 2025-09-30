@@ -17,7 +17,7 @@
     #msg { margin:1rem auto; max-width:700px; padding:.8rem; border-radius:8px; display:none; }
     #msg.ok { background:#16a34a; color:white; }
     #msg.err { background:#dc2626; color:white; }
-    img { margin-top:1rem; border-radius:8px; }
+    #logoPreview { max-width:200px; display:none; margin-top:1rem; border-radius:6px; }
   </style>
 </head>
 <body>
@@ -40,14 +40,25 @@
       <input id="phone" placeholder="Phone Number"/>
       <input id="kvk" placeholder="KvK (8 digits)" maxlength="8"/>
       <input id="iban" placeholder="IBAN"/>
+      <input id="btw" placeholder="BTW Number"/>
       <label>Business Logo:</label>
       <input type="file" id="logoUpload" accept="image/*"/>
-      <img id="logoPreview" style="max-width:200px; display:none;"/>
+      <img id="logoPreview"/>
     </section>
 
     <!-- Preferences -->
     <section>
       <h2>⚙️ Preferences</h2>
+      <label>Currency:
+        <select id="currency">
+          <option value="EUR">EUR €</option>
+          <option value="USD">USD $</option>
+          <option value="GBP">GBP £</option>
+        </select>
+      </label>
+      <label>Default VAT %:
+        <input id="vatRate" type="number" placeholder="21"/>
+      </label>
       <label>Language:
         <select id="language">
           <option value="en">English</option>
@@ -105,6 +116,9 @@
           phone:$("phone").value,
           kvk:$("kvk").value,
           iban:$("iban").value,
+          btw:$("btw").value,
+          currency:$("currency").value,
+          vatRate:$("vatRate").value,
           language:$("language").value,
           logo:logoUrl,
           updatedAt:new Date().toISOString()
@@ -124,31 +138,27 @@
         if(!snap.exists()) return;
         const p=snap.data();
 
-        $("fullName").value=p.fullName||"";
-        $("email").value=p.email||"";
-        $("address").value=p.address||"";
-        $("phone").value=p.phone||"";
-        $("kvk").value=p.kvk||"";
-        $("iban").value=p.iban||"";
-        if(p.language) $("language").value=p.language;
+        if($("fullName")) $("fullName").value=p.fullName||"";
+        if($("email")) $("email").value=p.email||"";
+        if($("address")) $("address").value=p.address||"";
+        if($("phone")) $("phone").value=p.phone||"";
+        if($("kvk")) $("kvk").value=p.kvk||"";
+        if($("iban")) $("iban").value=p.iban||"";
+        if($("btw")) $("btw").value=p.btw||"";
+        if($("currency")) $("currency").value=p.currency||"EUR";
+        if($("vatRate")) $("vatRate").value=p.vatRate||"21";
+        if($("language")) $("language").value=p.language||"en";
         if(p.logo){
           $("logoPreview").src=p.logo;
           $("logoPreview").style.display="block";
         }
       }catch(e){
-        console.error("❌ Load error:", e);
+        console.error("❌ Load error", e);
       }
     }
 
-    function showMsg(txt,type){
-      const m=$("msg");
-      m.innerText=txt;
-      m.className=type;
-      m.style.display="block";
-      setTimeout(()=>m.style.display="none",3000);
-    }
+    function showMsg(txt,type){const m=$("msg");m.innerText=txt;m.className=type;m.style.display="block";setTimeout(()=>m.style.display="none",3000);}
 
-    /* Init */
     onAuthStateChanged(auth,(user)=>{
       if(!user){location.href="login.html";return;}
       loadProfile(user.uid);
