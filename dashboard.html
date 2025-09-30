@@ -1,346 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style-dashboard.css"/>
   <style>
-    :root{
-      --bg:#0e1014; --card:#151823; --muted:#9aa3b2; --ok:#27c693; --warn:#ffb020; --err:#ff5470; --line:#232a42;
-      --panel:#151b28; --panel2:#141827; --accent:#3b79ff;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Arial;color:#e9edf5;background:radial-gradient(1200px 600px at 10% -10%,#1d2233 0%,#0e1014 40%),linear-gradient(#0e1014,#0e1014)}
-    .wrap{max-width:1200px;margin:0 auto;padding:20px 22px}
-
-    /* topbar */
-    .topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
-    .brand{font-weight:700;font-size:20px;letter-spacing:.3px}
-    .right{display:flex;gap:10px;align-items:center}
-    .btn{background:#2b3350;border:1px solid #3b4567;color:#e9edf5;padding:10px 14px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-    .btn:hover{filter:brightness(1.1)}
-    .btn.primary{background:#3b79ff;border-color:#4d86ff}
-    .btn.danger{background:#4a2330;border-color:#6a2c40}
-    /* NEW: subtle/ghost button */
-    .btn.ghost{background:transparent;border:1px solid #3b4567;color:#9aa3b2}
-    .btn.ghost:hover{filter:brightness(1.15)}
-    .badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px}
-    .badge.pro{background:linear-gradient(90deg,#ffdf6b,#ffb020);color:#1c1200}
-    .badge.free{background:#2a3147;color:#c9d2e3;border:1px solid #3a425e}
-
-    /* layout: sidebar + main */
-    .layout{display:grid;grid-template-columns:240px 1fr;gap:16px}
-    .sidebar{align-self:start;position:sticky;top:16px;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:16px;padding:16px}
-    .sidebar h2{margin:0 0 14px 0;font-size:18px;text-align:center}
-    .nav-link{display:block;padding:10px 12px;margin:6px 0;border:1px solid #2b3350;border-radius:10px;text-decoration:none;color:#e9edf5;background:#121728}
-    .nav-link:hover{filter:brightness(1.08)}
-    .sidebar .back{display:block;margin-top:12px;text-decoration:none;color:#c9d2e3}
-
-    /* cards + panels */
-    .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
-    .card{background:linear-gradient(180deg,#161b28,#141827);border:1px solid #232a42;border-radius:16px;padding:18px}
-    .card h3{margin:0 0 10px 0;font-size:16px}
-    .muted{color:var(--muted);font-size:13px}
-    .kv{display:grid;grid-template-columns:160px 1fr;gap:8px;margin-top:10px}
-    .sep{height:1px;background:var(--line);margin:16px 0}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
-
-    /* app tiles from your snippet */
-    .apps{margin-top:16px}
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
-    .card-link{display:block;text-decoration:none;color:inherit}
-    .dashboard-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:linear-gradient(180deg,var(--panel),var(--panel2));transition:.15s}
-    .dashboard-card:hover{filter:brightness(1.06)}
-    .dashboard-card h3{margin:0 0 8px 0}
-
-    @media (max-width:1024px){.layout{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
-  </style>
+  
 </head>
 <body>
-  <div class="wrap">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div class="brand">💼 SmartWerk — Dashboard</div>
-      <div class="right">
-        <a href="index.html" class="btn" id="btnHome">Main Page</a>
-        <span id="planBadge" class="badge free">FREE</span>
-        <button id="btnLogout" class="btn danger">Logout</button>
-      </div>
-    </div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h1>⚡ SmartWerk</h1>
+    <nav>
+      <h3>Documents</h3>
+      <a href="quote-offer.html">📄 Quote / Offer</a>
+      <a href="quote-offer-list.html">📋 Saved Quotes</a>
+      <a href="invoice.html">🧾 Invoices</a>
+      <a href="invoices-list.html">📂 Saved Invoices</a>
+      <a href="contract.html">📃 Freelance Contract</a>
+      <a href="contract-list.html">📂 Saved Contracts</a>
+      <a href="email-gemeente.html">📩 Email to Gemeente</a>
+      <a href="payment-reminder.html">💸 Payment Reminder</a>
+      <a href="payment-reminder-list.html">📋 Saved Reminders</a>
 
-    <div class="layout">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <h2>SmartWerk</h2>
-        <a href="#" class="nav-link" id="linkSummary">📊 Summary</a>
-        <a href="#" class="nav-link" id="linkInvoices">🧾 Invoices</a>
-        <a href="#" class="nav-link" id="linkTax">🧮 Tax Calculator</a>
-        <a href="#" class="nav-link" id="linkTemplates">📁 Templates</a>
-        <a href="#" class="nav-link" id="linkBookkeeper">🏆 My Bookkeeper</a>
-        <a href="#" class="nav-link" id="linkSettings">⚙️ Settings</a>
-        <a href="index.html" class="back">← Back to Home</a>
-      </aside>
+      <h3>Tools</h3>
+      <a href="expense-tracker.html">🧮 Expense Tracker</a>
+      <a href="roi-estimator.html">📊 ROI Estimator</a>
+      <a href="cv.html">📄 CV / Portfolio</a>
 
-      <!-- Main -->
-      <main>
-        <div class="grid">
-          <!-- Profile -->
-          <div class="card">
-            <h3>👤 Profile</h3>
-            <div class="muted" id="userEmailTop">—</div>
-            <div class="kv">
-              <div class="muted">Name</div><div id="fullName">—</div>
-              <div class="muted">Email</div><div id="emailKv">—</div>
-              <div class="muted">Address</div><div id="address">—</div>
-              <div class="muted">KvK</div><div id="kvk">—</div>
-              <div class="muted">IBAN</div><div id="iban">—</div>
-              <div class="muted">Phone</div><div id="phone">—</div>
-              <div class="muted">Plan</div><div id="planText">Free</div>
-            </div>
-            <div class="sep"></div>
-            <div class="row">
-              <button id="btnProfile" class="btn">Edit profile</button>
-              <button id="btnUpgrade" class="btn primary">Upgrade to PRO</button>
-            </div>
-          </div>
+      <h3>Analytics</h3>
+      <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+      <a href="summary.html">📊 Summary</a>
+      <a href="tax-calculator.html">🧮 Tax Calculator</a>
 
-          <!-- Plan & Limits -->
-          <div class="card">
-            <h3>⚙️ Plan & Limits</h3>
-            <div class="muted">Free plan: up to 3 invoices, no export, no AI</div>
-            <div class="sep"></div>
-            <div class="kv">
-              <div class="muted">Invoices created</div><div id="invCount">0</div>
-              <div class="muted">Limit</div><div id="invLimit">3</div>
-              <div class="muted">Status</div><div id="limitStatus" class="ok">OK</div>
-            </div>
-            <div class="sep"></div>
-            <!-- Quick actions -->
-            <div class="row">
-              <button id="btnOpenCalculator" class="btn">🧾 Tax Calculator</button>
-              <button id="btnOpenInvoices" class="btn">📂 Invoice Manager</button>
-              <!-- NEW: subtle AI Assistant button opening in new tab -->
-              <button id="btnAiAssistant" class="btn ghost">🤖 AI Assistant</button>
-            </div>
-          </div>
-        </div>
+      <h3>Other</h3>
+      <a href="ai-assistant.html">🤖 AI Assistant <small>(PRO)</small></a>
+      <a href="profile.html">⚙️ Settings / Profile</a>
+    </nav>
+  </aside>
 
-        <!-- Notices -->
-        <div class="card" style="margin-top:16px">
-          <h3>🔔 Notices</h3>
-          <div id="noticeArea" class="muted">—</div>
-        </div>
+  <!-- Main content -->
+  <main>
+    <header>
+      <h2>👋 Welcome to SmartWerk Dashboard</h2>
+    </header>
+    <section class="welcome">
+      <h3>Your Smart Business Hub</h3>
+      <p>All your documents, invoices, contracts and reminders in one place.  
+         Use the sidebar to navigate through tools.  
+         Data is securely stored in Firebase and synced across your account.</p>
+    </section>
+  </main>
 
-        <!-- App tiles -->
-        <section class="apps">
-          <div class="cards">
-            <a href="#" class="card-link" id="cardSummary">
-              <div class="dashboard-card">
-                <h3>Smart Summary</h3>
-                <p>Your income, expenses, tax overview and more.</p>
-              </div>
-            </a>
-
-            <a href="#" class="card-link" id="cardInvoices">
-              <div class="dashboard-card">
-                <h3>Invoices list</h3>
-                <p>Saved invoices</p>
-              </div>
-            </a>
-
-            <a href="#" class="card-link" id="cardTax">
-              <div class="dashboard-card">
-                <h3>Tax Calculator</h3>
-                <p>Real-time tax estimates with AI.</p>
-              </div>
-            </a>
-
-            <a href="#" class="card-link" id="cardTemplates">
-              <div class="dashboard-card">
-                <h3>Smart Templates</h3>
-                <p>Invoices, reports and benefit requests.</p>
-              </div>
-            </a>
-
-            <a href="#" class="card-link" id="cardBookkeeper">
-              <div class="dashboard-card">
-                <h3>My Bookkeeper</h3>
-                <p>Send documents to the accountant.</p>
-              </div>
-            </a>
-
-            <a href="#" class="card-link" id="cardSettings">
-              <div class="dashboard-card">
-                <h3>Settings</h3>
-                <p>Update name, KvK, IBAN, language & currency.</p>
-              </div>
-            </a>
-          </div>
-        </section>
-      </main>
-    </div>
-  </div>
-
-  <!-- Firebase SDK (module imports) -->
+  <!-- Firebase check -->
   <script type="module">
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-    authDomain: "smartwerk8520.firebaseapp.com",
-    projectId: "smartwerk8520",
-    appId: "1:607670981972:web:c07103c981c86860d724c1",
-  };
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  const $ = (id)=>document.getElementById(id);
-  const elEmailTop = $("userEmailTop");
-  const elEmailKv = $("emailKv");
-  const elFullName = $("fullName");
-  const elAddress = $("address");
-  const elKvk = $("kvk");
-  const elIban = $("iban");
-  const elPhone = $("phone");
-  const elPlanText = $("planText");
-  const elPlanBadge = $("planBadge");
-  const elInvCount = $("invCount");
-  const elInvLimit = $("invLimit");
-  const elLimitStatus = $("limitStatus");
-  const elNotice = $("noticeArea");
-
-  const FREE_LIMIT = 3;
-  let STATE = { isPro:false, invoiceCount:0 };
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { location.href = "login.html"; return; }
-
-    elEmailTop.textContent = user.email || "—";
-    elEmailKv.textContent  = user.email || "—";
-
-    const userRef = doc(db, "users", user.uid);
-    let snap = await getDoc(userRef);
-
-    if (!snap.exists()) {
-      await setDoc(userRef, {
-        email: user.email || "",
-        pro: false,
-        fullName: "",
-        address: "",
-        kvk: "",
-        iban: "",
-        phone: "",
-        invoiceCount: 0
-      });
-      snap = await getDoc(userRef);
-    }
-
-    const data = snap.data() || {};
-    STATE.isPro = !!data.pro;
-    STATE.invoiceCount = Number.isFinite(data.invoiceCount) ? data.invoiceCount : 0;
-
-    elFullName.textContent = data.fullName || "—";
-    elAddress.textContent  = data.address  || "—";
-    elKvk.textContent      = data.kvk      || "—";
-    elIban.textContent     = data.iban     || "—";
-    elPhone.textContent    = data.phone    || "—";
-
-    renderPlan(STATE.isPro);
-    renderLimits(STATE.isPro, STATE.invoiceCount);
-
-    $("btnLogout").onclick = () => signOut(auth).then(()=>location.href="login.html");
-    $("btnProfile").onclick = () => location.href = "profile.html";
-
-    $("btnOpenInvoices").onclick   = (e)=>{ e.preventDefault(); openInvoices(); };
-    $("btnOpenCalculator").onclick = (e)=>{ e.preventDefault(); openTaxCalculator(); };
-   
-
-    // NEW: open external AI Assistant in a new tab, subtle style
-    const aiBtn = $("btnAiAssistant");
-    if (aiBtn){
-      aiBtn.addEventListener("click",(e)=>{
-        e.preventDefault();
-        window.open("https://www.smartwerk.nl/ai-assistant.html","_blank","noopener");
-      });
-    }
-
-    bindNav("linkSummary",   ()=>location.href="summary.html");
-    bindNav("linkInvoices",  openInvoices);
-    bindNav("linkTax",       openTaxCalculator);
-    bindNav("linkTemplates", ()=>location.href="templates.html");
-    bindNav("linkBookkeeper",()=>location.href="my-bookkeeper.html");
-    bindNav("linkSettings",  ()=>location.href="profile.html");
-
-    bindNav("cardSummary",   ()=>location.href="summary.html");
-    bindNav("cardInvoices",  ()=>location.href="invoices-list.html");
-    bindNav("cardTax",       openTaxCalculator);
-    bindNav("cardTemplates", ()=>location.href="templates.html");
-    bindNav("cardBookkeeper",()=>location.href="my-bookkeeper.html");
-    bindNav("cardSettings",  ()=>location.href="profile.html");
-
-    $("btnUpgrade").onclick = async () => {
-      if (STATE.isPro) { elNotice.textContent = "У вас вже PRO."; return; }
-      await updateDoc(userRef, { pro: true });
-      elNotice.textContent = "✅ План оновлено до PRO. Перезавантажую...";
-      setTimeout(()=>location.reload(), 800);
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
-  });
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  function bindNav(id, fn){
-    const el = $(id);
-    if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); fn(); });
-  }
-
-  function blockedByFreeLimit() {
-    if (!STATE.isPro && STATE.invoiceCount >= FREE_LIMIT) {
-      elNotice.innerHTML = `❗ Ви на Free-плані та досягли ліміту інвойсів (${FREE_LIMIT}). <b>Upgrade to PRO</b> для безліміту.`;
-      return true;
-    }
-    return false;
-  }
-
-  function openInvoices(){
-    if (blockedByFreeLimit()) return;
-    location.href = "invoices.html#autofill=1";
-  }
-  function openTaxCalculator(){
-    if (blockedByFreeLimit()) return;
-    location.href = "tax-calculator.html";
-  }
- 
-
-  function renderPlan(isPro){
-    elPlanText.textContent = isPro ? "PRO" : "Free";
-    elPlanBadge.textContent = isPro ? "PRO" : "FREE";
-    elPlanBadge.classList.toggle("pro", isPro);
-    elPlanBadge.classList.toggle("free", !isPro);
-  }
-
-  function renderLimits(isPro, invoiceCount){
-    elInvCount.textContent = invoiceCount;
-    elInvLimit.textContent = isPro ? "Unlimited" : FREE_LIMIT;
-    if (isPro) {
-      elLimitStatus.textContent = "Unlimited";
-      elLimitStatus.className = "ok";
-    } else {
-      const left = FREE_LIMIT - invoiceCount;
-      if (left > 0) {
-        elLimitStatus.textContent = `OK — ${left} left`;
-        elLimitStatus.className = "ok";
-      } else {
-        elLimitStatus.textContent = "Limit reached";
-        elLimitStatus.className = "warn";
-      }
-    }
-  }
-
- 
+    onAuthStateChanged(auth,(user)=>{
+      if(!user){ location.href="login.html"; }
+    });
   </script>
-
 </body>
 </html>
