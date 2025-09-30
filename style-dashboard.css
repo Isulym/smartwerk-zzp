@@ -1,141 +1,40 @@
 body {
-  margin:0;
-  font-family:Inter, sans-serif;
-  background:#0f172a;
-  color:#e5e7eb;
-  display:flex;
+  margin:0; display:flex; font-family:Inter,sans-serif;
+  background:#0f172a; color:#e5e7eb;
 }
-
 .sidebar {
-  width:260px;
-  background:#111827;
-  color:#e5e7eb;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  position:fixed;
-  left:0;
-  top:0;
-  padding:1rem;
+  width:250px; background:#1e293b; color:#fff; height:100vh; position:fixed;
+  padding:1rem; overflow-y:auto;
 }
+.sidebar .logo { font-size:1.5rem; font-weight:bold; margin-bottom:1rem; color:#3b82f6; }
+.sidebar nav h3 { margin:1rem 0 .5rem; font-size:.9rem; color:#93c5fd; }
+.sidebar nav a, .sidebar nav button {
+  display:block; color:#e5e7eb; text-decoration:none; margin:.3rem 0;
+  padding:.5rem; border-radius:6px; background:none; text-align:left;
+}
+.sidebar nav a:hover, .sidebar nav button:hover { background:#334155; }
+.logout { margin-top:1rem; background:#dc2626; }
 
-.logo {
-  font-size:1.4rem;
-  font-weight:bold;
-  color:#3b82f6;
-  margin-bottom:1rem;
-}
+.main { margin-left:250px; padding:1.5rem; flex:1; }
+.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+.plan-box { background:#1e293b; padding:.5rem 1rem; border-radius:8px; display:flex; gap:.5rem; align-items:center; }
+.progress { background:#334155; width:80px; height:6px; border-radius:4px; overflow:hidden; }
+#planProgress { background:#3b82f6; height:100%; width:0; }
 
-.plan-box {
-  background:#1e293b;
-  padding:1rem;
-  border-radius:8px;
-  margin-bottom:1.5rem;
-  text-align:center;
+.quick-actions button {
+  margin:.5rem; padding:.7rem 1.2rem; background:#3b82f6; border:none; border-radius:8px; color:#fff; cursor:pointer;
 }
-.plan-box p { font-weight:bold; margin:0; }
-.progress {
-  background:#374151;
-  height:6px;
-  border-radius:4px;
-  margin:8px 0;
-}
-#planProgress {
-  background:#3b82f6;
-  height:6px;
-  border-radius:4px;
-  width:0%;
-}
-.plan-box button {
-  margin-top:.5rem;
-  background:#3b82f6;
-  border:none;
-  padding:.4rem .8rem;
-  border-radius:6px;
-  cursor:pointer;
-  color:white;
-}
-.plan-box button:hover { background:#2563eb; }
+.quick-actions button:hover { background:#2563eb; }
 
-.menu {
-  flex:1;
-  overflow-y:auto;
-}
-.menu h4 {
-  margin:1rem 0 .3rem;
-  font-size:.9rem;
-  color:#93c5fd;
-}
-.menu a {
-  display:block;
-  padding:.4rem .6rem;
-  border-radius:6px;
-  color:#e5e7eb;
-  text-decoration:none;
-  font-size:.9rem;
-}
-.menu a:hover { background:#2563eb; }
+.kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; margin:1.5rem 0; }
+.kpi { background:#1e293b; padding:1rem; border-radius:12px; }
+.kpi h3 { margin:0 0 .5rem; color:#93c5fd; }
+.kpi p { font-size:1.3rem; font-weight:bold; }
 
-.logout {
-  margin-top:auto;
-  background:#ef4444;
-  border:none;
-  padding:.5rem;
-  border-radius:6px;
-  cursor:pointer;
-  color:white;
-}
-.logout:hover { background:#dc2626; }
+.charts { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:1.5rem; }
+.charts canvas { background:#1e293b; padding:1rem; border-radius:12px; }
 
-.main {
-  margin-left:260px;
-  padding:2rem;
-  flex:1;
+.suggestions, .activity {
+  background:#1e293b; padding:1rem; border-radius:12px; margin-bottom:1.5rem;
 }
-
-.welcome h1 { margin:0; color:#3b82f6; }
-
-.kpi-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:1rem;
-  margin:2rem 0;
-}
-.kpi-card {
-  background:#1e293b;
-  padding:1rem;
-  border-radius:10px;
-  text-align:center;
-}
-.kpi-card h2 { margin:.3rem 0; color:#f9fafb; }
-
-.chart-box {
-  background:#1e293b;
-  padding:1rem;
-  border-radius:10px;
-  margin-bottom:2rem;
-}
-
-.tools-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:1rem;
-}
-.tool-card {
-  background:#1e293b;
-  padding:1rem;
-  border-radius:10px;
-}
-.tool-card h3 { margin-top:0; color:#93c5fd; }
-.tool-card p { font-size:.9rem; margin:.5rem 0 1rem; }
-.tool-card .btn {
-  display:inline-block;
-  background:#3b82f6;
-  color:white;
-  padding:.4rem .8rem;
-  border-radius:6px;
-  text-decoration:none;
-  margin-right:.5rem;
-  font-size:.85rem;
-}
-.tool-card .btn:hover { background:#2563eb; }
+.suggestions h2, .activity h2 { margin:0 0 1rem; color:#93c5fd; }
