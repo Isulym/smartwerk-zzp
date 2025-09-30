@@ -11,13 +11,13 @@
     h1 { color:#3b82f6; }
     section { margin:1.5rem auto; max-width:700px; padding:1rem; background:#1e293b; border-radius:12px; }
     section h2 { margin-bottom:.5rem; color:#93c5fd; }
-    input, select, textarea { width:100%; margin:.3rem 0 1rem; padding:.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; }
+    input, select { width:100%; margin:.3rem 0 1rem; padding:.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; }
     button { background:#3b82f6; border:none; color:#fff; padding:.7rem 1.2rem; border-radius:8px; cursor:pointer; margin-top:.5rem; }
     button:hover { background:#2563eb; }
-    .signature { border:1px solid #475569; background:#fff; }
     #msg { margin:1rem auto; max-width:700px; padding:.8rem; border-radius:8px; display:none; }
     #msg.ok { background:#16a34a; color:white; }
     #msg.err { background:#dc2626; color:white; }
+    img { margin-top:1rem; border-radius:8px; }
   </style>
 </head>
 <body>
@@ -40,42 +40,20 @@
       <input id="phone" placeholder="Phone Number"/>
       <input id="kvk" placeholder="KvK (8 digits)" maxlength="8"/>
       <input id="iban" placeholder="IBAN"/>
-      <input id="vat" placeholder="VAT Number"/>
       <label>Business Logo:</label>
       <input type="file" id="logoUpload" accept="image/*"/>
-      <img id="logoPreview" style="max-width:200px; display:none; margin-top:1rem;"/>
+      <img id="logoPreview" style="max-width:200px; display:none;"/>
     </section>
 
     <!-- Preferences -->
     <section>
       <h2>⚙️ Preferences</h2>
-      <label>Currency:
-        <select id="currency">
-          <option value="EUR">EUR €</option>
-          <option value="USD">USD $</option>
-          <option value="GBP">GBP £</option>
-        </select>
-      </label>
-      <label>Default VAT %:
-        <input id="vatRate" type="number" placeholder="21"/>
-      </label>
       <label>Language:
         <select id="language">
           <option value="en">English</option>
           <option value="nl">Nederlands</option>
-          <option value="ua">Українська</option>
-          <option value="pl">Polski</option>
         </select>
       </label>
-    </section>
-
-    <!-- Signature -->
-    <section>
-      <h2>✍️ Signature</h2>
-      <canvas id="signature" class="signature" width="300" height="100"></canvas>
-      <br>
-      <button type="button" onclick="clearSignature()">Clear</button>
-      <p>Date: <span id="signatureDate"></span></p>
     </section>
 
     <!-- Actions -->
@@ -109,14 +87,6 @@
 
     const $ = id => document.getElementById(id);
 
-    /* Signature setup */
-    const c=$("signature"); const ctx=c.getContext("2d");
-    let drawing=false;
-    c.addEventListener("mousedown",()=>{drawing=true;ctx.beginPath();});
-    c.addEventListener("mouseup",()=>{drawing=false;$("signatureDate").innerText=new Date().toLocaleDateString("nl-NL");});
-    c.addEventListener("mousemove",(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top);});
-    window.clearSignature=()=>{ctx.clearRect(0,0,c.width,c.height);$("signatureDate").innerText="";};
-
     /* Save Profile */
     async function saveProfile(uid){
       try{
@@ -135,13 +105,8 @@
           phone:$("phone").value,
           kvk:$("kvk").value,
           iban:$("iban").value,
-          vat:$("vat").value,
-          currency:$("currency").value,
-          vatRate:$("vatRate").value,
           language:$("language").value,
           logo:logoUrl,
-          signature:c.toDataURL(),
-          signatureDate:$("signatureDate").innerText,
           updatedAt:new Date().toISOString()
         };
         await setDoc(doc(db,"users",uid),data,{merge:true});
@@ -155,37 +120,23 @@
     /* Load Profile */
     async function loadProfile(uid){
       try{
-        const snap = await getDoc(doc(db,"users",uid));
+        const snap=await getDoc(doc(db,"users",uid));
         if(!snap.exists()) return;
-        const p = snap.data();
+        const p=snap.data();
 
-        $("fullName").value = p.fullName || "";
-        $("email").value = p.email || "";
-        $("address").value = p.address || "";
-        $("phone").value = p.phone || "";
-        $("kvk").value = p.kvk || "";
-        $("iban").value = p.iban || "";
-        $("vat").value = p.vat || "";
-        if(p.currency) $("currency").value = p.currency;
-        if(p.vatRate) $("vatRate").value = p.vatRate;
-        if(p.language) $("language").value = p.language;
-
+        $("fullName").value=p.fullName||"";
+        $("email").value=p.email||"";
+        $("address").value=p.address||"";
+        $("phone").value=p.phone||"";
+        $("kvk").value=p.kvk||"";
+        $("iban").value=p.iban||"";
+        if(p.language) $("language").value=p.language;
         if(p.logo){
-          $("logoPreview").src = p.logo;
-          $("logoPreview").style.display = "block";
-        }
-
-        if(p.signature){
-          const img=new Image();
-          img.onload=()=>{
-            ctx.clearRect(0,0,c.width,c.height);
-            ctx.drawImage(img,0,0);
-          };
-          img.src=p.signature;
-          $("signatureDate").innerText = p.signatureDate || "";
+          $("logoPreview").src=p.logo;
+          $("logoPreview").style.display="block";
         }
       }catch(e){
-        console.error("❌ Error loading profile:", e);
+        console.error("❌ Load error:", e);
       }
     }
 
