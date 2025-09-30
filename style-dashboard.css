@@ -1,151 +1,52 @@
 body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background: #0f172a;
-  color: #e5e7eb;
-  display: flex;
+  margin:0; font-family:Inter,sans-serif; display:flex;
+  background:#0f172a; color:#e5e7eb;
 }
-
 .sidebar {
-  width: 240px;
-  background: #1e293b;
-  height: 100vh;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: fixed;
+  width:220px; background:#1e293b; min-height:100vh; padding:1rem;
+  position:fixed; top:0; left:0; overflow-y:auto;
 }
-
-.logo {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #3b82f6;
-  margin-bottom: 1rem;
+.logo { font-size:1.3rem; font-weight:bold; margin-bottom:1rem; color:#3b82f6; }
+.sidebar nav a, .accordion {
+  display:block; padding:.5rem; margin:.2rem 0;
+  background:none; border:none; color:#e5e7eb; text-align:left;
+  cursor:pointer; border-radius:6px;
 }
-
-.accordion-btn {
-  background: none;
-  border: none;
-  color: #e5e7eb;
-  padding: .8rem;
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-}
-.accordion-btn:hover { background: #334155; }
-.accordion-panel { display: none; padding-left: 1rem; }
-.accordion-panel a { display: block; padding: .4rem 0; color: #93c5fd; text-decoration: none; }
-
+.sidebar nav a:hover, .accordion:hover { background:#334155; }
+.panel { display:none; padding-left:1rem; }
 .logout {
-  background: #ef4444;
-  color: white;
-  padding: .6rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  margin-top:1rem; width:100%; background:#ef4444; color:#fff;
+  border:none; padding:.6rem; border-radius:6px; cursor:pointer;
 }
-
-.content {
-  margin-left: 240px;
-  padding: 1.5rem;
-  flex: 1;
+.main-content {
+  margin-left:240px; padding:1.5rem; flex:1;
 }
-
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:1.5rem;
 }
-
 .plan-box {
-  background: #1e293b;
-  padding: .6rem;
-  border-radius: 8px;
-  min-width: 160px;
-  text-align: center;
+  background:#1e293b; padding:.5rem 1rem; border-radius:8px; text-align:right;
 }
-.progress {
-  width: 100%;
-  height: 6px;
-  background: #334155;
-  border-radius: 6px;
-  margin: .3rem 0;
-}
-#planProgress {
-  height: 6px;
-  background: #3b82f6;
-  border-radius: 6px;
-}
-
+.progress { background:#334155; height:6px; border-radius:4px; margin:.3rem 0; }
+.progress div { background:#3b82f6; height:6px; border-radius:4px; }
 .quick-actions button {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: .6rem 1rem;
-  border-radius: 6px;
-  margin: .2rem;
-  cursor: pointer;
+  margin:.3rem; padding:.5rem 1rem; background:#3b82f6;
+  border:none; border-radius:6px; color:#fff; cursor:pointer;
 }
-.quick-actions button:hover { background: #2563eb; }
-
 .kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
-  gap: 1rem;
-  margin: 1rem 0;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:1rem; margin:1.5rem 0;
 }
 .kpi {
-  background: #1e293b;
-  padding: 1rem;
-  border-radius: 8px;
-  text-align: center;
+  background:#1e293b; padding:1rem; border-radius:8px; text-align:center;
 }
-
 .charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.5rem 0;
 }
-.charts canvas { background: #1e293b; border-radius: 8px; padding: 1rem; }
-
+.bottom-section {
+  display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+}
 .suggestions, .activity {
-  margin-top: 1.5rem;
-  background: #1e293b;
-  padding: 1rem;
-  border-radius: 8px;
+  background:#1e293b; padding:1rem; border-radius:8px;
 }
-.content {
-  margin-left: 240px;
-  padding: 2rem;
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
-}
-
-.card {
-  background: #1e293b;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.4);
-}
-
-.quick-actions { grid-column: span 12; }
-.quick-actions h2 { margin-bottom: .5rem; }
-.quick-actions .buttons { display: flex; gap: .5rem; flex-wrap: wrap; }
-
-.kpis {
-  grid-column: span 12;
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
-  gap: 1rem;
-}
-.kpi span { display:block; font-size:1.3rem; font-weight:600; margin-top:.4rem; }
-
-.charts { grid-column: span 12; display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-.charts canvas { width:100%; height:280px; }
-
-.suggestions { grid-column: span 6; }
-.activity { grid-column: span 6; }
