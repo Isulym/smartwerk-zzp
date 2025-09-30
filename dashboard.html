@@ -4,90 +4,191 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Dashboard</title>
-  <link rel="stylesheet" href="style-dashboard.css"/>
+  <link rel="stylesheet" href="style-invoices.css"/>
+  <style>
+    body { margin:0; font-family:Inter,sans-serif; background:#0f172a; color:#e5e7eb; display:flex; }
+    a { text-decoration:none; }
+
+    /* Sidebar */
+    .sidebar {
+      width:240px; background:#1e293b; height:100vh; position:fixed; left:0; top:0;
+      display:flex; flex-direction:column; padding:1rem;
+    }
+    .logo { font-size:1.4rem; font-weight:bold; color:#3b82f6; margin-bottom:2rem; }
+    .menu h3 { font-size:0.9rem; color:#94a3b8; margin:1rem 0 0.5rem; }
+    .menu a {
+      display:block; padding:0.5rem; border-radius:6px; color:#e5e7eb; font-size:0.95rem;
+    }
+    .menu a:hover { background:#334155; }
+    .logout { margin-top:auto; color:#f87171; cursor:pointer; }
+
+    /* Main */
+    .main { margin-left:240px; padding:2rem; flex:1; }
+    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+    header h1 { font-size:1.5rem; color:#3b82f6; }
+
+    /* Plan box */
+    .plan-box {
+      background:#1e293b; padding:1rem; border-radius:12px; margin-bottom:2rem;
+    }
+    .progress { background:#334155; border-radius:6px; overflow:hidden; height:10px; margin:0.5rem 0; }
+    .progress-fill { background:#3b82f6; height:10px; width:0; transition:0.3s; }
+
+    /* Cards grid */
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
+    .card {
+      background:#1e293b; border-radius:12px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;
+    }
+    .card h2 { margin:0 0 0.5rem; font-size:1.1rem; color:#93c5fd; }
+    .card p { font-size:0.85rem; color:#cbd5e1; margin-bottom:1rem; }
+    .card .actions { margin-top:auto; }
+    .card a { display:inline-block; margin:0.2rem 0.2rem 0 0; padding:0.5rem 0.8rem; border-radius:6px; background:#3b82f6; color:#fff; font-size:0.85rem; }
+    .card a:hover { background:#2563eb; }
+
+    .btn-disabled { background:#475569 !important; cursor:not-allowed !important; opacity:0.6; }
+  </style>
 </head>
 <body>
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="logo">🚀 SmartWerk</div>
-    <nav>
+    <div class="menu">
       <h3>💰 Invoices</h3>
-      <a href="invoice.html">📄 Create Invoice</a>
+      <a href="invoice.html" class="btn-create">📄 Create Invoice</a>
       <a href="invoices-list.html">📋 Saved Invoices</a>
 
       <h3>📑 Quotes</h3>
-      <a href="quote-offer.html">📄 Create Quote</a>
+      <a href="quote-offer.html" class="btn-create">📄 Create Quote</a>
       <a href="quote-offer-list.html">📋 Saved Quotes</a>
 
       <h3>📃 Contracts</h3>
-      <a href="contract.html">📄 Create Contract</a>
+      <a href="contract.html" class="btn-create">📄 Create Contract</a>
       <a href="contract-list.html">📋 Saved Contracts</a>
 
       <h3>📬 Reminders</h3>
-      <a href="payment-reminder.html">💸 Create Reminder</a>
+      <a href="payment-reminder.html" class="btn-create">💸 Create Reminder</a>
       <a href="payment-reminder-list.html">📋 Saved Reminders</a>
 
       <h3>📂 Templates</h3>
       <a href="email-gemeente.html">📩 Email to Gemeente</a>
       <a href="cv.html">📄 CV / Portfolio</a>
-
-      <h3>🤖 AI Tools</h3>
-      <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
+      <a href="expense.csv">🧮 Expense CSV</a>
 
       <h3>📊 Analytics</h3>
       <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
       <a href="summary.html">📊 Summary</a>
       <a href="roi-estimator.html">🧮 ROI Estimator</a>
       <a href="tax-calculator.html">🧮 Tax Calculator</a>
-      <a href="expense-csv.html">🧮 Expense CSV</a>
 
       <h3>⚙️ Settings</h3>
       <a href="profile.html">👤 Profile</a>
-    </nav>
-    <button id="logoutBtn" class="logout">🚪 Logout</button>
+    </div>
+    <div class="logout" id="logoutBtn">⬅️ Logout</div>
   </aside>
 
-  <!-- Main content -->
-  <main class="content">
-    <header class="topbar">
-      <h1>SmartWerk — Dashboard</h1>
-      <div id="planBadge" class="badge">FREE</div>
+  <!-- Main -->
+  <main class="main">
+    <header>
+      <h1 id="welcome">Welcome 👋</h1>
+      <div id="planName">Free Plan</div>
     </header>
 
-    <!-- Profile Info -->
-    <section class="card">
-      <h2>👤 Profile</h2>
-      <p><strong>Name:</strong> <span id="pName">—</span></p>
-      <p><strong>Email:</strong> <span id="pEmail">—</span></p>
-      <p><strong>Address:</strong> <span id="pAddress">—</span></p>
-      <p><strong>KvK:</strong> <span id="pKvK">—</span></p>
-      <p><strong>IBAN:</strong> <span id="pIban">—</span></p>
-      <p><strong>Phone:</strong> <span id="pPhone">—</span></p>
-      <p><strong>Plan:</strong> <span id="pPlan">Free</span></p>
-      <button onclick="location.href='profile.html'">Edit Profile</button>
-      <button id="upgradeBtn" class="pro">Upgrade to PRO</button>
-    </section>
+    <div class="plan-box">
+      <strong>Plan & Limits</strong>
+      <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+      <p id="usageText">0 / 25 documents used</p>
+      <button id="upgradeBtn" style="display:none;">Upgrade to PRO 🚀</button>
+    </div>
 
-    <!-- Plan & Limits -->
-    <section class="card">
-      <h2>📊 Plan & Limits</h2>
-      <p>Invoices created: <span id="invoiceCount">0</span></p>
-      <p>Limit: <span id="invoiceLimit">3</span></p>
-      <p>Status: <span id="planStatus">OK</span></p>
-    </section>
+    <div class="grid">
+      <!-- Invoice Card -->
+      <div class="card">
+        <h2>💰 Invoices</h2>
+        <p>Create and manage your invoices.</p>
+        <div class="actions">
+          <a href="invoice.html" class="btn-create">📄 Create Invoice</a>
+          <a href="invoices-list.html">📋 Saved Invoices</a>
+        </div>
+      </div>
 
-    <!-- Notices -->
-    <section class="card">
-      <h2>🔔 Notices</h2>
-      <div id="notices">No new notifications.</div>
-    </section>
+      <!-- Quotes Card -->
+      <div class="card">
+        <h2>📑 Quotes / Offers</h2>
+        <p>Send professional offers to clients.</p>
+        <div class="actions">
+          <a href="quote-offer.html" class="btn-create">📄 Create Quote</a>
+          <a href="quote-offer-list.html">📋 Saved Quotes</a>
+        </div>
+      </div>
+
+      <!-- Contracts Card -->
+      <div class="card">
+        <h2>📃 Freelance Contracts</h2>
+        <p>Generate and save contracts.</p>
+        <div class="actions">
+          <a href="contract.html" class="btn-create">📄 Create Contract</a>
+          <a href="contract-list.html">📋 Saved Contracts</a>
+        </div>
+      </div>
+
+      <!-- Reminders Card -->
+      <div class="card">
+        <h2>📬 Payment Reminders</h2>
+        <p>Remind clients about due payments.</p>
+        <div class="actions">
+          <a href="payment-reminder.html" class="btn-create">💸 Create Reminder</a>
+          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+        </div>
+      </div>
+
+      <!-- Templates -->
+      <div class="card">
+        <h2>📂 Templates</h2>
+        <p>Documents & tools for freelancers.</p>
+        <div class="actions">
+          <a href="email-gemeente.html">📩 Email to Gemeente</a>
+          <a href="cv.html">📄 CV / Portfolio</a>
+          <a href="expense.csv">🧮 Expense CSV</a>
+        </div>
+      </div>
+
+      <!-- Analytics -->
+      <div class="card">
+        <h2>📊 Analytics</h2>
+        <p>Track and analyze your finances.</p>
+        <div class="actions">
+          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+          <a href="summary.html">📊 Summary</a>
+          <a href="roi-estimator.html">🧮 ROI Estimator</a>
+          <a href="tax-calculator.html">🧮 Tax Calculator</a>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="card">
+        <h2>⚙️ Settings</h2>
+        <p>Manage your profile & preferences.</p>
+        <div class="actions">
+          <a href="profile.html">👤 Profile</a>
+        </div>
+      </div>
+
+      <!-- AI Assistant -->
+      <div class="card">
+        <h2>🤖 AI Assistant (PRO)</h2>
+        <p>Your personal smart helper.</p>
+        <div class="actions">
+          <a href="ai-assistant.html" class="btn-create">⚡ Open AI Assistant</a>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -101,45 +202,59 @@
 
     const $ = id => document.getElementById(id);
 
-    async function loadProfile(uid){
-      const snap = await getDoc(doc(db,"users",uid));
-      if(!snap.exists()) return;
-      const p = snap.data();
+    async function loadPlan(uid){
+      const userRef = doc(db,"users",uid);
+      const snap = await getDoc(userRef);
+      let plan = "Free";
+      let fullName = "User";
+      if(snap.exists()){
+        if(snap.data().plan) plan = snap.data().plan;
+        if(snap.data().fullName) fullName = snap.data().fullName;
+      }
+      $("planName").innerText = plan+" Plan";
+      $("welcome").innerText = `Welcome, ${fullName} 👋`;
 
-      $("pName").innerText = p.fullName || "—";
-      $("pEmail").innerText = p.email || "—";
-      $("pAddress").innerText = p.address || "—";
-      $("pKvK").innerText = p.kvk || "—";
-      $("pIban").innerText = p.iban || "—";
-      $("pPhone").innerText = p.phone || "—";
+      // Count docs
+      const collections = ["invoices","quotes","reminders","contracts"];
+      let total = 0;
+      for(const col of collections){
+        const qSnap = await getDocs(collection(db,"users",uid,col));
+        total += qSnap.size;
+      }
 
-      const plan = p.plan || "Free";
-      $("pPlan").innerText = plan;
-      $("planBadge").innerText = plan.toUpperCase();
-      $("planBadge").className = "badge " + (plan==="Pro"?"pro":"free");
-
-      $("invoiceLimit").innerText = (plan==="Pro") ? "Unlimited" : "25 / month";
-    }
-
-    async function loadInvoiceCount(uid){
-      const snap = await getDocs(collection(db,"users",uid,"invoices"));
-      $("invoiceCount").innerText = snap.size;
-      const limit = $("invoiceLimit").innerText;
-      if(limit!=="Unlimited" && snap.size >= 25){
-        $("planStatus").innerText = "Limit Reached ❌";
+      if(plan==="Free"){
+        const limit = 25;
+        const percent = Math.min((total/limit)*100,100);
+        $("progressFill").style.width = percent+"%";
+        $("usageText").innerText = `${total} / ${limit} documents used`;
+        $("upgradeBtn").style.display="block";
+        if(total >= limit){
+          blockCreateButtons();
+        }
       } else {
-        $("planStatus").innerText = "OK ✅";
+        $("progressFill").style.width = "100%";
+        $("progressFill").style.background = "#16a34a";
+        $("usageText").innerText = "✅ Unlimited documents";
       }
     }
 
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user){ location.href="login.html"; return; }
-      await loadProfile(user.uid);
-      await loadInvoiceCount(user.uid);
+    function blockCreateButtons(){
+      const createBtns = document.querySelectorAll('.btn-create'); 
+      createBtns.forEach(btn=>{
+        btn.classList.add("btn-disabled");
+        btn.onclick = (e)=>{
+          e.preventDefault();
+          alert("🚀 Upgrade to PRO to create unlimited documents");
+        };
+      });
+    }
+
+    onAuthStateChanged(auth, user=>{
+      if(user){ loadPlan(user.uid); }
+      else location.href="login.html";
     });
 
-    $("logoutBtn").onclick = ()=>signOut(auth);
-    $("upgradeBtn").onclick = ()=>alert("Upgrade flow via Stripe will be added.");
+    $("logoutBtn").addEventListener("click",()=>signOut(auth));
   </script>
 </body>
 </html>
