@@ -1,174 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartWerk — Dashboard</title>
-  <link rel="stylesheet" href="style-dashboard.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style-dashboard.css">
 </head>
 <body>
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">⚡ SmartWerk</div>
-    <nav>
-      <h3>💰 Invoices</h3>
-      <a href="invoice.html">📄 Create Invoice</a>
-      <a href="invoices-list.html">📋 Saved Invoices</a>
-      <h3>📑 Quotes</h3>
-      <a href="quote-offer.html">📄 Create Quote</a>
-      <a href="quote-offer-list.html">📋 Saved Quotes</a>
-      <h3>📃 Contracts</h3>
-      <a href="contract.html">📄 Create Contract</a>
-      <a href="contract-list.html">📋 Saved Contracts</a>
-      <h3>📬 Reminders</h3>
-      <a href="payment-reminder.html">💸 Create Reminder</a>
-      <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-      <h3>📂 Templates</h3>
-      <a href="email-gemeente.html">📩 Email to Gemeente</a>
-      <a href="cv.html">📄 CV / Portfolio</a>
-      <h3>📊 Analytics</h3>
-      <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-      <a href="summary.html">📊 Summary</a>
-      <a href="roi-estimator.html">🧮 ROI Estimator</a>
-      <a href="tax-calculator.html">🧮 Tax Calculator</a>
-      <h3>⚙️ Settings</h3>
-      <a href="profile.html">👤 Profile</a>
-      <button id="logoutBtn" class="logout">🚪 Logout</button>
-    </nav>
-  </aside>
-
-  <!-- Main content -->
-  <main class="main">
-    <header class="topbar">
-      <h1 id="welcome">Welcome 👋</h1>
-      <div class="plan-box" id="planBox">
-        <span id="planName">FREE</span>
-        <div class="progress">
-          <div id="planProgress"></div>
-        </div>
-        <span id="planUsage">0 / 25</span>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">⚡ SmartWerk</div>
+      <div class="plan-box">
+        <span id="planLabel">Free Plan</span>
+        <small id="limits">3/25 documents used</small>
       </div>
-    </header>
+      <nav>
+        <!-- Invoices -->
+        <div class="menu-group">
+          <button class="menu-toggle">💰 Invoices</button>
+          <div class="submenu">
+            <a href="invoice.html">📄 Create Invoice</a>
+            <a href="invoices-list.html">📋 Saved Invoices</a>
+          </div>
+        </div>
 
-    <!-- Quick actions -->
-    <section class="quick-actions">
-      <button onclick="location.href='invoice.html'">➕ Invoice</button>
-      <button onclick="location.href='quote-offer.html'">➕ Quote</button>
-      <button onclick="location.href='contract.html'">➕ Contract</button>
-      <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
-    </section>
+        <!-- Quotes -->
+        <div class="menu-group">
+          <button class="menu-toggle">📑 Quotes</button>
+          <div class="submenu">
+            <a href="quote-offer.html">📄 Create Quote</a>
+            <a href="quote-offer-list.html">📋 Saved Quotes</a>
+          </div>
+        </div>
 
-    <!-- KPI cards -->
-    <section class="kpis">
-      <div class="kpi"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
-      <div class="kpi"><h3>📄 Invoices This Month</h3><p id="kpiInvoices">0</p></div>
-      <div class="kpi"><h3>⚠️ Unpaid Invoices</h3><p id="kpiUnpaid">0</p></div>
-      <div class="kpi"><h3>📑 Quotes Accepted</h3><p id="kpiQuotes">0%</p></div>
-      <div class="kpi"><h3>👥 New Clients</h3><p id="kpiClients">0</p></div>
-      <div class="kpi"><h3>🔔 Reminders Sent</h3><p id="kpiReminders">0</p></div>
-    </section>
+        <!-- Contracts -->
+        <div class="menu-group">
+          <button class="menu-toggle">📃 Contracts</button>
+          <div class="submenu">
+            <a href="contract.html">📄 Create Contract</a>
+            <a href="contract-list.html">📋 Saved Contracts</a>
+          </div>
+        </div>
 
-    <!-- Charts -->
-    <section class="charts">
-      <canvas id="revenueChart"></canvas>
-      <canvas id="statusChart"></canvas>
-    </section>
+        <!-- Reminders -->
+        <div class="menu-group">
+          <button class="menu-toggle">📬 Reminders</button>
+          <div class="submenu">
+            <a href="payment-reminder.html">💸 Create Reminder</a>
+            <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+          </div>
+        </div>
 
-    <!-- Suggestions -->
-    <section class="suggestions">
-      <h2>💡 Smart Suggestions</h2>
-      <ul id="suggestionsList"></ul>
-    </section>
+        <!-- Templates -->
+        <div class="menu-group">
+          <button class="menu-toggle">📂 Templates</button>
+          <div class="submenu">
+            <a href="email-gemeente.html">📩 Email to Gemeente</a>
+            <a href="cv.html">📄 CV / Portfolio</a>
+          </div>
+        </div>
 
-    <!-- Recent activity -->
-    <section class="activity">
-      <h2>🕒 Recent Activity</h2>
-      <ul id="activityList"></ul>
-    </section>
-  </main>
+        <!-- Analytics -->
+        <div class="menu-group">
+          <button class="menu-toggle">📊 Analytics</button>
+          <div class="submenu">
+            <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+            <a href="summary.html">📊 Summary</a>
+            <a href="roi-estimator.html">🧮 ROI Estimator</a>
+            <a href="tax-calculator.html">🧮 Tax Calculator</a>
+          </div>
+        </div>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        <!-- Settings -->
+        <div class="menu-group">
+          <button class="menu-toggle">⚙️ Settings</button>
+          <div class="submenu">
+            <a href="profile.html">👤 Profile</a>
+          </div>
+        </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+        <!-- AI Assistant -->
+        <div class="menu-group">
+          <button class="menu-toggle">🤖 AI Assistant (PRO)</button>
+          <div class="submenu">
+            <a href="ai-assistant.html">💬 Open Assistant</a>
+          </div>
+        </div>
 
-    const $ = id => document.getElementById(id);
+        <!-- Expense CSV -->
+        <div class="menu-group">
+          <button class="menu-toggle">🧮 Expense CSV</button>
+          <div class="submenu">
+            <a href="expense.csv" download>⬇️ Download Example</a>
+          </div>
+        </div>
+      </nav>
 
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user){ location.href="login.html"; return; }
-      const uid = user.uid;
+      <button id="logoutBtn" class="logout">🚪 Logout</button>
+    </aside>
 
-      // Profile
-      const snap = await getDoc(doc(db,"users",uid));
-      if(snap.exists()){
-        const p = snap.data();
-        $("welcome").innerText = `Welcome, ${p.fullName||"User"} 👋`;
-        const plan = p.plan || "FREE";
-        const used = p.usage || 0;
-        const limit = (plan==="FREE"?25:9999);
-        $("planName").innerText = plan;
-        $("planUsage").innerText = `${used} / ${limit}`;
-        $("planProgress").style.width = `${Math.min((used/limit)*100,100)}%`;
-      }
+    <!-- Main Content -->
+    <main class="content">
+      <header>
+        <h1 id="welcomeMsg">Welcome 👋</h1>
+      </header>
 
-      // KPIs
-      onSnapshot(collection(db,"users",uid,"invoices"), snap=>{
-        let total=0, unpaid=0, count=0;
-        snap.forEach(d=>{
-          const inv = d.data();
-          total += parseFloat(inv.grandTotal)||0;
-          if(inv.status!=="Paid") unpaid++;
-          count++;
-        });
-        $("kpiRevenue").innerText = "€"+total.toFixed(2);
-        $("kpiInvoices").innerText = count;
-        $("kpiUnpaid").innerText = unpaid;
+      <section class="grid">
+        <div class="card">
+          <h3>💰 Invoices</h3>
+          <p>Create and manage invoices for your clients.</p>
+          <a href="invoice.html" class="btn">Create</a>
+          <a href="invoices-list.html" class="btn">Saved</a>
+        </div>
+
+        <div class="card">
+          <h3>📑 Quotes</h3>
+          <p>Send professional quotes and offers.</p>
+          <a href="quote-offer.html" class="btn">Create</a>
+          <a href="quote-offer-list.html" class="btn">Saved</a>
+        </div>
+
+        <div class="card">
+          <h3>📃 Contracts</h3>
+          <p>Build, save and export contracts (NL/EN).</p>
+          <a href="contract.html" class="btn">Create</a>
+          <a href="contract-list.html" class="btn">Saved</a>
+        </div>
+
+        <div class="card">
+          <h3>📬 Reminders</h3>
+          <p>Remind your clients about pending payments.</p>
+          <a href="payment-reminder.html" class="btn">Create</a>
+          <a href="payment-reminder-list.html" class="btn">Saved</a>
+        </div>
+
+        <div class="card">
+          <h3>📂 Templates</h3>
+          <p>Use ready-to-go templates for your business.</p>
+          <a href="email-gemeente.html" class="btn">Email Gemeente</a>
+          <a href="cv.html" class="btn">CV / Portfolio</a>
+        </div>
+
+        <div class="card">
+          <h3>📊 Analytics</h3>
+          <p>Track your finances with SmartWerk tools.</p>
+          <a href="my-bookkeeper.html" class="btn">Bookkeeper</a>
+          <a href="summary.html" class="btn">Summary</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.querySelectorAll(".menu-toggle").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        btn.parentElement.classList.toggle("open");
       });
-
-      onSnapshot(collection(db,"users",uid,"quotes"), snap=>{
-        let acc=0, total=0;
-        snap.forEach(d=>{
-          const q = d.data();
-          if(q.status==="Accepted") acc++;
-          total++;
-        });
-        $("kpiQuotes").innerText = total?Math.round((acc/total)*100)+"%":"0%";
-      });
-
-      onSnapshot(collection(db,"users",uid,"reminders"), snap=>{
-        $("kpiReminders").innerText = snap.size;
-      });
-
-      // Suggestions
-      const sugg=[];
-      if($("kpiUnpaid").innerText!=="0") sugg.push("⚠️ You have unpaid invoices → Send reminders!");
-      if(parseInt($("kpiQuotes").innerText)||0 < 30) sugg.push("📑 Low quote acceptance rate → Refine your offers.");
-      $("suggestionsList").innerHTML = sugg.map(s=>`<li>${s}</li>`).join("");
-
-      // Charts
-      const revChart = new Chart($("revenueChart"),{
-        type:"line",
-        data:{labels:["Jan","Feb","Mar","Apr"],datasets:[{label:"Revenue",data:[500,1200,900,1600]}]}
-      });
-      const statChart = new Chart($("statusChart"),{
-        type:"doughnut",
-        data:{labels:["Paid","Unpaid","Draft"],datasets:[{data:[10,4,6]}]}
-      });
-
-      // Logout
-      $("logoutBtn").onclick=()=>signOut(auth);
     });
   </script>
 </body>
