@@ -31,7 +31,7 @@
   <main>
     <div id="msg"></div>
 
-    <!-- Profile -->
+    <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
       <input id="fullName" placeholder="Full Name / Business Name"/>
@@ -40,6 +40,7 @@
       <input id="phone" placeholder="Phone Number"/>
       <input id="kvk" placeholder="KvK (8 digits)" maxlength="8"/>
       <input id="iban" placeholder="IBAN"/>
+      <input id="vat" placeholder="VAT Number"/>
       <label>Business Logo:</label>
       <input type="file" id="logoUpload" accept="image/*"/>
       <img id="logoPreview" style="max-width:200px; display:none; margin-top:1rem;"/>
@@ -134,6 +135,7 @@
           phone:$("phone").value,
           kvk:$("kvk").value,
           iban:$("iban").value,
+          vat:$("vat").value,
           currency:$("currency").value,
           vatRate:$("vatRate").value,
           language:$("language").value,
@@ -152,27 +154,50 @@
 
     /* Load Profile */
     async function loadProfile(uid){
-      const snap=await getDoc(doc(db,"users",uid));
-      if(!snap.exists()) return;
-      const p=snap.data();
-      $("fullName").value=p.fullName||"";
-      $("email").value=p.email||"";
-      $("address").value=p.address||"";
-      $("phone").value=p.phone||"";
-      $("kvk").value=p.kvk||"";
-      $("iban").value=p.iban||"";
-      $("currency").value=p.currency||"EUR";
-      $("vatRate").value=p.vatRate||"";
-      $("language").value=p.language||"en";
-      if(p.logo){$("logoPreview").src=p.logo;$("logoPreview").style.display="block";}
-      if(p.signature){
-        const img=new Image();img.onload=()=>ctx.drawImage(img,0,0);img.src=p.signature;
-        $("signatureDate").innerText=p.signatureDate||"";
+      try{
+        const snap = await getDoc(doc(db,"users",uid));
+        if(!snap.exists()) return;
+        const p = snap.data();
+
+        $("fullName").value = p.fullName || "";
+        $("email").value = p.email || "";
+        $("address").value = p.address || "";
+        $("phone").value = p.phone || "";
+        $("kvk").value = p.kvk || "";
+        $("iban").value = p.iban || "";
+        $("vat").value = p.vat || "";
+        if(p.currency) $("currency").value = p.currency;
+        if(p.vatRate) $("vatRate").value = p.vatRate;
+        if(p.language) $("language").value = p.language;
+
+        if(p.logo){
+          $("logoPreview").src = p.logo;
+          $("logoPreview").style.display = "block";
+        }
+
+        if(p.signature){
+          const img=new Image();
+          img.onload=()=>{
+            ctx.clearRect(0,0,c.width,c.height);
+            ctx.drawImage(img,0,0);
+          };
+          img.src=p.signature;
+          $("signatureDate").innerText = p.signatureDate || "";
+        }
+      }catch(e){
+        console.error("❌ Error loading profile:", e);
       }
     }
 
-    function showMsg(txt,type){const m=$("msg");m.innerText=txt;m.className=type;m.style.display="block";setTimeout(()=>m.style.display="none",3000);}
+    function showMsg(txt,type){
+      const m=$("msg");
+      m.innerText=txt;
+      m.className=type;
+      m.style.display="block";
+      setTimeout(()=>m.style.display="none",3000);
+    }
 
+    /* Init */
     onAuthStateChanged(auth,(user)=>{
       if(!user){location.href="login.html";return;}
       loadProfile(user.uid);
