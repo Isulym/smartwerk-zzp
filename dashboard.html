@@ -12,102 +12,103 @@
   <aside class="sidebar">
     <div class="logo">⚡ SmartWerk</div>
     <nav>
-      <div class="accordion">
-        <button class="accordion-btn">💰 Invoices</button>
-        <div class="accordion-panel">
-          <a href="invoice.html">📄 Create Invoice</a>
-          <a href="invoices-list.html">📋 Saved Invoices</a>
-        </div>
+      <button class="accordion">💰 Invoices</button>
+      <div class="panel">
+        <a href="invoice.html">📄 Create Invoice</a>
+        <a href="invoices-list.html">📋 Saved Invoices</a>
+      </div>
 
-        <button class="accordion-btn">📑 Quotes</button>
-        <div class="accordion-panel">
-          <a href="quote-offer.html">📄 Create Quote</a>
-          <a href="quote-offer-list.html">📋 Saved Quotes</a>
-        </div>
+      <button class="accordion">📑 Quotes</button>
+      <div class="panel">
+        <a href="quote-offer.html">📄 Create Quote</a>
+        <a href="quote-offer-list.html">📋 Saved Quotes</a>
+      </div>
 
-        <button class="accordion-btn">📃 Contracts</button>
-        <div class="accordion-panel">
-          <a href="contract.html">📄 Create Contract</a>
-          <a href="contract-list.html">📋 Saved Contracts</a>
-        </div>
+      <button class="accordion">📃 Contracts</button>
+      <div class="panel">
+        <a href="contract.html">📄 Create Contract</a>
+        <a href="contract-list.html">📋 Saved Contracts</a>
+      </div>
 
-        <button class="accordion-btn">📬 Reminders</button>
-        <div class="accordion-panel">
-          <a href="payment-reminder.html">💸 Create Reminder</a>
-          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-        </div>
+      <button class="accordion">📬 Reminders</button>
+      <div class="panel">
+        <a href="payment-reminder.html">💸 Create Reminder</a>
+        <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+      </div>
 
-        <button class="accordion-btn">📂 Templates</button>
-        <div class="accordion-panel">
-          <a href="email-gemeente.html">📩 Email to Gemeente</a>
-          <a href="cv.html">📄 CV / Portfolio</a>
-        </div>
+      <button class="accordion">📂 Templates</button>
+      <div class="panel">
+        <a href="email-gemeente.html">📩 Email to Gemeente</a>
+        <a href="cv.html">📄 CV / Portfolio</a>
+        <a href="expense.csv">🧮 Expense CSV</a>
+      </div>
 
-        <button class="accordion-btn">📊 Analytics</button>
-        <div class="accordion-panel">
-          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-          <a href="summary.html">📊 Summary</a>
-          <a href="roi-estimator.html">🧮 ROI Estimator</a>
-          <a href="tax-calculator.html">🧮 Tax Calculator</a>
-        </div>
+      <button class="accordion">📊 Analytics</button>
+      <div class="panel">
+        <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+        <a href="summary.html">📊 Summary</a>
+        <a href="roi-estimator.html">🧮 ROI Estimator</a>
+        <a href="tax-calculator.html">🧮 Tax Calculator</a>
+      </div>
 
-        <button class="accordion-btn">⚙️ Settings</button>
-        <div class="accordion-panel">
-          <a href="profile.html">👤 Profile</a>
-        </div>
+      <button class="accordion">⚙️ Settings</button>
+      <div class="panel">
+        <a href="profile.html">👤 Profile</a>
       </div>
     </nav>
     <button id="logoutBtn" class="logout">🚪 Logout</button>
   </aside>
 
   <!-- Main -->
-  <main class="content">
-  <header class="topbar">...</header>
+  <main class="main-content">
+    <header class="topbar">
+      <h1 id="welcome">Welcome 👋</h1>
+      <div class="plan-box" id="planBox">
+        <span id="planName">Free</span>
+        <div class="progress">
+          <div id="planProgress"></div>
+        </div>
+        <small id="planUsage">0 / 25</small>
+      </div>
+    </header>
 
-  <!-- Quick Actions -->
-  <section class="card quick-actions">
-    <h2>⚡ Quick Actions</h2>
-    <div class="buttons">
-      <button>➕ Invoice</button>
-      <button>➕ Quote</button>
-      <button>➕ Contract</button>
-      <button>➕ Reminder</button>
-    </div>
-  </section>
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <button onclick="location.href='invoice.html'">➕ Invoice</button>
+      <button onclick="location.href='quote-offer.html'">➕ Quote</button>
+      <button onclick="location.href='contract.html'">➕ Contract</button>
+      <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
+    </section>
 
-  <!-- KPI Cards -->
-  <section class="kpis">
-    <div class="card kpi">💰 Revenue <span id="kpiRevenue">€0</span></div>
-    <div class="card kpi">📄 Invoices <span id="kpiInvoices">0</span></div>
-    <div class="card kpi">📑 Quotes <span id="kpiQuotes">0</span></div>
-    <div class="card kpi">📬 Reminders <span id="kpiReminders">0</span></div>
-    <div class="card kpi">👥 Clients <span id="kpiClients">0</span></div>
-    <div class="card kpi">⚠️ Unpaid <span id="kpiUnpaid">0</span></div>
-  </section>
+    <!-- KPIs -->
+    <section class="kpis">
+      <div class="kpi"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
+      <div class="kpi"><h3>🧾 Invoices</h3><p id="kpiInvoices">0</p></div>
+      <div class="kpi"><h3>📑 Quotes</h3><p id="kpiQuotes">0</p></div>
+      <div class="kpi"><h3>📬 Reminders</h3><p id="kpiReminders">0</p></div>
+      <div class="kpi"><h3>👥 Clients</h3><p id="kpiClients">0</p></div>
+      <div class="kpi"><h3>⚠️ Unpaid</h3><p id="kpiUnpaid">0</p></div>
+    </section>
 
-  <!-- Charts -->
-  <section class="charts">
-    <div class="card"><canvas id="revenueChart"></canvas></div>
-    <div class="card"><canvas id="invoiceChart"></canvas></div>
-  </section>
+    <!-- Graphs -->
+    <section class="charts">
+      <canvas id="revenueChart"></canvas>
+      <canvas id="statusChart"></canvas>
+    </section>
 
-  <!-- Suggestions -->
-  <section class="card suggestions">
-    <h2>🔔 Smart Suggestions</h2>
-    <ul id="suggestionsList">
-      <li>⚠️ 2 invoices overdue → Send Reminder</li>
-    </ul>
-  </section>
+    <!-- Suggestions + Activity -->
+    <section class="bottom-section">
+      <div class="suggestions">
+        <h2>⚡ Smart Suggestions</h2>
+        <ul id="suggestionsList"><li>No alerts</li></ul>
+      </div>
+      <div class="activity">
+        <h2>📌 Recent Activity</h2>
+        <ul id="activityList"><li>No recent activity</li></ul>
+      </div>
+    </section>
+  </main>
 
-  <!-- Activity -->
-  <section class="card activity">
-    <h2>📌 Recent Activity</h2>
-    <ul id="activityList">
-      <li>📄 Invoice INV-2025-003 created</li>
-    </ul>
-  </section>
-</main>
-  
   <!-- Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -120,53 +121,65 @@
       projectId: "smartwerk8520",
       appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
-
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
+    const db = getFirestore(app);
 
-    // Accordion
-    document.querySelectorAll(".accordion-btn").forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        btn.classList.toggle("active");
-        const panel = btn.nextElementSibling;
-        panel.style.display = panel.style.display==="block" ? "none" : "block";
+    const $ = id => document.getElementById(id);
+
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){location.href="login.html";return;}
+
+      const snap = await getDoc(doc(db,"users",user.uid));
+      const data = snap.exists()?snap.data():{};
+
+      $("welcome").innerText = `Welcome, ${data.fullName||"User"} 👋`;
+
+      // Plan
+      const plan = data.plan || "Free";
+      const used = data.usedCount || 0;
+      const limit = plan==="Pro"?9999:25;
+      $("planName").innerText = plan;
+      $("planUsage").innerText = `${used} / ${limit}`;
+      $("planProgress").style.width = `${Math.min(100, used/limit*100)}%`;
+
+      // KPIs
+      $("kpiInvoices").innerText = data.stats?.invoices || 0;
+      $("kpiQuotes").innerText   = data.stats?.quotes || 0;
+      $("kpiReminders").innerText= data.stats?.reminders || 0;
+      $("kpiRevenue").innerText  = `€${data.stats?.revenue||0}`;
+      $("kpiClients").innerText  = data.stats?.clients || 0;
+      $("kpiUnpaid").innerText   = data.stats?.unpaid || 0;
+
+      // Activity
+      const acts = data.activity||[];
+      $("activityList").innerHTML = acts.length
+        ? acts.slice(0,5).map(a=>`<li>${a}</li>`).join("")
+        : "<li>No recent activity</li>";
+
+      // Suggestions
+      $("suggestionsList").innerHTML = (data.suggestions||[]).length
+        ? data.suggestions.map(s=>`<li>${s}</li>`).join("")
+        : "<li>No alerts</li>";
+
+      // Charts
+      new Chart($("revenueChart"),{
+        type:"line",
+        data:{
+          labels:["Jan","Feb","Mar","Apr"],
+          datasets:[{label:"Revenue", data:[0,200,400,600], borderColor:"#3b82f6"}]
+        }
+      });
+      new Chart($("statusChart"),{
+        type:"doughnut",
+        data:{
+          labels:["Paid","Unpaid","Draft"],
+          datasets:[{data:[2,1,1], backgroundColor:["#22c55e","#ef4444","#9ca3af"]}]
+        }
       });
     });
 
-    // Load Dashboard Data
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user){ location.href="login.html"; return; }
-
-      const uid = user.uid;
-      const snap = await getDoc(doc(db,"users",uid));
-      if(snap.exists()){
-        const d = snap.data();
-        document.getElementById("welcome").innerText = `👋 Welcome, ${d.fullName||"User"}`;
-        document.getElementById("planName").innerText = d.plan || "FREE";
-
-        // Usage
-        const used = d.usage || 0;
-        const limit = d.plan==="PRO"?999:25;
-        document.getElementById("planUsage").innerText = `${used} / ${limit}`;
-        document.getElementById("planProgress").style.width = `${Math.min((used/limit)*100,100)}%`;
-      }
-
-      // Logout
-      document.getElementById("logoutBtn").onclick=()=>signOut(auth);
-    });
-
-    // Dummy Charts
-    new Chart(document.getElementById("revenueChart"),{
-      type:"line",
-      data:{labels:["Jan","Feb","Mar"], datasets:[{label:"Revenue", data:[0,200,400], borderColor:"#3b82f6"}]},
-      options:{responsive:true}
-    });
-    new Chart(document.getElementById("invoiceChart"),{
-      type:"doughnut",
-      data:{labels:["Paid","Unpaid","Draft"], datasets:[{data:[2,1,3], backgroundColor:["#22c55e","#ef4444","#94a3b8"]}]},
-      options:{responsive:true}
-    });
+    $("logoutBtn").onclick=()=>signOut(auth);
   </script>
 </body>
 </html>
