@@ -8,100 +8,108 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h2>⚡ SmartWerk</h2>
-    <nav>
-      <button class="accordion">💰 Invoices</button>
-      <div class="panel">
-        <a href="invoice.html">📄 Create Invoice</a>
-        <a href="invoices-list.html">📋 Saved Invoices</a>
-      </div>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">🚀 SmartWerk</div>
+      <div class="plan-box" id="planBox">Plan: <span id="planName">FREE</span> <div class="progress"><div id="planProgress"></div></div></div>
+      <nav class="menu">
+        <div class="accordion">
+          <button class="accordion-btn">💰 Invoices</button>
+          <div class="accordion-panel">
+            <a href="invoice.html">📄 Create Invoice</a>
+            <a href="invoices-list.html">📋 Saved Invoices</a>
+          </div>
 
-      <button class="accordion">📑 Quotes</button>
-      <div class="panel">
-        <a href="quote-offer.html">📄 Create Quote</a>
-        <a href="quote-offer-list.html">📋 Saved Quotes</a>
-      </div>
+          <button class="accordion-btn">📑 Quotes</button>
+          <div class="accordion-panel">
+            <a href="quote-offer.html">📄 Create Quote</a>
+            <a href="quote-offer-list.html">📋 Saved Quotes</a>
+          </div>
 
-      <button class="accordion">📃 Contracts</button>
-      <div class="panel">
-        <a href="contract.html">📄 Create Contract</a>
-        <a href="contract-list.html">📋 Saved Contracts</a>
-      </div>
+          <button class="accordion-btn">📃 Contracts</button>
+          <div class="accordion-panel">
+            <a href="contract.html">📄 Create Contract</a>
+            <a href="contract-list.html">📋 Saved Contracts</a>
+          </div>
 
-      <button class="accordion">📬 Reminders</button>
-      <div class="panel">
-        <a href="payment-reminder.html">💸 Create Reminder</a>
-        <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-      </div>
+          <button class="accordion-btn">📬 Reminders</button>
+          <div class="accordion-panel">
+            <a href="payment-reminder.html">💸 Create Reminder</a>
+            <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+          </div>
 
-      <button class="accordion">📂 Templates</button>
-      <div class="panel">
-        <a href="email-gemeente.html">📩 Email to Gemeente</a>
-        <a href="cv.html">📄 CV / Portfolio</a>
-        <a href="expense-csv.html">🧮 Expense CSV</a>
-      </div>
+          <button class="accordion-btn">📂 Templates</button>
+          <div class="accordion-panel">
+            <a href="email-gemeente.html">📩 Email to Gemeente</a>
+            <a href="cv.html">📄 CV / Portfolio</a>
+            <a href="expense.csv">🧮 Expense CSV</a>
+          </div>
 
-      <button class="accordion">📊 Analytics</button>
-      <div class="panel">
-        <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-        <a href="summary.html">📊 Summary</a>
-        <a href="roi-estimator.html">📈 ROI Estimator</a>
-        <a href="tax-calculator.html">🧮 Tax Calculator</a>
-      </div>
+          <button class="accordion-btn">📊 Analytics</button>
+          <div class="accordion-panel">
+            <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+            <a href="summary.html">📊 Summary</a>
+            <a href="roi-estimator.html">🧮 ROI Estimator</a>
+            <a href="tax-calculator.html">🧮 Tax Calculator</a>
+          </div>
 
-      <button class="accordion">⚙️ Settings</button>
-      <div class="panel">
-        <a href="profile.html">👤 Profile</a>
-      </div>
-    </nav>
-    <button id="logoutBtn" class="logout">🚪 Logout</button>
-  </aside>
+          <button class="accordion-btn">⚙️ Settings</button>
+          <div class="accordion-panel">
+            <a href="profile.html">👤 Profile</a>
+          </div>
+        </div>
+      </nav>
+      <button id="logoutBtn" class="logout">🚪 Logout</button>
+    </aside>
 
-  <!-- Main -->
-  <main class="main-content">
-    <header class="top-bar">
-      <h1 id="welcome">Welcome 👋</h1>
-      <div id="planBadge" class="plan-badge">Free 0/25</div>
-    </header>
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1 id="welcomeText">Welcome 👋</h1>
+      </header>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
-      <button onclick="location.href='invoice.html'">+ Invoice</button>
-      <button onclick="location.href='quote-offer.html'">+ Quote</button>
-      <button onclick="location.href='contract.html'">+ Contract</button>
-      <button onclick="location.href='payment-reminder.html'">+ Reminder</button>
-    </section>
+      <!-- Quick Actions -->
+      <section class="quick-actions">
+        <button onclick="location.href='invoice.html'">➕ Invoice</button>
+        <button onclick="location.href='quote-offer.html'">➕ Quote</button>
+        <button onclick="location.href='contract.html'">➕ Contract</button>
+        <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
+      </section>
 
-    <!-- KPI Cards -->
-    <section class="kpi-grid">
-      <div class="kpi"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
-      <div class="kpi"><h3>📄 Invoices</h3><p id="kpiInvoices">0</p></div>
-      <div class="kpi"><h3>📑 Quotes</h3><p id="kpiQuotes">0</p></div>
-      <div class="kpi"><h3>📬 Reminders</h3><p id="kpiReminders">0</p></div>
-      <div class="kpi"><h3>👥 Clients</h3><p id="kpiClients">0</p></div>
-      <div class="kpi"><h3>⚠️ Unpaid</h3><p id="kpiUnpaid">0</p></div>
-    </section>
+      <!-- KPI Cards -->
+      <section class="kpi">
+        <div class="card"><h3>Revenue</h3><p id="kpiRevenue">€0</p></div>
+        <div class="card"><h3>Unpaid</h3><p id="kpiUnpaid">€0</p></div>
+        <div class="card"><h3>Invoices This Month</h3><p id="kpiInvoices">0</p></div>
+        <div class="card"><h3>Quotes Accepted %</h3><p id="kpiQuotes">0%</p></div>
+        <div class="card"><h3>New Clients</h3><p id="kpiClients">0</p></div>
+        <div class="card"><h3>Reminders Sent</h3><p id="kpiReminders">0</p></div>
+      </section>
 
-    <!-- Charts -->
-    <section class="charts">
-      <canvas id="revenueChart"></canvas>
-      <canvas id="statusChart"></canvas>
-    </section>
+      <!-- Charts -->
+      <section class="charts">
+        <canvas id="revenueChart"></canvas>
+        <canvas id="invoiceStatusChart"></canvas>
+      </section>
 
-    <!-- Suggestions & Activity -->
-    <section class="bottom-panels">
-      <div class="panel-box">
-        <h3>⚡ Smart Suggestions</h3>
-        <ul id="suggestions"></ul>
-      </div>
-      <div class="panel-box">
-        <h3>📌 Recent Activity</h3>
-        <ul id="recentActivity"></ul>
-      </div>
-    </section>
-  </main>
+      <!-- Smart Suggestions -->
+      <section class="suggestions">
+        <h2>💡 Smart Suggestions</h2>
+        <ul id="suggestionList">
+          <li>No suggestions yet.</li>
+        </ul>
+      </section>
+
+      <!-- Recent Activity -->
+      <section class="recent-activity">
+        <h2>🕑 Recent Activity</h2>
+        <ul id="activityList">
+          <li>No recent activity.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
 
   <!-- Firebase -->
   <script type="module">
@@ -117,100 +125,46 @@
     };
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db   = getFirestore(app);
 
-    const $ = id => document.getElementById(id);
-
-    /* Sidebar Accordions */
-    document.querySelectorAll(".accordion").forEach(btn=>{
+    /* Accordion Sidebar */
+    document.querySelectorAll(".accordion-btn").forEach(btn=>{
       btn.addEventListener("click",()=>{
         btn.classList.toggle("active");
         const panel=btn.nextElementSibling;
-        panel.style.display=panel.style.display==="block"?"none":"block";
+        panel.style.display = panel.style.display==="block" ? "none" : "block";
       });
+    });
+
+    /* Firebase User */
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href="login.html"; return; }
+      const snap = await getDoc(doc(db,"users",user.uid));
+      if(snap.exists()){
+        const p=snap.data();
+        document.getElementById("welcomeText").innerText=`Welcome, ${p.fullName||"User"} 👋`;
+
+        // Plan
+        const plan=p.plan||"FREE";
+        document.getElementById("planName").innerText=plan;
+        if(plan==="FREE"){
+          const used=(p.usage||0);
+          const limit=25;
+          document.getElementById("planProgress").style.width=(used/limit*100)+"%";
+        }else{
+          document.getElementById("planProgress").style.width="100%";
+        }
+      }
     });
 
     /* Charts */
-    let revenueChart, statusChart;
-    function renderCharts(revenueData, statusData){
-      if(revenueChart) revenueChart.destroy();
-      if(statusChart) statusChart.destroy();
-
-      revenueChart=new Chart($("revenueChart"),{
-        type:"line",
-        data:{labels:Object.keys(revenueData), datasets:[{label:"Revenue", data:Object.values(revenueData), borderColor:"#3b82f6"}]}
-      });
-
-      statusChart=new Chart($("statusChart"),{
-        type:"doughnut",
-        data:{labels:["Paid","Draft","Sent"], datasets:[{data:statusData, backgroundColor:["#22c55e","#fbbf24","#ef4444"]}]}
-      });
-    }
-
-    /* Load Dashboard */
-    async function loadDashboard(uid){
-      const userSnap=await getDoc(doc(db,"users",uid));
-      if(userSnap.exists()){
-        const u=userSnap.data();
-        $("welcome").innerText=`Welcome, ${u.fullName||"👋"}`;
-        const plan=u.plan||"Free";
-        const limit=plan==="Pro"?999:25;
-        const used=u.docsUsed||0;
-        $("planBadge").innerText=`${plan} ${used}/${limit}`;
-      }
-
-      const invoices=await getDocs(collection(db,"users",uid,"invoices"));
-      const quotes=await getDocs(collection(db,"users",uid,"quotes"));
-      const reminders=await getDocs(collection(db,"users",uid,"reminders"));
-      const contracts=await getDocs(collection(db,"users",uid,"contracts"));
-
-      $("kpiInvoices").innerText=invoices.size;
-      $("kpiQuotes").innerText=quotes.size;
-      $("kpiReminders").innerText=reminders.size;
-      $("kpiClients").innerText=new Set(invoices.docs.map(d=>d.data().clientEmail)).size;
-      $("kpiUnpaid").innerText=invoices.docs.filter(d=>d.data().status!=="Paid").length;
-
-      const revenue=invoices.docs.reduce((sum,d)=>sum+(parseFloat(d.data().grandTotal)||0),0);
-      $("kpiRevenue").innerText="€"+revenue.toFixed(2);
-
-      const revByMonth={};
-      invoices.docs.forEach(d=>{
-        const month=(d.data().invoiceDate||"").substring(0,7);
-        revByMonth[month]=(revByMonth[month]||0)+(parseFloat(d.data().grandTotal)||0);
-      });
-
-      const statusCount=[0,0,0];
-      invoices.docs.forEach(d=>{
-        if(d.data().status==="Paid") statusCount[0]++;
-        else if(d.data().status==="Draft") statusCount[1]++;
-        else statusCount[2]++;
-      });
-
-      renderCharts(revByMonth,statusCount);
-
-      const sugg=$("suggestions"); sugg.innerHTML="";
-      invoices.docs.filter(d=>d.data().dueDate && d.data().status!=="Paid" && new Date(d.data().dueDate)<new Date())
-        .forEach(d=>{
-          const li=document.createElement("li");
-          li.innerText=`Invoice ${d.data().invoiceNumber} is overdue → Send Reminder`;
-          sugg.appendChild(li);
-        });
-
-      const activity=$("recentActivity"); activity.innerHTML="";
-      invoices.docs.slice(-5).forEach(d=>{
-        const li=document.createElement("li");
-        li.innerText=`Invoice ${d.data().invoiceNumber} created`;
-        activity.appendChild(li);
-      });
-    }
-
-    /* Auth */
-    onAuthStateChanged(auth,(user)=>{
-      if(!user){location.href="login.html";return;}
-      loadDashboard(user.uid);
-    });
-
-    $("logoutBtn").onclick=()=>signOut(auth);
+    const ctx1=document.getElementById("revenueChart");
+    new Chart(ctx1,{type:"line",data:{labels:["Jan","Feb","Mar"],datasets:[{label:"Revenue",data:[500,1000,750],borderColor:"#3b82f6"}]}});
+    const ctx2=document.getElementById("invoiceStatusChart");
+    new Chart(ctx2,{type:"doughnut",data:{labels:["Paid","Unpaid","Draft"],datasets:[{data:[5,3,2],backgroundColor:["#22c55e","#ef4444","#64748b"]}]}});
+    
+    /* Logout */
+    document.getElementById("logoutBtn").addEventListener("click",()=>signOut(auth));
   </script>
 </body>
 </html>
