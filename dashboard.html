@@ -4,191 +4,132 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Dashboard</title>
-  <link rel="stylesheet" href="style-invoices.css"/>
-  <style>
-    body { margin:0; font-family:Inter,sans-serif; background:#0f172a; color:#e5e7eb; display:flex; }
-    a { text-decoration:none; }
-
-    /* Sidebar */
-    .sidebar {
-      width:240px; background:#1e293b; height:100vh; position:fixed; left:0; top:0;
-      display:flex; flex-direction:column; padding:1rem;
-    }
-    .logo { font-size:1.4rem; font-weight:bold; color:#3b82f6; margin-bottom:2rem; }
-    .menu h3 { font-size:0.9rem; color:#94a3b8; margin:1rem 0 0.5rem; }
-    .menu a {
-      display:block; padding:0.5rem; border-radius:6px; color:#e5e7eb; font-size:0.95rem;
-    }
-    .menu a:hover { background:#334155; }
-    .logout { margin-top:auto; color:#f87171; cursor:pointer; }
-
-    /* Main */
-    .main { margin-left:240px; padding:2rem; flex:1; }
-    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
-    header h1 { font-size:1.5rem; color:#3b82f6; }
-
-    /* Plan box */
-    .plan-box {
-      background:#1e293b; padding:1rem; border-radius:12px; margin-bottom:2rem;
-    }
-    .progress { background:#334155; border-radius:6px; overflow:hidden; height:10px; margin:0.5rem 0; }
-    .progress-fill { background:#3b82f6; height:10px; width:0; transition:0.3s; }
-
-    /* Cards grid */
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
-    .card {
-      background:#1e293b; border-radius:12px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;
-    }
-    .card h2 { margin:0 0 0.5rem; font-size:1.1rem; color:#93c5fd; }
-    .card p { font-size:0.85rem; color:#cbd5e1; margin-bottom:1rem; }
-    .card .actions { margin-top:auto; }
-    .card a { display:inline-block; margin:0.2rem 0.2rem 0 0; padding:0.5rem 0.8rem; border-radius:6px; background:#3b82f6; color:#fff; font-size:0.85rem; }
-    .card a:hover { background:#2563eb; }
-
-    .btn-disabled { background:#475569 !important; cursor:not-allowed !important; opacity:0.6; }
-  </style>
+  <link rel="stylesheet" href="style-dashboard.css"/>
 </head>
 <body>
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="logo">🚀 SmartWerk</div>
-    <div class="menu">
-      <h3>💰 Invoices</h3>
-      <a href="invoice.html" class="btn-create">📄 Create Invoice</a>
+    <div class="logo">⚡ SmartWerk</div>
+    <div class="plan-box">
+      <p id="planName">FREE</p>
+      <div class="progress">
+        <div id="planProgress"></div>
+      </div>
+      <small id="planLimit">3 / 25 documents</small>
+      <button id="upgradeBtn">🚀 Upgrade</button>
+    </div>
+    <nav class="menu">
+      <h4>💰 Invoices</h4>
+      <a href="invoice.html">📄 Create Invoice</a>
       <a href="invoices-list.html">📋 Saved Invoices</a>
 
-      <h3>📑 Quotes</h3>
-      <a href="quote-offer.html" class="btn-create">📄 Create Quote</a>
+      <h4>📑 Quotes</h4>
+      <a href="quote-offer.html">📄 Create Quote</a>
       <a href="quote-offer-list.html">📋 Saved Quotes</a>
 
-      <h3>📃 Contracts</h3>
-      <a href="contract.html" class="btn-create">📄 Create Contract</a>
+      <h4>📃 Contracts</h4>
+      <a href="contract.html">📄 Create Contract</a>
       <a href="contract-list.html">📋 Saved Contracts</a>
 
-      <h3>📬 Reminders</h3>
-      <a href="payment-reminder.html" class="btn-create">💸 Create Reminder</a>
+      <h4>📬 Reminders</h4>
+      <a href="payment-reminder.html">💸 Create Reminder</a>
       <a href="payment-reminder-list.html">📋 Saved Reminders</a>
 
-      <h3>📂 Templates</h3>
+      <h4>📂 Templates</h4>
       <a href="email-gemeente.html">📩 Email to Gemeente</a>
       <a href="cv.html">📄 CV / Portfolio</a>
       <a href="expense.csv">🧮 Expense CSV</a>
 
-      <h3>📊 Analytics</h3>
+      <h4>📊 Analytics</h4>
       <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
       <a href="summary.html">📊 Summary</a>
-      <a href="roi-estimator.html">🧮 ROI Estimator</a>
+      <a href="roi-estimator.html">📈 ROI Estimator</a>
       <a href="tax-calculator.html">🧮 Tax Calculator</a>
 
-      <h3>⚙️ Settings</h3>
+      <h4>⚙️ Settings</h4>
       <a href="profile.html">👤 Profile</a>
-    </div>
-    <div class="logout" id="logoutBtn">⬅️ Logout</div>
+    </nav>
+    <button id="logoutBtn" class="logout">🚪 Logout</button>
   </aside>
 
-  <!-- Main -->
+  <!-- Main Content -->
   <main class="main">
-    <header>
-      <h1 id="welcome">Welcome 👋</h1>
-      <div id="planName">Free Plan</div>
+    <header class="welcome">
+      <h1>👋 Welcome, <span id="userName">User</span></h1>
+      <p>Your personal SmartWerk dashboard</p>
     </header>
 
-    <div class="plan-box">
-      <strong>Plan & Limits</strong>
-      <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
-      <p id="usageText">0 / 25 documents used</p>
-      <button id="upgradeBtn" style="display:none;">Upgrade to PRO 🚀</button>
-    </div>
+    <!-- KPIs -->
+    <section class="kpi-grid">
+      <div class="kpi-card">💰 <p>Income</p><h2 id="kpiIncome">€0</h2></div>
+      <div class="kpi-card">💸 <p>Expenses</p><h2 id="kpiExpenses">€0</h2></div>
+      <div class="kpi-card">📊 <p>Profit</p><h2 id="kpiProfit">€0</h2></div>
+      <div class="kpi-card">🧾 <p>VAT</p><h2 id="kpiVAT">€0</h2></div>
+    </section>
 
-    <div class="grid">
-      <!-- Invoice Card -->
-      <div class="card">
-        <h2>💰 Invoices</h2>
-        <p>Create and manage your invoices.</p>
-        <div class="actions">
-          <a href="invoice.html" class="btn-create">📄 Create Invoice</a>
-          <a href="invoices-list.html">📋 Saved Invoices</a>
+    <!-- Chart -->
+    <section class="chart-box">
+      <canvas id="financeChart"></canvas>
+    </section>
+
+    <!-- Tools Grid -->
+    <section>
+      <h2>🚀 Tools</h2>
+      <div class="tools-grid">
+        <div class="tool-card">
+          <h3>📄 Invoice</h3>
+          <p>Create and manage invoices</p>
+          <a href="invoice.html" class="btn">Create</a>
+          <a href="invoices-list.html" class="btn">Saved</a>
+        </div>
+        <div class="tool-card">
+          <h3>📑 Quote</h3>
+          <p>Send professional quotes</p>
+          <a href="quote-offer.html" class="btn">Create</a>
+          <a href="quote-offer-list.html" class="btn">Saved</a>
+        </div>
+        <div class="tool-card">
+          <h3>📃 Contract</h3>
+          <p>Manage freelance contracts</p>
+          <a href="contract.html" class="btn">Create</a>
+          <a href="contract-list.html" class="btn">Saved</a>
+        </div>
+        <div class="tool-card">
+          <h3>💸 Reminder</h3>
+          <p>Send payment reminders</p>
+          <a href="payment-reminder.html" class="btn">Create</a>
+          <a href="payment-reminder-list.html" class="btn">Saved</a>
+        </div>
+        <div class="tool-card">
+          <h3>📩 Email</h3>
+          <p>Write to Gemeente</p>
+          <a href="email-gemeente.html" class="btn">Open</a>
+        </div>
+        <div class="tool-card">
+          <h3>📄 CV</h3>
+          <p>Create a portfolio</p>
+          <a href="cv.html" class="btn">Open</a>
+        </div>
+        <div class="tool-card">
+          <h3>📊 Bookkeeper</h3>
+          <p>Track your business</p>
+          <a href="my-bookkeeper.html" class="btn">Open</a>
+        </div>
+        <div class="tool-card">
+          <h3>🧮 Tax</h3>
+          <p>Calculate your taxes</p>
+          <a href="tax-calculator.html" class="btn">Open</a>
         </div>
       </div>
-
-      <!-- Quotes Card -->
-      <div class="card">
-        <h2>📑 Quotes / Offers</h2>
-        <p>Send professional offers to clients.</p>
-        <div class="actions">
-          <a href="quote-offer.html" class="btn-create">📄 Create Quote</a>
-          <a href="quote-offer-list.html">📋 Saved Quotes</a>
-        </div>
-      </div>
-
-      <!-- Contracts Card -->
-      <div class="card">
-        <h2>📃 Freelance Contracts</h2>
-        <p>Generate and save contracts.</p>
-        <div class="actions">
-          <a href="contract.html" class="btn-create">📄 Create Contract</a>
-          <a href="contract-list.html">📋 Saved Contracts</a>
-        </div>
-      </div>
-
-      <!-- Reminders Card -->
-      <div class="card">
-        <h2>📬 Payment Reminders</h2>
-        <p>Remind clients about due payments.</p>
-        <div class="actions">
-          <a href="payment-reminder.html" class="btn-create">💸 Create Reminder</a>
-          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-        </div>
-      </div>
-
-      <!-- Templates -->
-      <div class="card">
-        <h2>📂 Templates</h2>
-        <p>Documents & tools for freelancers.</p>
-        <div class="actions">
-          <a href="email-gemeente.html">📩 Email to Gemeente</a>
-          <a href="cv.html">📄 CV / Portfolio</a>
-          <a href="expense.csv">🧮 Expense CSV</a>
-        </div>
-      </div>
-
-      <!-- Analytics -->
-      <div class="card">
-        <h2>📊 Analytics</h2>
-        <p>Track and analyze your finances.</p>
-        <div class="actions">
-          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-          <a href="summary.html">📊 Summary</a>
-          <a href="roi-estimator.html">🧮 ROI Estimator</a>
-          <a href="tax-calculator.html">🧮 Tax Calculator</a>
-        </div>
-      </div>
-
-      <!-- Settings -->
-      <div class="card">
-        <h2>⚙️ Settings</h2>
-        <p>Manage your profile & preferences.</p>
-        <div class="actions">
-          <a href="profile.html">👤 Profile</a>
-        </div>
-      </div>
-
-      <!-- AI Assistant -->
-      <div class="card">
-        <h2>🤖 AI Assistant (PRO)</h2>
-        <p>Your personal smart helper.</p>
-        <div class="actions">
-          <a href="ai-assistant.html" class="btn-create">⚡ Open AI Assistant</a>
-        </div>
-      </div>
-    </div>
+    </section>
   </main>
 
-  <!-- Firebase -->
+  <!-- Firebase + Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -196,65 +137,58 @@
       projectId: "smartwerk8520",
       appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
+
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
     const $ = id => document.getElementById(id);
 
-    async function loadPlan(uid){
-      const userRef = doc(db,"users",uid);
-      const snap = await getDoc(userRef);
-      let plan = "Free";
-      let fullName = "User";
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href="login.html"; return; }
+
+      // Load profile
+      const snap = await getDoc(doc(db,"users",user.uid));
       if(snap.exists()){
-        if(snap.data().plan) plan = snap.data().plan;
-        if(snap.data().fullName) fullName = snap.data().fullName;
-      }
-      $("planName").innerText = plan+" Plan";
-      $("welcome").innerText = `Welcome, ${fullName} 👋`;
+        const p = snap.data();
+        $("userName").innerText = p.fullName || "User";
 
-      // Count docs
-      const collections = ["invoices","quotes","reminders","contracts"];
-      let total = 0;
-      for(const col of collections){
-        const qSnap = await getDocs(collection(db,"users",uid,col));
-        total += qSnap.size;
+        // Show plan
+        const plan = p.plan || "FREE";
+        $("planName").innerText = plan;
+        const used = p.usedDocs || 0;
+        const limit = plan==="FREE" ? 25 : "∞";
+        $("planLimit").innerText = plan==="FREE" ? `${used} / ${limit} documents` : "Unlimited PRO";
+        $("planProgress").style.width = plan==="FREE" ? `${Math.min(100, (used/25)*100)}%` : "100%";
       }
 
-      if(plan==="Free"){
-        const limit = 25;
-        const percent = Math.min((total/limit)*100,100);
-        $("progressFill").style.width = percent+"%";
-        $("usageText").innerText = `${total} / ${limit} documents used`;
-        $("upgradeBtn").style.display="block";
-        if(total >= limit){
-          blockCreateButtons();
+      // Example KPIs
+      $("kpiIncome").innerText="€5,000";
+      $("kpiExpenses").innerText="€2,000";
+      $("kpiProfit").innerText="€3,000";
+      $("kpiVAT").innerText="€800";
+
+      // Chart
+      new Chart($("financeChart"), {
+        type:"line",
+        data:{
+          labels:["Jan","Feb","Mar","Apr","May","Jun"],
+          datasets:[{
+            label:"Income",
+            data:[2000,2500,3000,4000,3500,5000],
+            borderColor:"#3b82f6",
+            fill:false
+          },{
+            label:"Expenses",
+            data:[800,1000,1200,1500,1400,2000],
+            borderColor:"#ef4444",
+            fill:false
+          }]
         }
-      } else {
-        $("progressFill").style.width = "100%";
-        $("progressFill").style.background = "#16a34a";
-        $("usageText").innerText = "✅ Unlimited documents";
-      }
-    }
-
-    function blockCreateButtons(){
-      const createBtns = document.querySelectorAll('.btn-create'); 
-      createBtns.forEach(btn=>{
-        btn.classList.add("btn-disabled");
-        btn.onclick = (e)=>{
-          e.preventDefault();
-          alert("🚀 Upgrade to PRO to create unlimited documents");
-        };
       });
-    }
-
-    onAuthStateChanged(auth, user=>{
-      if(user){ loadPlan(user.uid); }
-      else location.href="login.html";
     });
 
-    $("logoutBtn").addEventListener("click",()=>signOut(auth));
+    $("logoutBtn").onclick=()=>signOut(auth);
   </script>
 </body>
 </html>
