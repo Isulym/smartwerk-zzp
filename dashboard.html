@@ -62,56 +62,52 @@
 
   <!-- Main -->
   <main class="content">
-    <!-- Topbar -->
-    <header class="topbar">
-      <div id="welcome">👋 Welcome</div>
-      <div id="planBox" class="plan-box">
-        <span id="planName">FREE</span>
-        <div class="progress">
-          <div id="planProgress"></div>
-        </div>
-        <small id="planUsage">0 / 25</small>
-        <button id="upgradeBtn">⚡ Upgrade</button>
-      </div>
-    </header>
+  <header class="topbar">...</header>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
-      <button onclick="location.href='invoice.html'">➕ Invoice</button>
-      <button onclick="location.href='quote-offer.html'">➕ Quote</button>
-      <button onclick="location.href='contract.html'">➕ Contract</button>
-      <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
-    </section>
+  <!-- Quick Actions -->
+  <section class="card quick-actions">
+    <h2>⚡ Quick Actions</h2>
+    <div class="buttons">
+      <button>➕ Invoice</button>
+      <button>➕ Quote</button>
+      <button>➕ Contract</button>
+      <button>➕ Reminder</button>
+    </div>
+  </section>
 
-    <!-- KPI -->
-    <section class="kpis">
-      <div class="kpi">💰 Revenue <span id="kpiRevenue">€0</span></div>
-      <div class="kpi">📄 Invoices <span id="kpiInvoices">0</span></div>
-      <div class="kpi">📑 Quotes <span id="kpiQuotes">0</span></div>
-      <div class="kpi">📬 Reminders <span id="kpiReminders">0</span></div>
-      <div class="kpi">👥 Clients <span id="kpiClients">0</span></div>
-      <div class="kpi">⚠️ Unpaid <span id="kpiUnpaid">0</span></div>
-    </section>
+  <!-- KPI Cards -->
+  <section class="kpis">
+    <div class="card kpi">💰 Revenue <span id="kpiRevenue">€0</span></div>
+    <div class="card kpi">📄 Invoices <span id="kpiInvoices">0</span></div>
+    <div class="card kpi">📑 Quotes <span id="kpiQuotes">0</span></div>
+    <div class="card kpi">📬 Reminders <span id="kpiReminders">0</span></div>
+    <div class="card kpi">👥 Clients <span id="kpiClients">0</span></div>
+    <div class="card kpi">⚠️ Unpaid <span id="kpiUnpaid">0</span></div>
+  </section>
 
-    <!-- Charts -->
-    <section class="charts">
-      <canvas id="revenueChart"></canvas>
-      <canvas id="invoiceChart"></canvas>
-    </section>
+  <!-- Charts -->
+  <section class="charts">
+    <div class="card"><canvas id="revenueChart"></canvas></div>
+    <div class="card"><canvas id="invoiceChart"></canvas></div>
+  </section>
 
-    <!-- Suggestions -->
-    <section class="suggestions">
-      <h2>🔔 Smart Suggestions</h2>
-      <ul id="suggestionsList"><li>No alerts</li></ul>
-    </section>
+  <!-- Suggestions -->
+  <section class="card suggestions">
+    <h2>🔔 Smart Suggestions</h2>
+    <ul id="suggestionsList">
+      <li>⚠️ 2 invoices overdue → Send Reminder</li>
+    </ul>
+  </section>
 
-    <!-- Recent Activity -->
-    <section class="activity">
-      <h2>📌 Recent Activity</h2>
-      <ul id="activityList"><li>No activity</li></ul>
-    </section>
-  </main>
-
+  <!-- Activity -->
+  <section class="card activity">
+    <h2>📌 Recent Activity</h2>
+    <ul id="activityList">
+      <li>📄 Invoice INV-2025-003 created</li>
+    </ul>
+  </section>
+</main>
+  
   <!-- Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
