@@ -8,125 +8,126 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="dashboard">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">⚡ SmartWerk</div>
-      <nav>
-        <button class="accordion">💰 Invoices</button>
-        <div class="panel">
-          <a href="invoice.html">📄 Create Invoice</a>
-          <a href="invoices-list.html">📋 Saved Invoices</a>
-        </div>
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">⚡ SmartWerk</div>
+    <nav>
+      <button class="accordion">💰 Invoices</button>
+      <div class="panel">
+        <a href="invoice.html">📄 Create Invoice</a>
+        <a href="invoices-list.html">📋 Saved Invoices</a>
+      </div>
 
-        <button class="accordion">📑 Quotes</button>
-        <div class="panel">
-          <a href="quote-offer.html">📄 Create Quote</a>
-          <a href="quote-offer-list.html">📋 Saved Quotes</a>
-        </div>
+      <button class="accordion">📑 Quotes</button>
+      <div class="panel">
+        <a href="quote-offer.html">📄 Create Quote</a>
+        <a href="quote-offer-list.html">📋 Saved Quotes</a>
+      </div>
 
-        <button class="accordion">📃 Contracts</button>
-        <div class="panel">
-          <a href="contract.html">📄 Create Contract</a>
-          <a href="contract-list.html">📋 Saved Contracts</a>
-        </div>
+      <button class="accordion">📃 Contracts</button>
+      <div class="panel">
+        <a href="contract.html">📄 Create Contract</a>
+        <a href="contract-list.html">📋 Saved Contracts</a>
+      </div>
 
-        <button class="accordion">📬 Reminders</button>
-        <div class="panel">
-          <a href="payment-reminder.html">💸 Create Reminder</a>
-          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-        </div>
+      <button class="accordion">📬 Reminders</button>
+      <div class="panel">
+        <a href="payment-reminder.html">💸 Create Reminder</a>
+        <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+      </div>
 
-        <button class="accordion">📂 Templates</button>
-        <div class="panel">
-          <a href="email-gemeente.html">📩 Email to Gemeente</a>
-          <a href="cv.html">📄 CV / Portfolio</a>
-          <a href="expense.csv">🧮 Expense CSV</a>
-        </div>
+      <button class="accordion">📂 Templates</button>
+      <div class="panel">
+        <a href="email-gemeente.html">📩 Email to Gemeente</a>
+        <a href="cv.html">📄 CV / Portfolio</a>
+        <a href="expense.csv">🧮 Expense CSV</a>
+      </div>
 
-        <button class="accordion">📊 Analytics</button>
-        <div class="panel">
-          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-          <a href="summary.html">📊 Summary</a>
-          <a href="roi-estimator.html">📈 ROI Estimator</a>
-          <a href="tax-calculator.html">🧮 Tax Calculator</a>
-        </div>
+      <button class="accordion">📊 Analytics</button>
+      <div class="panel">
+        <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+        <a href="summary.html">📊 Summary</a>
+        <a href="roi-estimator.html">📈 ROI Estimator</a>
+        <a href="tax-calculator.html">🧮 Tax Calculator</a>
+      </div>
 
-        <button class="accordion">⚙️ Settings</button>
-        <div class="panel">
-          <a href="profile.html">👤 Profile</a>
-        </div>
+      <button class="accordion">⚙️ Settings</button>
+      <div class="panel">
+        <a href="profile.html">👤 Profile</a>
+      </div>
 
-        <button class="accordion">👥 Clients</button>
-        <div class="panel">
-          <a href="#">➕ Add Client</a>
-          <a href="#">📋 Saved Clients</a>
-        </div>
+      <button class="accordion">👥 Clients</button>
+      <div class="panel">
+        <a href="#">➕ Add Client</a>
+        <a href="#">📋 Saved Clients</a>
+      </div>
 
-        <button class="accordion">❓ Help</button>
-        <div class="panel">
-          <a href="pricing.html">💳 Upgrade to PRO</a>
-          <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
-        </div>
+      <button class="accordion">❓ Help</button>
+      <div class="panel">
+        <a href="pricing.html">💳 Upgrade to PRO</a>
+        <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
+      </div>
 
-        <button id="logoutBtn" class="logout">🚪 Logout</button>
-      </nav>
-    </aside>
+      <button id="logoutBtn" class="logout">🚪 Logout</button>
+    </nav>
+  </aside>
 
-    <!-- Main -->
-    <main class="main">
-      <!-- Header -->
-      <header class="topbar">
-        <h1 id="welcome">Welcome 👋</h1>
-        <div class="plan-box">
-          <span id="planName">FREE</span>
-          <div class="progress-bar"><div id="planProgress"></div></div>
-          <small id="planUsage">0/25</small>
-          <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
-        </div>
-      </header>
+  <!-- Main -->
+  <main class="main">
+    <!-- Header -->
+    <header class="topbar">
+      <h1 id="welcome">Welcome 👋</h1>
+      <div class="plan-box">
+        <span id="planName">FREE</span>
+        <div class="progress-bar"><div id="planProgress"></div></div>
+        <small id="planUsage">0/25</small>
+        <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
+      </div>
+    </header>
 
-      <!-- Quick Actions -->
-      <section class="quick-actions">
-        <button onclick="location.href='invoice.html'">➕ Invoice</button>
-        <button onclick="location.href='quote-offer.html'">➕ Quote</button>
-        <button onclick="location.href='contract.html'">➕ Contract</button>
-        <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
-      </section>
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <button onclick="location.href='invoice.html'">➕ Invoice</button>
+      <button onclick="location.href='quote-offer.html'">➕ Quote</button>
+      <button onclick="location.href='contract.html'">➕ Contract</button>
+      <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
+    </section>
 
-      <!-- KPI Cards -->
-      <section class="kpi-grid">
-        <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
-        <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
-        <div class="kpi-card"><h3>📊 Quotes Rate</h3><p id="kpiQuoteRate">0%</p></div>
-        <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
-        <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
-        <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
-        <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
-      </section>
+    <!-- KPI Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
+      <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
+      <div class="kpi-card"><h3>📊 Quotes Rate</h3><p id="kpiQuoteRate">0%</p></div>
+      <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
+      <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
+      <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
+      <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
+    </section>
 
-      <!-- Charts -->
-      <section class="charts">
-        <canvas id="revenueChart"></canvas>
-        <canvas id="invoiceStatusChart"></canvas>
-      </section>
+    <!-- Charts -->
+    <section class="charts">
+      <canvas id="revenueChart" height="120"></canvas>
+      <canvas id="invoiceStatusChart" height="120"></canvas>
+    </section>
 
-      <!-- Smart Suggestions -->
-      <section class="suggestions">
-        <h2>💡 Smart Suggestions</h2>
-        <ul id="suggestionsList"></ul>
-      </section>
+    <!-- Smart Suggestions -->
+    <section class="suggestions">
+      <h2>💡 Smart Suggestions</h2>
+      <ul id="suggestionsList"></ul>
+    </section>
 
-      <!-- Recent Activity -->
-      <section class="activity">
-        <h2>🕒 Recent Activity</h2>
-        <ul id="activityList"></ul>
-      </section>
-    </main>
-  </div>
+    <!-- Recent Activity -->
+    <section class="activity">
+      <h2>🕒 Recent Activity</h2>
+      <ul id="activityList"></ul>
+    </section>
+  </main>
+</div>
 
-  <!-- Firebase -->
-  <script type="module">
+<!-- Firebase -->
+<script type="module">
+// Firebase SDK
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -185,13 +186,13 @@ function updateStatusChart(data){
   });
 }
 
-// Suggestions
-function updateSuggestions(uid){
+// Smart Suggestions
+function updateSuggestions(overdue,invoices){
   const ul = $("suggestionsList");
   ul.innerHTML="";
-  ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
-  ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
-  ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
+  if(overdue>0) ul.innerHTML+=`<li>📌 You have ${overdue} overdue invoices — send reminders now.</li>`;
+  if(invoices.filter(i=>i.status==="Draft").length>2) ul.innerHTML+=`<li>💡 Convert Draft invoices into Sent ones.</li>`;
+  ul.innerHTML+=`<li>📊 Track expenses in My Bookkeeper for better clarity.</li>`;
 }
 
 // Count docs helper
@@ -215,7 +216,7 @@ onAuthStateChanged(auth, async(user)=>{
   $("planName").innerText = plan;
   let limit = plan==="PRO" ? Infinity : 25;
 
-  // Track usage (sum invoices + quotes + reminders)
+  // Track usage
   let totalDocs = 0;
   const colls = ["invoices","quotes","reminders"];
   for(const c of colls){
@@ -226,7 +227,7 @@ onAuthStateChanged(auth, async(user)=>{
   $("planUsage").innerText = plan==="PRO" ? "Unlimited" : `${totalDocs}/${limit}`;
   $("planProgress").style.width = plan==="PRO" ? "100%" : `${Math.min(100,totalDocs/limit*100)}%`;
 
-  // Real-time KPI (Invoices)
+  // Real-time Invoices
   onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
     const invoices = snap.docs.map(d=>d.data());
     const revenue = invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
@@ -251,14 +252,16 @@ onAuthStateChanged(auth, async(user)=>{
     const status = {Draft:0,Sent:0,Paid:0};
     invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
     updateStatusChart(status);
+
+    updateSuggestions(overdue,invoices);
   });
 
-  // Real-time Reminders
+  // Reminders
   onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
     $("kpiReminders").innerText = snap.size;
   });
 
-  // Real-time Quotes
+  // Quotes
   onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
     const quotes = snap.docs.map(d=>d.data());
     const accepted = quotes.filter(q=>q.status==="Accepted").length;
@@ -271,35 +274,25 @@ onAuthStateChanged(auth, async(user)=>{
     $("kpiExpenses").innerText = "€"+total.toFixed(2);
   });
 
-  // Smart Suggestions
-  updateSuggestions(user.uid);
-
-  // Recent Activity (events)
+  // Recent Activity
   try {
     const evQuery = query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc"));
-    onSnapshot(
-      evQuery,
-      (snap)=>{
-        const ul = $("activityList");
-        ul.innerHTML="";
-        if(snap.empty){ ul.innerHTML="<li>— No recent activity —</li>"; return; }
-        snap.docs.slice(0,5).forEach(d=>{
-          const e=d.data();
-          const li=document.createElement("li");
-          li.textContent = `${e.type||"Event"} — ${e.message||""}`;
-          ul.appendChild(li);
-        });
-      },
-      (err)=>{
-        console.warn("Recent Activity access error:", err);
-        $("activityList").innerHTML="<li>— Can't read events (check Firestore Rules & publish). —</li>";
-      }
-    );
+    onSnapshot(evQuery,(snap)=>{
+      const ul = $("activityList");
+      ul.innerHTML="";
+      if(snap.empty){ ul.innerHTML="<li>— No recent activity —</li>"; return; }
+      snap.docs.slice(0,5).forEach(d=>{
+        const e=d.data();
+        const li=document.createElement("li");
+        li.textContent = `${e.type||"Event"} — ${e.message||""}`;
+        ul.appendChild(li);
+      });
+    });
   } catch(e){
-    console.error("Recent Activity init failed:", e);
-    $("activityList").innerHTML="<li>— Recent Activity is unavailable right now. —</li>";
+    console.error("Recent Activity error:", e);
+    $("activityList").innerHTML="<li>— Recent Activity unavailable —</li>";
   }
 });
-  </script>
+</script>
 </body>
 </html>
