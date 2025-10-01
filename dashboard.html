@@ -132,8 +132,10 @@
 // Firebase SDK
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+import { getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
   authDomain: "smartwerk8520.firebaseapp.com",
@@ -252,9 +254,8 @@ onAuthStateChanged(auth, async(user)=>{
 
 // Count docs helper
 async function getDocCount(ref){
-  return new Promise(resolve=>{
-    onSnapshot(ref,(snap)=>resolve(snap.size));
-  });
+  const snap = await getDocs(ref);
+  return snap.size;
 }
 
 // Charts
@@ -263,12 +264,11 @@ let revenueChart, statusChart;
 function updateRevenueChart(data){
   const ctx = $("revenueChart").getContext("2d");
   if(revenueChart) revenueChart.destroy();
+  const labels = Object.keys(data).length ? Object.keys(data) : ["No Data"];
+  const values = Object.values(data).length ? Object.values(data) : [0];
   revenueChart = new Chart(ctx,{
     type:"line",
-    data:{
-      labels:Object.keys(data),
-      datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
-    },
+    data:{ labels, datasets:[{label:"Revenue", data:values, borderColor:"#3b82f6", fill:false}] },
     options:{ responsive:true, plugins:{legend:{display:false}} }
   });
 }
@@ -290,10 +290,10 @@ function updateStatusChart(data){
 function updateSuggestions(uid){
   const ul = $("suggestionsList");
   ul.innerHTML="";
-  // simple AI-like tips
   ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
   ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
   ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
+  // можна додати підвантаження з Firestore /users/{uid}/suggestions
 }
     
     </script>
