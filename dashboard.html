@@ -13,16 +13,62 @@
     <aside class="sidebar">
       <div class="logo">⚡ SmartWerk</div>
       <nav>
-        <a href="dashboard.html">🏠 Dashboard</a>
-        <a href="invoice.html">💰 Invoices</a>
-        <a href="quote-offer.html">📑 Quotes</a>
-        <a href="contract.html">📃 Contracts</a>
-        <a href="payment-reminder.html">📬 Reminders</a>
-        <a href="templates.html">📂 Templates</a>
-        <a href="my-bookkeeper.html">📊 Analytics</a>
-        <a href="profile.html">⚙️ Settings</a>
-        <a href="clients.html">👥 Clients</a>
-        <a href="pricing.html">💳 Upgrade</a>
+        <button class="accordion">💰 Invoices</button>
+        <div class="panel">
+          <a href="invoice.html">📄 Create Invoice</a>
+          <a href="invoices-list.html">📋 Saved Invoices</a>
+        </div>
+
+        <button class="accordion">📑 Quotes</button>
+        <div class="panel">
+          <a href="quote-offer.html">📄 Create Quote</a>
+          <a href="quote-offer-list.html">📋 Saved Quotes</a>
+        </div>
+
+        <button class="accordion">📃 Contracts</button>
+        <div class="panel">
+          <a href="contract.html">📄 Create Contract</a>
+          <a href="contract-list.html">📋 Saved Contracts</a>
+        </div>
+
+        <button class="accordion">📬 Reminders</button>
+        <div class="panel">
+          <a href="payment-reminder.html">💸 Create Reminder</a>
+          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+        </div>
+
+        <button class="accordion">📂 Templates</button>
+        <div class="panel">
+          <a href="email-gemeente.html">📩 Email to Gemeente</a>
+          <a href="cv.html">📄 CV / Portfolio</a>
+          <a href="expense.csv">🧮 Expense CSV</a>
+        </div>
+
+        <button class="accordion">📊 Analytics</button>
+        <div class="panel">
+          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+          <a href="summary.html">📊 Summary</a>
+          <a href="roi-estimator.html">📈 ROI Estimator</a>
+          <a href="tax-calculator.html">🧮 Tax Calculator</a>
+        </div>
+
+        <button class="accordion">⚙️ Settings</button>
+        <div class="panel">
+          <a href="profile.html">👤 Profile</a>
+        </div>
+
+        <button class="accordion">👥 Clients</button>
+        <div class="panel">
+          <a href="#">➕ Add Client</a>
+          <a href="#">📋 Saved Clients</a>
+        </div>
+
+        <button class="accordion">❓ Help</button>
+        <div class="panel">
+          <a href="pricing.html">💳 Upgrade to PRO</a>
+          <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
+        </div>
+
         <button id="logoutBtn" class="logout">🚪 Logout</button>
       </nav>
     </aside>
@@ -42,10 +88,10 @@
 
       <!-- Quick Actions -->
       <section class="quick-actions">
-        <button onclick="logAndGo('invoice.html','Created Invoice')">➕ Invoice</button>
-        <button onclick="logAndGo('quote-offer.html','Created Quote')">➕ Quote</button>
-        <button onclick="logAndGo('contract.html','Created Contract')">➕ Contract</button>
-        <button onclick="logAndGo('payment-reminder.html','Created Reminder')">➕ Reminder</button>
+        <button onclick="location.href='invoice.html'">➕ Invoice</button>
+        <button onclick="location.href='quote-offer.html'">➕ Quote</button>
+        <button onclick="location.href='contract.html'">➕ Contract</button>
+        <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
       </section>
 
       <!-- KPI Cards -->
@@ -56,12 +102,13 @@
         <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
         <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
         <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
+        <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
       </section>
 
       <!-- Charts -->
       <section class="charts">
-        <canvas id="revenueChart" height="120"></canvas>
-        <canvas id="invoiceStatusChart" height="120"></canvas>
+        <canvas id="revenueChart"></canvas>
+        <canvas id="invoiceStatusChart"></canvas>
       </section>
 
       <!-- Smart Suggestions -->
@@ -82,7 +129,7 @@
   <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -102,17 +149,56 @@ $("logoutBtn").addEventListener("click", async () => {
   location.href = "login.html";
 });
 
-// Log and Go (щоб писати в Recent Activity)
-async function logAndGo(page, message){
-  const user = auth.currentUser;
-  if(user){
-    await addDoc(collection(db,"users",user.uid,"events"),{
-      type:"Action",
-      message:message,
-      createdAt:new Date()
-    });
-  }
-  location.href = page;
+// Accordion Sidebar
+document.querySelectorAll(".accordion").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    btn.classList.toggle("active");
+    const panel = btn.nextElementSibling;
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+  });
+});
+
+// Charts
+let revenueChart, statusChart;
+function updateRevenueChart(data){
+  const ctx = $("revenueChart").getContext("2d");
+  if(revenueChart) revenueChart.destroy();
+  revenueChart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:Object.keys(data),
+      datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
+    },
+    options:{ responsive:true, plugins:{legend:{display:false}} }
+  });
+}
+function updateStatusChart(data){
+  const ctx = $("invoiceStatusChart").getContext("2d");
+  if(statusChart) statusChart.destroy();
+  statusChart = new Chart(ctx,{
+    type:"doughnut",
+    data:{
+      labels:Object.keys(data),
+      datasets:[{ data:Object.values(data), backgroundColor:["#f59e0b","#3b82f6","#22c55e"] }]
+    },
+    options:{ responsive:true }
+  });
+}
+
+// Suggestions
+function updateSuggestions(uid){
+  const ul = $("suggestionsList");
+  ul.innerHTML="";
+  ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
+  ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
+  ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
+}
+
+// Count docs helper
+async function getDocCount(ref){
+  return new Promise(resolve=>{
+    onSnapshot(ref,(snap)=>resolve(snap.size));
+  });
 }
 
 // Init
@@ -120,7 +206,7 @@ onAuthStateChanged(auth, async(user)=>{
   if(!user){ location.href="login.html"; return; }
 
   // Load profile
-  const snap = await getDoc(doc(db,"users",user.uid,"profile","main"));
+  const snap = await getDoc(doc(db,"users",user.uid));
   const profile = snap.exists() ? snap.data() : {};
   $("welcome").innerText = `Welcome, ${profile.fullName||"User"} 👋`;
 
@@ -129,19 +215,18 @@ onAuthStateChanged(auth, async(user)=>{
   $("planName").innerText = plan;
   let limit = plan==="PRO" ? Infinity : 25;
 
-  // Track usage (invoices + quotes + reminders)
+  // Track usage (sum invoices + quotes + reminders)
   let totalDocs = 0;
   const colls = ["invoices","quotes","reminders"];
   for(const c of colls){
-    const snap2 = await new Promise(resolve=>{
-      onSnapshot(collection(db,"users",user.uid,c),(snap)=>resolve(snap.size));
-    });
+    const ref = collection(db,"users",user.uid,c);
+    const snap2 = await getDocCount(ref);
     totalDocs += snap2;
   }
   $("planUsage").innerText = plan==="PRO" ? "Unlimited" : `${totalDocs}/${limit}`;
   $("planProgress").style.width = plan==="PRO" ? "100%" : `${Math.min(100,totalDocs/limit*100)}%`;
 
-  // Real-time Invoices
+  // Real-time KPI (Invoices)
   onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
     const invoices = snap.docs.map(d=>d.data());
     const revenue = invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
@@ -155,18 +240,25 @@ onAuthStateChanged(auth, async(user)=>{
     $("kpiUnpaid").innerText = "€"+unpaid.toFixed(2);
     $("kpiOverdue").innerText = overdue;
 
-    updateRevenueChart(invoices);
-    updateStatusChart(invoices);
+    const byMonth = {};
+    invoices.forEach(i=>{
+      const m = (i.invoiceDate||"").substring(0,7);
+      if(!byMonth[m]) byMonth[m]=0;
+      byMonth[m]+=parseFloat(i.grandTotal)||0;
+    });
+    updateRevenueChart(byMonth);
 
-    updateSuggestions(unpaid,overdue);
+    const status = {Draft:0,Sent:0,Paid:0};
+    invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
+    updateStatusChart(status);
   });
 
-  // Reminders
+  // Real-time Reminders
   onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
     $("kpiReminders").innerText = snap.size;
   });
 
-  // Quotes
+  // Real-time Quotes
   onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
     const quotes = snap.docs.map(d=>d.data());
     const accepted = quotes.filter(q=>q.status==="Accepted").length;
@@ -179,58 +271,35 @@ onAuthStateChanged(auth, async(user)=>{
     $("kpiExpenses").innerText = "€"+total.toFixed(2);
   });
 
-  // Recent Activity
-  onSnapshot(query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc")),(snap)=>{
-    const ul = $("activityList");
-    ul.innerHTML="";
-    if(snap.empty){ ul.innerHTML="<li>No recent activity</li>"; return; }
-    snap.docs.slice(0,5).forEach(d=>{
-      const e=d.data();
-      const li=document.createElement("li");
-      li.innerText = `${e.type||"Event"} — ${e.message||""}`;
-      ul.appendChild(li);
-    });
-  });
+  // Smart Suggestions
+  updateSuggestions(user.uid);
+
+  // Recent Activity (events)
+  try {
+    const evQuery = query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc"));
+    onSnapshot(
+      evQuery,
+      (snap)=>{
+        const ul = $("activityList");
+        ul.innerHTML="";
+        if(snap.empty){ ul.innerHTML="<li>— No recent activity —</li>"; return; }
+        snap.docs.slice(0,5).forEach(d=>{
+          const e=d.data();
+          const li=document.createElement("li");
+          li.textContent = `${e.type||"Event"} — ${e.message||""}`;
+          ul.appendChild(li);
+        });
+      },
+      (err)=>{
+        console.warn("Recent Activity access error:", err);
+        $("activityList").innerHTML="<li>— Can't read events (check Firestore Rules & publish). —</li>";
+      }
+    );
+  } catch(e){
+    console.error("Recent Activity init failed:", e);
+    $("activityList").innerHTML="<li>— Recent Activity is unavailable right now. —</li>";
+  }
 });
-
-// Charts
-let revenueChart, statusChart;
-function updateRevenueChart(invoices){
-  const byMonth={};
-  invoices.forEach(i=>{
-    const m = (i.invoiceDate||"").substring(0,7);
-    if(!byMonth[m]) byMonth[m]=0;
-    byMonth[m]+=parseFloat(i.grandTotal)||0;
-  });
-  const ctx=$("revenueChart").getContext("2d");
-  if(revenueChart) revenueChart.destroy();
-  revenueChart=new Chart(ctx,{
-    type:"line",
-    data:{ labels:Object.keys(byMonth), datasets:[{label:"Revenue", data:Object.values(byMonth), borderColor:"#3b82f6", fill:false}] },
-    options:{ responsive:true, plugins:{legend:{display:false}} }
-  });
-}
-function updateStatusChart(invoices){
-  const status={Draft:0,Sent:0,Paid:0};
-  invoices.forEach(i=>status[i.status]=(status[i.status]||0)+1);
-  const ctx=$("invoiceStatusChart").getContext("2d");
-  if(statusChart) statusChart.destroy();
-  statusChart=new Chart(ctx,{
-    type:"doughnut",
-    data:{ labels:Object.keys(status), datasets:[{data:Object.values(status), backgroundColor:["#f59e0b","#3b82f6","#22c55e"]}] },
-    options:{ responsive:true }
-  });
-}
-
-// Smart Suggestions
-function updateSuggestions(unpaid,overdue){
-  const ul=$("suggestionsList");
-  ul.innerHTML="";
-  if(unpaid>0) ul.innerHTML+=`<li>📌 Collect €${unpaid.toFixed(2)} in unpaid invoices.</li>`;
-  if(overdue>0) ul.innerHTML+=`<li>⚠️ ${overdue} invoices are overdue — send reminders.</li>`;
-  ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
-  ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
-}
-</script>
+  </script>
 </body>
 </html>
