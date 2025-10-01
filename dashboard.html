@@ -37,13 +37,6 @@
           <a href="payment-reminder-list.html">📋 Saved Reminders</a>
         </div>
 
-        <button class="accordion">📂 Templates</button>
-        <div class="panel">
-          <a href="email-gemeente.html">📩 Email to Gemeente</a>
-          <a href="cv.html">📄 CV / Portfolio</a>
-          <a href="expense.csv">🧮 Expense CSV</a>
-        </div>
-
         <button class="accordion">📊 Analytics</button>
         <div class="panel">
           <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
@@ -86,14 +79,6 @@
         </div>
       </header>
 
-      <!-- Quick Actions -->
-      <section class="quick-actions">
-        <button onclick="location.href='invoice.html'">➕ Invoice</button>
-        <button onclick="location.href='quote-offer.html'">➕ Quote</button>
-        <button onclick="location.href='contract.html'">➕ Contract</button>
-        <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
-      </section>
-
       <!-- KPI Cards -->
       <section class="kpi-grid">
         <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
@@ -102,7 +87,6 @@
         <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
         <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
         <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
-        <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
       </section>
 
       <!-- Charts -->
@@ -125,7 +109,7 @@
     </main>
   </div>
 
-  <!-- Firebase & Logic -->
+  <!-- Firebase + Dashboard Logic -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -149,7 +133,7 @@
       location.href = "login.html";
     });
 
-    // Sidebar accordion
+    // Sidebar Accordion
     document.querySelectorAll(".accordion").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         btn.classList.toggle("active");
@@ -186,12 +170,10 @@
     }
 
     // Suggestions
-    function updateSuggestions(user, invoices){
+    function updateSuggestions(uid){
       const ul = $("suggestionsList");
       ul.innerHTML="";
-      if(invoices.some(i=>i.status!=="Paid")){
-        ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
-      }
+      ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
       ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
       ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
     }
@@ -217,7 +199,7 @@
       $("planName").innerText = plan;
       let limit = plan==="PRO" ? Infinity : 25;
 
-      // Track usage
+      // Track usage (sum invoices + quotes + reminders)
       let totalDocs = 0;
       const colls = ["invoices","quotes","reminders"];
       for(const c of colls){
@@ -242,7 +224,6 @@
         $("kpiUnpaid").innerText = "€"+unpaid.toFixed(2);
         $("kpiOverdue").innerText = overdue;
 
-        // Charts update
         const byMonth = {};
         invoices.forEach(i=>{
           const m = (i.invoiceDate||"").substring(0,7);
@@ -254,17 +235,14 @@
         const status = {Draft:0,Sent:0,Paid:0};
         invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
         updateStatusChart(status);
-
-        // Suggestions
-        updateSuggestions(user.uid, invoices);
       });
 
-      // Reminders
+      // Real-time Reminders
       onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
         $("kpiReminders").innerText = snap.size;
       });
 
-      // Quotes
+      // Real-time Quotes
       onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
         const quotes = snap.docs.map(d=>d.data());
         const accepted = quotes.filter(q=>q.status==="Accepted").length;
@@ -276,6 +254,9 @@
         const total = snap.docs.map(d=>parseFloat(d.data().amount)||0).reduce((a,b)=>a+b,0);
         $("kpiExpenses").innerText = "€"+total.toFixed(2);
       });
+
+      // Smart Suggestions
+      updateSuggestions(user.uid);
 
       // Recent Activity
       try {
@@ -292,7 +273,8 @@
           });
         });
       } catch(e){
-        $("activityList").innerHTML="<li>— Recent Activity is unavailable right now. —</li>";
+        console.error("Recent Activity error:", e);
+        $("activityList").innerHTML="<li>— Recent Activity unavailable —</li>";
       }
     });
   </script>
