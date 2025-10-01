@@ -1,239 +1,169 @@
-/* Загальні стилі */
+/* === SmartWerk Dashboard Styles === */
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   background: #0f172a;
   color: #e5e7eb;
   display: flex;
-}
-
-/* Dashboard Layout */
-.dashboard {
-  display: flex;
-  width: 100%;
+  height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
   width: 240px;
-  background: #1e293b;
+  background: #111827;
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
-  overflow-y: auto;
 }
-
 .sidebar .logo {
   font-size: 1.4rem;
   font-weight: bold;
   color: #3b82f6;
-  margin-bottom: 1rem;
-  text-align: center;
+  margin-bottom: 1.5rem;
 }
-
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: .4rem;
-}
-
-.sidebar nav a,
-.sidebar nav button {
-  text-align: left;
-  padding: .6rem 1rem;
-  border-radius: 8px;
-  background: transparent;
-  color: #e5e7eb;
-  text-decoration: none;
-  font-size: .95rem;
-  cursor: pointer;
+.sidebar nav button,
+.sidebar nav a {
+  width: 100%;
+  background: none;
   border: none;
+  color: #e5e7eb;
+  text-align: left;
+  padding: .6rem 0;
+  cursor: pointer;
+  font-size: .95rem;
 }
-
+.sidebar nav a {
+  display: block;
+  padding-left: 1rem;
+  color: #9ca3af;
+  text-decoration: none;
+}
 .sidebar nav a:hover,
 .sidebar nav button:hover {
-  background: #334155;
+  color: #3b82f6;
 }
-
 .logout {
   margin-top: auto;
   background: #dc2626;
   color: #fff;
+  border: none;
+  padding: .6rem;
+  border-radius: 6px;
+  cursor: pointer;
 }
-
-.logout:hover {
-  background: #b91c1c;
-}
+.logout:hover { background: #b91c1c; }
 
 /* Main */
 .main {
-  margin-left: 240px;
   flex: 1;
   padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  overflow-y: auto;
 }
-
-/* Header */
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1e293b;
-  padding: 1rem;
-  border-radius: 12px;
+  margin-bottom: 1.5rem;
 }
-
 .topbar h1 {
-  margin: 0;
+  font-size: 1.4rem;
   color: #fff;
 }
-
-/* Plan Box */
 .plan-box {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: #0f172a;
-  padding: .6rem 1rem;
-  border-radius: 10px;
-  border: 1px solid #334155;
+  background: #1f2937;
+  padding: .7rem 1rem;
+  border-radius: 8px;
+  text-align: right;
 }
-
-.plan-box span {
-  font-weight: bold;
-  color: #3b82f6;
+.plan-box .progress-bar {
+  background: #374151;
+  height: 6px;
+  border-radius: 4px;
+  margin: .4rem 0;
 }
-
-.progress-bar {
-  background: #334155;
-  border-radius: 5px;
-  width: 120px;
-  height: 8px;
-  overflow: hidden;
-}
-
-.progress-bar div {
-  height: 100%;
+.plan-box #planProgress {
   background: #3b82f6;
-  width: 0;
-  transition: width .3s;
+  height: 6px;
+  border-radius: 4px;
 }
-
 .upgrade-btn {
-  background: #3b82f6;
-  color: #fff;
-  padding: .3rem .7rem;
-  border-radius: 6px;
+  color: #3b82f6;
+  text-decoration: underline;
   font-size: .85rem;
-  text-decoration: none;
-}
-.upgrade-btn:hover {
-  background: #2563eb;
 }
 
 /* Quick Actions */
 .quick-actions {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: .6rem;
+  margin-bottom: 1.5rem;
 }
-
 .quick-actions button {
-  background: #3b82f6;
-  border: none;
-  padding: .8rem 1.2rem;
-  border-radius: 10px;
-  color: #fff;
-  cursor: pointer;
-  font-weight: 500;
-}
-.quick-actions button:hover {
+  flex: 1;
   background: #2563eb;
+  border: none;
+  color: white;
+  padding: .7rem;
+  border-radius: 6px;
+  cursor: pointer;
 }
+.quick-actions button:hover { background: #1d4ed8; }
 
 /* KPI Grid */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+  grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
   gap: 1rem;
+  margin-bottom: 1.5rem;
 }
-
 .kpi-card {
-  background: #1e293b;
-  border-radius: 12px;
+  background: #1f2937;
+  border-radius: 8px;
   padding: 1rem;
   text-align: center;
 }
-
 .kpi-card h3 {
-  margin: 0;
+  font-size: .95rem;
+  margin-bottom: .5rem;
   color: #93c5fd;
 }
-
 .kpi-card p {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  margin-top: .5rem;
-  color: #fff;
 }
 
 /* Charts */
 .charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+  grid-template-columns: 1fr 1fr; /* два графіки поруч */
   gap: 1rem;
+  margin-bottom: 1.5rem;
 }
-
 .charts canvas {
-  background: #1e293b;
-  border-radius: 12px;
+  background: #1f2937;
+  border-radius: 8px;
   padding: 1rem;
+  max-height: 260px; /* 👈 робимо компактні */
 }
 
 /* Suggestions */
-.suggestions {
-  background: #1e293b;
-  padding: 1rem;
-  border-radius: 12px;
-}
-.suggestions h2 {
-  margin: 0 0 .8rem;
-  color: #3b82f6;
-}
-.suggestions ul {
-  list-style: none;
-  padding: 0;
-}
-.suggestions li {
-  margin-bottom: .5rem;
-  padding: .5rem;
-  background: #0f172a;
+.suggestions, .activity {
+  background: #1f2937;
   border-radius: 8px;
-}
-
-/* Activity */
-.activity {
-  background: #1e293b;
   padding: 1rem;
-  border-radius: 12px;
+  margin-bottom: 1.5rem;
 }
-.activity h2 {
-  margin: 0 0 .8rem;
-  color: #3b82f6;
+.suggestions h2, .activity h2 {
+  margin-bottom: .8rem;
+  color: #93c5fd;
 }
-.activity ul {
+.suggestions ul, .activity ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
-.activity li {
-  margin-bottom: .4rem;
-  padding: .4rem;
-  background: #0f172a;
-  border-radius: 6px;
+.suggestions li, .activity li {
+  padding: .3rem 0;
+  border-bottom: 1px solid #374151;
 }
