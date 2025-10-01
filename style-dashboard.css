@@ -164,16 +164,18 @@ body {
 /* Charts */
 .charts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;  /* два графіки в один ряд */
   gap: 1.2rem;
   margin-bottom: 2rem;
 }
+
 canvas {
   background: #1e293b;
   border-radius: 10px;
   padding: 0.5rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  max-height: 250px;   /* зменшені графіки */
+  max-height: 200px;   /* зменшена висота графіка */
+  width: 100%;
 }
 
 /* Suggestions & Activity */
