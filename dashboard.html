@@ -8,126 +8,113 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="dashboard">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">⚡ SmartWerk</div>
-      <nav>
-        <button class="accordion">💰 Invoices</button>
-        <div class="panel">
-          <a href="invoice.html">📄 Create Invoice</a>
-          <a href="invoices-list.html">📋 Saved Invoices</a>
-        </div>
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">⚡ SmartWerk</div>
+    <nav>
+      <button class="accordion">💰 Invoices</button>
+      <div class="panel">
+        <a href="invoice.html">📄 Create Invoice</a>
+        <a href="invoices-list.html">📋 Saved Invoices</a>
+      </div>
 
-        <button class="accordion">📑 Quotes</button>
-        <div class="panel">
-          <a href="quote-offer.html">📄 Create Quote</a>
-          <a href="quote-offer-list.html">📋 Saved Quotes</a>
-        </div>
+      <button class="accordion">📑 Quotes</button>
+      <div class="panel">
+        <a href="quote-offer.html">📄 Create Quote</a>
+        <a href="quote-offer-list.html">📋 Saved Quotes</a>
+      </div>
 
-        <button class="accordion">📃 Contracts</button>
-        <div class="panel">
-          <a href="contract.html">📄 Create Contract</a>
-          <a href="contract-list.html">📋 Saved Contracts</a>
-        </div>
+      <button class="accordion">📃 Contracts</button>
+      <div class="panel">
+        <a href="contract.html">📄 Create Contract</a>
+        <a href="contract-list.html">📋 Saved Contracts</a>
+      </div>
 
-        <button class="accordion">📬 Reminders</button>
-        <div class="panel">
-          <a href="payment-reminder.html">💸 Create Reminder</a>
-          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-        </div>
+      <button class="accordion">📬 Reminders</button>
+      <div class="panel">
+        <a href="payment-reminder.html">💸 Create Reminder</a>
+        <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+      </div>
 
-        <button class="accordion">📂 Templates</button>
-        <div class="panel">
-          <a href="email-gemeente.html">📩 Email to Gemeente</a>
-          <a href="cv.html">📄 CV / Portfolio</a>
-          <a href="expense.csv">🧮 Expense CSV</a>
-        </div>
+      <button class="accordion">📂 Templates</button>
+      <div class="panel">
+        <a href="email-gemeente.html">📩 Email to Gemeente</a>
+        <a href="cv.html">📄 CV / Portfolio</a>
+        <a href="expense.csv">🧮 Expense CSV</a>
+      </div>
 
-        <button class="accordion">📊 Analytics</button>
-        <div class="panel">
-          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-          <a href="summary.html">📊 Summary</a>
-          <a href="roi-estimator.html">📈 ROI Estimator</a>
-          <a href="tax-calculator.html">🧮 Tax Calculator</a>
-        </div>
+      <button class="accordion">📊 Analytics</button>
+      <div class="panel">
+        <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+        <a href="summary.html">📊 Summary</a>
+        <a href="roi-estimator.html">📈 ROI Estimator</a>
+        <a href="tax-calculator.html">🧮 Tax Calculator</a>
+      </div>
 
-        <button class="accordion">⚙️ Settings</button>
-        <div class="panel">
-          <a href="profile.html">👤 Profile</a>
-        </div>
+      <button class="accordion">⚙️ Settings</button>
+      <div class="panel">
+        <a href="profile.html">👤 Profile</a>
+        <a href="pricing.html">💳 Upgrade to PRO</a>
+      </div>
 
-        <button class="accordion">👥 Clients</button>
-        <div class="panel">
-          <a href="#">➕ Add Client</a>
-          <a href="#">📋 Saved Clients</a>
-        </div>
+      <button id="logoutBtn" class="logout">🚪 Logout</button>
+    </nav>
+  </aside>
 
-        <button class="accordion">❓ Help</button>
-        <div class="panel">
-          <a href="pricing.html">💳 Upgrade to PRO</a>
-          <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
-        </div>
+  <!-- Main -->
+  <main class="main">
+    <!-- Header -->
+    <header class="topbar">
+      <h1 id="welcome">Welcome 👋</h1>
+      <div class="plan-box">
+        <span id="planName">FREE</span>
+        <div class="progress-bar"><div id="planProgress"></div></div>
+        <small id="planUsage">0/25</small>
+        <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
+      </div>
+    </header>
 
-        <button id="logoutBtn" class="logout">🚪 Logout</button>
-      </nav>
-    </aside>
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <button onclick="location.href='invoice.html'">➕ Invoice</button>
+      <button onclick="location.href='quote-offer.html'">➕ Quote</button>
+      <button onclick="location.href='contract.html'">➕ Contract</button>
+      <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
+    </section>
 
-    <!-- Main -->
-    <main class="main">
-      <!-- Header -->
-      <header class="topbar">
-        <h1 id="welcome">Welcome 👋</h1>
-        <div class="plan-box">
-          <span id="planName">FREE</span>
-          <div class="progress-bar"><div id="planProgress"></div></div>
-          <small id="planUsage">0/25</small>
-          <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
-        </div>
-      </header>
+    <!-- KPI Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
+      <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
+      <div class="kpi-card"><h3>📊 Quotes Rate</h3><p id="kpiQuoteRate">0%</p></div>
+      <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
+      <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
+      <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
+    </section>
 
-      <!-- Quick Actions -->
-      <section class="quick-actions">
-        <button onclick="location.href='invoice.html'">➕ Invoice</button>
-        <button onclick="location.href='quote-offer.html'">➕ Quote</button>
-        <button onclick="location.href='contract.html'">➕ Contract</button>
-        <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
-      </section>
+    <!-- Charts -->
+    <section class="charts">
+      <canvas id="revenueChart"></canvas>
+      <canvas id="invoiceStatusChart"></canvas>
+    </section>
 
-      <!-- KPI Cards -->
-      <section class="kpi-grid">
-        <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
-        <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
-        <div class="kpi-card"><h3>📊 Quotes Rate</h3><p id="kpiQuoteRate">0%</p></div>
-        <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
-        <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
-        <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
-        <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
-      </section>
+    <!-- Smart Suggestions -->
+    <section class="suggestions">
+      <h2>💡 Smart Suggestions</h2>
+      <ul id="suggestionsList"></ul>
+    </section>
 
-      <!-- Charts -->
-      <section class="charts">
-        <canvas id="revenueChart"></canvas>
-        <canvas id="invoiceStatusChart"></canvas>
-      </section>
+    <!-- Recent Activity -->
+    <section class="activity">
+      <h2>🕒 Recent Activity</h2>
+      <ul id="activityList"></ul>
+    </section>
+  </main>
+</div>
 
-      <!-- Smart Suggestions -->
-      <section class="suggestions">
-        <h2>💡 Smart Suggestions</h2>
-        <ul id="suggestionsList"></ul>
-      </section>
-
-      <!-- Recent Activity -->
-      <section class="activity">
-        <h2>🕒 Recent Activity</h2>
-        <ul id="activityList"></ul>
-      </section>
-    </main>
-  </div>
-
-  <!-- Firebase -->
-  <script type="module">
-// Firebase SDK
+<!-- Firebase -->
+<script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -161,6 +148,7 @@ document.querySelectorAll(".accordion").forEach(btn=>{
 
 // Charts
 let revenueChart, statusChart;
+
 function updateRevenueChart(data){
   const ctx = $("revenueChart").getContext("2d");
   if(revenueChart) revenueChart.destroy();
@@ -173,6 +161,7 @@ function updateRevenueChart(data){
     options:{ responsive:true, plugins:{legend:{display:false}} }
   });
 }
+
 function updateStatusChart(data){
   const ctx = $("invoiceStatusChart").getContext("2d");
   if(statusChart) statusChart.destroy();
@@ -187,7 +176,7 @@ function updateStatusChart(data){
 }
 
 // Suggestions
-function updateSuggestions(uid){
+function updateSuggestions(){
   const ul = $("suggestionsList");
   ul.innerHTML="";
   ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
@@ -227,7 +216,7 @@ onAuthStateChanged(auth, async(user)=>{
   $("planUsage").innerText = plan==="PRO" ? "Unlimited" : `${totalDocs}/${limit}`;
   $("planProgress").style.width = plan==="PRO" ? "100%" : `${Math.min(100,totalDocs/limit*100)}%`;
 
-  // Real-time KPI (Invoices)
+  // Real-time Invoices
   onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
     const invoices = snap.docs.map(d=>d.data());
     const revenue = invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
@@ -241,6 +230,7 @@ onAuthStateChanged(auth, async(user)=>{
     $("kpiUnpaid").innerText = "€"+unpaid.toFixed(2);
     $("kpiOverdue").innerText = overdue;
 
+    // Revenue chart
     const byMonth = {};
     invoices.forEach(i=>{
       const m = (i.invoiceDate||"").substring(0,7);
@@ -249,17 +239,18 @@ onAuthStateChanged(auth, async(user)=>{
     });
     updateRevenueChart(byMonth);
 
+    // Status chart
     const status = {Draft:0,Sent:0,Paid:0};
     invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
     updateStatusChart(status);
   });
 
-  // Real-time Reminders
+  // Reminders
   onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
     $("kpiReminders").innerText = snap.size;
   });
 
-  // Real-time Quotes
+  // Quotes
   onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
     const quotes = snap.docs.map(d=>d.data());
     const accepted = quotes.filter(q=>q.status==="Accepted").length;
@@ -273,34 +264,32 @@ onAuthStateChanged(auth, async(user)=>{
   });
 
   // Smart Suggestions
-  updateSuggestions(user.uid);
+  updateSuggestions();
 
-  // Recent Activity (events)
+  // Recent Activity
   try {
-    const evQuery = query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc"));
-    onSnapshot(
-      evQuery,
-      (snap)=>{
-        const ul = $("activityList");
-        ul.innerHTML="";
-        if(snap.empty){ ul.innerHTML="<li>— No recent activity —</li>"; return; }
-        snap.docs.slice(0,5).forEach(d=>{
-          const e=d.data();
-          const li=document.createElement("li");
-          li.textContent = `${e.type||"Event"} — ${e.message||""}`;
-          ul.appendChild(li);
-        });
-      },
-      (err)=>{
-        console.warn("Recent Activity access error:", err);
-        $("activityList").innerHTML="<li>— Can't read events (check Firestore Rules & publish). —</li>";
+    onSnapshot(query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc")),(snap)=>{
+      const ul = $("activityList");
+      ul.innerHTML="";
+      if(snap.empty){
+        ul.innerHTML = "<li>No recent activity</li>";
+        return;
       }
-    );
+      snap.docs.slice(0,5).forEach(d=>{
+        const e=d.data();
+        const li=document.createElement("li");
+        li.innerText = `${e.type||"Event"} — ${e.message||""}`;
+        ul.appendChild(li);
+      });
+    }, (err)=>{
+      console.warn("Recent Activity access error:",err);
+      $("activityList").innerHTML="<li>Can't read events (check Firestore Rules & publish).</li>";
+    });
   } catch(e){
-    console.error("Recent Activity init failed:", e);
-    $("activityList").innerHTML="<li>— Recent Activity is unavailable right now. —</li>";
+    console.error("Recent Activity init failed:",e);
+    $("activityList").innerHTML="<li>Recent Activity is unavailable right now.</li>";
   }
 });
-  </script>
+</script>
 </body>
 </html>
