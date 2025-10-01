@@ -1,4 +1,4 @@
-/* === SmartWerk Dashboard Styles === */
+/* === SmartWerk Dashboard Styles (WOW) === */
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -10,47 +10,60 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 240px;
+  width: 250px;
   background: #111827;
-  padding: 1rem;
   display: flex;
   flex-direction: column;
+  padding: 1rem;
 }
-.sidebar .logo {
+.logo {
   font-size: 1.4rem;
   font-weight: bold;
   color: #3b82f6;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
-.sidebar nav button,
-.sidebar nav a {
-  width: 100%;
+.accordion {
   background: none;
   border: none;
   color: #e5e7eb;
   text-align: left;
-  padding: .6rem 0;
+  padding: .8rem;
+  width: 100%;
   cursor: pointer;
-  font-size: .95rem;
+  font-size: 1rem;
+  transition: all .3s ease;
 }
-.sidebar nav a {
-  display: block;
+.accordion:hover {
+  color: #3b82f6;
+  transform: translateX(4px);
+}
+.accordion.active {
+  color: #3b82f6;
+}
+.panel {
+  display: none;
+  flex-direction: column;
   padding-left: 1rem;
-  color: #9ca3af;
-  text-decoration: none;
 }
-.sidebar nav a:hover,
-.sidebar nav button:hover {
+.panel a {
+  text-decoration: none;
+  color: #9ca3af;
+  padding: .5rem 0;
+  transition: all .2s ease;
+}
+.panel a:hover {
   color: #3b82f6;
 }
 .logout {
   margin-top: auto;
   background: #dc2626;
-  color: #fff;
+  color: white;
   border: none;
-  padding: .6rem;
+  padding: .7rem;
   border-radius: 6px;
   cursor: pointer;
+  transition: all .2s ease;
 }
 .logout:hover { background: #b91c1c; }
 
@@ -66,37 +79,36 @@ body {
   align-items: center;
   margin-bottom: 1.5rem;
 }
-.topbar h1 {
-  font-size: 1.4rem;
-  color: #fff;
-}
 .plan-box {
   background: #1f2937;
   padding: .7rem 1rem;
   border-radius: 8px;
   text-align: right;
 }
-.plan-box .progress-bar {
+.progress-bar {
   background: #374151;
   height: 6px;
   border-radius: 4px;
   margin: .4rem 0;
 }
-.plan-box #planProgress {
+#planProgress {
   background: #3b82f6;
   height: 6px;
   border-radius: 4px;
+  transition: width .4s ease;
 }
 .upgrade-btn {
   color: #3b82f6;
-  text-decoration: underline;
   font-size: .85rem;
+  text-decoration: underline;
+  transition: color .3s ease;
 }
+.upgrade-btn:hover { color: #60a5fa; }
 
 /* Quick Actions */
 .quick-actions {
   display: flex;
-  gap: .6rem;
+  gap: .7rem;
   margin-bottom: 1.5rem;
 }
 .quick-actions button {
@@ -107,8 +119,13 @@ body {
   padding: .7rem;
   border-radius: 6px;
   cursor: pointer;
+  font-size: .95rem;
+  transition: all .3s ease;
 }
-.quick-actions button:hover { background: #1d4ed8; }
+.quick-actions button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
 
 /* KPI Grid */
 .kpi-grid {
@@ -119,51 +136,55 @@ body {
 }
 .kpi-card {
   background: #1f2937;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1rem;
   text-align: center;
+  transition: all .3s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 12px rgba(59,130,246,0.5);
 }
 .kpi-card h3 {
   font-size: .95rem;
-  margin-bottom: .5rem;
   color: #93c5fd;
 }
 .kpi-card p {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
+  margin-top: .5rem;
 }
 
 /* Charts */
 .charts {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* два графіки поруч */
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 .charts canvas {
   background: #1f2937;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1rem;
-  max-height: 260px; /* 👈 робимо компактні */
+  max-height: 240px;
+  transition: all .3s ease;
+}
+.charts canvas:hover {
+  box-shadow: 0 0 12px rgba(59,130,246,0.4);
 }
 
-/* Suggestions */
+/* Suggestions & Activity */
 .suggestions, .activity {
   background: #1f2937;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1rem;
   margin-bottom: 1.5rem;
 }
 .suggestions h2, .activity h2 {
-  margin-bottom: .8rem;
   color: #93c5fd;
-}
-.suggestions ul, .activity ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  margin-bottom: .7rem;
 }
 .suggestions li, .activity li {
-  padding: .3rem 0;
   border-bottom: 1px solid #374151;
+  padding: .4rem 0;
 }
