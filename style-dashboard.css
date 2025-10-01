@@ -1,14 +1,13 @@
-/* Загальний стиль */
+/* Загальні стилі */
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
   background: #0f172a;
-  color: #e2e8f0;
+  color: #e5e7eb;
   display: flex;
-  height: 100vh;
 }
 
-/* Dashboard контейнер */
+/* Dashboard Layout */
 .dashboard {
   display: flex;
   width: 100%;
@@ -18,77 +17,66 @@ body {
 .sidebar {
   width: 240px;
   background: #1e293b;
-  color: #fff;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  padding: 1rem 0;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
 }
 
-.logo {
-  font-size: 1.2rem;
+.sidebar .logo {
+  font-size: 1.4rem;
   font-weight: bold;
-  text-align: center;
-  margin-bottom: 1rem;
   color: #3b82f6;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .sidebar nav {
-  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: .4rem;
 }
 
-.sidebar a, 
-.sidebar button.accordion {
-  background: none;
-  border: none;
-  color: #e2e8f0;
+.sidebar nav a,
+.sidebar nav button {
   text-align: left;
-  padding: 0.7rem 1rem;
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  background: transparent;
+  color: #e5e7eb;
+  text-decoration: none;
+  font-size: .95rem;
   cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.2s;
-  width: 100%;
+  border: none;
 }
 
-.sidebar a:hover, 
-.sidebar button.accordion:hover {
+.sidebar nav a:hover,
+.sidebar nav button:hover {
   background: #334155;
-  color: #60a5fa;
-}
-
-.panel {
-  display: none;
-  flex-direction: column;
-  background: #111827;
-}
-
-.panel a {
-  padding-left: 2rem;
-  font-size: 0.9rem;
-  color: #cbd5e1;
 }
 
 .logout {
-  background: #ef4444;
-  border: none;
+  margin-top: auto;
+  background: #dc2626;
   color: #fff;
-  margin: 1rem;
-  padding: 0.8rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
 }
 
 .logout:hover {
-  background: #dc2626;
+  background: #b91c1c;
 }
 
 /* Main */
 .main {
+  margin-left: 240px;
   flex: 1;
   padding: 1.5rem;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* Header */
@@ -96,145 +84,156 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  background: #1e293b;
+  padding: 1rem;
+  border-radius: 12px;
 }
 
 .topbar h1 {
-  font-size: 1.4rem;
-  color: #3b82f6;
+  margin: 0;
+  color: #fff;
 }
 
-/* Plan box */
+/* Plan Box */
 .plan-box {
-  background: #1e293b;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  text-align: right;
-  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #0f172a;
+  padding: .6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #334155;
+}
+
+.plan-box span {
+  font-weight: bold;
+  color: #3b82f6;
 }
 
 .progress-bar {
-  width: 120px;
-  height: 6px;
   background: #334155;
-  border-radius: 4px;
-  margin: 6px 0;
+  border-radius: 5px;
+  width: 120px;
+  height: 8px;
   overflow: hidden;
 }
 
-#planProgress {
-  height: 6px;
+.progress-bar div {
+  height: 100%;
   background: #3b82f6;
-  width: 0%;
+  width: 0;
+  transition: width .3s;
 }
 
 .upgrade-btn {
-  color: #3b82f6;
-  font-size: 0.8rem;
-  text-decoration: underline;
-  cursor: pointer;
+  background: #3b82f6;
+  color: #fff;
+  padding: .3rem .7rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  text-decoration: none;
+}
+.upgrade-btn:hover {
+  background: #2563eb;
 }
 
 /* Quick Actions */
 .quick-actions {
   display: flex;
-  gap: 10px;
-  margin-bottom: 1.2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .quick-actions button {
-  flex: 1;
   background: #3b82f6;
-  color: #fff;
-  padding: 0.8rem;
   border: none;
-  border-radius: 8px;
+  padding: .8rem 1.2rem;
+  border-radius: 10px;
+  color: #fff;
   cursor: pointer;
-  transition: 0.2s;
+  font-weight: 500;
 }
-
 .quick-actions button:hover {
   background: #2563eb;
 }
 
-/* KPI Cards */
+/* KPI Grid */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+  gap: 1rem;
 }
 
 .kpi-card {
   background: #1e293b;
-  padding: 1rem;
   border-radius: 12px;
+  padding: 1rem;
   text-align: center;
-  transition: transform 0.2s;
-}
-
-.kpi-card:hover {
-  transform: scale(1.05);
 }
 
 .kpi-card h3 {
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  color: #94a3b8;
+  margin: 0;
+  color: #93c5fd;
 }
 
 .kpi-card p {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: bold;
+  margin-top: .5rem;
   color: #fff;
 }
 
 /* Charts */
 .charts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+  gap: 1rem;
 }
 
 .charts canvas {
   background: #1e293b;
   border-radius: 12px;
   padding: 1rem;
-  height: 300px;
 }
 
 /* Suggestions */
 .suggestions {
-  margin-top: 1.5rem;
-}
-
-.suggestions h2 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  color: #60a5fa;
-}
-
-.suggestions ul li {
   background: #1e293b;
-  margin: 5px 0;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 1rem;
+  border-radius: 12px;
+}
+.suggestions h2 {
+  margin: 0 0 .8rem;
+  color: #3b82f6;
+}
+.suggestions ul {
+  list-style: none;
+  padding: 0;
+}
+.suggestions li {
+  margin-bottom: .5rem;
+  padding: .5rem;
+  background: #0f172a;
+  border-radius: 8px;
 }
 
 /* Activity */
 .activity {
-  margin-top: 1.5rem;
-}
-
-.activity h2 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  color: #60a5fa;
-}
-
-.activity ul li {
   background: #1e293b;
-  margin: 5px 0;
-  padding: 8px;
+  padding: 1rem;
+  border-radius: 12px;
+}
+.activity h2 {
+  margin: 0 0 .8rem;
+  color: #3b82f6;
+}
+.activity ul {
+  list-style: none;
+  padding: 0;
+}
+.activity li {
+  margin-bottom: .4rem;
+  padding: .4rem;
+  background: #0f172a;
   border-radius: 6px;
 }
