@@ -6,13 +6,6 @@
   <title>SmartWerk — Dashboard</title>
   <link rel="stylesheet" href="style-dashboard.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    .charts { display: flex; gap:20px; margin-top:20px; }
-    .charts canvas { flex:1; background:#1e293b; border-radius:12px; padding:10px; }
-    .suggestions, .activity { background:#1e293b; border-radius:12px; padding:15px; margin-top:20px; }
-    .suggestions ul, .activity ul { margin:0; padding:0; list-style:none; }
-    .suggestions li, .activity li { margin-bottom:6px; }
-  </style>
 </head>
 <body>
   <div class="dashboard">
@@ -20,45 +13,14 @@
     <aside class="sidebar">
       <div class="logo">⚡ SmartWerk</div>
       <nav>
-        <button class="accordion">🏠 Dashboard</button>
-
-        <button class="accordion">💰 Invoices</button>
-        <div class="panel">
-          <a href="invoice.html">📄 Create Invoice</a>
-          <a href="invoices-list.html">📋 Saved Invoices</a>
-        </div>
-
-        <button class="accordion">📑 Quotes</button>
-        <div class="panel">
-          <a href="quote-offer.html">📄 Create Quote</a>
-          <a href="quote-offer-list.html">📋 Saved Quotes</a>
-        </div>
-
-        <button class="accordion">📃 Contracts</button>
-        <div class="panel">
-          <a href="contract.html">📄 Create Contract</a>
-          <a href="contract-list.html">📋 Saved Contracts</a>
-        </div>
-
-        <button class="accordion">📬 Reminders</button>
-        <div class="panel">
-          <a href="payment-reminder.html">💸 Create Reminder</a>
-          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-        </div>
-
-        <button class="accordion">📊 Analytics</button>
-        <div class="panel">
-          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-          <a href="summary.html">📊 Summary</a>
-          <a href="roi-estimator.html">📈 ROI Estimator</a>
-          <a href="tax-calculator.html">🧮 Tax Calculator</a>
-        </div>
-
-        <button class="accordion">⚙️ Settings</button>
-        <div class="panel">
-          <a href="profile.html">👤 Profile</a>
-        </div>
-
+        <a href="dashboard.html">🏠 Dashboard</a>
+        <a href="invoice.html">💰 Invoices</a>
+        <a href="quote-offer.html">📑 Quotes</a>
+        <a href="contract.html">📃 Contracts</a>
+        <a href="payment-reminder.html">📬 Reminders</a>
+        <a href="templates.html">📂 Templates</a>
+        <a href="my-bookkeeper.html">📊 Analytics</a>
+        <a href="settings.html">⚙️ Settings</a>
         <button id="logoutBtn" class="logout">🚪 Logout</button>
       </nav>
     </aside>
@@ -77,13 +39,13 @@
 
       <!-- Quick Actions -->
       <section class="quick-actions">
-        <button onclick="logAndGo('Invoice','Created Invoice','invoice.html')">➕ Invoice</button>
-        <button onclick="logAndGo('Quote','Created Quote','quote-offer.html')">➕ Quote</button>
-        <button onclick="logAndGo('Contract','Created Contract','contract.html')">➕ Contract</button>
-        <button onclick="logAndGo('Reminder','Created Reminder','payment-reminder.html')">➕ Reminder</button>
+        <button onclick="logAndGo('invoice.html')">➕ Invoice</button>
+        <button onclick="logAndGo('quote-offer.html')">➕ Quote</button>
+        <button onclick="logAndGo('contract.html')">➕ Contract</button>
+        <button onclick="logAndGo('payment-reminder.html')">➕ Reminder</button>
       </section>
 
-      <!-- KPI -->
+      <!-- KPI Cards -->
       <section class="kpi-grid">
         <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
         <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
@@ -96,7 +58,7 @@
       <!-- Charts -->
       <section class="charts">
         <canvas id="revenueChart"></canvas>
-        <canvas id="statusChart"></canvas>
+        <canvas id="invoiceStatusChart"></canvas>
       </section>
 
       <!-- Smart Suggestions -->
@@ -117,7 +79,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -132,83 +94,152 @@
     const $ = id => document.getElementById(id);
 
     // Logout
-    $("logoutBtn").addEventListener("click", async()=>{ await signOut(auth); location.href="login.html"; });
+    $("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      location.href = "login.html";
+    });
 
-    // Log events
-    async function logEvent(uid,type,message){
-      await addDoc(collection(db,"users",uid,"events"),{type,message,createdAt:serverTimestamp()});
-    }
-    function logAndGo(type,message,url){
-      const user=auth.currentUser;
-      if(user) logEvent(user.uid,type,message);
-      location.href=url;
+    // Redirect helper
+    function logAndGo(url){
+      window.location.href = url;
     }
 
     // Charts
-    let revenueChart,statusChart;
+    let revenueChart, statusChart;
+
     function updateRevenueChart(data){
-      const ctx=$("revenueChart").getContext("2d");
+      const ctx = $("revenueChart").getContext("2d");
       if(revenueChart) revenueChart.destroy();
-      revenueChart=new Chart(ctx,{type:"line",data:{labels:Object.keys(data),datasets:[{label:"Revenue",data:Object.values(data),borderColor:"#3b82f6"}]},options:{responsive:true,maintainAspectRatio:false}});
+      revenueChart = new Chart(ctx,{
+        type:"line",
+        data:{
+          labels:Object.keys(data),
+          datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
+        },
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+      });
     }
+
     function updateStatusChart(data){
-      const ctx=$("statusChart").getContext("2d");
+      const ctx = $("invoiceStatusChart").getContext("2d");
       if(statusChart) statusChart.destroy();
-      statusChart=new Chart(ctx,{type:"doughnut",data:{labels:Object.keys(data),datasets:[{data:Object.values(data),backgroundColor:["#f59e0b","#3b82f6","#22c55e"]}]},options:{responsive:true,maintainAspectRatio:false}});
+      statusChart = new Chart(ctx,{
+        type:"doughnut",
+        data:{
+          labels:Object.keys(data),
+          datasets:[{ data:Object.values(data), backgroundColor:["#f59e0b","#3b82f6","#22c55e"] }]
+        },
+        options:{ responsive:true, maintainAspectRatio:false }
+      });
     }
 
     // Suggestions
-    function updateSuggestions(unpaid,overdue){
-      const ul=$("suggestionsList"); ul.innerHTML="";
-      if(overdue>0) ul.innerHTML+=`<li>📌 You have ${overdue} overdue invoices — send reminders!</li>`;
-      if(unpaid>0) ul.innerHTML+=`<li>💡 Collect €${unpaid.toFixed(2)} in unpaid invoices.</li>`;
-      ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for clarity.</li>`;
+    function updateSuggestions(uid){
+      const ul = $("suggestionsList");
+      ul.innerHTML="";
+      ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
+      ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
+      ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
+    }
+
+    // Count docs helper
+    async function getDocCount(ref){
+      return new Promise(resolve=>{
+        onSnapshot(ref,(snap)=>resolve(snap.size));
+      });
     }
 
     // Init
-    onAuthStateChanged(auth,async(user)=>{
-      if(!user){location.href="login.html";return;}
-      const snap=await getDoc(doc(db,"users",user.uid));
-      const profile=snap.exists()?snap.data():{};
-      $("welcome").innerText=`Welcome, ${profile.fullName||"User"} 👋`;
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href="login.html"; return; }
 
-      const plan=profile.plan||"FREE"; $("planName").innerText=plan;
-      let limit=plan==="PRO"?Infinity:25;
+      // Load profile
+      const snap = await getDoc(doc(db,"users",user.uid,"settings","business"));
+      const profile = snap.exists() ? snap.data() : {};
+      $("welcome").innerText = `Welcome, ${profile.fullName||"User"} 👋`;
 
-      let totalDocs=0;
-      for(const c of ["invoices","quotes","reminders"]){
-        const ref=collection(db,"users",user.uid,c);
-        onSnapshot(ref,(s)=>{ totalDocs+=s.size; $("planUsage").innerText=plan==="PRO"?"Unlimited":`${totalDocs}/${limit}`;
-          $("planProgress").style.width=plan==="PRO"?"100%":`${Math.min(100,totalDocs/limit*100)}%`; });
+      // Plan logic
+      const plan = profile.plan || "FREE";
+      $("planName").innerText = plan;
+      let limit = plan==="PRO" ? Infinity : 25;
+
+      // Track usage
+      let totalDocs = 0;
+      const colls = ["invoices","quotes","reminders"];
+      for(const c of colls){
+        const ref = collection(db,"users",user.uid,c);
+        const snap2 = await getDocCount(ref);
+        totalDocs += snap2;
       }
+      $("planUsage").innerText = plan==="PRO" ? "Unlimited" : `${totalDocs}/${limit}`;
+      $("planProgress").style.width = plan==="PRO" ? "100%" : `${Math.min(100,totalDocs/limit*100)}%`;
 
-      // Invoices
+      // KPI updates
       onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
-        const invoices=snap.docs.map(d=>d.data());
-        const revenue=invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
-        const unpaid=invoices.filter(i=>i.status!=="Paid").reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
-        const overdue=invoices.filter(i=>i.status!=="Paid" && new Date(i.dueDate)<new Date()).length;
-        $("kpiRevenue").innerText="€"+revenue.toFixed(2);
-        $("kpiUnpaid").innerText="€"+unpaid.toFixed(2);
-        $("kpiOverdue").innerText=overdue;
-        updateSuggestions(unpaid,overdue);
-        const byMonth={}; invoices.forEach(i=>{const m=(i.invoiceDate||"").substring(0,7);byMonth[m]=(byMonth[m]||0)+(parseFloat(i.grandTotal)||0);});
+        const invoices = snap.docs.map(d=>d.data());
+        const revenue = invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
+        const unpaid = invoices.filter(i=>i.status!=="Paid").reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
+        const overdue = invoices.filter(i=>{
+          const due = new Date(i.dueDate||null);
+          return i.status!=="Paid" && due < new Date();
+        }).length;
+
+        $("kpiRevenue").innerText = "€"+revenue.toFixed(2);
+        $("kpiUnpaid").innerText = "€"+unpaid.toFixed(2);
+        $("kpiOverdue").innerText = overdue;
+
+        // Charts
+        const byMonth = {};
+        invoices.forEach(i=>{
+          const m = (i.invoiceDate||"").substring(0,7);
+          if(!byMonth[m]) byMonth[m]=0;
+          byMonth[m]+=parseFloat(i.grandTotal)||0;
+        });
         updateRevenueChart(byMonth);
-        const status={Draft:0,Sent:0,Paid:0}; invoices.forEach(i=>status[i.status]=(status[i.status]||0)+1);
+
+        const status = {Draft:0,Sent:0,Paid:0};
+        invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
         updateStatusChart(status);
       });
 
-      // Reminders
-      onSnapshot(collection(db,"users",user.uid,"reminders"),(s)=>$("kpiReminders").innerText=s.size);
+      onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
+        $("kpiReminders").innerText = snap.size;
+      });
 
-      // Quotes
-      onSnapshot(collection(db,"users",user.uid,"quotes"),(s)=>{const q=s.docs.map(d=>d.data());const acc=q.filter(x=>x.status==="Accepted").length;$("kpiQuoteRate").innerText=q.length?Math.round(acc/q.length*100)+"%":"0%";});
+      onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
+        const quotes = snap.docs.map(d=>d.data());
+        const accepted = quotes.filter(q=>q.status==="Accepted").length;
+        $("kpiQuoteRate").innerText = quotes.length ? Math.round(accepted/quotes.length*100)+"%" : "0%";
+      });
 
-      // Expenses
-      onSnapshot(collection(db,"users",user.uid,"expenses"),(s)=>{const total=s.docs.map(d=>parseFloat(d.data().amount)||0).reduce((a,b)=>a+b,0);$("kpiExpenses").innerText="€"+total.toFixed(2);});
+      onSnapshot(collection(db,"users",user.uid,"expenses"),(snap)=>{
+        const total = snap.docs.map(d=>parseFloat(d.data().amount)||0).reduce((a,b)=>a+b,0);
+        $("kpiExpenses").innerText = "€"+total.toFixed(2);
+      });
+
+      // Suggestions
+      updateSuggestions(user.uid);
 
       // Recent Activity
-      onSnapshot(query(collection(db,"users",user.uid,"events"),orderBy("createdAt","desc")),(s)=>{const ul=$("activityList");ul.innerHTML="";s.docs.slice(0,5).forEach(d=>{const e=d.data();const li=document.createElement("li");li.innerText=`${e.type}: ${e.message}`;ul.appendChild(li);});});
+      try {
+        const evQuery = query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc"));
+        onSnapshot(evQuery,(snap)=>{
+          const ul = $("activityList");
+          ul.innerHTML="";
+          if(snap.empty){
+            ul.innerHTML="<li>No recent activity</li>";
+            return;
+          }
+          snap.docs.slice(0,5).forEach(d=>{
+            const e=d.data();
+            const li=document.createElement("li");
+            li.innerText = `${e.type||"Event"} — ${e.message||""}`;
+            ul.appendChild(li);
+          });
+        });
+      } catch (err) {
+        $("activityList").innerHTML="<li>Recent Activity unavailable</li>";
+      }
     });
   </script>
 </body>
