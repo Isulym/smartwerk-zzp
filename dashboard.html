@@ -271,17 +271,40 @@
     // Suggestions
     updateSuggestions(user.uid);
 
-    // Recent Activity
-    onSnapshot(query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc")),(snap)=>{
+   // Recent Activity (events) — safe subscribe з обробкою permission-denied
+try {
+  const evQuery = query(
+    collection(db, "users", user.uid, "events"),
+    orderBy("createdAt", "desc")
+  );
+
+  onSnapshot(
+    evQuery,
+    (snap) => {
       const ul = $("activityList");
-      ul.innerHTML="";
-      snap.docs.slice(0,5).forEach(d=>{
-        const e=d.data();
-        const li=document.createElement("li");
-        li.innerText = `${e.type||"Event"} — ${e.message||""}`;
+      ul.innerHTML = "";
+      if (snap.empty) {
+        ul.innerHTML = "<li>— No recent activity —</li>";
+        return;
+      }
+      snap.docs.slice(0, 5).forEach((d) => {
+        const e = d.data();
+        const li = document.createElement("li");
+        li.textContent = `${e.type || "Event"} — ${e.message || ""}`;
         ul.appendChild(li);
       });
-    });
+    },
+    (err) => {
+      console.warn("Recent Activity access error:", err);
+      $("activityList").innerHTML =
+        "<li>— Can't read events (check Firestore Rules & publish). —</li>";
+    }
+  );
+} catch (e) {
+  console.error("Recent Activity init failed:", e);
+  $("activityList").innerHTML =
+    "<li>— Recent Activity is unavailable right now. —</li>";
+}
   });
   </script>
 </body>
