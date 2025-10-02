@@ -215,3 +215,46 @@ body {
 .pro-banner .upgrade-btn:hover {
   background: #1d4ed8;
 }
+.sidebar .accordion {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: #cbd5e1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .6rem .8rem;
+  cursor: pointer;
+  border-radius: .5rem;
+}
+.sidebar .accordion.open,
+.sidebar .accordion:hover { background: #0f172a; color: #fff; }
+
+.sidebar .accordion .chev {
+  transition: transform .2s ease;
+  opacity: .7;
+}
+.sidebar .accordion.open .chev { transform: rotate(90deg); }
+
+.sidebar .panel {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .25s ease;
+  padding-left: .4rem;
+}
+.sidebar .panel a {
+  display:block;
+  padding: .45rem .8rem;
+  border-radius:.4rem;
+  color:#94a3b8;
+}
+.sidebar .panel a:hover { background:#0b1220; color:#fff; }
+
+.sidebar .nav-root{
+  display:block;
+  padding:.6rem .8rem;
+  margin-bottom:.4rem;
+  color:#e2e8f0;
+  background:#0b1220;
+  border-radius:.5rem;
+}
