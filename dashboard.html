@@ -143,31 +143,38 @@
     });
 
     // Charts
-    let revenueChart, statusChart;
-    function updateRevenueChart(data){
-      const ctx = $("revenueChart").getContext("2d");
-      if(revenueChart) revenueChart.destroy();
-      revenueChart = new Chart(ctx,{
-        type:"line",
-        data:{
-          labels:Object.keys(data),
-          datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
-        },
-        options:{ responsive:true, plugins:{legend:{display:false}} }
-      });
+   function updateRevenueChart(data){
+  const ctx = document.getElementById("revenueChart").getContext("2d");
+  if(revenueChart) revenueChart.destroy();
+  revenueChart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:Object.keys(data),
+      datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
+    },
+    options:{ 
+      responsive:true, 
+      maintainAspectRatio:false, // 🔹 тепер obey CSS height
+      plugins:{legend:{display:false}} 
     }
-    function updateStatusChart(data){
-      const ctx = $("invoiceStatusChart").getContext("2d");
-      if(statusChart) statusChart.destroy();
-      statusChart = new Chart(ctx,{
-        type:"doughnut",
-        data:{
-          labels:Object.keys(data),
-          datasets:[{ data:Object.values(data), backgroundColor:["#f59e0b","#3b82f6","#22c55e"] }]
-        },
-        options:{ responsive:true }
-      });
+  });
+}
+
+function updateStatusChart(data){
+  const ctx = document.getElementById("invoiceStatusChart").getContext("2d");
+  if(statusChart) statusChart.destroy();
+  statusChart = new Chart(ctx,{
+    type:"doughnut",
+    data:{
+      labels:Object.keys(data),
+      datasets:[{ data:Object.values(data), backgroundColor:["#f59e0b","#3b82f6","#22c55e"] }]
+    },
+    options:{ 
+      responsive:true,
+      maintainAspectRatio:false // 🔹 obey CSS height
     }
+  });
+}
 
     // Suggestions
     function updateSuggestions(uid){
