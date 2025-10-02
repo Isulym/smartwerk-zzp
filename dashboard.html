@@ -10,68 +10,99 @@
 <body>
   <div class="dashboard">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">⚡ SmartWerk</div>
-      <nav>
-        <button class="accordion">💰 Invoices</button>
-        <div class="panel">
-          <a href="invoice.html">📄 Create Invoice</a>
-          <a href="invoices-list.html">📋 Saved Invoices</a>
-        </div>
+  <aside class="sidebar">
+  <div class="logo">⚡ SmartWerk</div>
+  <nav id="side">
+    <!-- Dashboard (якір) -->
+    <a href="dashboard.html" class="nav-root">🏠 Dashboard</a>
 
-        <button class="accordion">📑 Quotes</button>
-        <div class="panel">
-          <a href="quote-offer.html">📄 Create Quote</a>
-          <a href="quote-offer-list.html">📋 Saved Quotes</a>
-        </div>
+    <!-- Invoices -->
+    <button class="accordion" data-key="invoices">
+      <span>💰 Invoices</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="invoice.html">📄 Create Invoice</a>
+      <a href="invoices-list.html">📋 Saved Invoices</a>
+    </div>
 
-        <button class="accordion">📃 Contracts</button>
-        <div class="panel">
-          <a href="contract.html">📄 Create Contract</a>
-          <a href="contract-list.html">📋 Saved Contracts</a>
-        </div>
+    <!-- Quotes -->
+    <button class="accordion" data-key="quotes">
+      <span>📑 Quotes / Offers</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="quote-offer.html">📄 Create Quote</a>
+      <a href="quote-offer-list.html">📋 Saved Quotes</a>
+    </div>
 
-        <button class="accordion">📬 Reminders</button>
-        <div class="panel">
-          <a href="payment-reminder.html">💸 Create Reminder</a>
-          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-        </div>
+    <!-- Contracts -->
+    <button class="accordion" data-key="contracts">
+      <span>📃 Contracts</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="contract.html">📄 Create Contract</a>
+      <a href="contract-list.html">📋 Saved Contracts</a>
+    </div>
 
-        <button class="accordion">📂 Templates</button>
-        <div class="panel">
-          <a href="email-gemeente.html">📩 Email to Gemeente</a>
-          <a href="cv.html">📄 CV / Portfolio</a>
-          <a href="expense.csv">🧮 Expense CSV</a>
-        </div>
+    <!-- Reminders -->
+    <button class="accordion" data-key="reminders">
+      <span>📬 Reminders</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="payment-reminder.html">💸 Create Reminder</a>
+      <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+    </div>
 
-        <button class="accordion">📊 Analytics</button>
-        <div class="panel">
-          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-          <a href="summary.html">📊 Summary</a>
-          <a href="roi-estimator.html">📈 ROI Estimator</a>
-          <a href="tax-calculator.html">🧮 Tax Calculator</a>
-        </div>
+    <!-- Templates & Tools -->
+    <button class="accordion" data-key="templates">
+      <span>📂 Templates & Tools</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="email-gemeente.html">📩 Email to Gemeente</a>
+      <a href="cv.html">📄 CV / Portfolio</a>
+      <a href="expense.csv">🧮 Expense CSV</a>
+      <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
+    </div>
 
-        <button class="accordion">⚙️ Settings</button>
-        <div class="panel">
-          <a href="profile.html">👤 Profile</a>
-        </div>
+    <!-- Analytics -->
+    <button class="accordion" data-key="analytics">
+      <span>📊 Analytics</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+      <a href="summary.html">📊 Summary</a>
+      <a href="roi-estimator.html">📈 ROI Estimator</a>
+      <a href="tax-calculator.html">🧮 Tax Calculator</a>
+    </div>
 
-        <button class="accordion">👥 Clients</button>
-        <div class="panel">
-          <a href="#">➕ Add Client</a>
-          <a href="#">📋 Saved Clients</a>
-        </div>
+    <!-- Settings -->
+    <button class="accordion" data-key="settings">
+      <span>⚙️ Settings</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="profile.html">👤 Profile</a>
+    </div>
 
-        <button class="accordion">❓ Help</button>
-        <div class="panel">
-          <a href="pricing.html">💳 Upgrade to PRO</a>
-          <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
-        </div>
+    <!-- Clients (плейсхолдер на майбутнє) -->
+    <button class="accordion" data-key="clients">
+      <span>👥 Clients</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="#">➕ Add Client</a>
+      <a href="#">📋 Saved Clients</a>
+    </div>
 
-        <button id="logoutBtn" class="logout">🚪 Logout</button>
-      </nav>
-    </aside>
+    <!-- Help -->
+    <button class="accordion" data-key="help">
+      <span>❓ Help</span><i class="chev">▸</i>
+    </button>
+    <div class="panel">
+      <a href="pricing.html">💳 Upgrade to PRO</a>
+      <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
+    </div>
+
+    <button id="logoutBtn" class="logout">🚪 Logout</button>
+  </nav>
+</aside>
 
     <!-- Main -->
     <main class="main">
@@ -145,6 +176,73 @@
     const db   = getFirestore(app);
 
     const $ = id => document.getElementById(id);
+
+// ————— Accordion: one-open, remember state, auto-open by current page —————
+function closeAllPanels(exceptPanel=null){
+  document.querySelectorAll(".panel").forEach(p=>{
+    if(p!==exceptPanel){
+      p.style.maxHeight = null;
+      p.previousElementSibling?.classList.remove("open");
+    }
+  });
+}
+
+function openPanel(btn){
+  const panel = btn.nextElementSibling;
+  if(!panel) return;
+  btn.classList.add("open");
+  panel.style.maxHeight = panel.scrollHeight + "px";
+}
+
+function toggleAccordion(btn){
+  const panel = btn.nextElementSibling;
+  if(!panel) return;
+
+  const isOpen = btn.classList.contains("open");
+  if(isOpen){
+    // close current
+    btn.classList.remove("open");
+    panel.style.maxHeight = null;
+    localStorage.removeItem("sw_open_group");
+  }else{
+    // close others, open this
+    closeAllPanels(panel);
+    openPanel(btn);
+    localStorage.setItem("sw_open_group", btn.dataset.key || "");
+  }
+}
+
+document.querySelectorAll(".accordion").forEach(btn=>{
+  btn.addEventListener("click", ()=>toggleAccordion(btn));
+});
+
+// restore last open group
+const remembered = localStorage.getItem("sw_open_group");
+if(remembered){
+  const btn = document.querySelector(`.accordion[data-key="${remembered}"]`);
+  if(btn) openPanel(btn);
+}
+
+// auto-open by current page (only if nothing remembered)
+(function autoOpenByPage(){
+  if(localStorage.getItem("sw_open_group")) return;
+  const page = location.pathname.split("/").pop().toLowerCase();
+  const map = {
+    "invoice.html":"invoices","invoices-list.html":"invoices",
+    "quote-offer.html":"quotes","quote-offer-list.html":"quotes",
+    "contract.html":"contracts","contract-list.html":"contracts",
+    "payment-reminder.html":"reminders","payment-reminder-list.html":"reminders",
+    "email-gemeente.html":"templates","cv.html":"templates","expense.csv":"templates","ai-assistant.html":"templates",
+    "my-bookkeeper.html":"analytics","summary.html":"analytics","roi-estimator.html":"analytics","tax-calculator.html":"analytics",
+    "profile.html":"settings"
+  };
+  const key = map[page];
+  if(key){
+    const btn = document.querySelector(`.accordion[data-key="${key}"]`);
+    if(btn) openPanel(btn);
+  }
+})();
+    
 
     // Logout
     $("logoutBtn").addEventListener("click", async () => {
