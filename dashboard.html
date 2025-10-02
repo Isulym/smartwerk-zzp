@@ -88,10 +88,10 @@
 
       <!-- Quick Actions -->
       <section class="quick-actions">
-        <button onclick="location.href='invoice.html'">➕ Invoice</button>
-        <button onclick="location.href='quote-offer.html'">➕ Quote</button>
-        <button onclick="location.href='contract.html'">➕ Contract</button>
-        <button onclick="location.href='payment-reminder.html'">➕ Reminder</button>
+        <button onclick="createAction('invoice.html')">➕ Invoice</button>
+        <button onclick="createAction('quote-offer.html')">➕ Quote</button>
+        <button onclick="createAction('contract.html')">➕ Contract</button>
+        <button onclick="createAction('payment-reminder.html')">➕ Reminder</button>
       </section>
 
       <!-- KPI Cards -->
@@ -102,14 +102,16 @@
         <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
         <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
         <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
-        <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
       </section>
 
       <!-- Charts -->
       <section class="charts">
-        <div class="chart-box"><canvas id="revenueChart"></canvas></div>
-        <div class="chart-box"><canvas id="invoiceStatusChart"></canvas></div>
-        <div class="chart-box"><canvas id="expensesRevenueChart"></canvas></div>
+        <div class="chart-box">
+          <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <canvas id="invoiceStatusChart"></canvas>
+        </div>
       </section>
 
       <!-- Smart Suggestions -->
@@ -123,216 +125,191 @@
         <h2>🕒 Recent Activity</h2>
         <ul id="activityList"></ul>
       </section>
-
-      <!-- PRO Banner -->
-      <section class="pro-banner">
-        <h2>🚀 Go PRO</h2>
-        <p>Unlimited invoices, smart AI assistant, export & branding off.</p>
-        <a href="pricing.html" class="upgrade-btn">Upgrade now</a>
-      </section>
     </main>
   </div>
 
   <!-- Firebase -->
   <script type="module">
-// Firebase SDK
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1",
-};
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-const $ = id => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
-// Logout
-$("logoutBtn").addEventListener("click", async () => {
-  await signOut(auth);
-  location.href = "login.html";
-});
-
-// Accordion Sidebar
-document.querySelectorAll(".accordion").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    btn.classList.toggle("active");
-    const panel = btn.nextElementSibling;
-    panel.style.display = panel.style.display === "block" ? "none" : "block";
-  });
-});
-
-// Charts
-let revenueChart, statusChart, expensesRevenueChart;
-
-function updateRevenueChart(data){
-  const ctx = $("revenueChart").getContext("2d");
-  if(revenueChart) revenueChart.destroy();
-  revenueChart = new Chart(ctx,{
-    type:"line",
-    data:{
-      labels:Object.keys(data),
-      datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
-    },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
-  });
-}
-
-function updateStatusChart(data){
-  const ctx = $("invoiceStatusChart").getContext("2d");
-  if(statusChart) statusChart.destroy();
-  statusChart = new Chart(ctx,{
-    type:"doughnut",
-    data:{
-      labels:Object.keys(data),
-      datasets:[{ data:Object.values(data), backgroundColor:["#f59e0b","#3b82f6","#22c55e"] }]
-    },
-    options:{ responsive:true, maintainAspectRatio:false }
-  });
-}
-
-function updateExpensesRevenueChart(revenue, expenses){
-  const ctx = $("expensesRevenueChart").getContext("2d");
-  if(expensesRevenueChart) expensesRevenueChart.destroy();
-  expensesRevenueChart = new Chart(ctx,{
-    type:"bar",
-    data:{
-      labels:["Revenue","Expenses"],
-      datasets:[{
-        label:"€",
-        data:[revenue, expenses],
-        backgroundColor:["#3b82f6","#ef4444"]
-      }]
-    },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
-  });
-}
-
-// Suggestions
-function updateSuggestions(userData){
-  const ul = $("suggestionsList");
-  ul.innerHTML="";
-  if(userData.overdue>0){
-    ul.innerHTML+=`<li>📌 You have ${userData.overdue} overdue invoices — send reminders now.</li>`;
-  }
-  if(userData.unpaid>0){
-    ul.innerHTML+=`<li>💸 Collect €${userData.unpaid.toFixed(2)} in unpaid invoices.</li>`;
-  }
-  ul.innerHTML+=`<li>📊 Track expenses in My Bookkeeper for clarity.</li>`;
-}
-
-// Count docs helper
-async function getDocCount(ref){
-  return new Promise(resolve=>{
-    onSnapshot(ref,(snap)=>resolve(snap.size));
-  });
-}
-
-// Init
-onAuthStateChanged(auth, async(user)=>{
-  if(!user){ location.href="login.html"; return; }
-
-  const snap = await getDoc(doc(db,"users",user.uid));
-  const profile = snap.exists() ? snap.data() : {};
-  $("welcome").innerText = `Welcome, ${profile.fullName||"User"} 👋`;
-
-  const plan = profile.plan || "FREE";
-  $("planName").innerText = plan;
-  let limit = plan==="PRO" ? Infinity : 25;
-
-  let totalDocs = 0;
-  const colls = ["invoices","quotes","reminders"];
-  for(const c of colls){
-    const ref = collection(db,"users",user.uid,c);
-    const snap2 = await getDocCount(ref);
-    totalDocs += snap2;
-  }
-  $("planUsage").innerText = plan==="PRO" ? "Unlimited" : `${totalDocs}/${limit}`;
-  $("planProgress").style.width = plan==="PRO" ? "100%" : `${Math.min(100,totalDocs/limit*100)}%`;
-
-  // Real-time Invoices
-  onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
-    const invoices = snap.docs.map(d=>d.data());
-    const revenue = invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
-    const unpaid = invoices.filter(i=>i.status!=="Paid").reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
-    const overdue = invoices.filter(i=>{
-      const due = new Date(i.dueDate||null);
-      return i.status!=="Paid" && due < new Date();
-    }).length;
-
-    $("kpiRevenue").innerText = "€"+revenue.toFixed(2);
-    $("kpiUnpaid").innerText = "€"+unpaid.toFixed(2);
-    $("kpiOverdue").innerText = overdue;
-
-    const byMonth = {};
-    invoices.forEach(i=>{
-      const m = (i.invoiceDate||"").substring(0,7);
-      if(!byMonth[m]) byMonth[m]=0;
-      byMonth[m]+=parseFloat(i.grandTotal)||0;
+    // Logout
+    $("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      location.href = "login.html";
     });
-    updateRevenueChart(byMonth);
 
-    const status = {Draft:0,Sent:0,Paid:0};
-    invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
-    updateStatusChart(status);
-
-    // Top Client
-    let clientTotals={};
-    invoices.forEach(i=>{
-      if(!i.clientName) return;
-      clientTotals[i.clientName]=(clientTotals[i.clientName]||0)+(parseFloat(i.grandTotal)||0);
-    });
-    const topClient = Object.entries(clientTotals).sort((a,b)=>b[1]-a[1])[0];
-    $("kpiTopClient").innerText = topClient ? topClient[0] : "—";
-
-    // Revenue vs Expenses
-    let expenses = parseFloat($("kpiExpenses").innerText.replace("€",""))||0;
-    updateExpensesRevenueChart(revenue, expenses);
-
-    updateSuggestions({overdue, unpaid});
-  });
-
-  // Real-time Reminders
-  onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
-    $("kpiReminders").innerText = snap.size;
-  });
-
-  // Real-time Quotes
-  onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
-    const quotes = snap.docs.map(d=>d.data());
-    const accepted = quotes.filter(q=>q.status==="Accepted").length;
-    $("kpiQuoteRate").innerText = quotes.length ? Math.round(accepted/quotes.length*100)+"%" : "0%";
-  });
-
-  // Expenses
-  onSnapshot(collection(db,"users",user.uid,"expenses"),(snap)=>{
-    const total = snap.docs.map(d=>parseFloat(d.data().amount)||0).reduce((a,b)=>a+b,0);
-    $("kpiExpenses").innerText = "€"+total.toFixed(2);
-  });
-
-  // Recent Activity
-  try {
-    const evQuery = query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc"));
-    onSnapshot(evQuery,(snap)=>{
-      const ul = $("activityList");
-      ul.innerHTML="";
-      if(snap.empty){ ul.innerHTML="<li>— No recent activity —</li>"; return; }
-      snap.docs.slice(0,5).forEach(d=>{
-        const e=d.data();
-        const li=document.createElement("li");
-        li.textContent = `${e.type||"Event"} — ${e.message||""}`;
-        ul.appendChild(li);
+    // Accordion Sidebar
+    document.querySelectorAll(".accordion").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        btn.classList.toggle("active");
+        const panel = btn.nextElementSibling;
+        panel.style.display = panel.style.display === "block" ? "none" : "block";
       });
     });
-  } catch(e){
-    $("activityList").innerHTML="<li>— Recent Activity unavailable —</li>";
-  }
-});
+
+    // Charts
+    let revenueChart, statusChart;
+    function updateRevenueChart(data){
+      const ctx = $("revenueChart").getContext("2d");
+      if(revenueChart) revenueChart.destroy();
+      revenueChart = new Chart(ctx,{
+        type:"line",
+        data:{
+          labels:Object.keys(data),
+          datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
+        },
+        options:{ responsive:true, maintainAspectRatio:false }
+      });
+    }
+    function updateStatusChart(data){
+      const ctx = $("invoiceStatusChart").getContext("2d");
+      if(statusChart) statusChart.destroy();
+      statusChart = new Chart(ctx,{
+        type:"doughnut",
+        data:{
+          labels:Object.keys(data),
+          datasets:[{ data:Object.values(data), backgroundColor:["#f59e0b","#3b82f6","#22c55e"] }]
+        },
+        options:{ responsive:true, maintainAspectRatio:false }
+      });
+    }
+
+    // Suggestions
+    function updateSuggestions(uid){
+      const ul = $("suggestionsList");
+      ul.innerHTML="";
+      ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
+      ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
+      ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
+    }
+
+    // Count docs helper
+    async function getDocCount(ref){
+      return new Promise(resolve=>{
+        onSnapshot(ref,(snap)=>resolve(snap.size));
+      });
+    }
+
+    // Init
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href="login.html"; return; }
+
+      // Load profile
+      const snap = await getDoc(doc(db,"users",user.uid));
+      const profile = snap.exists() ? snap.data() : {};
+      $("welcome").innerText = `Welcome, ${profile.fullName||"User"} 👋`;
+
+      // Plan logic
+      const plan = profile.plan || "FREE";
+      $("planName").innerText = plan;
+      let limit = plan==="PRO" ? Infinity : 25;
+
+      // Track usage (sum invoices + quotes + reminders)
+      let totalDocs = 0;
+      const colls = ["invoices","quotes","reminders"];
+      for(const c of colls){
+        const ref = collection(db,"users",user.uid,c);
+        const snap2 = await getDocCount(ref);
+        totalDocs += snap2;
+      }
+      $("planUsage").innerText = plan==="PRO" ? "Unlimited" : `${totalDocs}/${limit}`;
+      $("planProgress").style.width = plan==="PRO" ? "100%" : `${Math.min(100,totalDocs/limit*100)}%`;
+
+      // Real-time KPI (Invoices)
+      onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
+        const invoices = snap.docs.map(d=>d.data());
+        const revenue = invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
+        const unpaid = invoices.filter(i=>i.status!=="Paid").reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
+        const overdue = invoices.filter(i=>{
+          const due = new Date(i.dueDate||null);
+          return i.status!=="Paid" && due < new Date();
+        }).length;
+
+        $("kpiRevenue").innerText = "€"+revenue.toFixed(2);
+        $("kpiUnpaid").innerText = "€"+unpaid.toFixed(2);
+        $("kpiOverdue").innerText = overdue;
+
+        const byMonth = {};
+        invoices.forEach(i=>{
+          const m = (i.invoiceDate||"").substring(0,7);
+          if(!byMonth[m]) byMonth[m]=0;
+          byMonth[m]+=parseFloat(i.grandTotal)||0;
+        });
+        updateRevenueChart(byMonth);
+
+        const status = {Draft:0,Sent:0,Paid:0};
+        invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
+        updateStatusChart(status);
+      });
+
+      // Real-time Reminders
+      onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
+        $("kpiReminders").innerText = snap.size;
+      });
+
+      // Real-time Quotes
+      onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
+        const quotes = snap.docs.map(d=>d.data());
+        const accepted = quotes.filter(q=>q.status==="Accepted").length;
+        $("kpiQuoteRate").innerText = quotes.length ? Math.round(accepted/quotes.length*100)+"%" : "0%";
+      });
+
+      // Expenses
+      onSnapshot(collection(db,"users",user.uid,"expenses"),(snap)=>{
+        const total = snap.docs.map(d=>parseFloat(d.data().amount)||0).reduce((a,b)=>a+b,0);
+        $("kpiExpenses").innerText = "€"+total.toFixed(2);
+      });
+
+      // Smart Suggestions
+      updateSuggestions(user.uid);
+
+      // Recent Activity (events)
+      try {
+        const evQuery = query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc"));
+        onSnapshot(evQuery,(snap)=>{
+          const ul = $("activityList");
+          ul.innerHTML="";
+          if(snap.empty){ ul.innerHTML="<li>— No recent activity —</li>"; return; }
+          snap.docs.slice(0,5).forEach(d=>{
+            const e=d.data();
+            const li=document.createElement("li");
+            li.textContent = `${e.type||"Event"} — ${e.message||""}`;
+            ul.appendChild(li);
+          });
+        });
+      } catch(e){
+        console.error("Recent Activity error:", e);
+        $("activityList").innerHTML="<li>— Recent Activity unavailable —</li>";
+      }
+    });
+
+    // Limit actions
+    function createAction(url){
+      const planName = $("planName").innerText;
+      const usage = $("planUsage").innerText;
+      if(planName==="FREE" && usage){
+        const [used,limit] = usage.split("/");
+        if(parseInt(used)>=parseInt(limit)){
+          alert("⚠️ Free plan limit reached. Upgrade to PRO.");
+          return;
+        }
+      }
+      location.href=url;
+    }
   </script>
 </body>
 </html>
