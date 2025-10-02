@@ -233,53 +233,72 @@
     }
 
     /* ---------------- Smart Suggestions ---------------- */
-    function renderSuggestions(){
-      const ul = $("suggestionsList"); ul.innerHTML="";
-      const now = new Date();
+    function setupRealtimeSuggestions(uid) {
+  const ul = $("suggestionsList");
 
-      // 1) Overdue invoices
-      const overdue = gInvoices.filter(i=>{
-        if(i.status==="Paid") return false;
-        const d = new Date(i.dueDate||"");
-        return d.toString()!=="Invalid Date" && d < now;
-      });
-      if(overdue.length>0){
-        ul.innerHTML += `<li>⏰ You have <b>${overdue.length}</b> overdue invoice(s). <a href="payment-reminder-list.html">Send reminders</a>.</li>`;
-      }
+  let invoices = [], quotes = [], expenses = [], reminders = [];
 
-      // 2) Low quote win-rate
-      const acc = gQuotes.filter(q=>q.status==="Accepted").length;
-      const rate = gQuotes.length ? Math.round(acc/gQuotes.length*100) : 0;
-      if(gQuotes.length>=3 && rate<30){
-        ul.innerHTML += `<li>📉 Quote win-rate is <b>${rate}%</b>. Try improving your quotes style or follow-up sooner.</li>`;
-      }
+  // функція для оновлення
+  function recalc() {
+    ul.innerHTML = "";
 
-      // 3) No expenses tracked yet
-      if(gExpensesTotal===0){
-        ul.innerHTML += `<li>💡 No expenses tracked yet. Use <a href="my-bookkeeper.html">My Bookkeeper</a> to manage costs.</li>`;
-      }
+    const overdue = invoices.filter(i => {
+      const due = new Date(i.dueDate || null);
+      return i.status !== "Paid" && due < new Date();
+    }).length;
+    const unpaid = invoices.filter(i => i.status !== "Paid").length;
 
-      // 4) Old open quotes (age > 14 days)
-      const oldOpen = gQuotes.filter(q=>{
-        const d = new Date(q.quoteDate||"");
-        if(d.toString()==="Invalid Date") return false;
-        const age = (now - d)/(1000*3600*24);
-        return (q.status==="Draft" || q.status==="Sent") && age>14;
-      });
-      if(oldOpen.length>0){
-        ul.innerHTML += `<li>📬 You have <b>${oldOpen.length}</b> old open quote(s). Consider a friendly follow-up.</li>`;
-      }
+    if (overdue > 0) ul.innerHTML += `<li>📌 У вас ${overdue} прострочених інвойсів — час надіслати нагадування.</li>`;
+    if (unpaid > 3) ul.innerHTML += `<li>💰 ${unpaid} неоплачених інвойсів. Подумайте про передоплату.</li>`;
 
-      // 5) Plan near limit
-      if(gPlan==="FREE" && gUsageLimit && gUsageUsed>=Math.floor(gUsageLimit*0.8)){
-        ul.innerHTML += `<li>🚀 You are close to Free plan limit (<b>${gUsageUsed}/${gUsageLimit}</b>). <a href="pricing.html">Upgrade to PRO</a>.</li>`;
-      }
+    const accepted = quotes.filter(q => q.status === "Accepted").length;
+    const winRate = quotes.length ? Math.round((accepted / quotes.length) * 100) : 0;
+    if (winRate < 30) ul.innerHTML += `<li>📊 Лише ${winRate}% ваших пропозицій прийняті. Варто оптимізувати.</li>`;
+    if (winRate > 70) ul.innerHTML += `<li>🎉 Ви закриваєте ${winRate}% угод. Чудово!</li>`;
 
-      if(!ul.innerHTML){
-        ul.innerHTML = `<li>✅ All good! Keep it up 💙</li>`;
-      }
+    const totalExpenses = expenses.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
+    const revenue = invoices.reduce((a, b) => a + (parseFloat(b.grandTotal) || 0), 0);
+
+    if (totalExpenses > revenue) ul.innerHTML += `<li>📉 Витрати перевищують доходи цього місяця.</li>`;
+    if (totalExpenses < revenue * 0.2) ul.innerHTML += `<li>💡 Ви майже не додали витрат. Використайте Expense Tracker.</li>`;
+
+    if (reminders.length === 0 && unpaid > 0) ul.innerHTML += `<li>⚠️ Є неоплачені інвойси, але ще не надсилали нагадувань.</li>`;
+    if (reminders.length > 5) ul.innerHTML += `<li>📬 Ви активно використовуєте нагадування (${reminders.length} цього місяця).</li>`;
+
+    const clientTotals = {};
+    invoices.forEach(i => {
+      if (!i.clientName) return;
+      clientTotals[i.clientName] = (clientTotals[i.clientName] || 0) + (parseFloat(i.grandTotal) || 0);
+    });
+    const sortedClients = Object.entries(clientTotals).sort((a, b) => b[1] - a[1]);
+    if (sortedClients.length > 0) {
+      const [topClient, topAmount] = sortedClients[0];
+      const share = Math.round((topAmount / revenue) * 100);
+      if (share > 50) ul.innerHTML += `<li>👥 ${topClient} приносить ${share}% доходу. Ризик концентрації!</li>`;
+      else ul.innerHTML += `<li>💼 У вас збалансований список клієнтів. Це добре.</li>`;
     }
 
+    if (ul.innerHTML === "") ul.innerHTML = "<li>✅ У вас все під контролем.</li>";
+  }
+
+  // 🔄 Підписка на всі колекції
+  onSnapshot(collection(db, "users", uid, "invoices"), snap => {
+    invoices = snap.docs.map(d => d.data());
+    recalc();
+  });
+  onSnapshot(collection(db, "users", uid, "quotes"), snap => {
+    quotes = snap.docs.map(d => d.data());
+    recalc();
+  });
+  onSnapshot(collection(db, "users", uid, "expenses"), snap => {
+    expenses = snap.docs.map(d => d.data());
+    recalc();
+  });
+  onSnapshot(collection(db, "users", uid, "reminders"), snap => {
+    reminders = snap.docs.map(d => d.data());
+    recalc();
+  });
+}
     /* ---------------- Events: Recent Activity ---------------- */
     function initRecentActivity(uid){
       try{
