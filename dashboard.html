@@ -10,99 +10,62 @@
 <body>
   <div class="dashboard">
     <!-- Sidebar -->
-  <aside class="sidebar">
-  <div class="logo">⚡ SmartWerk</div>
-  <nav id="side">
-    <!-- Dashboard (якір) -->
-    <a href="dashboard.html" class="nav-root">🏠 Dashboard</a>
+    <aside class="sidebar">
+      <div class="logo">⚡ SmartWerk</div>
+      <nav>
+        <button class="accordion">💰 Invoices</button>
+        <div class="panel">
+          <a href="invoice.html">📄 Create Invoice</a>
+          <a href="invoices-list.html">📋 Saved Invoices</a>
+        </div>
 
-    <!-- Invoices -->
-    <button class="accordion" data-key="invoices">
-      <span>💰 Invoices</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="invoice.html">📄 Create Invoice</a>
-      <a href="invoices-list.html">📋 Saved Invoices</a>
-    </div>
+        <button class="accordion">📑 Quotes</button>
+        <div class="panel">
+          <a href="quote-offer.html">📄 Create Quote</a>
+          <a href="quote-offer-list.html">📋 Saved Quotes</a>
+        </div>
 
-    <!-- Quotes -->
-    <button class="accordion" data-key="quotes">
-      <span>📑 Quotes / Offers</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="quote-offer.html">📄 Create Quote</a>
-      <a href="quote-offer-list.html">📋 Saved Quotes</a>
-    </div>
+        <button class="accordion">📃 Contracts</button>
+        <div class="panel">
+          <a href="contract.html">📄 Create Contract</a>
+          <a href="contract-list.html">📋 Saved Contracts</a>
+        </div>
 
-    <!-- Contracts -->
-    <button class="accordion" data-key="contracts">
-      <span>📃 Contracts</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="contract.html">📄 Create Contract</a>
-      <a href="contract-list.html">📋 Saved Contracts</a>
-    </div>
+        <button class="accordion">📬 Reminders</button>
+        <div class="panel">
+          <a href="payment-reminder.html">💸 Create Reminder</a>
+          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+        </div>
 
-    <!-- Reminders -->
-    <button class="accordion" data-key="reminders">
-      <span>📬 Reminders</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="payment-reminder.html">💸 Create Reminder</a>
-      <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-    </div>
+        <button class="accordion">📂 Templates</button>
+        <div class="panel">
+          <a href="email-gemeente.html">📩 Email to Gemeente</a>
+          <a href="cv.html">📄 CV / Portfolio</a>
+          <a href="expense.csv">🧮 Expense CSV</a>
+        </div>
 
-    <!-- Templates & Tools -->
-    <button class="accordion" data-key="templates">
-      <span>📂 Templates & Tools</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="email-gemeente.html">📩 Email to Gemeente</a>
-      <a href="cv.html">📄 CV / Portfolio</a>
-      <a href="expense.csv">🧮 Expense CSV</a>
-      <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
-    </div>
+        <button class="accordion">📊 Analytics</button>
+        <div class="panel">
+          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+          <a href="summary.html">📊 Summary</a>
+          <a href="roi-estimator.html">📈 ROI Estimator</a>
+          <a href="tax-calculator.html">🧮 Tax Calculator</a>
+        </div>
 
-    <!-- Analytics -->
-    <button class="accordion" data-key="analytics">
-      <span>📊 Analytics</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-      <a href="summary.html">📊 Summary</a>
-      <a href="roi-estimator.html">📈 ROI Estimator</a>
-      <a href="tax-calculator.html">🧮 Tax Calculator</a>
-    </div>
+        <button class="accordion">⚙️ Settings</button>
+        <div class="panel">
+          <a href="profile.html">👤 Profile</a>
+        </div>
 
-    <!-- Settings -->
-    <button class="accordion" data-key="settings">
-      <span>⚙️ Settings</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="profile.html">👤 Profile</a>
-    </div>
+        <button class="accordion">❓ Help</button>
+        <div class="panel">
+          <a href="pricing.html">💳 Upgrade to PRO</a>
+          <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
+        </div>
 
-    <!-- Clients (плейсхолдер на майбутнє) -->
-    <button class="accordion" data-key="clients">
-      <span>👥 Clients</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="#">➕ Add Client</a>
-      <a href="#">📋 Saved Clients</a>
-    </div>
-
-    <!-- Help -->
-    <button class="accordion" data-key="help">
-      <span>❓ Help</span><i class="chev">▸</i>
-    </button>
-    <div class="panel">
-      <a href="pricing.html">💳 Upgrade to PRO</a>
-      <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
-    </div>
-
-    <button id="logoutBtn" class="logout">🚪 Logout</button>
-  </nav>
-</aside>
+        <button id="logoutBtn" class="logout">🚪 Logout</button>
+      </nav>
+    </aside>
 
     <!-- Main -->
     <main class="main">
@@ -117,14 +80,6 @@
         </div>
       </header>
 
-      <!-- Quick Actions -->
-      <section class="quick-actions">
-        <button onclick="createAction('invoice.html')">➕ Invoice</button>
-        <button onclick="createAction('quote-offer.html')">➕ Quote</button>
-        <button onclick="createAction('contract.html')">➕ Contract</button>
-        <button onclick="createAction('payment-reminder.html')">➕ Reminder</button>
-      </section>
-
       <!-- KPI Cards -->
       <section class="kpi-grid">
         <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
@@ -137,12 +92,8 @@
 
       <!-- Charts -->
       <section class="charts">
-        <div class="chart-box">
-          <canvas id="revenueChart"></canvas>
-        </div>
-        <div class="chart-box">
-          <canvas id="invoiceStatusChart"></canvas>
-        </div>
+        <canvas id="revenueChart"></canvas>
+        <canvas id="invoiceStatusChart"></canvas>
       </section>
 
       <!-- Smart Suggestions -->
@@ -177,86 +128,19 @@
 
     const $ = id => document.getElementById(id);
 
-// ————— Accordion: one-open, remember state, auto-open by current page —————
-function closeAllPanels(exceptPanel=null){
-  document.querySelectorAll(".panel").forEach(p=>{
-    if(p!==exceptPanel){
-      p.style.maxHeight = null;
-      p.previousElementSibling?.classList.remove("open");
-    }
-  });
-}
-
-function openPanel(btn){
-  const panel = btn.nextElementSibling;
-  if(!panel) return;
-  btn.classList.add("open");
-  panel.style.maxHeight = panel.scrollHeight + "px";
-}
-
-function toggleAccordion(btn){
-  const panel = btn.nextElementSibling;
-  if(!panel) return;
-
-  const isOpen = btn.classList.contains("open");
-  if(isOpen){
-    // close current
-    btn.classList.remove("open");
-    panel.style.maxHeight = null;
-    localStorage.removeItem("sw_open_group");
-  }else{
-    // close others, open this
-    closeAllPanels(panel);
-    openPanel(btn);
-    localStorage.setItem("sw_open_group", btn.dataset.key || "");
-  }
-}
-
-document.querySelectorAll(".accordion").forEach(btn=>{
-  btn.addEventListener("click", ()=>toggleAccordion(btn));
-});
-
-// restore last open group
-const remembered = localStorage.getItem("sw_open_group");
-if(remembered){
-  const btn = document.querySelector(`.accordion[data-key="${remembered}"]`);
-  if(btn) openPanel(btn);
-}
-
-// auto-open by current page (only if nothing remembered)
-(function autoOpenByPage(){
-  if(localStorage.getItem("sw_open_group")) return;
-  const page = location.pathname.split("/").pop().toLowerCase();
-  const map = {
-    "invoice.html":"invoices","invoices-list.html":"invoices",
-    "quote-offer.html":"quotes","quote-offer-list.html":"quotes",
-    "contract.html":"contracts","contract-list.html":"contracts",
-    "payment-reminder.html":"reminders","payment-reminder-list.html":"reminders",
-    "email-gemeente.html":"templates","cv.html":"templates","expense.csv":"templates","ai-assistant.html":"templates",
-    "my-bookkeeper.html":"analytics","summary.html":"analytics","roi-estimator.html":"analytics","tax-calculator.html":"analytics",
-    "profile.html":"settings"
-  };
-  const key = map[page];
-  if(key){
-    const btn = document.querySelector(`.accordion[data-key="${key}"]`);
-    if(btn) openPanel(btn);
-  }
-})();
-    
-
-    // Logout
-    $("logoutBtn").addEventListener("click", async () => {
-      await signOut(auth);
-      location.href = "login.html";
-    });
-
-    // Accordion Sidebar
+    // Sidebar accordion
     document.querySelectorAll(".accordion").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         btn.classList.toggle("active");
         const panel = btn.nextElementSibling;
         panel.style.display = panel.style.display === "block" ? "none" : "block";
       });
+    });
+
+    // Logout
+    $("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      location.href = "login.html";
     });
 
     // Charts
@@ -270,7 +154,7 @@ if(remembered){
           labels:Object.keys(data),
           datasets:[{label:"Revenue", data:Object.values(data), borderColor:"#3b82f6", fill:false}]
         },
-        options:{ responsive:true, maintainAspectRatio:false }
+        options:{ responsive:true, plugins:{legend:{display:false}} }
       });
     }
     function updateStatusChart(data){
@@ -282,12 +166,12 @@ if(remembered){
           labels:Object.keys(data),
           datasets:[{ data:Object.values(data), backgroundColor:["#f59e0b","#3b82f6","#22c55e"] }]
         },
-        options:{ responsive:true, maintainAspectRatio:false }
+        options:{ responsive:true }
       });
     }
 
-    // Suggestions
-    // Smart Suggestions (dynamic with actions)
+    // Smart Suggestions (dynamic)
+   // Smart Suggestions (dynamic with actions)
 function updateSuggestions({invoices, quotes, reminders, contracts}){
   const ul = $("suggestionsList");
   ul.innerHTML="";
@@ -351,30 +235,15 @@ function updateSuggestions({invoices, quotes, reminders, contracts}){
     onAuthStateChanged(auth, async(user)=>{
       if(!user){ location.href="login.html"; return; }
 
-      // Load profile
+      // Profile
       const snap = await getDoc(doc(db,"users",user.uid));
       const profile = snap.exists() ? snap.data() : {};
       $("welcome").innerText = `Welcome, ${profile.fullName||"User"} 👋`;
 
-      // Plan logic
-      const plan = profile.plan || "FREE";
-      $("planName").innerText = plan;
-      let limit = plan==="PRO" ? Infinity : 25;
-
-      // Track usage (sum invoices + quotes + reminders)
-      let totalDocs = 0;
-      const colls = ["invoices","quotes","reminders"];
-      for(const c of colls){
-        const ref = collection(db,"users",user.uid,c);
-        const snap2 = await getDocCount(ref);
-        totalDocs += snap2;
-      }
-      $("planUsage").innerText = plan==="PRO" ? "Unlimited" : `${totalDocs}/${limit}`;
-      $("planProgress").style.width = plan==="PRO" ? "100%" : `${Math.min(100,totalDocs/limit*100)}%`;
-
-      // Real-time KPI (Invoices)
+      // Real-time Invoices
+      let invoices=[],quotes=[],reminders=[],contracts=[];
       onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
-        const invoices = snap.docs.map(d=>d.data());
+        invoices = snap.docs.map(d=>d.data());
         const revenue = invoices.reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
         const unpaid = invoices.filter(i=>i.status!=="Paid").reduce((a,b)=>a+(parseFloat(b.grandTotal)||0),0);
         const overdue = invoices.filter(i=>{
@@ -397,18 +266,29 @@ function updateSuggestions({invoices, quotes, reminders, contracts}){
         const status = {Draft:0,Sent:0,Paid:0};
         invoices.forEach(i=>status[i.status] = (status[i.status]||0)+1);
         updateStatusChart(status);
+
+        updateSuggestions({invoices,quotes,reminders,contracts});
       });
 
-      // Real-time Reminders
-      onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
-        $("kpiReminders").innerText = snap.size;
-      });
-
-      // Real-time Quotes
+      // Quotes
       onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
-        const quotes = snap.docs.map(d=>d.data());
+        quotes = snap.docs.map(d=>d.data());
         const accepted = quotes.filter(q=>q.status==="Accepted").length;
         $("kpiQuoteRate").innerText = quotes.length ? Math.round(accepted/quotes.length*100)+"%" : "0%";
+        updateSuggestions({invoices,quotes,reminders,contracts});
+      });
+
+      // Reminders
+      onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
+        reminders = snap.docs.map(d=>d.data());
+        $("kpiReminders").innerText = snap.size;
+        updateSuggestions({invoices,quotes,reminders,contracts});
+      });
+
+      // Contracts
+      onSnapshot(collection(db,"users",user.uid,"contracts"),(snap)=>{
+        contracts = snap.docs.map(d=>d.data());
+        updateSuggestions({invoices,quotes,reminders,contracts});
       });
 
       // Expenses
@@ -417,42 +297,18 @@ function updateSuggestions({invoices, quotes, reminders, contracts}){
         $("kpiExpenses").innerText = "€"+total.toFixed(2);
       });
 
-      // Smart Suggestions
-      updateSuggestions(user.uid);
-
-      // Recent Activity (events)
-      try {
-        const evQuery = query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc"));
-        onSnapshot(evQuery,(snap)=>{
-          const ul = $("activityList");
-          ul.innerHTML="";
-          if(snap.empty){ ul.innerHTML="<li>— No recent activity —</li>"; return; }
-          snap.docs.slice(0,5).forEach(d=>{
-            const e=d.data();
-            const li=document.createElement("li");
-            li.textContent = `${e.type||"Event"} — ${e.message||""}`;
-            ul.appendChild(li);
-          });
+      // Recent Activity
+      onSnapshot(query(collection(db,"users",user.uid,"events"), orderBy("createdAt","desc")),(snap)=>{
+        const ul = $("activityList");
+        ul.innerHTML="";
+        snap.docs.slice(0,5).forEach(d=>{
+          const e=d.data();
+          const li=document.createElement("li");
+          li.innerText = `${e.type||"Event"} — ${e.message||""}`;
+          ul.appendChild(li);
         });
-      } catch(e){
-        console.error("Recent Activity error:", e);
-        $("activityList").innerHTML="<li>— Recent Activity unavailable —</li>";
-      }
+      });
     });
-
-    // Limit actions
-    function createAction(url){
-      const planName = $("planName").innerText;
-      const usage = $("planUsage").innerText;
-      if(planName==="FREE" && usage){
-        const [used,limit] = usage.split("/");
-        if(parseInt(used)>=parseInt(limit)){
-          alert("⚠️ Free plan limit reached. Upgrade to PRO.");
-          return;
-        }
-      }
-      location.href=url;
-    }
   </script>
 </body>
 </html>
