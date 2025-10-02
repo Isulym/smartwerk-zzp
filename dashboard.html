@@ -233,7 +233,7 @@
     }
 
     /* ---------------- Smart Suggestions ---------------- */
-    function setupRealtimeSuggestions(uid) {
+    function updateSuggestions(uid) {
   const ul = $("suggestionsList");
 
   let invoices = [], quotes = [], expenses = [], reminders = [];
@@ -425,7 +425,7 @@
         const pickTop = (map)=>Object.entries(map).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
         $("kpiTopClient").innerText = pickTop(Object.keys(byClientPaid).length?byClientPaid:byClientAll);
 
-        renderSuggestions();
+        updateSuggestions();
       });
 
       // Quotes live
