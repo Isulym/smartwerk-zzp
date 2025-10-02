@@ -34,10 +34,10 @@
     <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
-      <input id="fullName" placeholder="Full Name / Business Name"/>
+      <input id="businessName" placeholder="Full Name / Business Name"/>
       <input id="email" placeholder="Business Email"/>
-      <input id="address" placeholder="Business Address"/>
-      <input id="phone" placeholder="Phone Number"/>
+      <input id="businessAddress" placeholder="Business Address"/>
+      <input id="businessPhone" placeholder="Business Phone"/>
       <input id="kvk" placeholder="KvK (8 digits)" maxlength="8"/>
       <input id="iban" placeholder="IBAN"/>
       <input id="btw" placeholder="BTW Number"/>
@@ -110,10 +110,10 @@
         }
 
         const data={
-          fullName:$("fullName").value,
+          businessName:$("businessName").value,
           email:$("email").value,
-          address:$("address").value,
-          phone:$("phone").value,
+          businessAddress:$("businessAddress").value,
+          businessPhone:$("businessPhone").value,
           kvk:$("kvk").value,
           iban:$("iban").value,
           btw:$("btw").value,
@@ -138,10 +138,10 @@
         if(!snap.exists()) return;
         const p=snap.data();
 
-        if($("fullName")) $("fullName").value=p.fullName||"";
+        if($("businessName")) $("businessName").value=p.businessName||"";
         if($("email")) $("email").value=p.email||"";
-        if($("address")) $("address").value=p.address||"";
-        if($("phone")) $("phone").value=p.phone||"";
+        if($("businessAddress")) $("businessAddress").value=p.businessAddress||"";
+        if($("businessPhone")) $("businessPhone").value=p.businessPhone||"";
         if($("kvk")) $("kvk").value=p.kvk||"";
         if($("iban")) $("iban").value=p.iban||"";
         if($("btw")) $("btw").value=p.btw||"";
