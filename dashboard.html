@@ -239,6 +239,24 @@
         });
       });
     }
+    /**
+ * Запис події в Firestore (Recent Activity)
+ * @param {string} uid - user ID
+ * @param {string} type - тип події (Invoice, Quote, Reminder, Contract, Expense, Navigation)
+ * @param {string} message - текст повідомлення (наприклад "Invoice INV-2025-004 created (€450)")
+ */
+async function logEvent(uid, type, message) {
+  try {
+    await addDoc(collection(db, "users", uid, "events"), {
+      type,
+      message,
+      createdAt: serverTimestamp()
+    });
+  } catch (e) {
+    console.error("Event log failed:", e);
+  }
+}
+window.logEvent = logEvent;
 
     /* ---------------- Globals ---------------- */
     let gInvoices=[], gQuotes=[], gReminders=0, gExpensesTotal=0, gRevenue=0;
