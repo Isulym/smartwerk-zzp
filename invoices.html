@@ -348,6 +348,18 @@ const data = {
 
 // Завжди після збереження чистимо editInvoiceId
 localStorage.removeItem("editInvoiceId");
+      // Логування події у Recent Activity
+try {
+  await addDoc(collection(db,"users",uid,"events"),{
+    type: "Invoice",
+    message: editingId 
+      ? `Invoice ${invoiceNumber} updated` 
+      : `Invoice ${invoiceNumber} created`,
+    createdAt: new Date()
+  });
+} catch(e){
+  console.warn("Event log failed:", e);
+}
 location.href="invoices-list.html";
       }
     window.saveInvoice = saveInvoice;
@@ -404,6 +416,24 @@ location.href="invoices-list.html";
     }
 
     /* ========== INIT ========== */
+async function loadProfileData(uid){
+  try {
+    const ref = doc(db,"users",uid);
+    const snap = await getDoc(ref);
+    if(!snap.exists()) return;
+    const p = snap.data();
+
+    if(p.fullName) $("businessName").value = p.fullName;
+    if(p.kvk) $("kvk").value = p.kvk;
+    if(p.iban) $("iban").value = p.iban;
+    if(p.email) $("email").value = p.email;
+    if(p.address) $("businessAddress").value = p.address;
+    if(p.phone) $("businessPhone").value = p.phone;
+  } catch(e){
+    console.error("Profile load error:", e);
+  }
+}
+    
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
       initDates();
@@ -415,6 +445,7 @@ location.href="invoices-list.html";
       // preview номер + якщо редагування — завантажити документ
       await previewNextInvoiceNumber(user.uid);
       await loadForEdit(user.uid);
+      await loadProfileData(user.uid);
     });
 
     // кнопка Save
