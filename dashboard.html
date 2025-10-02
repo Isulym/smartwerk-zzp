@@ -204,12 +204,65 @@
     }
 
     // Suggestions
-    function updateSuggestions(){
-      const ul=$("suggestionsList"); ul.innerHTML="";
-      ul.innerHTML+=`<li>📌 You have overdue invoices — send reminders now.</li>`;
-      ul.innerHTML+=`<li>💡 Convert more quotes into contracts for steady income.</li>`;
-      ul.innerHTML+=`<li>📊 Track your expenses in My Bookkeeper for better clarity.</li>`;
+    // Smart Suggestions (dynamic with actions)
+function updateSuggestions({invoices, quotes, reminders, contracts}){
+  const ul = $("suggestionsList");
+  ul.innerHTML="";
+
+  const overdue = invoices.filter(i=>{
+    const due = new Date(i.dueDate||null);
+    return i.status!=="Paid" && due < new Date();
+  });
+  if(overdue.length>0){
+    ul.innerHTML+=`<li>
+      📌 You have ${overdue.length} overdue invoices 
+      <button onclick="location.href='payment-reminder.html'">➔ Send Reminder</button>
+    </li>`;
+  }
+
+  const drafts = invoices.filter(i=>i.status==="Draft");
+  if(drafts.length>3){
+    ul.innerHTML+=`<li>
+      📝 You still have ${drafts.length} draft invoices. 
+      <button onclick="location.href='invoices-list.html'">➔ Review</button>
+    </li>`;
+  }
+
+  if(quotes.length){
+    const accepted = quotes.filter(q=>q.status==="Accepted").length;
+    const rate = Math.round(accepted/quotes.length*100);
+    if(rate < 30){
+      ul.innerHTML+=`<li>
+        📊 Only ${rate}% of quotes accepted. 
+        <button onclick="location.href='quote-offer-list.html'">➔ Improve Offers</button>
+      </li>`;
+    } else if(rate > 70){
+      ul.innerHTML+=`<li>
+        🚀 Great job! ${rate}% quotes accepted.
+        <button onclick="location.href='quote-offer-list.html'">➔ View</button>
+      </li>`;
     }
+  }
+
+  if(reminders.length>5){
+    ul.innerHTML+=`<li>
+      ⏰ You sent ${reminders.length} reminders. 
+      <button onclick="location.href='payment-reminder-list.html'">➔ Check</button>
+    </li>`;
+  }
+
+  const unsigned = contracts.filter(c=>c.status!=="Signed");
+  if(unsigned.length){
+    ul.innerHTML+=`<li>
+      🖊 ${unsigned.length} contracts waiting for signature. 
+      <button onclick="location.href='contract-list.html'">➔ View Contracts</button>
+    </li>`;
+  }
+
+  if(!ul.innerHTML){
+    ul.innerHTML="<li>✅ Everything looks good. Keep up the great work!</li>";
+  }
+}
 
     // Count docs helper
     async function getDocCount(ref){
