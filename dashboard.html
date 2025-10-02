@@ -6,12 +6,6 @@
   <title>SmartWerk — Dashboard</title>
   <link rel="stylesheet" href="style-dashboard.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* Підстраховка, якщо в CSS ще нема висоти для чарта */
-    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .chart-box { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 12px; height: 220px; }
-    .chart-box canvas { width: 100% !important; height: 100% !important; }
-  </style>
 </head>
 <body>
   <div class="dashboard">
@@ -153,24 +147,10 @@
     const db   = getFirestore(app);
     const $ = (id)=>document.getElementById(id);
 
-    /* ---------------- Sidebar Accordion (єдина логіка) ---------------- */
+    /* ---------------- Sidebar Accordion ---------------- */
     function setArrow(btn, open){
       const base = btn.innerText.replace(/(▸|▾)\s*$/,'').trim();
       btn.innerText = base + (open ? ' ▾' : ' ▸');
-    }
-    function openPanel(btn){
-      const panel = btn.nextElementSibling;
-      if(!panel) return;
-      btn.classList.add("open");
-      panel.style.maxHeight = panel.scrollHeight + "px";
-      setArrow(btn, true);
-    }
-    function closeAll(){
-      document.querySelectorAll(".accordion.open").forEach(b=>{
-        b.classList.remove("open");
-        setArrow(b,false);
-      });
-      document.querySelectorAll(".panel").forEach(p=>p.style.maxHeight=null);
     }
     function toggleAccordion(btn){
       const panel = btn.nextElementSibling;
@@ -181,8 +161,14 @@
         setArrow(btn,false);
         localStorage.removeItem("sw_open_group");
       }else{
-        closeAll();
-        openPanel(btn);
+        document.querySelectorAll(".accordion.open").forEach(b=>{
+          b.classList.remove("open");
+          setArrow(b,false);
+          b.nextElementSibling.style.maxHeight=null;
+        });
+        btn.classList.add("open");
+        panel.style.maxHeight = panel.scrollHeight + "px";
+        setArrow(btn,true);
         localStorage.setItem("sw_open_group", btn.dataset.key||"");
       }
     }
@@ -192,20 +178,13 @@
     const remembered = localStorage.getItem("sw_open_group");
     if(remembered){
       const btn = document.querySelector(`.accordion[data-key="${remembered}"]`);
-      if(btn) openPanel(btn);
+      if(btn){ btn.classList.add("open"); btn.nextElementSibling.style.maxHeight=btn.nextElementSibling.scrollHeight+"px"; setArrow(btn,true); }
     }
 
-    /* ---------------- Глобальні змінні для підказок ---------------- */
-    let gInvoices=[], gQuotes=[], gReminders=0, gExpensesTotal=0;
-    let gPlan='FREE', gUsageUsed=0, gUsageLimit=25;
-
-    /* ---------------- Хелпери ---------------- */
+    /* ---------------- Global helpers ---------------- */
     const parseMoney=(v)=>parseFloat(String(v??0).toString().replace(/[^\d.-]/g,""))||0;
-    async function countDocs(uid, coll){
-      const snap = await getDocs(collection(db,"users",uid,coll));
-      return snap.size;
-    }
     function formatEUR(n){ return "€"+(parseFloat(n||0)).toFixed(2); }
+    async function countDocs(uid, coll){ const snap=await getDocs(collection(db,"users",uid,coll)); return snap.size; }
 
     /* ---------------- Charts ---------------- */
     let revenueChart, statusChart;
@@ -217,242 +196,133 @@
       revenueChart = new Chart(ctx,{
         type:"line",
         data:{ labels, datasets:[{ label:"Revenue", data:values, borderColor:"#3b82f6", tension:0.3 }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ grid:{display:false}}, y:{ ticks:{ callback:(v)=>"€"+v }}}}
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
       });
     }
     function updateStatusChart(counts){
-      const labels = Object.keys(counts);
-      const data = labels.map(k=>counts[k]||0);
       const ctx = $("invoiceStatusChart").getContext("2d");
       if(statusChart) statusChart.destroy();
       statusChart = new Chart(ctx,{
         type:"doughnut",
-        data:{ labels, datasets:[{ data, backgroundColor:["#f59e0b","#3b82f6","#22c55e","#ef4444"]}]},
+        data:{ labels:Object.keys(counts), datasets:[{ data:Object.values(counts), backgroundColor:["#f59e0b","#3b82f6","#22c55e","#ef4444"] }]},
         options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}} }
       });
     }
 
     /* ---------------- Smart Suggestions ---------------- */
-    function updateSuggestions(uid) {
-  const ul = $("suggestionsList");
-
-  let invoices = [], quotes = [], expenses = [], reminders = [];
-
-  // функція для оновлення
-  function recalc() {
-    ul.innerHTML = "";
-
-    const overdue = invoices.filter(i => {
-      const due = new Date(i.dueDate || null);
-      return i.status !== "Paid" && due < new Date();
-    }).length;
-    const unpaid = invoices.filter(i => i.status !== "Paid").length;
-
-    if (overdue > 0) ul.innerHTML += `<li>📌 У вас ${overdue} прострочених інвойсів — час надіслати нагадування.</li>`;
-    if (unpaid > 3) ul.innerHTML += `<li>💰 ${unpaid} неоплачених інвойсів. Подумайте про передоплату.</li>`;
-
-    const accepted = quotes.filter(q => q.status === "Accepted").length;
-    const winRate = quotes.length ? Math.round((accepted / quotes.length) * 100) : 0;
-    if (winRate < 30) ul.innerHTML += `<li>📊 Лише ${winRate}% ваших пропозицій прийняті. Варто оптимізувати.</li>`;
-    if (winRate > 70) ul.innerHTML += `<li>🎉 Ви закриваєте ${winRate}% угод. Чудово!</li>`;
-
-    const totalExpenses = expenses.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
-    const revenue = invoices.reduce((a, b) => a + (parseFloat(b.grandTotal) || 0), 0);
-
-    if (totalExpenses > revenue) ul.innerHTML += `<li>📉 Витрати перевищують доходи цього місяця.</li>`;
-    if (totalExpenses < revenue * 0.2) ul.innerHTML += `<li>💡 Ви майже не додали витрат. Використайте Expense Tracker.</li>`;
-
-    if (reminders.length === 0 && unpaid > 0) ul.innerHTML += `<li>⚠️ Є неоплачені інвойси, але ще не надсилали нагадувань.</li>`;
-    if (reminders.length > 5) ul.innerHTML += `<li>📬 Ви активно використовуєте нагадування (${reminders.length} цього місяця).</li>`;
-
-    const clientTotals = {};
-    invoices.forEach(i => {
-      if (!i.clientName) return;
-      clientTotals[i.clientName] = (clientTotals[i.clientName] || 0) + (parseFloat(i.grandTotal) || 0);
-    });
-    const sortedClients = Object.entries(clientTotals).sort((a, b) => b[1] - a[1]);
-    if (sortedClients.length > 0) {
-      const [topClient, topAmount] = sortedClients[0];
-      const share = Math.round((topAmount / revenue) * 100);
-      if (share > 50) ul.innerHTML += `<li>👥 ${topClient} приносить ${share}% доходу. Ризик концентрації!</li>`;
-      else ul.innerHTML += `<li>💼 У вас збалансований список клієнтів. Це добре.</li>`;
+    function updateSuggestions(uid){
+      const ul = $("suggestionsList");
+      ul.innerHTML="";
+      let overdue = gInvoices.filter(i=>{
+        const d=new Date(i.dueDate||"");
+        return i.status!=="Paid" && d.toString()!=="Invalid Date" && d<new Date();
+      }).length;
+      if(overdue>0) ul.innerHTML+=`<li>📌 You have ${overdue} overdue invoices — send reminders.</li>`;
+      if(gReminders===0 && overdue>0) ul.innerHTML+=`<li>⚠️ Overdue invoices exist but no reminders sent.</li>`;
+      if(gQuotes.length && (gQuotes.filter(q=>q.status==="Accepted").length/gQuotes.length)<0.3) ul.innerHTML+=`<li>📊 Low quote win-rate. Try optimizing offers.</li>`;
+      if(gExpensesTotal > gRevenue) ul.innerHTML+=`<li>📉 Expenses exceed revenue this month.</li>`;
+      if(ul.innerHTML==="") ul.innerHTML="<li>✅ All good. Keep it up!</li>";
     }
 
-    if (ul.innerHTML === "") ul.innerHTML = "<li>✅ У вас все під контролем.</li>";
-  }
-
-  // 🔄 Підписка на всі колекції
-  onSnapshot(collection(db, "users", uid, "invoices"), snap => {
-    invoices = snap.docs.map(d => d.data());
-    recalc();
-  });
-  onSnapshot(collection(db, "users", uid, "quotes"), snap => {
-    quotes = snap.docs.map(d => d.data());
-    recalc();
-  });
-  onSnapshot(collection(db, "users", uid, "expenses"), snap => {
-    expenses = snap.docs.map(d => d.data());
-    recalc();
-  });
-  onSnapshot(collection(db, "users", uid, "reminders"), snap => {
-    reminders = snap.docs.map(d => d.data());
-    recalc();
-  });
-}
-    /* ---------------- Events: Recent Activity ---------------- */
+    /* ---------------- Recent Activity ---------------- */
     function initRecentActivity(uid){
-      try{
-        const qy = query(collection(db,"users",uid,"events"), orderBy("createdAt","desc"));
-        onSnapshot(qy,(snap)=>{
-          const ul = $("activityList");
-          ul.innerHTML="";
-          if(snap.empty){ ul.innerHTML = "<li>— No recent activity yet —</li>"; return; }
-          snap.docs.slice(0,5).forEach(d=>{
-            const e = d.data();
-            const when = e.createdAt?.toDate ? e.createdAt.toDate().toLocaleString() : "";
-            const li = document.createElement("li");
-            li.textContent = `${when} — ${e.type||"Event"} — ${e.message||""}`;
-            ul.appendChild(li);
-          });
-        },(err)=>{
-          console.warn("Events read error:", err);
-          $("activityList").innerHTML = "<li>— Can't read events (check Firestore Rules). —</li>";
+      const qy = query(collection(db,"users",uid,"events"), orderBy("createdAt","desc"));
+      onSnapshot(qy,(snap)=>{
+        const ul = $("activityList");
+        ul.innerHTML="";
+        snap.docs.slice(0,5).forEach(d=>{
+          const e=d.data();
+          const when=e.createdAt?.toDate?e.createdAt.toDate().toLocaleString():"";
+          const li=document.createElement("li");
+          li.textContent=`${when} — ${e.type||"Event"} — ${e.message||""}`;
+          ul.appendChild(li);
         });
-      }catch(e){
-        console.error("Events init failed:", e);
-        $("activityList").innerHTML = "<li>— Recent Activity unavailable —</li>";
-      }
+      });
     }
 
-    /* ---------------- Plan usage & Create actions ---------------- */
+    /* ---------------- Globals ---------------- */
+    let gInvoices=[], gQuotes=[], gReminders=0, gExpensesTotal=0, gRevenue=0;
+    let gPlan="FREE", gUsageUsed=0, gUsageLimit=25;
+
+    /* ---------------- Plan & Usage ---------------- */
     async function calcUsage(uid){
-      const cols = ["invoices","quotes","reminders","contracts"];
-      let total=0;
-      for(const c of cols){ total += await countDocs(uid,c); }
-      gUsageUsed = total;
-      $("planUsage").innerText = gPlan==="PRO" ? "Unlimited" : `${gUsageUsed}/${gUsageLimit}`;
-      $("planProgress").style.width = gPlan==="PRO" ? "100%" : `${Math.min(100, gUsageUsed/gUsageLimit*100)}%`;
+      const cols=["invoices","quotes","reminders","contracts"];
+      let total=0; for(const c of cols){ total+=await countDocs(uid,c); }
+      gUsageUsed=total;
+      $("planUsage").innerText=gPlan==="PRO"?"Unlimited":`${gUsageUsed}/${gUsageLimit}`;
+      $("planProgress").style.width=gPlan==="PRO"?"100%":`${Math.min(100,gUsageUsed/gUsageLimit*100)}%`;
     }
-
-    async function createAction(url, type){
-      const user = auth.currentUser;
-      if(!user){ location.href="login.html"; return; }
-
-      // оновити usage перед переходом
+    async function createAction(url,type){
+      const user=auth.currentUser; if(!user){location.href="login.html";return;}
       await calcUsage(user.uid);
-      if(gPlan==="FREE" && gUsageUsed>=gUsageLimit){
-        alert("⚠️ Free plan limit reached (25 docs/month). Upgrade to PRO.");
-        return;
-      }
-
-      // злогувати подію
-      try{
-        await addDoc(collection(db,"users",user.uid,"events"),{
-          type: "Navigation",
-          message: `Open ${type}`,
-          createdAt: serverTimestamp()
-        });
-      }catch(e){
-        console.warn("Event log failed:", e);
-      }
-      location.href = url;
+      if(gPlan==="FREE"&&gUsageUsed>=gUsageLimit){ alert("⚠️ Free plan limit reached."); return; }
+      await addDoc(collection(db,"users",user.uid,"events"),{type:"Navigation",message:`Open ${type}`,createdAt:serverTimestamp()});
+      location.href=url;
     }
-    window.createAction = createAction;
+    window.createAction=createAction;
 
-    /* ---------------- Logout ---------------- */
-    $("logoutBtn").addEventListener("click", async()=>{
-      await signOut(auth);
-      location.href="login.html";
-    });
-
-    /* ---------------- MAIN INIT ---------------- */
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user){ location.href="login.html"; return; }
-
-      // Profile
-      const psnap = await getDoc(doc(db,"users",user.uid));
-      const profile = psnap.exists() ? psnap.data() : {};
-      $("welcome").innerText = `Welcome, ${profile.fullName||"User"} 👋`;
-
-      // Plan
-      gPlan = (profile.plan||"FREE").toUpperCase();
-      $("planName").innerText = gPlan;
-      gUsageLimit = (gPlan==="PRO") ? Infinity : 25;
+    /* ---------------- Auth Init ---------------- */
+    onAuthStateChanged(auth,async(user)=>{
+      if(!user){location.href="login.html";return;}
+      const psnap=await getDoc(doc(db,"users",user.uid));
+      const profile=psnap.exists()?psnap.data():{};
+      $("welcome").innerText=`Welcome, ${profile.fullName||"User"} 👋`;
+      gPlan=(profile.plan||"FREE").toUpperCase();
+      $("planName").innerText=gPlan;
+      gUsageLimit=gPlan==="PRO"?Infinity:25;
       await calcUsage(user.uid);
 
-      // Invoices live
+      // Invoices
       onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
-        gInvoices = snap.docs.map(d=>d.data());
-        const revenue = gInvoices.reduce((a,b)=>a+parseMoney(b.grandTotal),0);
-        const unpaid  = gInvoices.filter(i=>i.status!=="Paid").reduce((a,b)=>a+parseMoney(b.grandTotal),0);
-        const overdueCount = gInvoices.filter(i=>{
-          if(i.status==="Paid") return false;
-          const d = new Date(i.dueDate||"");
-          return d.toString()!=="Invalid Date" && d < new Date();
+        gInvoices=snap.docs.map(d=>d.data());
+        gRevenue=gInvoices.reduce((a,b)=>a+parseMoney(b.grandTotal),0);
+        const unpaid=gInvoices.filter(i=>i.status!=="Paid").reduce((a,b)=>a+parseMoney(b.grandTotal),0);
+        const overdue=gInvoices.filter(i=>{
+          const d=new Date(i.dueDate||"");
+          return i.status!=="Paid"&&d.toString()!=="Invalid Date"&&d<new Date();
         }).length;
-
-        $("kpiRevenue").innerText = formatEUR(revenue);
-        $("kpiUnpaid").innerText  = formatEUR(unpaid);
-        $("kpiOverdue").innerText = overdueCount;
-
-        // byMonth
-        const byMonth = {};
-        gInvoices.forEach(i=>{
-          const key = (i.invoiceDate||"").substring(0,7);
-          byMonth[key] = (byMonth[key]||0) + parseMoney(i.grandTotal);
-        });
+        $("kpiRevenue").innerText=formatEUR(gRevenue);
+        $("kpiUnpaid").innerText=formatEUR(unpaid);
+        $("kpiOverdue").innerText=overdue;
+        const byMonth={}; gInvoices.forEach(i=>{const m=(i.invoiceDate||"").substring(0,7);byMonth[m]=(byMonth[m]||0)+parseMoney(i.grandTotal);});
         updateRevenueChart(byMonth);
-
-        // status
-        const status = { Draft:0, Sent:0, Paid:0, Overdue:0 };
-        gInvoices.forEach(i=>{
-          if(i.status==="Paid") status.Paid++;
-          else{
-            const d = new Date(i.dueDate||"");
-            if(d.toString()!=="Invalid Date" && d < new Date()) status.Overdue++;
-            else status[i.status||"Draft"] = (status[i.status||"Draft"]||0)+1;
-          }
-        });
+        const status={Draft:0,Sent:0,Paid:0,Overdue:0};
+        gInvoices.forEach(i=>{if(i.status==="Paid")status.Paid++;else{const d=new Date(i.dueDate||"");if(d.toString()!=="Invalid Date"&&d<new Date())status.Overdue++;else status[i.status||"Draft"]++;}});
         updateStatusChart(status);
-
-        // top client (по оплачених, якщо нема — по всіх)
-        const byClientPaid={}, byClientAll={};
-        gInvoices.forEach(i=>{
-          const c = i.clientName||"—";
-          byClientAll[c] = (byClientAll[c]||0) + parseMoney(i.grandTotal);
-          if(i.status==="Paid"){ byClientPaid[c] = (byClientPaid[c]||0) + parseMoney(i.grandTotal); }
-        });
-        const pickTop = (map)=>Object.entries(map).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
-        $("kpiTopClient").innerText = pickTop(Object.keys(byClientPaid).length?byClientPaid:byClientAll);
-
-        updateSuggestions();
+        const byClient={}; gInvoices.forEach(i=>{const c=i.clientName||"—";byClient[c]=(byClient[c]||0)+parseMoney(i.grandTotal);});
+        $("kpiTopClient").innerText=Object.entries(byClient).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
+        updateSuggestions(user.uid);
       });
 
-      // Quotes live
+      // Quotes
       onSnapshot(collection(db,"users",user.uid,"quotes"),(snap)=>{
-        gQuotes = snap.docs.map(d=>d.data());
-        const acc = gQuotes.filter(q=>q.status==="Accepted").length;
-        const rate = gQuotes.length ? Math.round(acc/gQuotes.length*100) : 0;
-        $("kpiQuoteRate").innerText = rate+"%";
-        renderSuggestions();
+        gQuotes=snap.docs.map(d=>d.data());
+        const acc=gQuotes.filter(q=>q.status==="Accepted").length;
+        const rate=gQuotes.length?Math.round(acc/gQuotes.length*100):0;
+        $("kpiQuoteRate").innerText=rate+"%";
+        updateSuggestions(user.uid);
       });
 
-      // Reminders live
+      // Reminders
       onSnapshot(collection(db,"users",user.uid,"reminders"),(snap)=>{
-        gReminders = snap.size;
-        $("kpiReminders").innerText = gReminders;
+        gReminders=snap.size;
+        $("kpiReminders").innerText=gReminders;
+        updateSuggestions(user.uid);
       });
 
-      // Expenses live
+      // Expenses
       onSnapshot(collection(db,"users",user.uid,"expenses"),(snap)=>{
-        gExpensesTotal = snap.docs.reduce((a,d)=>a+(parseMoney(d.data().amount)),0);
-        $("kpiExpenses").innerText = formatEUR(gExpensesTotal);
-        renderSuggestions();
+        gExpensesTotal=snap.docs.reduce((a,d)=>a+parseMoney(d.data().amount),0);
+        $("kpiExpenses").innerText=formatEUR(gExpensesTotal);
+        updateSuggestions(user.uid);
       });
 
-      // Recent Activity
+      // Activity
       initRecentActivity(user.uid);
     });
+
+    // Logout
+    $("logoutBtn").addEventListener("click",async()=>{await signOut(auth);location.href="login.html";});
   </script>
 </body>
 </html>
