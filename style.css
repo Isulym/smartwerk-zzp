@@ -17,7 +17,7 @@ header {
 }
 
 header img {
-  width: 20%; /* логотип розтягується на всю ширину */
+  width: 7%; /* логотип розтягується на всю ширину */
   height: auto;
   display: block;
   object-fit: cover; /* щоб зображення не сплющувалось */
