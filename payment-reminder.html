@@ -326,20 +326,18 @@ window.saveReminder = saveReminder;
       if(!user){ location.href="login.html"; return; }
 
       // === AUTO-FILL BUSINESS DATA (from profile.html) ===
+// === AUTO-FILL BUSINESS DATA (from profile.html) ===
 try {
-  const profRef = doc(db, "users", user.uid, "settings", "profile");
+  const profRef = doc(db, "users", user.uid, "profile"); // ✅ правильний шлях
   const profSnap = await getDoc(profRef);
   if (profSnap.exists()) {
     const p = profSnap.data();
     setVal("businessName", p.businessName || "");
-     setVal("email", p.businessEmail || "");
+    setVal("email", p.businessEmail || "");
     setVal("businessAddress", p.businessAddress || "");
-   setVal("businessPhone", p.businessPhone || "");
-
-   // if(p.businessName) $("businessName").value = r.businessName;
-  //  if(p.email) $("email").value = r.email;
- //   if(p.businessAddress) $("businessAddress").value = r.businessAddress;
-  //  if(p.businessPhone) $("businessPhone").value = r.businessPhone;
+    setVal("businessPhone", p.businessPhone || "");
+  } else {
+    console.warn("No profile found for user", user.uid);
   }
 } catch (err) {
   console.warn("Profile auto-fill error:", err);
