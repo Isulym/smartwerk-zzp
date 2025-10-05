@@ -184,16 +184,12 @@
       const r = snap.data();
 
       // Business
-     // setVal("businessName", r.businessName);
-    //  setVal("email", r.email);
-    //  setVal("businessAddress", r.businessAddress);
-     // setVal("businessPhone", r.businessPhone);
+      setVal("businessName", r.businessName);
+      setVal("email", r.email);
+      setVal("businessAddress", r.businessAddress);
+      setVal("businessPhone", r.businessPhone);
       
-      if(p.businessName) $("businessName").value = r.businessName;
-    if(p.email) $("email").value = r.email;
-    if(p.businessAddress) $("businessAddress").value = r.businessAddress;
-    if(p.businessPhone) $("businessPhone").value = r.businessPhone;
-
+    
       // Client
       setVal("clientName", r.clientName);
       setVal("clientEmail", r.clientEmail);
