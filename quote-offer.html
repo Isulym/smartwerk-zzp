@@ -264,6 +264,7 @@
         userId:uid,
         updatedAt:new Date().toISOString(),
       };
+      await logEvent(uid,"Quote","Created or updated "+quoteNumber);
 
       if(editingId){
         await setDoc(doc(db,"users",uid,"quotes",editingId), data, { merge:true });
@@ -361,7 +362,6 @@ async function logEvent(uid, type, message){
 
       await previewNextQuoteNumber(user.uid);
       await loadQuoteForEdit(user.uid);
-      await logEvent(uid,"Quote","Created or updated "+quoteNumber);
     });
 
     document.addEventListener("DOMContentLoaded", ()=>{
