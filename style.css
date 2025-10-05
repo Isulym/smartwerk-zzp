@@ -18,7 +18,7 @@ header {
 
 header img {
   width: 150; /* логотип розтягується на всю ширину */
-  height: 300;
+  height: 150;
   display: block;
   object-fit: cover; /* щоб зображення не сплющувалось */
   border-bottom: 1px solid #334155; /* лінія внизу */
