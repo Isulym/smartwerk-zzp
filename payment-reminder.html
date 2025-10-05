@@ -20,10 +20,10 @@
     <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
-      <input id="businessName" placeholder="Business Name"/>
-      <input id="email" placeholder="Business Email"/>
-      <input id="businessAddress" placeholder="Business Address"/>
-      <input id="businessPhone" placeholder="Business Phone"/>
+       <input id="businessName" placeholder="Full Name / Business Name"/>
+       <input id="email" placeholder="Business Email"/>
+       <input id="businessAddress" placeholder="Business Address"/>
+       <input id="businessPhone" placeholder="Business Phone"/>
     </section>
 
     <!-- Client Info -->
@@ -108,8 +108,9 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, onSnapshot, runTransaction, serverTimestamp } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+   
     
     /* Firebase init */
     const firebaseConfig = {
@@ -290,15 +291,15 @@
         updatedAt: new Date().toISOString(),
       };
 
-       if(editingId){
-    await setDoc(doc(db,"users",uid,"reminders",editingId), data, { merge:true });
-    await logActivity(uid, "Reminder Updated", `${data.reminderId || "(no ID)"} updated`);
-    alert("✅ Reminder updated");
-  } else {
-    await addDoc(collection(db,"users",uid,"reminders"), data);
-    await logActivity(uid, "Reminder Created", `${data.reminderId || "(no ID)"} created`);
-    alert(`✅ Reminder saved as ${reminderId}`);
-  }
+      if(editingId){
+  await setDoc(doc(db,"users",uid,"reminders",editingId), data, { merge:true });
+  await logActivity(uid, "Reminder Updated", `${data.reminderId || "(no ID)"} updated`);
+  alert("✅ Reminder updated");
+}else{
+  await addDoc(collection(db,"users",uid,"reminders"), data);
+  await logActivity(uid, "Reminder Created", `${data.reminderId || "(no ID)"} created`);
+  alert(`✅ Reminder saved as ${data.reminderId}`);
+}
       localStorage.removeItem("editReminderId");
       location.href="payment-reminder-list.html";
     }
