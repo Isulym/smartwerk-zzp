@@ -21,7 +21,7 @@ header {
 }
 
 header img {
-  height: 65px; /* ідеальний розмір логотипу */
+  height: 150px; /* ідеальний розмір логотипу */
   width: auto;
   display: block;
   object-fit: contain;
