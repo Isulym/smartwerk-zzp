@@ -333,12 +333,13 @@ async function loadBusinessInfo(uid){
   const snap = await getDoc(doc(db,"users",uid));
   if(!snap.exists()) return;
   const p = snap.data();
-  $("businessName").value = p.fullName || "";
+  $("businessName").value = p.businessName || "";
   $("email").value = p.email || "";
   $("iban").value = p.iban || "";
+  $("btw").value = p.btw || "";
   $("kvk").value = p.kvk || "";
-  $("businessAddress").value = p.address || "";
-  $("businessPhone").value = p.phone || "";
+  $("businessAddress").value = p.businessAddress || "";
+  $("businessPhone").value = p.businessPhone || "";
 }
 onAuthStateChanged(auth, async (user)=>{
   if(user){ await loadBusinessInfo(user.uid); }
