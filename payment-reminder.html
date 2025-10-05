@@ -331,10 +331,14 @@ try {
   if (profSnap.exists()) {
     const p = profSnap.data();
     setVal("businessName", p.businessName || "");
-    setVal("email", p.businessEmail || "");
+     setVal("email", p.businessEmail || "");
     setVal("businessAddress", p.businessAddress || "");
-    setVal("businessPhone", p.businessPhone || "");
-    
+   setVal("businessPhone", p.businessPhone || "");
+
+   // if(p.businessName) $("businessName").value = r.businessName;
+  //  if(p.email) $("email").value = r.email;
+ //   if(p.businessAddress) $("businessAddress").value = r.businessAddress;
+  //  if(p.businessPhone) $("businessPhone").value = r.businessPhone;
   }
 } catch (err) {
   console.warn("Profile auto-fill error:", err);
