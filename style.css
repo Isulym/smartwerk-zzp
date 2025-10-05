@@ -22,7 +22,7 @@ header {
 
 header img {
   height: 130px; /* ідеальний розмір логотипу */
-  width: auto;
+  width: 200;
   display: block;
   object-fit: contain;
   transition: transform 0.3s ease, filter 0.3s ease;
