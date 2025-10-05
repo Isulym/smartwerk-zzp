@@ -20,7 +20,7 @@
     <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
-      <input id="businessName" placeholder="Business Name"/>
+       <input id="businessName" placeholder="Full Name / Business Name"/>
       <input id="businessEmail" placeholder="Business Email"/>
       <input id="businessAddress" placeholder="Business Address"/>
       <input id="businessPhone" placeholder="Business Phone"/>
@@ -121,7 +121,7 @@ onAuthStateChanged(auth, async (user) => {
   const snap = await getDoc(profileRef);
   if (snap.exists()) {
     const p = snap.data();
-    if (p.businessName) $("#businessName").value = p.businessName;
+     if(p.businessName) $("businessName").value = p.businessName;
     if (p.businessEmail) $("#businessEmail").value = p.businessEmail;
     if (p.businessAddress) $("#businessAddress").value = p.businessAddress;
     if (p.businessPhone) $("#businessPhone").value = p.businessPhone;
@@ -194,7 +194,7 @@ async function saveContractWithLog() {
       }
 
       const data={
-        businessName:$("businessName").value,
+        businessName: $("businessName").value,
         businessEmail:$("businessEmail").value,
         businessAddress:$("businessAddress").value,
         businessPhone:$("businessPhone").value,
@@ -238,7 +238,7 @@ async function saveContractWithLog() {
       if(!snap.exists()){localStorage.removeItem("editContractId");return;}
       const c=snap.data();
 
-      $("#businessName").value=c.businessName||"";
+      $("businessName").value = inv.businessName||"";
       $("#businessEmail").value=c.businessEmail||"";
       $("#businessAddress").value=c.businessAddress||"";
       $("#businessPhone").value=c.businessPhone||"";
