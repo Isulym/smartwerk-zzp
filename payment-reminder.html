@@ -242,70 +242,78 @@
 }
 
     /* Save */
-    async function saveReminder(){
-      const user = auth.currentUser;
-      if(!user){ location.href="login.html"; return; }
-      const uid = user.uid;
+    /* ========== SAVE REMINDER (Final Stable) ========== */
+async function saveReminder() {
+  const user = auth.currentUser;
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+  const uid = user.uid;
+  const editingId = localStorage.getItem("editReminderId") || null;
 
-      const editingId = localStorage.getItem("editReminderId") || null;
+  // reminderId тільки для нового
+  let reminderId = val("reminderId");
+  if (!editingId && !reminderId) {
+    reminderId = await generateReminderId(uid);
+    setVal("reminderId", reminderId);
+  }
 
-      // reminderId тільки для нового
-      let reminderId = val("reminderId");
-      if(!editingId && !reminderId){
-        reminderId = await generateReminderId(uid);
-        setVal("reminderId", reminderId);
-      }
+  // Amount parsing
+  const amountStr = (val("amount") || text("invoiceAmount") || "0")
+    .replace(/[^\d,.\-]/g, "")
+    .replace(",", ".");
+  const amountNum = parseFloat(amountStr) || 0;
 
-      // amount: з поля або з invoiceAmount; парсимо валюту/коми
-      const amountStr = (val("amount") || text("invoiceAmount") || "0")
-        .replace(/[^\d,.\-]/g,"")
-        .replace(",",".");
-      const amountNum = parseFloat(amountStr) || 0;
-
-     const data = {
-    reminderId: $("reminderId")?.value || "",
-    invoiceNumber: $("invoiceNumber")?.value || "",
-    reminderType: $("reminderType")?.value || "",
-    businessName: $("businessName")?.value || "",
-    businessEmail: $("businessEmail")?.value || "",
-    businessPhone: $("businessPhone")?.value || "",
-    businessAddress: $("businessAddress")?.value || "",
-    kvk: $("kvk")?.value || "",
-    iban: $("iban")?.value || "",
-    clientName: $("clientName")?.value || "",
-    clientEmail: $("clientEmail")?.value || "",
-    clientAddress: $("clientAddress")?.value || "",
-    dueDate: $("dueDate")?.value || "",
-    amountDue: $("amountDue")?.value || "",
-    message: $("message")?.value || "",
-    status: $("status")?.value || "Pending",
+  // Data
+  const data = {
+    reminderId,
+    linkedInvoice: val("linkedInvoice"),
+    businessName: val("businessName"),
+    businessEmail: val("email"),
+    businessPhone: val("businessPhone"),
+    businessAddress: val("businessAddress"),
+    clientName: val("clientName"),
+    clientEmail: val("clientEmail"),
+    clientAddress: val("clientAddress"),
+    invoiceDate: text("invoiceDate"),
+    dueDate: text("dueDate"),
+    invoiceAmount: text("invoiceAmount"),
+    amount: amountNum,
+    status: val("status") || "Draft",
+    type: val("type") || "First Reminder",
+    message: val("message"),
+    reminderDate: val("reminderDate") || new Date().toISOString().split("T")[0],
+    signatures: {
+      business: $("signatureBusiness")?.toDataURL() || "",
+      client: $("signatureClient")?.toDataURL() || "",
+      businessDate: text("signatureBusinessDate"),
+      clientDate: text("signatureClientDate"),
+    },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    userId: uid,
   };
-        // Signatures
-        signatures:{
-          business: $("signatureBusiness")?.toDataURL() || "",
-          client:   $("signatureClient")?.toDataURL()   || "",
-          businessDate: text("signatureBusinessDate"),
-          clientDate:   text("signatureClientDate"),
-        },
-        userId: uid,
-        updatedAt: new Date().toISOString(),
-      };
 
-      if (editingId) {
-    await setDoc(doc(db, "users", uid, "reminders", editingId), data, { merge: true });
-    await logActivity(uid, "Reminder Updated", `${data.reminderId || "(no ID)"} updated`);
-    alert("✅ Reminder updated");
-  } else {
-    await addDoc(collection(db, "users", uid, "reminders"), data);
-    await logActivity(uid, "Reminder Created", `${data.reminderId || "(no ID)"} created`);
-    alert(`✅ Reminder saved${data.reminderId ? " as " + data.reminderId : ""}`);
-  }
-      localStorage.removeItem("editReminderId");
-      location.href="payment-reminder-list.html";
+  try {
+    if (editingId) {
+      await setDoc(doc(db, "users", uid, "reminders", editingId), data, { merge: true });
+      await logActivity(uid, "Reminder Updated", `${data.reminderId || "(no ID)"} updated`);
+      alert("✅ Reminder updated");
+    } else {
+      await addDoc(collection(db, "users", uid, "reminders"), data);
+      await logActivity(uid, "Reminder Created", `${data.reminderId || "(no ID)"} created`);
+      alert(`✅ Reminder saved${data.reminderId ? " as " + data.reminderId : ""}`);
     }
-    window.saveReminder = saveReminder;
+  } catch (e) {
+    console.error("❌ Error saving reminder:", e);
+    alert("⚠️ Error saving reminder: " + e.message);
+  }
+
+  localStorage.removeItem("editReminderId");
+  location.href = "payment-reminder-list.html";
+}
+window.saveReminder = saveReminder;
 
     /* AI (заглушки) */
     window.aiFill     = ()=> setVal("message","Dear client,\n\nThis is a polite reminder that your invoice is overdue. Please arrange payment.\n\nBest regards,\nSmartWerk");
