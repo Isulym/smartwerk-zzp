@@ -324,8 +324,35 @@
 
       updateTotals();
     }
+    
 
     /* INIT */
+async function loadBusinessInfo(uid){
+  const snap = await getDoc(doc(db,"users",uid));
+  if(!snap.exists()) return;
+  const p = snap.data();
+  $("businessName").value = p.fullName || "";
+  $("email").value = p.email || "";
+  $("iban").value = p.iban || "";
+  $("kvk").value = p.kvk || "";
+  $("businessAddress").value = p.address || "";
+  $("businessPhone").value = p.phone || "";
+}
+onAuthStateChanged(auth, async (user)=>{
+  if(user){ await loadBusinessInfo(user.uid); }
+});
+
+// ====== Log Recent Activity when saving ======
+import { addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+async function logEvent(uid, type, message){
+  try{
+    await addDoc(collection(db,"users",uid,"events"),{
+      type, message, createdAt: serverTimestamp()
+    });
+  }catch(e){ console.warn("Event log error:", e); }
+}
+    
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
 
@@ -337,11 +364,12 @@
 
       await previewNextQuoteNumber(user.uid);
       await loadQuoteForEdit(user.uid);
+      await logEvent(uid,"Quote","Created or updated "+quoteNumber);
     });
 
     document.addEventListener("DOMContentLoaded", ()=>{
-      $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveQuote();});
-    });
+  $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveQuote();});
+});
   </script>
 </body>
 </html>
