@@ -113,6 +113,43 @@
 
     const $ = id => document.getElementById(id);
 
+    // ====== AUTO-FILL BUSINESS INFO FROM PROFILE ======
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  const profileRef = doc(db, "users", user.uid);
+  const snap = await getDoc(profileRef);
+  if (snap.exists()) {
+    const p = snap.data();
+    if (p.businessName) $("#businessName").value = p.businessName;
+    if (p.businessEmail) $("#businessEmail").value = p.businessEmail;
+    if (p.businessAddress) $("#businessAddress").value = p.businessAddress;
+    if (p.businessPhone) $("#businessPhone").value = p.businessPhone;
+  }
+});
+
+// ====== RECENT ACTIVITY LOGGER ======
+async function logActivity(uid, type, message) {
+  try {
+    await addDoc(collection(db, "users", uid, "events"), {
+      type,
+      message,
+      createdAt: new Date(),
+    });
+  } catch (e) {
+    console.warn("Activity log failed:", e);
+  }
+}
+
+// логування після збереження контракту
+async function saveContractWithLog() {
+  const user = auth.currentUser;
+  if (!user) { location.href = "login.html"; return; }
+
+  await saveContract(); // звичайне збереження
+  await logActivity(user.uid, "Contract", "Created or updated a contract");
+}
+    
     /* AUTO CONTRACT ID */
     async function generateContractId(uid){
       const ref = doc(db,"users",uid);
@@ -236,15 +273,10 @@
       if(lang==="en") $("projectDescription").value="This contract covers the agreed freelance project including scope, deliverables, and terms.";
     };
 
-    /* INIT */
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user){location.href="login.html";return;}
-      flatpickr(".js-date",{dateFormat:"Y-m-d"});
-      setupSignature("signatureBusiness","signatureBusinessDate");
-      setupSignature("signatureClient","signatureClientDate");
-      await loadContractForEdit(user.uid);
 
-      $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveContract();});
+
+   $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveContractWithLog();});
+    
     });
   </script>
 </body>
