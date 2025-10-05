@@ -266,7 +266,7 @@ async function saveReminder() {
     reminderId,
     linkedInvoice: val("linkedInvoice"),
     businessName: val("businessName"),
-    businessEmail: val("email"),
+    email: val("email"),
     businessPhone: val("businessPhone"),
     businessAddress: val("businessAddress"),
     clientName: val("clientName"),
@@ -325,23 +325,29 @@ window.saveReminder = saveReminder;
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
 
-      // === AUTO-FILL BUSINESS DATA (from profile.html) ===
-// === AUTO-FILL BUSINESS DATA (from profile.html) ===
-// === AUTO-FILL BUSINESS DATA (from profile.html) ===
+  // === 🔄 AUTO-FILL BUSINESS INFO from profile.html ===
 try {
-  const profRef = doc(db, "users", user.uid, "settings", "profile"); // ✅ правильна структура
+  const profRef = doc(db, "users", user.uid, "settings", "profile"); // ✅ єдина правильна структура
   const profSnap = await getDoc(profRef);
+
   if (profSnap.exists()) {
     const p = profSnap.data();
-    setVal("businessName", p.businessName || "");
-    setVal("email", p.businessEmail || "");
-    setVal("businessAddress", p.businessAddress || "");
-    setVal("businessPhone", p.businessPhone || "");
+
+    // 🎯 Автоматично заповнюємо бізнес-дані у форму, якщо поля існують
+    if ($("businessName")) $("businessName").value = p.businessName || "";
+    if ($("email")) $("email").value = p.email || "";
+    if ($("businessAddress")) $("businessAddress").value = p.businessAddress || "";
+    if ($("businessPhone")) $("businessPhone").value = p.businessPhone || "";
+    if ($("kvk")) $("kvk").value = p.kvk || "";
+    if ($("iban")) $("iban").value = p.iban || "";
+    if ($("btw")) $("btw").value = p.btw || "";
+
+    console.log("✅ Business info auto-filled from profile");
   } else {
-    console.warn("No profile found in users/"+user.uid+"/settings/profile");
+    console.warn("⚠️ No profile data found in Firestore (users/{uid}/settings/profile)");
   }
 } catch (err) {
-  console.warn("Profile auto-fill error:", err);
+  console.error("Profile auto-fill error:", err);
 }
 
       flatpickr(".js-date",{ dateFormat:"Y-m-d" });
