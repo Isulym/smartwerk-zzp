@@ -327,8 +327,9 @@ window.saveReminder = saveReminder;
 
       // === AUTO-FILL BUSINESS DATA (from profile.html) ===
 // === AUTO-FILL BUSINESS DATA (from profile.html) ===
+// === AUTO-FILL BUSINESS DATA (from profile.html) ===
 try {
-  const profRef = doc(db, "users", user.uid, "profile"); // ✅ правильний шлях
+  const profRef = doc(db, "users", user.uid, "settings", "profile"); // ✅ правильна структура
   const profSnap = await getDoc(profRef);
   if (profSnap.exists()) {
     const p = profSnap.data();
@@ -337,7 +338,7 @@ try {
     setVal("businessAddress", p.businessAddress || "");
     setVal("businessPhone", p.businessPhone || "");
   } else {
-    console.warn("No profile found for user", user.uid);
+    console.warn("No profile found in users/"+user.uid+"/settings/profile");
   }
 } catch (err) {
   console.warn("Profile auto-fill error:", err);
