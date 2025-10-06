@@ -18,7 +18,7 @@
   <div class="cv-container" id="cvContainer">
    <header class="cv-header">
   <div class="cv-intro">
-    <h1 id="businessNamePreview">Your Name</h1>
+    <h1 id="businessName">Your Name</h1>
     <p id="titlePreview">Professional Title</p>
     <p id="contactsPreview">Email · Phone · Website</p>
   </div>
@@ -211,7 +211,7 @@ onAuthStateChanged(auth, async (user)=>{
 document.addEventListener("DOMContentLoaded", () => {
   const fields = ["businessName", "title", "email", "phone", "website"];
   const previewMap = {
-    businessName: "businessNamePreview",
+    businessName: "businessName",
     title: "titlePreview",
     email: null,
     phone: null,
