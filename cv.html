@@ -18,7 +18,7 @@
   <div class="cv-container" id="cvContainer">
    <header class="cv-header">
   <div class="cv-intro">
-    <h1 id="fullNamePreview">Your Name</h1>
+    <h1 id="businessNamePreview">Your Name</h1>
     <p id="titlePreview">Professional Title</p>
     <p id="contactsPreview">Email · Phone · Website</p>
   </div>
@@ -29,8 +29,8 @@
   <div class="personal-info-custom">
     <div class="form-row">
       <div class="form-group">
-        <label for="fullName">Full Name</label>
-        <input type="text" id="fullName" placeholder="Your Name">
+        <label for="businessName">Full Name</label>
+        <input type="text" id="businessName" placeholder="Your Name">
       </div>
       <div class="form-group">
         <label for="email">Email</label>
@@ -158,7 +158,7 @@ async function autofillFromProfile(uid){
     const snap = await getDoc(ref);
     if(snap.exists()){
       const p = snap.data();
-      if($("fullName") && p.businessName) $("fullName").value = p.businessName;
+      if($("businessName") && p.businessName) $("businessName").value = p.businessName;
       if($("email") && p.businessEmail) $("email").value = p.businessEmail;
       if($("phone") && p.businessPhone) $("phone").value = p.businessPhone;
       console.log("✅ CV auto-filled from profile");
@@ -174,7 +174,7 @@ async function saveCVFirestore(){
   if(!user){ alert("Please log in again"); return; }
 
   const data = {
-    fullName: $("fullName")?.value || "",
+    businessName: $("businessName")?.value || "",
     title: $("title")?.value || "",
     email: $("email")?.value || "",
     phone: $("phone")?.value || "",
@@ -209,9 +209,9 @@ onAuthStateChanged(auth, async (user)=>{
   
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const fields = ["fullName", "title", "email", "phone", "website"];
+  const fields = ["businessName", "title", "email", "phone", "website"];
   const previewMap = {
-    fullName: "fullNamePreview",
+    businessName: "businessNamePreview",
     title: "titlePreview",
     email: null,
     phone: null,
@@ -347,7 +347,7 @@ loadProposalContent();
     const doc = new jsPDF("p", "mm", "a4");
     const isPRO = document.getElementById("noBranding")?.checked; // PRO-чекбокс
 
-    const name = document.getElementById("fullName")?.value || "Your Name";
+    const name = document.getElementById("businessName")?.value || "Your Name";
     const title = document.getElementById("title")?.value || "";
     const email = document.getElementById("email")?.value || "";
     const phone = document.getElementById("phone")?.value || "";
