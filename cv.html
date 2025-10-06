@@ -131,13 +131,10 @@
       <p>🔗 smartwerk.nl/portfolio/your-name</p>
     </footer>
   </div>
-<!-- 🚀 Firebase інтеграція + autofill + Firestore save -->
 <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-  getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -145,63 +142,79 @@ const firebaseConfig = {
   projectId: "smartwerk8520",
   appId: "1:607670981972:web:c07103c981c86860d724c1",
 };
-
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
-const $ = (id) => document.getElementById(id);
+const db   = getFirestore(app);
+const $ = (id)=>document.getElementById(id);
 
-/* 🧩 Auto-fill із profile.html */
-async function autofillFromProfile(uid){
+/* -------- read profile from two possible locations -------- */
+async function readProfile(uid){
+  // 1) preferred: users/{uid}/settings/profile
   try{
-    const ref = doc(db, "users", uid, "settings", "profile");
-    const snap = await getDoc(ref);
-    if(snap.exists()){
-      const p = snap.data();
-      if($("businessName") && p.businessName) $("businessName").value = p.businessName;
-      if($("email") && p.email) $("email").value = p.email;
-      if($("businessPhone") && p.businessPhone) $("businessPhone").value = p.businessPhone;
-      console.log("✅ CV auto-filled from profile");
-    } else {
-      console.warn("⚠️ No profile data found for CV autofill");
-    }
-  }catch(e){ console.warn("Profile load error:", e); }
+    const r1 = await getDoc(doc(db,"users",uid,"settings","profile"));
+    if(r1.exists()) return { ...r1.data(), __source:"settings/profile" };
+  }catch(_){}
+  // 2) fallback: users/{uid}
+  try{
+    const r2 = await getDoc(doc(db,"users",uid));
+    if(r2.exists()) return { ...r2.data(), __source:"users_root" };
+  }catch(_){}
+  return null;
 }
 
-/* 💾 Firestore Save */
+/* -------- autofill CV fields -------- */
+function setIfEmpty(id, val){
+  const el=$(id);
+  if(!el) return;
+  if(!el.value) el.value = val ?? "";
+}
+async function autofillFromProfile(uid){
+  const p = await readProfile(uid);
+  if(!p){
+    console.warn("⚠️ No profile data found (tried users/{uid}/settings/profile and users/{uid}).");
+    return;
+  }
+  // map різних назв полів
+  setIfEmpty("businessPhone", p.businessName ?? p.businessPhone);
+  setIfEmpty("email",    p.email ?? p.email);
+  setIfEmpty("businessPhone",    p.businessPhone ?? p.businessPhone);
+  setIfEmpty("website",  p.website);
+
+  // оновити прев’ю (твій основний скрипт слухає input)
+  const ev = new Event("input",{bubbles:true});
+  ["businessPhone","email","businessPhone","website"].forEach(id=>{ const el=$(id); if(el) el.dispatchEvent(ev); });
+
+  console.log(`✅ CV auto-filled from ${p.__source}`);
+}
+
+/* -------- save CV to Firestore (optional single doc) -------- */
 async function saveCVFirestore(){
-  const user = auth.currentUser;
+  const user=auth.currentUser;
   if(!user){ alert("Please log in again"); return; }
 
-  const data = {
-    businessName: $("businessName")?.value || "",
-    title: $("title")?.value || "",
-    email: $("email")?.value || "",
+  const data={
     businessPhone: $("businessPhone")?.value || "",
-    website: $("website")?.value || "",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    title:    $("title")?.value || "",
+    email:    $("email")?.value || "",
+    businessPhone:    $("businessPhone")?.value || "",
+    website:  $("website")?.value || "",
+    updatedAt:new Date().toISOString(),
   };
 
-  try{
-    await setDoc(doc(db,"users",user.uid,"cv","data"), data);
-    await addDoc(collection(db,"users",user.uid,"events"), {
-      type:"CV Saved", message:"CV updated", createdAt:serverTimestamp()
-    });
-    alert("✅ CV saved to Firestore");
-  }catch(e){ console.error("Firestore error:", e); alert("⚠️ Firestore error: "+e.message); }
+  await setDoc(doc(db,"users",user.uid,"cv","data"), data, {merge:true});
+  await addDoc(collection(db,"users",user.uid,"events"),{
+    type:"CV Saved", message:"CV updated", createdAt:serverTimestamp()
+  });
+  alert("✅ CV saved to Firestore");
 }
 
-/* 🔁 Auto-init */
-onAuthStateChanged(auth, async (user)=>{
-  if(!user){ return; }
+/* -------- init -------- */
+onAuthStateChanged(auth, async(user)=>{
+  if(!user) return;
   await autofillFromProfile(user.uid);
-  const saveBtn = document.getElementById("btnSaveCV");
+  const saveBtn = $("btnSaveCV");
   if(saveBtn){
-    saveBtn.addEventListener("click",(e)=>{
-      e.preventDefault();
-      saveCVFirestore();
-    });
+    saveBtn.addEventListener("click",(e)=>{ e.preventDefault(); saveCVFirestore(); });
   }
 });
 </script>
