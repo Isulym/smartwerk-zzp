@@ -18,7 +18,7 @@
   <div class="cv-container" id="cvContainer">
    <header class="cv-header">
   <div class="cv-intro">
-    <h1 id="businessName">Your Name</h1>
+    <h1 id="businessName">businessName</h1>
     <p id="titlePreview">Professional Title</p>
     <p id="contactsPreview">Email · businessPhone · Website</p>
   </div>
@@ -29,8 +29,8 @@
   <div class="personal-info-custom">
     <div class="form-row">
       <div class="form-group">
-        <label for="businessName">Full Name</label>
-        <input type="text" id="businessName" placeholder="Your Name">
+        <label for="businessName">businessName</label>
+        <input type="text" id="businessName" placeholder="businessName">
       </div>
       <div class="form-group">
         <label for="email">Email</label>
@@ -247,10 +247,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateContactsPreview() {
+    const businessName = document.getElementById("businessName")?.value || "";
     const email = document.getElementById("email")?.value || "";
     const businessPhone = document.getElementById("businessPhone")?.value || "";
     const website = document.getElementById("website")?.value || "";
-    const contactText = [email, businessPhone, website].filter(Boolean).join(" · ");
+    const contactText = [businessName, email, businessPhone, website].filter(Boolean).join(" · ");
     document.getElementById("contactsPreview").innerText = contactText || "—";
   }
 
@@ -360,7 +361,7 @@ loadProposalContent();
     const doc = new jsPDF("p", "mm", "a4");
     const isPRO = document.getElementById("noBranding")?.checked; // PRO-чекбокс
 
-    const businessName = document.getElementById("businessName")?.value || "Your Name";
+    const businessName = document.getElementById("businessName")?.value || "businessName";
     const title = document.getElementById("title")?.value || "";
     const email = document.getElementById("email")?.value || "";
     const businessPhone = document.getElementById("businessPhone")?.value || "";
