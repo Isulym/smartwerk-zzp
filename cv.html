@@ -181,9 +181,9 @@ setIfEmpty("email",           p.email ?? p.businessEmail ?? "");
 setIfEmpty("businessPhone",   p.businessPhone ?? p.phone ?? "");
 setIfEmpty("website",         p.website ?? "");
 
-const ev = new Event("input",{bubbles:true});
 ["businessNameInput","email","businessPhone","website"].forEach(id=>{
-  const el=$(id); if(el) el.dispatchEvent(ev);
+  const el = $(id);
+  if (el) el.dispatchEvent(new Event("input", { bubbles: true }));
 });
 
   // оновити прев’ю (твій основний скрипт слухає input)
