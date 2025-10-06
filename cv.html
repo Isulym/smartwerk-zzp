@@ -20,7 +20,7 @@
   <div class="cv-intro">
     <h1 id="businessName">Your Name</h1>
     <p id="titlePreview">Professional Title</p>
-    <p id="contactsPreview">Email · Phone · Website</p>
+    <p id="contactsPreview">Email · businessPhone · Website</p>
   </div>
 </header>
 
@@ -44,8 +44,8 @@
         <input type="text" id="title" placeholder="e.g., Web Developer">
       </div>
       <div class="form-group">
-        <label for="phone">Phone</label>
-        <input type="text" id="phone" placeholder="+31 000000000">
+        <label for="businessPhone">businessPhone</label>
+        <input type="text" id="businessPhone" placeholder="+31 000000000">
       </div>
     </div>
 
@@ -96,7 +96,7 @@
     <p><strong>Target Audience:</strong> Who you're aiming to serve</p>
     <p><strong>Mission & Vision:</strong> Your goal and purpose</p>
     <p><strong>Call to Action:</strong> What you want potential clients/partners to do</p>
-    <p><strong>Contact Information:</strong> Website, Email, Phone</p>
+    <p><strong>Contact Information:</strong> Website, Email, businessPhone</p>
   </div>
 </section>
     
@@ -159,8 +159,8 @@ async function autofillFromProfile(uid){
     if(snap.exists()){
       const p = snap.data();
       if($("businessName") && p.businessName) $("businessName").value = p.businessName;
-      if($("email") && p.businessEmail) $("email").value = p.businessEmail;
-      if($("phone") && p.businessPhone) $("phone").value = p.businessPhone;
+      if($("email") && p.email) $("email").value = p.email;
+      if($("businessPhone") && p.businessPhone) $("businessPhone").value = p.businessPhone;
       console.log("✅ CV auto-filled from profile");
     } else {
       console.warn("⚠️ No profile data found for CV autofill");
@@ -177,7 +177,7 @@ async function saveCVFirestore(){
     businessName: $("businessName")?.value || "",
     title: $("title")?.value || "",
     email: $("email")?.value || "",
-    phone: $("phone")?.value || "",
+    businessPhone: $("businessPhone")?.value || "",
     website: $("website")?.value || "",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -209,12 +209,12 @@ onAuthStateChanged(auth, async (user)=>{
   
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const fields = ["businessName", "title", "email", "phone", "website"];
+  const fields = ["businessName", "title", "email", "businessPhone", "website"];
   const previewMap = {
     businessName: "businessName",
     title: "titlePreview",
     email: null,
-    phone: null,
+    businessPhone: null,
     website: null,
   };
 
@@ -235,9 +235,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateContactsPreview() {
     const email = document.getElementById("email")?.value || "";
-    const phone = document.getElementById("phone")?.value || "";
+    const businessPhone = document.getElementById("businessPhone")?.value || "";
     const website = document.getElementById("website")?.value || "";
-    const contactText = [email, phone, website].filter(Boolean).join(" · ");
+    const contactText = [email, businessPhone, website].filter(Boolean).join(" · ");
     document.getElementById("contactsPreview").innerText = contactText || "—";
   }
 
@@ -350,7 +350,7 @@ loadProposalContent();
     const name = document.getElementById("businessName")?.value || "Your Name";
     const title = document.getElementById("title")?.value || "";
     const email = document.getElementById("email")?.value || "";
-    const phone = document.getElementById("phone")?.value || "";
+    const businessPhone = document.getElementById("businessPhone")?.value || "";
     const website = document.getElementById("website")?.value || "";
 
     let y = 20;
@@ -361,7 +361,7 @@ loadProposalContent();
     if (title) doc.setFontSize(14).setFont("helvetica", "normal").text(title, 20, y), y += 8;
     doc.setFontSize(11);
     if (email) doc.text(`${email}`, 20, y), y += 6;
-    if (phone) doc.text(`${phone}`, 20, y), y += 6;
+    if (businessPhone) doc.text(`${businessPhone}`, 20, y), y += 6;
     if (website) doc.text(`${website}`, 20, y), y += 10;
 
     if (!isPRO) {
