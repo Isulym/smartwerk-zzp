@@ -326,30 +326,26 @@ window.saveReminder = saveReminder;
       if(!user){ location.href="login.html"; return; }
 
   // === 🔄 AUTO-FILL BUSINESS INFO from profile.html ===
-try {
-  const profRef = doc(db, "users", user.uid, "settings", "profile"); // ✅ єдина правильна структура
-  const profSnap = await getDoc(profRef);
+async function loadProfileData(uid) {
+  try {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
+    const p = snap.data();
 
-  if (profSnap.exists()) {
-    const p = profSnap.data();
-
-    // 🎯 Автоматично заповнюємо бізнес-дані у форму, якщо поля існують
-    if ($("businessName")) $("businessName").value = p.businessName || "";
-    if ($("email")) $("email").value = p.email || "";
-    if ($("businessAddress")) $("businessAddress").value = p.businessAddress || "";
-    if ($("businessPhone")) $("businessPhone").value = p.businessPhone || "";
-    if ($("kvk")) $("kvk").value = p.kvk || "";
-    if ($("iban")) $("iban").value = p.iban || "";
-    if ($("btw")) $("btw").value = p.btw || "";
+    if (p.businessName) $("businessName").value = p.businessName;
+    if (p.email) $("email").value = p.email;
+    if (p.businessAddress) $("businessAddress").value = p.businessAddress;
+    if (p.businessPhone) $("businessPhone").value = p.businessPhone;
+    if (p.kvk) $("kvk").value = p.kvk;
+    if (p.iban) $("iban").value = p.iban;
+    if (p.btw) $("btw").value = p.btw;
 
     console.log("✅ Business info auto-filled from profile");
-  } else {
-    console.warn("⚠️ No profile data found in Firestore (users/{uid}/settings/profile)");
+  } catch (e) {
+    console.error("Profile load error:", e);
   }
-} catch (err) {
-  console.error("Profile auto-fill error:", err);
 }
-
       flatpickr(".js-date",{ dateFormat:"Y-m-d" });
       setupSignature("signatureBusiness","signatureBusinessDate");
       setupSignature("signatureClient","signatureClientDate");
@@ -384,8 +380,7 @@ try {
         if(!val("amount")) setVal("amount", opt.dataset.amount||"");
       });
 
-      await loadReminderForEdit(user.uid);
-
+       await loadProfileData(user.uid);
       $("saveBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); saveReminder(); });
     });
   </script>
