@@ -182,7 +182,7 @@ async function autofillFromProfile(uid){
 
   // оновити прев’ю (твій основний скрипт слухає input)
   const ev = new Event("input",{bubbles:true});
-  ["businessPhone","email","businessPhone","website"].forEach(id=>{ const el=$(id); if(el) el.dispatchEvent(ev); });
+  ["businessName","email","businessPhone","website"].forEach(id=>{ const el=$(id); if(el) el.dispatchEvent(ev); });
 
   console.log(`✅ CV auto-filled from ${p.__source}`);
 }
