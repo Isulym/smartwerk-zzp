@@ -131,7 +131,82 @@
       <p>🔗 smartwerk.nl/portfolio/your-name</p>
     </footer>
   </div>
+<!-- 🚀 Firebase інтеграція + autofill + Firestore save -->
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = (id) => document.getElementById(id);
+
+/* 🧩 Auto-fill із profile.html */
+async function autofillFromProfile(uid){
+  try{
+    const ref = doc(db, "users", uid, "settings", "profile");
+    const snap = await getDoc(ref);
+    if(snap.exists()){
+      const p = snap.data();
+      if($("fullName") && p.businessName) $("fullName").value = p.businessName;
+      if($("email") && p.businessEmail) $("email").value = p.businessEmail;
+      if($("phone") && p.businessPhone) $("phone").value = p.businessPhone;
+      console.log("✅ CV auto-filled from profile");
+    } else {
+      console.warn("⚠️ No profile data found for CV autofill");
+    }
+  }catch(e){ console.warn("Profile load error:", e); }
+}
+
+/* 💾 Firestore Save */
+async function saveCVFirestore(){
+  const user = auth.currentUser;
+  if(!user){ alert("Please log in again"); return; }
+
+  const data = {
+    fullName: $("fullName")?.value || "",
+    title: $("title")?.value || "",
+    email: $("email")?.value || "",
+    phone: $("phone")?.value || "",
+    website: $("website")?.value || "",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  try{
+    await setDoc(doc(db,"users",user.uid,"cv","data"), data);
+    await addDoc(collection(db,"users",user.uid,"events"), {
+      type:"CV Saved", message:"CV updated", createdAt:serverTimestamp()
+    });
+    alert("✅ CV saved to Firestore");
+  }catch(e){ console.error("Firestore error:", e); alert("⚠️ Firestore error: "+e.message); }
+}
+
+/* 🔁 Auto-init */
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){ return; }
+  await autofillFromProfile(user.uid);
+  const saveBtn = document.getElementById("btnSaveCV");
+  if(saveBtn){
+    saveBtn.addEventListener("click",(e)=>{
+      e.preventDefault();
+      saveCVFirestore();
+    });
+  }
+});
+</script>
+
+  
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const fields = ["fullName", "title", "email", "phone", "website"];
