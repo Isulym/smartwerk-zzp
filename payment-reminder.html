@@ -337,10 +337,7 @@ async function loadProfileData(uid) {
     if (p.email) $("email").value = p.email;
     if (p.businessAddress) $("businessAddress").value = p.businessAddress;
     if (p.businessPhone) $("businessPhone").value = p.businessPhone;
-    if (p.kvk) $("kvk").value = p.kvk;
-    if (p.iban) $("iban").value = p.iban;
-    if (p.btw) $("btw").value = p.btw;
-
+   
     console.log("✅ Business info auto-filled from profile");
   } catch (e) {
     console.error("Profile load error:", e);
