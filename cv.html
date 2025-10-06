@@ -29,8 +29,8 @@
   <div class="personal-info-custom">
     <div class="form-row">
       <div class="form-group">
-        <label for="businessName">businessName</label>
-        <input type="text" id="businessName" placeholder="Full Name">
+        <label for="businessNameInput">Full Name / Business Name</label>
+        <input type="text" id="businessNameInput" placeholder="Full Name">
       </div>
       <div class="form-group">
         <label for="email">Email</label>
@@ -175,10 +175,16 @@ async function autofillFromProfile(uid){
     return;
   }
   // map різних назв полів
-  setIfEmpty("businessName", p.businessName ?? p.businessName ?? p.businessName ?? "");
-  setIfEmpty("email",    p.email ?? p.email);
-  setIfEmpty("businessPhone",    p.businessPhone ?? p.businessPhone);
-  setIfEmpty("website",  p.website);
+  
+setIfEmpty("businessNameInput", p.businessName ?? p.fullName ?? p.name ?? "");
+setIfEmpty("email",           p.email ?? p.businessEmail ?? "");
+setIfEmpty("businessPhone",   p.businessPhone ?? p.phone ?? "");
+setIfEmpty("website",         p.website ?? "");
+
+const ev = new Event("input",{bubbles:true});
+["businessNameInput","email","businessPhone","website"].forEach(id=>{
+  const el=$(id); if(el) el.dispatchEvent(ev);
+});
 
   // оновити прев’ю (твій основний скрипт слухає input)
   const ev = new Event("input",{bubbles:true});
@@ -222,14 +228,14 @@ onAuthStateChanged(auth, async(user)=>{
   
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const fields = ["businessName", "title", "email", "businessPhone", "website"];
-  const previewMap = {
-    businessName: "businessName",
-    title: "titlePreview",
-    email: null,
-    businessPhone: null,
-    website: null,
-  };
+  const fields = ["businessNameInput", "title", "email", "businessPhone", "website"];
+const previewMap = {
+  businessNameInput: "businessNamePreview",
+  title: "titlePreview",
+  email: null,
+  businessPhone: null,
+  website: null,
+};
 
   // 🔄 Live Preview
   fields.forEach((id) => {
@@ -247,11 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateContactsPreview() {
-    const businessName = document.getElementById("businessName")?.value || "";
-    const email = document.getElementById("email")?.value || "";
-    const businessPhone = document.getElementById("businessPhone")?.value || "";
-    const website = document.getElementById("website")?.value || "";
-    const contactText = [businessName, email, businessPhone, website].filter(Boolean).join(" · ");
+    const email         = document.getElementById("email")?.value || "";
+const businessPhone = document.getElementById("businessPhone")?.value || "";
+const website       = document.getElementById("website")?.value || "";
+const contactText   = [email, businessPhone, website].filter(Boolean).join(" · ");
     document.getElementById("contactsPreview").innerText = contactText || "—";
   }
 
@@ -361,7 +366,7 @@ loadProposalContent();
     const doc = new jsPDF("p", "mm", "a4");
     const isPRO = document.getElementById("noBranding")?.checked; // PRO-чекбокс
 
-    const businessName = document.getElementById("businessName")?.value || "businessName";
+   const businessName = document.getElementById("businessNameInput")?.value || "Your Name";
     const title = document.getElementById("title")?.value || "";
     const email = document.getElementById("email")?.value || "";
     const businessPhone = document.getElementById("businessPhone")?.value || "";
@@ -370,7 +375,7 @@ loadProposalContent();
     let y = 20;
 
     // 🔹 Обкладинка
-    doc.setFontSize(22).setFont("helvetica", "bold").text(name, 20, y);
+    doc.setFontSize(22).setFont("helvetica", "bold").text(businessName, 20, y);
     y += 8;
     if (title) doc.setFontSize(14).setFont("helvetica", "normal").text(title, 20, y), y += 8;
     doc.setFontSize(11);
