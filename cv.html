@@ -175,7 +175,7 @@ async function autofillFromProfile(uid){
     return;
   }
   // map різних назв полів
-  setIfEmpty("businessPhone", p.businessName ?? p.businessPhone);
+  setIfEmpty("businessName", p.businessName ?? p.businessName);
   setIfEmpty("email",    p.email ?? p.email);
   setIfEmpty("businessPhone",    p.businessPhone ?? p.businessPhone);
   setIfEmpty("website",  p.website);
@@ -193,7 +193,7 @@ async function saveCVFirestore(){
   if(!user){ alert("Please log in again"); return; }
 
   const data={
-    businessPhone: $("businessPhone")?.value || "",
+    businessName: $("businessName")?.value || "",
     title:    $("title")?.value || "",
     email:    $("email")?.value || "",
     businessPhone:    $("businessPhone")?.value || "",
@@ -360,7 +360,7 @@ loadProposalContent();
     const doc = new jsPDF("p", "mm", "a4");
     const isPRO = document.getElementById("noBranding")?.checked; // PRO-чекбокс
 
-    const name = document.getElementById("businessName")?.value || "Your Name";
+    const businessName = document.getElementById("businessName")?.value || "Your Name";
     const title = document.getElementById("title")?.value || "";
     const email = document.getElementById("email")?.value || "";
     const businessPhone = document.getElementById("businessPhone")?.value || "";
