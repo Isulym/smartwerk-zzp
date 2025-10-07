@@ -16,7 +16,8 @@
     .btn{background:#475569;color:#fff;padding:10px 16px;border:none;border-radius:8px;cursor:pointer;}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;}
     #smartSuggestModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);
-      display:none;align-items:center;justify-content:center;z-index:1000;}
+      display:none;align-items:center;justify-content:center;z-index:1000;pointer-events:none;}
+    #smartSuggestModal.active{display:flex;pointer-events:all;}
     .modal-content{background:#1e293b;padding:20px;border-radius:12px;width:90%;max-width:400px;text-align:center;}
     .suggest-btn{display:block;width:100%;padding:10px;margin:8px 0;border:none;border-radius:8px;
       background:#3b82f6;color:#fff;font-size:15px;cursor:pointer;}
@@ -184,12 +185,24 @@
     const db = getFirestore(app);
 
     const $ = (id)=>document.getElementById(id);
-    const setTextSafe = (id, val)=>{
-      const el = $(id);
-      if (el) el.innerText = val;
-    };
 
-    // === Генерація ID (транзакційно)
+    async function readProfile(uid){
+      // пробуємо обидва варіанти
+      const p1 = await getDoc(doc(db,"users",uid,"settings","profile"));
+      if(p1.exists()) return p1.data();
+      const p2 = await getDoc(doc(db,"users",uid,"profile","main"));
+      if(p2.exists()) return p2.data();
+      return null;
+    }
+
+    async function autofillProfile(uid){
+      const p = await readProfile(uid);
+      if(!p) return;
+      if($("#businessName")) $("#businessName").value=p.businessName||"";
+      if($("#email")) $("#email").value=p.email||"";
+      if($("#businessAddress")) $("#businessAddress").value=p.businessAddress||"";
+    }
+
     async function generateExpenseId(uid){
       const ref = doc(db,"users",uid);
       const year = new Date().getFullYear();
@@ -204,133 +217,77 @@
       return out;
     }
 
-    // === Розрахунок Total (безпечний)
     function updateTotals(){
-      const amountEl = $("#amount");
-      const vatEl    = $("#vat");
-      if(!amountEl || !vatEl) return; // елементи ще не підключені
-
-      const amt = parseFloat(amountEl.value||0);
-      const vat = parseFloat(vatEl.value||0);
-      const vatAmt = (amt * vat / 100) || 0;
-      const total  = amt + vatAmt;
-
-      setTextSafe("subtotalDisplay", `€${amt.toFixed(2)}`);
-      setTextSafe("vatDisplay",      `€${vatAmt.toFixed(2)}`);
-      setTextSafe("totalDisplay",    `€${total.toFixed(2)}`);
+      const amt=parseFloat($("#amount")?.value||0);
+      const vat=parseFloat($("#vat")?.value||0);
+      const vatAmt=(amt*vat/100)||0;
+      const total=amt+vatAmt;
+      $("#subtotalDisplay").innerText=`€${amt.toFixed(2)}`;
+      $("#vatDisplay").innerText=`€${vatAmt.toFixed(2)}`;
+      $("#totalDisplay").innerText=`€${total.toFixed(2)}`;
     }
 
-    // === Smart Suggest Modal
-    function bindSmartSuggest(){
-      const btn=$("#smartSuggestBtn");
+    function initSmartSuggest(){
       const modal=$("#smartSuggestModal");
-      const hint=$("#smartHint");
+      const btn=$("#smartSuggestBtn");
+      const close=$("#closeSuggest");
       const cat=$("#category");
-      const closeBtn=$("#closeSuggest");
+      const hint=$("#smartHint");
 
-      if(btn) btn.addEventListener("click",()=>{ if(modal) modal.style.display="flex"; });
-      if(closeBtn) closeBtn.addEventListener("click",()=>{ if(modal) modal.style.display="none"; });
+      btn?.addEventListener("click",()=>modal.classList.add("active"));
+      close?.addEventListener("click",()=>modal.classList.remove("active"));
 
       document.querySelectorAll(".suggest-btn").forEach(el=>{
         el.addEventListener("click",()=>{
-          if(cat) cat.value=el.dataset.cat||"";
-          if(modal) modal.style.display="none";
-          if(hint){
-            hint.textContent=`✅ Category set to: ${el.dataset.cat}`;
-            hint.style.display="block";
-            setTimeout(()=>hint.style.display="none",2500);
-          }
+          cat.value=el.dataset.cat;
+          modal.classList.remove("active");
+          hint.innerText=`✅ Category: ${el.dataset.cat}`;
+          hint.style.display="block";
+          setTimeout(()=>hint.style.display="none",2500);
         });
       });
     }
 
-    // === Автозаповнення профілю
-    async function autofillProfile(uid){
-      try{
-        const snap=await getDoc(doc(db,"users",uid,"settings","profile"));
-        if(snap.exists()){
-          const p=snap.data();
-          if($("#businessName")) $("#businessName").value=p.businessName||"";
-          if($("#email")) $("#email").value=p.email||"";
-          if($("#businessAddress")) $("#businessAddress").value=p.businessAddress||"";
-        }
-      }catch(e){console.warn("Profile autofill error:",e);}
-    }
-
-    // === Збереження у Firestore
     async function saveExpense(uid){
-      const id = $("#expenseId")?.value || await generateExpenseId(uid);
-      const amt = parseFloat($("#amount")?.value||0);
-      const vat = parseFloat($("#vat")?.value||0);
-      const vatAmt = amt*vat/100;
-      const total  = amt+vatAmt;
+      const id=$("#expenseId").value||await generateExpenseId(uid);
+      const amt=parseFloat($("#amount").value||0);
+      const vat=parseFloat($("#vat").value||0);
+      const vatAmt=amt*vat/100;
+      const total=amt+vatAmt;
 
       const data={
         expenseId:id,
-        date:$("#date")?.value||"",
-        description:$("#description")?.value||"",
-        type:$("#type")?.value||"One-time",
-        category:$("#category")?.value||"",
-        country:$("#country")?.value||"Netherlands",
-        amount:amt,
-        vatPercent:vat,
-        vatAmount:vatAmt,
-        total:total,
-        invoiceAttached:$("#invoiceAttached")?.value||"No",
-        paymentMethod:$("#paymentMethod")?.value||"Bank",
-        status:$("#status")?.value||"Paid",
-        notes:$("#notes")?.value||"",
-        businessName:$("#businessName")?.value||"",
-        email:$("#email")?.value||"",
-        businessAddress:$("#businessAddress")?.value||"",
+        date:$("#date").value,
+        description:$("#description").value,
+        type:$("#type").value,
+        category:$("#category").value,
+        country:$("#country").value,
+        amount:amt,vatPercent:vat,vatAmount:vatAmt,total:total,
+        invoiceAttached:$("#invoiceAttached").value,
+        paymentMethod:$("#paymentMethod").value,
+        status:$("#status").value,
+        notes:$("#notes").value,
+        businessName:$("#businessName").value,
+        email:$("#email").value,
+        businessAddress:$("#businessAddress").value,
         createdAt:serverTimestamp()
       };
       await addDoc(collection(db,"users",uid,"expenses"),data);
-      await addDoc(collection(db,"users",uid,"events"),{type:"Expense Created",message:`${id} saved`,createdAt:serverTimestamp()});
-      alert("✅ Expense saved successfully!");
-      if($("#expenseId")) $("#expenseId").value=id;
+      alert("✅ Expense saved!");
     }
 
-    // === INIT (гарантія порядку ініціалізації)
-    function initDOMBindings(){
-      // live totals
-      ["amount","vat"].forEach(id=>{
-        const el=$("#"+id);
-        if(el) el.addEventListener("input",updateTotals);
-      });
-      bindSmartSuggest();
-      updateTotals(); // перший розрахунок після монтування DOM
-    }
+    document.addEventListener("DOMContentLoaded",()=>{
+      ["amount","vat"].forEach(id=>$("#"+id)?.addEventListener("input",updateTotals));
+      initSmartSuggest();
+    });
 
-    // Спочатку чекаємо DOM, потім під’єднуємо все інше
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initDOMBindings);
-    } else {
-      initDOMBindings();
-    }
-
-    onAuthStateChanged(auth, async(user)=>{
+    onAuthStateChanged(auth,async(user)=>{
       if(!user){ location.href="login.html"; return; }
       await autofillProfile(user.uid);
-
-      // генеруємо ID лише коли DOM точно готовий (щоб поле існувало)
-      const ensureId = async ()=>{
-        const id = await generateExpenseId(user.uid);
-        const el = $("#expenseId");
-        if (el) el.value = id;
-      };
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", ensureId, { once:true });
-      } else {
-        await ensureId();
-      }
-
-      // Кнопки дій
-      const saveBtn = $("#saveBtn");
-      if (saveBtn) saveBtn.addEventListener("click", ()=>saveExpense(user.uid));
-
-      const viewBtn = $("#viewBtn");
-      if (viewBtn) viewBtn.addEventListener("click", ()=>location.href="expense-csv-list.html");
+      const newId = await generateExpenseId(user.uid);
+      $("#expenseId").value=newId;
+      $("#saveBtn").addEventListener("click",()=>saveExpense(user.uid));
+      $("#viewBtn").addEventListener("click",()=>location.href="expense-csv-list.html");
     });
   </script>
 </body>
