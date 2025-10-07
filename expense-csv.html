@@ -186,21 +186,30 @@
 
     const $ = (id)=>document.getElementById(id);
 
+    // читання профілю з будь-якого місця
     async function readProfile(uid){
-      // пробуємо обидва варіанти
-      const p1 = await getDoc(doc(db,"users",uid,"settings","profile"));
-      if(p1.exists()) return p1.data();
-      const p2 = await getDoc(doc(db,"users",uid,"profile","main"));
-      if(p2.exists()) return p2.data();
+      const paths = [
+        ["users", uid, "settings", "profile"],
+        ["users", uid, "profile", "main"],
+        ["users", uid]
+      ];
+      for (const p of paths){
+        try {
+          const ref = doc(db, ...p);
+          const snap = await getDoc(ref);
+          if (snap.exists()) return snap.data();
+        } catch(_){}
+      }
       return null;
     }
 
     async function autofillProfile(uid){
       const p = await readProfile(uid);
-      if(!p) return;
-      if($("#businessName")) $("#businessName").value=p.businessName||"";
-      if($("#email")) $("#email").value=p.email||"";
-      if($("#businessAddress")) $("#businessAddress").value=p.businessAddress||"";
+      if(!p) { console.warn("⚠️ Profile not found"); return; }
+      if($("#businessName")) $("#businessName").value = p.businessName || "";
+      if($("#email")) $("#email").value = p.email || "";
+      if($("#businessAddress")) $("#businessAddress").value = p.businessAddress || "";
+      console.log("✅ Profile autofilled");
     }
 
     async function generateExpenseId(uid){
@@ -249,7 +258,7 @@
     }
 
     async function saveExpense(uid){
-      const id=$("#expenseId").value||await generateExpenseId(uid);
+      const id=$("#expenseId").value || await generateExpenseId(uid);
       const amt=parseFloat($("#amount").value||0);
       const vat=parseFloat($("#vat").value||0);
       const vatAmt=amt*vat/100;
@@ -281,40 +290,30 @@
       initSmartSuggest();
     });
 
-    onAuthStateChanged(auth, async (user) => {
-  if (!user) { 
-    location.href = "login.html"; 
-    return; 
-  }
-
-  // чекаємо DOM
-  const waitForElement = (id) => new Promise(resolve => {
-    const el = document.getElementById(id);
-    if (el) return resolve(el);
-    const observer = new MutationObserver(() => {
-      const found = document.getElementById(id);
-      if (found) {
-        observer.disconnect();
-        resolve(found);
-      }
+    // безпечне очікування DOM для елементів
+    const waitForEl = id => new Promise(resolve=>{
+      const el = document.getElementById(id);
+      if(el) return resolve(el);
+      const obs = new MutationObserver(()=>{
+        const found = document.getElementById(id);
+        if(found){ obs.disconnect(); resolve(found); }
+      });
+      obs.observe(document.body,{childList:true,subtree:true});
     });
-    observer.observe(document.body, { childList: true, subtree: true });
-  });
 
-  await autofillProfile(user.uid);
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href="login.html"; return; }
 
-  // чекаємо поле expenseId і тільки потім встановлюємо ID
-  const idEl = await waitForElement("expenseId");
-  const newId = await generateExpenseId(user.uid);
-  idEl.value = newId;
+      await autofillProfile(user.uid);
+      const idEl = await waitForEl("expenseId");
+      const newId = await generateExpenseId(user.uid);
+      idEl.value = newId;
 
-  // додаємо кнопки тільки після появи у DOM
-  const saveBtn = document.getElementById("saveBtn");
-  const viewBtn = document.getElementById("viewBtn");
-
-  if (saveBtn) saveBtn.addEventListener("click", () => saveExpense(user.uid));
-  if (viewBtn) viewBtn.addEventListener("click", () => location.href = "expense-csv-list.html");
-});
+      const saveBtn = await waitForEl("saveBtn");
+      const viewBtn = await waitForEl("viewBtn");
+      saveBtn.addEventListener("click",()=>saveExpense(user.uid));
+      viewBtn.addEventListener("click",()=>location.href="expense-csv-list.html");
+    });
   </script>
 </body>
 </html>
