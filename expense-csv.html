@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>💰 SmartWerk — Expense Tracker (PRO)</title>
-  <link rel="stylesheet" href="style-expense-csv.css"/>
+  <link rel="stylesheet" href="style-invoices.css"/>
   <style>
     body { background:#0f172a; color:#e5e7eb; font-family:'Inter',sans-serif; }
     h1,h2{color:#fff;}
@@ -170,7 +170,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, addDoc, collection, runTransaction, serverTimestamp } 
+    import { getFirestore, doc, getDoc, addDoc, collection, runTransaction, serverTimestamp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -182,9 +182,14 @@
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const $ = (id)=>document.getElementById(id);
 
-    // === Генерація ID
+    const $ = (id)=>document.getElementById(id);
+    const setTextSafe = (id, val)=>{
+      const el = $(id);
+      if (el) el.innerText = val;
+    };
+
+    // === Генерація ID (транзакційно)
     async function generateExpenseId(uid){
       const ref = doc(db,"users",uid);
       const year = new Date().getFullYear();
@@ -199,15 +204,20 @@
       return out;
     }
 
-    // === Розрахунок Total
+    // === Розрахунок Total (безпечний)
     function updateTotals(){
-      const amt=parseFloat($("#amount")?.value||0);
-      const vat=parseFloat($("#vat")?.value||0);
-      const vatAmt=(amt*vat/100)||0;
-      const total=amt+vatAmt;
-      $("#subtotalDisplay").innerText=`€${amt.toFixed(2)}`;
-      $("#vatDisplay").innerText=`€${vatAmt.toFixed(2)}`;
-      $("#totalDisplay").innerText=`€${total.toFixed(2)}`;
+      const amountEl = $("#amount");
+      const vatEl    = $("#vat");
+      if(!amountEl || !vatEl) return; // елементи ще не підключені
+
+      const amt = parseFloat(amountEl.value||0);
+      const vat = parseFloat(vatEl.value||0);
+      const vatAmt = (amt * vat / 100) || 0;
+      const total  = amt + vatAmt;
+
+      setTextSafe("subtotalDisplay", `€${amt.toFixed(2)}`);
+      setTextSafe("vatDisplay",      `€${vatAmt.toFixed(2)}`);
+      setTextSafe("totalDisplay",    `€${total.toFixed(2)}`);
     }
 
     // === Smart Suggest Modal
@@ -218,13 +228,13 @@
       const cat=$("#category");
       const closeBtn=$("#closeSuggest");
 
-      if(btn) btn.addEventListener("click",()=>modal.style.display="flex");
-      if(closeBtn) closeBtn.addEventListener("click",()=>modal.style.display="none");
+      if(btn) btn.addEventListener("click",()=>{ if(modal) modal.style.display="flex"; });
+      if(closeBtn) closeBtn.addEventListener("click",()=>{ if(modal) modal.style.display="none"; });
 
       document.querySelectorAll(".suggest-btn").forEach(el=>{
         el.addEventListener("click",()=>{
           if(cat) cat.value=el.dataset.cat||"";
-          modal.style.display="none";
+          if(modal) modal.style.display="none";
           if(hint){
             hint.textContent=`✅ Category set to: ${el.dataset.cat}`;
             hint.style.display="block";
@@ -249,59 +259,78 @@
 
     // === Збереження у Firestore
     async function saveExpense(uid){
-      const id=$("#expenseId").value||await generateExpenseId(uid);
-      const amt=parseFloat($("#amount").value||0);
-      const vat=parseFloat($("#vat").value||0);
-      const vatAmt=amt*vat/100;
-      const total=amt+vatAmt;
+      const id = $("#expenseId")?.value || await generateExpenseId(uid);
+      const amt = parseFloat($("#amount")?.value||0);
+      const vat = parseFloat($("#vat")?.value||0);
+      const vatAmt = amt*vat/100;
+      const total  = amt+vatAmt;
 
       const data={
         expenseId:id,
-        date:$("#date").value,
-        description:$("#description").value,
-        type:$("#type").value,
-        category:$("#category").value,
-        country:$("#country").value,
+        date:$("#date")?.value||"",
+        description:$("#description")?.value||"",
+        type:$("#type")?.value||"One-time",
+        category:$("#category")?.value||"",
+        country:$("#country")?.value||"Netherlands",
         amount:amt,
         vatPercent:vat,
         vatAmount:vatAmt,
         total:total,
-        invoiceAttached:$("#invoiceAttached").value,
-        paymentMethod:$("#paymentMethod").value,
-        status:$("#status").value,
-        notes:$("#notes").value,
-        businessName:$("#businessName").value,
-        email:$("#email").value,
-        businessAddress:$("#businessAddress").value,
+        invoiceAttached:$("#invoiceAttached")?.value||"No",
+        paymentMethod:$("#paymentMethod")?.value||"Bank",
+        status:$("#status")?.value||"Paid",
+        notes:$("#notes")?.value||"",
+        businessName:$("#businessName")?.value||"",
+        email:$("#email")?.value||"",
+        businessAddress:$("#businessAddress")?.value||"",
         createdAt:serverTimestamp()
       };
       await addDoc(collection(db,"users",uid,"expenses"),data);
       await addDoc(collection(db,"users",uid,"events"),{type:"Expense Created",message:`${id} saved`,createdAt:serverTimestamp()});
       alert("✅ Expense saved successfully!");
-      $("#expenseId").value=id;
+      if($("#expenseId")) $("#expenseId").value=id;
     }
 
-    // === INIT
-    function initListeners(){
+    // === INIT (гарантія порядку ініціалізації)
+    function initDOMBindings(){
+      // live totals
       ["amount","vat"].forEach(id=>{
         const el=$("#"+id);
         if(el) el.addEventListener("input",updateTotals);
       });
       bindSmartSuggest();
+      updateTotals(); // перший розрахунок після монтування DOM
     }
 
-    if(document.readyState==="loading"){
-      document.addEventListener("DOMContentLoaded",initListeners);
-    }else initListeners();
+    // Спочатку чекаємо DOM, потім під’єднуємо все інше
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initDOMBindings);
+    } else {
+      initDOMBindings();
+    }
 
-    onAuthStateChanged(auth,async(user)=>{
-      if(!user){location.href="login.html";return;}
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href="login.html"; return; }
       await autofillProfile(user.uid);
-      const id=await generateExpenseId(user.uid);
-      if($("#expenseId")) $("#expenseId").value=id;
-      if($("#saveBtn")) $("#saveBtn").addEventListener("click",()=>saveExpense(user.uid));
-      if($("#viewBtn")) $("#viewBtn").addEventListener("click",()=>location.href="expense-csv-list.html");
-      updateTotals();
+
+      // генеруємо ID лише коли DOM точно готовий (щоб поле існувало)
+      const ensureId = async ()=>{
+        const id = await generateExpenseId(user.uid);
+        const el = $("#expenseId");
+        if (el) el.value = id;
+      };
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", ensureId, { once:true });
+      } else {
+        await ensureId();
+      }
+
+      // Кнопки дій
+      const saveBtn = $("#saveBtn");
+      if (saveBtn) saveBtn.addEventListener("click", ()=>saveExpense(user.uid));
+
+      const viewBtn = $("#viewBtn");
+      if (viewBtn) viewBtn.addEventListener("click", ()=>location.href="expense-csv-list.html");
     });
   </script>
 </body>
