@@ -1,200 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📧 Email to Gemeente — SmartWerk</title>
-  <link rel="stylesheet" href="style-email.css"/>
+  <title>📧 Email to Gemeente - SmartWerk</title>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="style-email.css" />
 </head>
 <body>
-  <div class="topbar">
-    <nav>
-      <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="templates.html" class="btn">← Templates</a>
-    </nav>
+    <div class="topbar">
+  <nav>
+    <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+    <a href="templates.html" class="btn">← Back to Templates</a>
+  </nav>
+</div>
+
+  <div class="email-form">
+  <div class="form-row">
+    <label>📍 City:</label>
+    <input type="text" id="city" placeholder="City" />
   </div>
 
-  <main class="email-form">
-    <h1>📬 Email to Gemeente</h1>
+  <div class="form-row">
+    <label>📅 Today:</label>
+    <input type="date" id="todayDate" />
+  </div>
 
-    <section>
-      <label>📍 City:</label>
-      <input id="city" placeholder="City name"/>
-    </section>
+  <div class="form-row">
+    <label>📨 To Gemeente:</label>
+    <input type="text" id="toGemeente" placeholder="Gemeente Name" />
+  </div>
 
-    <section>
-      <label>📅 Date:</label>
-      <input id="todayDate" type="date"/>
-    </section>
+  <div class="form-row">
+    <label>📧 To Email:</label>
+    <input type="email" id="toEmail" placeholder="gemeente@example.nl" />
+  </div>
 
-    <section>
-      <label>📨 To Gemeente:</label>
-      <input id="toGemeente" placeholder="Gemeente Name"/>
-      <input id="toEmail" placeholder="info@gemeente.nl"/>
-    </section>
+  <div class="form-row">
+    <label>📤 Subject:</label>
+    <input type="text" id="subject" placeholder="Subject" />
+  </div>
 
-    <section>
-      <label>📤 Subject:</label>
-      <input id="subject" placeholder="Subject..."/>
-    </section>
+  <div class="form-row">
+    <label>📝 Message:</label>
+    <textarea id="messageBody" rows="6" placeholder="Write your message..."></textarea>
+  </div>
 
-    <section>
-      <label>📝 Message:</label>
-      <textarea id="messageBody" rows="8" placeholder="Write your message..."></textarea>
-    </section>
+  <div class="form-row">
+    <label for="businessName">Full Name / Business Name</label>
+        <input type="text" id="businessName" placeholder="Full Name">
+  </div>
 
-    <section>
-      <label>👤 Your Details:</label>
-      <input id="businessName" placeholder="Full Name / Business Name"/>
-      <input id="email" placeholder="Your Email"/>
-      <input id="businessAddress" placeholder="Business Address"/>
-    </section>
+  <div class="form-row">
+   <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com">
+  </div>
 
-    <section>
-      <label>✍️ Signature:</label>
-      <textarea id="signature" rows="3" placeholder="Kind regards,"></textarea>
-    </section>
+  <div class="form-row">
+    <label>🏠 businessAddress:</label>
+    <input type="text" id="businessAddress" placeholder="City,Street" />
+  </div>
 
-    <section class="actions">
-      <button id="aiFillBtn" class="btn small">🤖 AI Fill</button>
-      <button id="translateBtn" class="btn small">🌐 Translate</button>
-      <button id="loadExampleBtn" class="btn small">📂 Load Example</button>
-    </section>
+  <div class="form-row">
+    <label>✍️ Signature:</label>
+    <textarea id="signature" placeholder="Your name, closing..." rows="3"></textarea>
+  </div>
 
-    <section class="buttons">
-      <button id="sendEmailBtn" class="btn-primary">📤 Send Email</button>
-      <button id="saveEmailBtn" class="btn">💾 Save</button>
-      <button id="viewSavedBtn" class="btn">📂 View Saved</button>
-      <button id="exportPDFBtn" class="btn">📄 Export PDF</button>
-    </section>
+  <div class="form-row">
+    <label>🌐 Language:</label>
+    <select id="languageSelect">
+      <option value="en">English</option>
+      <option value="nl">Nederlands</option>
+    </select>
+    <button id="translateBtn" class="btn small">🌐 Translate</button>
+  </div>
 
-    <label class="pro-toggle">
-      <input type="checkbox" id="proPdfCheckbox"/> Export without branding (PRO)
-    </label>
-  </main>
+  <div class="form-row">
+    <label>🧠 AI Example:</label>
+    <select id="exampleSelect">
+      <option value="subsidy">Energy Subsidy</option>
+      <option value="complaint">Complaint</option>
+      <option value="housing">Urgent Housing</option>
+    </select>
+    <button id="loadExampleBtn" class="btn small">📂 Load Example</button>
+    <button id="aiFillBtn" class="btn small">🤖 AI Fill</button>
+  </div>
 
-  <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+  <div class="button-group">
+    <button id="sendEmailBtn" class="btn">📤 Send via Email</button>
+    <button id="btn-save-email" class="btn">💾 Save Email</button>
+    <button id="btn-view-saved" class="btn">📂 View Saved Emails</button>
+    <button id="btn-export-pdf" class="btn">📄 Export PDF</button>
+  </div>
+    <label style="margin-left: 10px;">
+  <input type="checkbox" id="proPdfCheckbox" />
+  Enable PRO (no branding in PDF)
+</label>
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
+<!-- Saved Emails Modal -->
+<div id="savedEmailsModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>📂 Saved Emails</h3>
+    <div id="savedEmailsList"></div>
+    <button class="btn" onclick="document.getElementById('savedEmailsModal').style.display='none'">✖ Close</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const $ = (id)=>document.getElementById(id);
+
+async function readProfile(uid){
+  try{
+    const r1 = await getDoc(doc(db,"users",uid,"settings","profile"));
+    if(r1.exists()) return { ...r1.data(), __source:"settings/profile" };
+  }catch(_){}
+  try{
+    const r2 = await getDoc(doc(db,"users",uid));
+    if(r2.exists()) return { ...r2.data(), __source:"users_root" };
+  }catch(_){}
+  return null;
+}
+
+function setIfEmpty(id, val){
+  const el=$(id);
+  if(!el) return;
+  if(!el.value) el.value = val ?? "";
+}
+
+async function autofillFromProfile(uid){
+  const p = await readProfile(uid);
+  if(!p){
+    console.warn("⚠️ No profile data found for email-gemeente autofill");
+    return;
+  }
+
+  setIfEmpty("businessName", p.businessName ?? "");
+  setIfEmpty("email", p.email ?? "");
+  setIfEmpty("businessAddress", p.businessAddress ?? "");
+
+  console.log(`✅ Gemeente email auto-filled from ${p.__source}`);
+}
+
+onAuthStateChanged(auth, async(user)=>{
+  if(!user) return;
+  await autofillFromProfile(user.uid);
+});
+</script>
+  
+
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const get = (id) => document.getElementById(id)?.value || "";
+
+  // Auto-fill today's date
+  const todayField = document.getElementById("todayDate");
+  if (todayField) todayField.value = new Date().toISOString().slice(0, 10);
+
+  // === AI Fill ===
+// AI Fill (заповнює ВСІ поля)
+document.getElementById("aiFillBtn")?.addEventListener("click", () => {
+  document.getElementById("fromName").value = "Ihor";
+  document.getElementById("fromEmail").value = "smartwerk.team@gmail.com";
+  document.getElementById("fromAddress").value = "Nieuwstraat 10, 5211DC Den Bosch";
+  document.getElementById("toGemeente").value = "Gemeente Den Bosch";
+  document.getElementById("toEmail").value = "info@denbosch.nl";
+  document.getElementById("subject").value = "Urgent housing request";
+  document.getElementById("messageBody").value =
+    "Dear Gemeente,\n\nI am urgently looking for housing for my family. I kindly ask for assistance or advice on available options.\n\nThank you.";
+  document.getElementById("signature").value = "Ihor A.I";
+  document.getElementById("city").value = "Den Bosch";
+  document.getElementById("todayDate").value = new Date().toISOString().slice(0, 10);
+
+  // підсвітка всіх полів як заповнених AI
+  document.querySelectorAll("textarea, input").forEach((el) => {
+    if (el.value) el.classList.add("ai-filled");
+  });
+});
+
+  // === Load Example ===
+  document.getElementById("loadExampleBtn")?.addEventListener("click", () => {
+    const type = document.getElementById("exampleSelect").value;
+    if (type === "subsidy") {
+      document.getElementById("subject").value = "Request for energy subsidy";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI would like to request an energy subsidy due to financial challenges. Please let me know the required steps and documentation.\n\nThank you.";
+    } else if (type === "complaint") {
+      document.getElementById("subject").value = "Formal Complaint";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI am submitting this complaint regarding an unresolved issue. I kindly ask for a formal response and solution.\n\nSincerely.";
+    } else if (type === "housing") {
+      document.getElementById("subject").value = "Urgent housing request";
+      document.getElementById("messageBody").value =
+        "Dear Gemeente,\n\nI am urgently looking for housing for my family. I kindly ask for assistance or advice on available options.\n\nThank you.";
+    }
+  });
+
+  // === Translate Placeholder ===
+document.getElementById("translateBtn")?.addEventListener("click", () => {
+  const lang = document.getElementById("languageSelect").value;
+
+  // placeholders
+  if (lang === "nl") {
+    document.getElementById("subject").placeholder = "Onderwerp";
+    document.getElementById("messageBody").placeholder = "Typ je bericht...";
+    document.getElementById("fromName").placeholder = "Jouw naam";
+    document.getElementById("fromEmail").placeholder = "Jouw e-mailadres";
+  } else {
+    document.getElementById("subject").placeholder = "Subject";
+    document.getElementById("messageBody").placeholder = "Write your message...";
+    document.getElementById("fromName").placeholder = "Your name";
+    document.getElementById("fromEmail").placeholder = "Your email address";
+  }
+
+  // переклад вмісту messageBody, якщо воно пусте або було заповнене AI
+  const messageField = document.getElementById("messageBody");
+  const defaultEN = "Dear Gemeente,\n\nI am urgently looking for housing for my family. I kindly ask for assistance or advice on available options.\n\nThank you.";
+  const defaultNL = "Beste Gemeente,\n\nIk ben dringend op zoek naar huisvesting voor mijn gezin. Ik vraag vriendelijk om hulp of advies over beschikbare opties.\n\nDank u.";
+
+  if (
+    messageField &&
+    (messageField.value.trim() === "" || messageField.classList.contains("ai-filled"))
+  ) {
+    messageField.value = lang === "nl" ? defaultNL : defaultEN;
+    messageField.classList.add("ai-filled");
+  }
+});
+
+  // === Save Email ===
+  document.getElementById("btn-save-email")?.addEventListener("click", () => {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    const email = {
+      fromName: get("fromName"),
+      fromEmail: get("fromEmail"),
+      fromAddress: get("fromAddress"),
+      toGemeente: get("toGemeente"),
+      toEmail: get("toEmail"),
+      subject: get("subject"),
+      body: get("messageBody"),
+      date: get("todayDate"),
+      city: get("city"),
+      signature: get("signature"),
     };
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const functions = getFunctions(app);
-    const $ = (id) => document.getElementById(id);
+    saved.push(email);
+    localStorage.setItem("savedEmails", JSON.stringify(saved));
+    alert("✅ Email saved successfully!");
+  });
 
-    async function readProfile(uid){
-      try{
-        const r1 = await getDoc(doc(db,"users",uid,"settings","profile"));
-        if(r1.exists()) return r1.data();
-      }catch{}
-      try{
-        const r2 = await getDoc(doc(db,"users",uid));
-        if(r2.exists()) return r2.data();
-      }catch{}
-      return {};
-    }
-
-    async function autofillFromProfile(uid){
-      const p = await readProfile(uid);
-      if(!p) return;
-      if($("businessName")) $("businessName").value = p.businessName || "";
-      if($("email")) $("email").value = p.email || "";
-      if($("businessAddress")) $("businessAddress").value = p.businessAddress || "";
-      console.log("✅ Auto-filled from profile");
-    }
-
-    async function logActivity(uid, message){
-      await addDoc(collection(db,"users",uid,"events"),{
-        type:"Email Sent", message, createdAt:serverTimestamp()
+  // === View Saved Emails ===
+  document.getElementById("btn-view-saved")?.addEventListener("click", () => {
+    const list = document.getElementById("savedEmailsList");
+    list.innerHTML = "";
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    if (!saved.length) {
+      list.innerHTML = "<p class='muted'>No saved emails yet.</p>";
+    } else {
+      saved.forEach((e, i) => {
+        const div = document.createElement("div");
+        div.className = "email-entry";
+        div.innerHTML = `
+          <strong>${e.subject}</strong> (${e.date}, ${e.city})<br/>
+          To: ${e.toGemeente} — ${e.toEmail}<br/>
+          <button onclick="fillEmail(${i})">📥 Load</button>
+          <button onclick="deleteEmail(${i})">🗑 Delete</button>
+        `;
+        list.appendChild(div);
       });
     }
+    document.getElementById("savedEmailsModal").style.display = "block";
+  });
 
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user) return;
-      await autofillFromProfile(user.uid);
+  window.fillEmail = function (index) {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]")[index];
+    if (!saved) return;
+    document.getElementById("businessName").value = saved.businessName;
+    document.getElementById("email").value = saved.email;
+    document.getElementById("businessAddress").value = saved.businessAddress;
+    document.getElementById("toGemeente").value = saved.toGemeente;
+    document.getElementById("toEmail").value = saved.toEmail;
+    document.getElementById("subject").value = saved.subject;
+    document.getElementById("messageBody").value = saved.body;
+    document.getElementById("todayDate").value = saved.date;
+    document.getElementById("city").value = saved.city;
+   document.getElementById("signature").value =
+  "Met vriendelijke groet,\n" + get("businessName") + "\n" + get("businessAddress");
+    document.getElementById("savedEmailsModal").style.display = "none";
+  };
 
-      $("todayDate").value = new Date().toISOString().split("T")[0];
+  window.deleteEmail = function (index) {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    saved.splice(index, 1);
+    localStorage.setItem("savedEmails", JSON.stringify(saved));
+    document.getElementById("btn-view-saved").click(); // Reload
+  };
 
-      $("aiFillBtn").addEventListener("click",()=>{
-        $("toGemeente").value = "Gemeente Amsterdam";
-        $("toEmail").value = "info@amsterdam.nl";
-        $("subject").value = "Urgent Housing Request";
-        $("messageBody").value = "Dear Gemeente,\n\nI kindly request your assistance regarding urgent housing availability.\n\nKind regards,\n" + $("businessName").value;
-      });
+  // === Send Email ===
+  document.getElementById("sendEmailBtn")?.addEventListener("click", () => {
+    const toEmail = get("toEmail");
+    const subject = get("subject");
+    const body =
+      get("messageBody") +
+      "\n\n" +
+      get("signature") +
+      "\n" +
+      get("todayDate") +
+      " — " +
+      get("city");
+    if (!toEmail || !subject || !body) {
+      alert("❗ Please fill in recipient, subject and message.");
+      return;
+    }
+    const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink, "_blank");
+  });
 
-      $("loadExampleBtn").addEventListener("click",()=>{
-        $("subject").value = "Energy Subsidy Request";
-        $("messageBody").value = "Dear Gemeente,\n\nI would like to request information regarding the energy subsidy program.\n\nSincerely,\n" + $("businessName").value;
-      });
+  // === Export PDF (with/without branding) ===
+ document.getElementById("btn-export-pdf")?.addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 20;
 
-      $("translateBtn").addEventListener("click",()=>{
-        const msg = $("messageBody").value;
-        if(msg.startsWith("Dear")) $("messageBody").value = msg.replace("Dear","Beste").replace("Kind regards","Met vriendelijke groet");
-        else $("messageBody").value = msg.replace("Beste","Dear").replace("Met vriendelijke groet","Kind regards");
-      });
+  const get = (id) => document.getElementById(id)?.value || "";
 
-      $("saveEmailBtn").addEventListener("click",async()=>{
-        await addDoc(collection(db,"users",user.uid,"emails"),{
-          toGemeente:$("toGemeente").value,
-          toEmail:$("toEmail").value,
-          subject:$("subject").value,
-          message:$("messageBody").value,
-          date:new Date().toISOString(),
-          city:$("city").value,
-          fromEmail:$("email").value,
-          fromName:$("businessName").value,
-          createdAt:serverTimestamp()
-        });
-        alert("✅ Email saved!");
-      });
+  const addSection = (title, content) => {
+    doc.setFontSize(14);
+    doc.setFont(undefined, "bold");
+    doc.text(title, 14, y);
+    y += 6;
+    doc.setFontSize(12);
+    doc.setFont(undefined, "normal");
+    const lines = doc.splitTextToSize(content, 180);
+    doc.text(lines, 14, y);
+    y += lines.length * 6 + 4;
+  };
 
-      $("sendEmailBtn").addEventListener("click",async()=>{
-        const sendEmail = httpsCallable(functions,"sendGemeenteEmail");
-        try{
-          const res = await sendEmail({
-            fromEmail:$("email").value,
-            toEmail:$("toEmail").value,
-            subject:$("subject").value,
-            message:$("messageBody").value + "\n\n" + $("signature").value
-          });
-          if(res.data.success){
-            alert("✅ Email sent successfully!");
-            await logActivity(user.uid, `Email sent to ${$("toGemeente").value}`);
-          }else alert("⚠️ Sending failed.");
-        }catch(e){
-          alert("❌ Error: " + e.message);
-        }
-      });
+  doc.setFontSize(18);
+  doc.text("Email to Gemeente", 14, y);
+  y += 10;
 
-      $("exportPDFBtn").addEventListener("click",()=>{
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        let y=20;
-        doc.setFontSize(18).text("Email to Gemeente",14,y); y+=10;
-        const add=(title,val)=>{ doc.setFontSize(13).text(title,14,y); y+=6; doc.setFontSize(11); const lines=doc.splitTextToSize(val,180); doc.text(lines,14,y); y+=lines.length*6+4; };
-        add("From",`${$("businessName").value}\n${$("email").value}\n${$("businessAddress").value}`);
-        add("To",`${$("toGemeente").value}\n${$("toEmail").value}`);
-        add("Subject",$("subject").value);
-        add("Message",$("messageBody").value);
-        add("Signature",$("signature").value);
-        add("Date",$("todayDate").value+" — "+$("city").value);
-        if(!$("proPdfCheckbox").checked){
-          doc.setFontSize(10).setTextColor(150);
-          doc.text("Generated with SmartWerk — smartwerk.nl",14,290);
-        }
-        doc.save("SmartWerk-Email.pdf");
-      });
-    });
-  </script>
+  addSection("From", `${get("businessName")}\n${get("email")}\n${get("businessAddress")}`);
+  addSection("To", `${get("toGemeente")}\n${get("toEmail")}`);
+  addSection("Subject", get("subject"));
+  addSection("Message", get("messageBody"));
+  addSection("Signature", get("signature"));
+  addSection("Date & Location", `${get("todayDate")} — ${get("city")}`);
+
+  // Branding (only if not PRO)
+  const isPro = document.getElementById("proPdfCheckbox")?.checked;
+  if (!isPro) {
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+  }
+
+  doc.save(`Email-to-Gemeente-${get("toGemeente") || "SmartWerk"}.pdf`);
+});
+  });
+</script>
 </body>
 </html>
