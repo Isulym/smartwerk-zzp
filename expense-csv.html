@@ -281,14 +281,40 @@
       initSmartSuggest();
     });
 
-    onAuthStateChanged(auth,async(user)=>{
-      if(!user){ location.href="login.html"; return; }
-      await autofillProfile(user.uid);
-      const newId = await generateExpenseId(user.uid);
-      $("#expenseId").value=newId;
-      $("#saveBtn").addEventListener("click",()=>saveExpense(user.uid));
-      $("#viewBtn").addEventListener("click",()=>location.href="expense-csv-list.html");
+    onAuthStateChanged(auth, async (user) => {
+  if (!user) { 
+    location.href = "login.html"; 
+    return; 
+  }
+
+  // чекаємо DOM
+  const waitForElement = (id) => new Promise(resolve => {
+    const el = document.getElementById(id);
+    if (el) return resolve(el);
+    const observer = new MutationObserver(() => {
+      const found = document.getElementById(id);
+      if (found) {
+        observer.disconnect();
+        resolve(found);
+      }
     });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+
+  await autofillProfile(user.uid);
+
+  // чекаємо поле expenseId і тільки потім встановлюємо ID
+  const idEl = await waitForElement("expenseId");
+  const newId = await generateExpenseId(user.uid);
+  idEl.value = newId;
+
+  // додаємо кнопки тільки після появи у DOM
+  const saveBtn = document.getElementById("saveBtn");
+  const viewBtn = document.getElementById("viewBtn");
+
+  if (saveBtn) saveBtn.addEventListener("click", () => saveExpense(user.uid));
+  if (viewBtn) viewBtn.addEventListener("click", () => location.href = "expense-csv-list.html");
+});
   </script>
 </body>
 </html>
