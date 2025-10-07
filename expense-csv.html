@@ -1,499 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk — Expense Tracker</title>
-  <link rel="stylesheet" href="style-expense-csv.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <title>💰 SmartWerk — Expense Tracker</title>
+  <link rel="stylesheet" href="style-expense.css"/>
 </head>
 <body>
-  <header class="topbar">
-      <nav class="left">
-        <a href="dashboard.html" class="btn">← Back to Dashboard</a>
-        <a href="templates.html" class="btn">← Back to Templates</a>
-      </nav>
-    </header>
-  <div class="container">
-    <h1>💼 SmartWerk Expense Tracker</h1>
+  <header>
+    <h1>💰 SmartWerk — Expense Tracker</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="expense-csv-list.html" class="btn">📂 Saved Expenses</a>
+    </nav>
+  </header>
 
-    <form id="expenseForm" class="expense-form">
-      <h2>💸 New Expense Entry</h2>
-      <div class="form-group">
-        <label for="expenseId">Expense ID</label>
-        <input type="text" id="expenseId" readonly placeholder="EXP-2025-001">
-      </div>
-      <div class="form-group">
-        <label for="expenseType">Expense Type</label>
-        <select id="expenseType">
-          <option>One-time</option>
-          <option>Recurring Monthly</option>
-          <option>Subscription</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="invoiceAttached">Invoice Attached?</label>
-        <select id="invoiceAttached">
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="description">Product / Service Description</label>
-        <input type="text" id="description" placeholder="e.g., Adobe Creative Cloud Subscription">
-      </div>
-      <div class="form-group">
-        <label for="paymentDate">Payment Date</label>
-        <input type="date" id="paymentDate">
-      </div>
-      <div class="form-group">
-        <label for="category">Smart Category (AI)</label>
-        <input type="text" id="category" placeholder="e.g., Software, Marketing, Travel">
-        <button type="button" id="suggestCategory">🧠 AI Suggest</button>
-      </div>
-      <div class="form-group">
-        <label for="paymentStatus">Payment Status</label>
-        <select id="paymentStatus">
-          <option>Paid</option>
-          <option>Unpaid</option>
-          <option>Scheduled</option>
-          <option>Failed</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="dueDate">Reminder / Due Date</label>
-        <input type="date" id="dueDate">
-      </div>
-      <div class="form-group">
-        <label for="amount">Amount (€)</label>
-        <input type="number" id="amount" step="0.01">
-      </div>
-      <div class="form-group">
-        <label for="vatRate">VAT Rate</label>
-        <select id="vatRate">
-          <option value="0">0%</option>
-          <option value="9">9%</option>
-          <option value="21">21%</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="vatAmount">VAT Amount (€)</label>
-        <input type="number" id="vatAmount" readonly>
-      </div>
-      <div class="form-group">
-        <label for="totalAmount">Total Amount (€)</label>
-        <input type="number" id="totalAmount" readonly>
-      </div>
-      <div class="form-group">
-        <label for="country">Country / Location</label>
-        <input type="text" id="country" placeholder="e.g., Netherlands">
-      </div>
-      <div class="form-group">
-        <label for="notes">Internal Notes (Optional)</label>
-        <textarea id="notes" rows="2" placeholder="Only visible to you"></textarea>
-      </div>
-      <div class="form-actions">
-        <button type="button" id="saveExpense">💾 Save Expense</button>
-        <button type="button" id="exportCSV">📄 Export CSV</button>
-        <button onclick="exportExpensesPDF(true)">📄 Export PDF</button>
-        <button onclick="exportExpensesPDF(false)">PRO 📄 Export without branding</button>
-        <button type="button" id="printExpense">🖨️ Print</button>
-      </div>
-    </form>
-
-    <section id="expenseTableSection" style="margin-top:40px;">
-      <h3>📊 Saved Expenses</h3>
-      <div id="expenseTable"></div>
+  <main>
+    <section>
+      <h2>🏢 Business Info</h2>
+      <input id="businessName" placeholder="Business Name / Full Name" />
+      <input id="email" placeholder="Business Email" />
+      <input id="businessPhone" placeholder="Business Phone" />
     </section>
 
-   <div class="filters">
-  <label>Status:
-    <select id="filterStatus">
-      <option value="">All Statuses</option>
-      <option value="Paid">Paid</option>
-      <option value="Unpaid">Unpaid</option>
-      <option value="Scheduled">Scheduled</option>
-      <option value="Failed">Failed</option>
-    </select>
-  </label>
+    <section>
+      <h2>📅 Expense Details</h2>
+      <input id="expenseId" placeholder="Expense ID (auto)" readonly />
+      <input id="expenseDate" type="date" />
+      <input id="description" placeholder="Description (e.g. Software Subscription)" />
+      <input id="amount" placeholder="Amount (excl. VAT)" />
+      <input id="vat" placeholder="VAT %" />
+      <input id="country" placeholder="Country" />
+      <select id="type">
+        <option value="One-time">One-time</option>
+        <option value="Monthly">Monthly</option>
+      </select>
+    </section>
 
-  <label>Search:
-    <input type="text" id="searchDescription" placeholder="🔍 Search by description..." />
-  </label>
+    <section>
+      <h2>📂 Category</h2>
+      <input id="category" placeholder="Auto / Tools / Marketing / Travel..." />
+      <button id="btnSmartSuggest" class="btn small">🤖 Smart Suggest</button>
+    </section>
 
-  <label>From:
-    <input type="date" id="filterFromDate" />
-  </label>
+    <section>
+      <h2>🧮 Live Calculator</h2>
+      <p>Subtotal: <span id="subtotal">—</span></p>
+      <p>VAT Total: <span id="vatTotal">—</span></p>
+      <p><strong>Total (incl. VAT):</strong> <span id="total">—</span></p>
+    </section>
 
-  <label>To:
-    <input type="date" id="filterToDate" />
-  </label>
+    <section>
+      <h2>💡 Deduction Breakdown</h2>
+      <ul id="deductionsList">
+        <li>💼 ZZP Deduction — applied automatically</li>
+        <li>🏢 MKB Deduction — if eligible</li>
+        <li>🚀 Startersaftrek — if new entrepreneur</li>
+        <li>⚖️ KOR Scheme — if below threshold</li>
+      </ul>
+    </section>
 
-  <label>Sort:
-    <select id="sortBy">
-      <option value="date">Sort by Date</option>
-      <option value="amount">Sort by Amount</option>
-    </select>
-  </label>
+    <section class="actions">
+      <button id="aiFill" class="btn">🤖 AI Fill Example</button>
+      <button id="saveBtn" class="btn-primary">💾 Save Expense</button>
+    </section>
+  </main>
 
-  <button type="button" id="applyFilters">Apply Filters</button>
-  <button type="button" id="resetFilters">Reset</button>
-</div>
-</div>
-<script>
-  
-let editIndex = null;
-  
-  document.addEventListener("DOMContentLoaded", function () {
-  const amountInput = document.getElementById("amount");
-  const vatRateSelect = document.getElementById("vatRate");
-  const vatAmountInput = document.getElementById("vatAmount");
-  const totalAmountInput = document.getElementById("totalAmount");
-  const saveBtn = document.getElementById("saveExpense");
-  const exportCSVBtn = document.getElementById("exportCSV");
-  const printBtn = document.getElementById("printExpense");
-  const tableContainer = document.getElementById("expenseTable");
-  const expenseIdField = document.getElementById("expenseId");
+  <footer>
+    <p>© 2025 SmartWerk</p>
+  </footer>
 
-  let editingIndex = -1;
+  <!-- 🔥 FIREBASE -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, addDoc, collection, runTransaction, serverTimestamp } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  function calculateVAT() {
-    const amount = parseFloat(amountInput.value) || 0;
-    const vatRate = parseFloat(vatRateSelect.value) || 0;
-    const vatAmount = (amount * vatRate) / 100;
-    const total = amount + vatAmount;
-    vatAmountInput.value = vatAmount.toFixed(2);
-    totalAmountInput.value = total.toFixed(2);
-  }
-
-  amountInput.addEventListener("input", calculateVAT);
-  vatRateSelect.addEventListener("change", calculateVAT);
-
-  function generateExpenseID() {
-    const count = JSON.parse(localStorage.getItem("expenses") || "[]").length + 1;
-    return `EXP-2025-${String(count).padStart(3, "0")}`;
-  }
-
-  function getFormData() {
-    return {
-      id: expenseIdField.value,
-      type: document.getElementById("expenseType").value,
-      attached: document.getElementById("invoiceAttached").value,
-      description: document.getElementById("description").value,
-      paymentDate: document.getElementById("paymentDate").value,
-      category: document.getElementById("category").value,
-      status: document.getElementById("paymentStatus").value,
-      dueDate: document.getElementById("dueDate").value,
-      amount: amountInput.value,
-      vatRate: vatRateSelect.value,
-      vatAmount: vatAmountInput.value,
-      total: totalAmountInput.value,
-      country: document.getElementById("country").value,
-      notes: document.getElementById("notes").value
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
-  }
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  function fillForm(data) {
-    expenseIdField.value = data.id;
-    document.getElementById("expenseType").value = data.type;
-    document.getElementById("invoiceAttached").value = data.attached;
-    document.getElementById("description").value = data.description;
-    document.getElementById("paymentDate").value = data.paymentDate;
-    document.getElementById("category").value = data.category;
-    document.getElementById("paymentStatus").value = data.status;
-    document.getElementById("dueDate").value = data.dueDate;
-    amountInput.value = data.amount;
-    vatRateSelect.value = data.vatRate;
-    vatAmountInput.value = data.vatAmount;
-    totalAmountInput.value = data.total;
-    document.getElementById("country").value = data.country;
-    document.getElementById("notes").value = data.notes;
-  }
+    const $ = id => document.getElementById(id);
+    const val = id => (document.getElementById(id)?.value || "").trim();
+    const setVal = (id,v="") => { const el=$(id); if(el) el.value=v; };
 
-  function resetForm() {
-    editingIndex = -1;
-    document.getElementById("expenseForm").reset();
-    expenseIdField.value = generateExpenseID();
-    calculateVAT();
-  }
+    async function generateExpenseId(uid){
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out="";
+      await runTransaction(db, async(tx)=>{
+        const snap=await tx.get(ref);
+        const last=snap.exists()? (snap.data().lastExpenseNumber||0):0;
+        const next=last+1;
+        tx.set(ref,{lastExpenseNumber:next},{merge:true});
+        out=`EXP-${year}-${String(next).padStart(3,"0")}`;
+      });
+      return out;
+    }
 
-  function saveExpense() {
-  const data = getFormData();
-  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    async function logActivity(uid,type,message){
+      try{
+        await addDoc(collection(db,"users",uid,"events"),{
+          type,message,createdAt:serverTimestamp()
+        });
+      }catch(e){console.warn("Log failed:",e);}
+    }
 
-  if (editIndex !== null) {
-    expenses[editIndex] = data;
-    editIndex = null;
-  } else {
-    expenses.push(data);
-  }
+    async function autofillProfile(uid){
+      const ref = doc(db,"users",uid,"settings","profile");
+      const snap = await getDoc(ref);
+      if(!snap.exists()) return;
+      const p=snap.data();
+      setVal("businessName",p.businessName||"");
+      setVal("email",p.email||"");
+      setVal("businessPhone",p.businessPhone||"");
+    }
 
-  localStorage.setItem("expenses", JSON.stringify(expenses));
-  alert("✅ Expense saved!");
-  renderExpenses();
-}
+    async function saveExpense(){
+      const user=auth.currentUser;
+      if(!user){alert("Please log in"); return;}
+      const uid=user.uid;
 
-    
-
-  function setupFiltersAndSorting() {
-  const filterStatus = document.getElementById("filterStatus");
-  const searchDescription = document.getElementById("searchDescription");
-  const sortBy = document.getElementById("sortBy");
-
-  [filterStatus, searchDescription, sortBy].forEach((el) => {
-    el.addEventListener("input", renderExpenses);
-  });
-}
-    function deleteExpense(index) {
-  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-  if (confirm(`Are you sure you want to delete expense ${expenses[index].id}?`)) {
-    expenses.splice(index, 1);
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-    renderExpenses();
-  }
-}
-
-// ОНОВИТИ renderExpenses() так:
-function renderExpenses() {
-  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-
-  const status = document.getElementById("filterStatus").value;
-  const search = document.getElementById("searchDescription").value.toLowerCase();
-  const from = document.getElementById("filterFromDate").value;
-  const to = document.getElementById("filterToDate").value;
-  const sortBy = document.getElementById("sortBy").value;
-
-  expenses = expenses.filter((e) => {
-    if (status && e.status !== status) return false;
-    if (search && !e.description.toLowerCase().includes(search)) return false;
-    if (from && e.paymentDate < from) return false;
-    if (to && e.paymentDate > to) return false;
-    return true;
-  });
-
-  // Сортування
-  expenses.sort((a, b) => {
-    if (sortBy === "amount") return parseFloat(b.total) - parseFloat(a.total);
-    else return new Date(b.paymentDate) - new Date(a.paymentDate);
-  });
-
-  if (expenses.length === 0) {
-    tableContainer.innerHTML = "<p>No matching expenses.</p>";
-    return;
-  }
-
-  // ...залиш решту твоєї логіки рендеру таблиці 👇
-
-  let html = `
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Due</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  expenses.forEach((e, index) => {
-    let badge = "";
-    if (e.status === "Paid") badge = '<span style="color:green;">Paid</span>';
-    else if (e.status === "Unpaid") badge = '<span style="color:red;">Unpaid</span>';
-    else badge = `<span>${e.status}</span>`;
-
-    html += `
-      <tr>
-        <td>${e.id}</td>
-        <td>${e.type}</td>
-        <td>€${e.total}</td>
-        <td>${badge}</td>
-        <td>${e.dueDate}</td>
-        <td>
-          <button class="editBtn" data-index="${index}">✏️ Edit</button>
-          <button class="deleteBtn" data-index="${index}">🗑️ Delete</button>
-        </td>
-      </tr>
-    `;
-  });
-
-  html += "</tbody></table>";
-  tableContainer.innerHTML = html;
-
-  // Підключення до кнопки редагування
-  document.querySelectorAll(".editBtn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      editIndex = this.getAttribute("data-index");
-      const expense = expenses[editIndex];
-      expenseIdField.value = expense.id;
-      document.getElementById("expenseType").value = expense.type;
-      document.getElementById("invoiceAttached").value = expense.attached;
-      document.getElementById("description").value = expense.description;
-      document.getElementById("paymentDate").value = expense.paymentDate;
-      document.getElementById("category").value = expense.category;
-      document.getElementById("paymentStatus").value = expense.status;
-      document.getElementById("dueDate").value = expense.dueDate;
-      document.getElementById("amount").value = expense.amount;
-      document.getElementById("vatRate").value = expense.vatRate;
-      document.getElementById("vatAmount").value = expense.vatAmount;
-      document.getElementById("totalAmount").value = expense.total;
-      document.getElementById("country").value = expense.country;
-      document.getElementById("notes").value = expense.notes;
-
-      calculateVAT();
-    });
-  });
-
-  // Кнопка видалення (залишилась)
-  document.querySelectorAll(".deleteBtn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const index = this.getAttribute("data-index");
-      if (confirm("Are you sure you want to delete this expense?")) {
-        expenses.splice(index, 1);
-        localStorage.setItem("expenses", JSON.stringify(expenses));
-        renderExpenses();
+      let expenseId=val("expenseId");
+      if(!expenseId){
+        expenseId=await generateExpenseId(uid);
+        setVal("expenseId",expenseId);
       }
+
+      const amount=parseFloat(val("amount")||"0");
+      const vat=parseFloat(val("vat")||"0");
+      const vatTotal=(amount*vat)/100;
+      const total=amount+vatTotal;
+
+      const data={
+        expenseId,
+        expenseDate: val("expenseDate"),
+        description: val("description"),
+        type: val("type"),
+        amount,
+        vat,
+        vatTotal,
+        total,
+        category: val("category"),
+        country: val("country"),
+        businessName: val("businessName"),
+        email: val("email"),
+        businessPhone: val("businessPhone"),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: uid,
+      };
+
+      await setDoc(doc(db,"users",uid,"expenses",expenseId),data,{merge:true});
+      await logActivity(uid,"Expense Saved",`${expenseId} created`);
+      alert(`✅ Expense saved as ${expenseId}`);
+      location.href="expense-csv-list.html";
+    }
+
+    onAuthStateChanged(auth,async(user)=>{
+      if(!user){location.href="login.html";return;}
+      await autofillProfile(user.uid);
+      $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveExpense();});
     });
-  });
-}
+  </script>
 
-    document.getElementById("applyFilters").addEventListener("click", renderExpenses);
-document.getElementById("resetFilters").addEventListener("click", () => {
-  document.getElementById("filterStatus").value = "";
-  document.getElementById("searchDescription").value = "";
-  document.getElementById("filterFromDate").value = "";
-  document.getElementById("filterToDate").value = "";
-  document.getElementById("sortBy").value = "date";
-  renderExpenses();
-});
+  <!-- 🤖 AI + SMART CALCULATOR -->
+  <script>
+  const $ = id => document.getElementById(id);
 
-window.deleteExpense = function(index) {
-  let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-  if (confirm(`Are you sure you want to delete expense ${expenses[index].id}?`)) {
-    expenses.splice(index, 1);
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-    renderExpenses();
-  }
-}
-
-// ДОДАТИ В КІНЕЦЬ DOMContentLoaded або main init:
-setupFiltersAndSorting();
-  function exportToCSV() {
-    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    if (expenses.length === 0) return alert("Nothing to export!");
-
-    const csv = [
-      ["ID", "Type", "Attached", "Description", "PaymentDate", "Category", "Status", "DueDate", "Amount", "VATRate", "VATAmount", "Total", "Country", "Notes"]
-    ];
-    expenses.forEach(e => {
-      csv.push([
-        e.id, e.type, e.attached, e.description, e.paymentDate, e.category,
-        e.status, e.dueDate, e.amount, e.vatRate, e.vatAmount, e.total, e.country, e.notes
-      ]);
-    });
-
-    const blob = new Blob([csv.map(r => r.join(",")).join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "smartwerk-expenses.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function printExpenses() {
-    window.print();
-  }
-
-  document.getElementById("suggestCategory").addEventListener("click", () => {
-    const desc = document.getElementById("description").value.toLowerCase();
-    let suggestion = "Other";
-    if (desc.includes("flight") || desc.includes("hotel")) suggestion = "Travel";
-    else if (desc.includes("ads") || desc.includes("facebook") || desc.includes("google")) suggestion = "Marketing";
-    else if (desc.includes("software") || desc.includes("subscription")) suggestion = "Software";
-    document.getElementById("category").value = suggestion;
+  document.getElementById("aiFill")?.addEventListener("click",()=>{
+    $("description").value="Adobe Creative Cloud Subscription";
+    $("amount").value="60";
+    $("vat").value="21";
+    $("country").value="Netherlands";
+    $("type").value="Monthly";
+    $("category").value="Software / Tools";
+    updateCalc();
   });
 
-  saveBtn.addEventListener("click", saveExpense);
-  exportCSVBtn.addEventListener("click", exportToCSV);
-  printBtn.addEventListener("click", printExpenses);
-
-  // Init
-  renderExpenses();
-  expenseIdField.value = generateExpenseID();
-  calculateVAT();
+  document.getElementById("btnSmartSuggest")?.addEventListener("click",()=>{
+    const desc = ($("description")?.value||"").toLowerCase();
+    let suggestion="General";
+    if(desc.includes("fuel")||desc.includes("transport")) suggestion="Travel";
+    else if(desc.includes("software")||desc.includes("app")||desc.includes("cloud")) suggestion="Software";
+    else if(desc.includes("marketing")||desc.includes("ads")||desc.includes("facebook")) suggestion="Marketing";
+    else if(desc.includes("office")||desc.includes("rent")) suggestion="Office";
+    $("category").value=suggestion;
+    alert(`💡 Suggested Category: ${suggestion}`);
   });
 
-  function exportExpensesPDF(withBranding = true) {
-  const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-
-  if (expenses.length === 0) {
-    alert("❌ No expenses to export.");
-    return;
+  function updateCalc(){
+    const amount=parseFloat($("amount")?.value||"0");
+    const vat=parseFloat($("vat")?.value||"0");
+    const vatTotal=(amount*vat)/100;
+    const total=amount+vatTotal;
+    $("subtotal").innerText=amount.toFixed(2)+" €";
+    $("vatTotal").innerText=vatTotal.toFixed(2)+" €";
+    $("total").innerText=total.toFixed(2)+" €";
   }
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // 🔹 Заголовок
-  doc.setFontSize(18);
-  doc.text("SmartWerk — Expense Report", 14, 22);
-  doc.setFontSize(12);
-  doc.text("Exported on: " + new Date().toLocaleDateString(), 14, 30);
-
-  // 🔹 Дані для таблиці
-  const tableData = expenses.map((e) => [
-    e.id,
-    e.type,
-    e.description,
-    parseFloat(e.amount).toFixed(2),
-    parseFloat(e.vatAmount).toFixed(2),
-    parseFloat(e.total).toFixed(2),
-    e.status,
-    e.paymentDate,
-    e.dueDate,
-    e.category,
-    e.country,
-  ]);
-
-  // 🔹 Підсумки
-  const totalAmount = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  const totalVAT = expenses.reduce((sum, e) => sum + parseFloat(e.vatAmount || 0), 0);
-  const grandTotal = expenses.reduce((sum, e) => sum + parseFloat(e.total || 0), 0);
-
-  // 🔹 Побудова таблиці
-  doc.autoTable({
-    startY: 35,
-    head: [[
-      "ID", "Type", "Description", "Amount", "VAT", "Total", "Status", "Pay Date", "Due", "Category", "Country"
-    ]],
-    body: tableData,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [59, 121, 255] }
+  ["amount","vat"].forEach(id=>{
+    $(id)?.addEventListener("input",updateCalc);
   });
-
-  const finalY = doc.lastAutoTable.finalY || 45;
-
-  // 🔹 Підсумки
-  doc.setFontSize(12);
-  doc.text("Summary Totals", 14, finalY + 10);
-  doc.setFontSize(10);
-  doc.text(`Total Amount (Excl. VAT): €${totalAmount.toFixed(2)}`, 14, finalY + 18);
-  doc.text(`Total VAT: €${totalVAT.toFixed(2)}`, 14, finalY + 24);
-  doc.text(`Grand Total: €${grandTotal.toFixed(2)}`, 14, finalY + 30);
-
-  // 🔹 Footer (брендування SmartWerk, якщо не PRO)
-  if (withBranding) {
-    doc.setFontSize(9);
-    doc.setTextColor(150);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 105, 290, null, null, "center");
-    doc.setTextColor(0, 0, 0);
-  }
-
-  // 🔹 Збереження
-  doc.save("SmartWerk_Expenses.pdf");
-}
-</script>
-  
+  </script>
 </body>
 </html>
