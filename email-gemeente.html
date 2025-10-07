@@ -57,8 +57,8 @@
   </div>
 
   <div class="form-row">
-    <label>🏠 Your Address:</label>
-    <input type="text" id="fromAddress" placeholder="Street, Zip Code" />
+    <label>🏠 businessAddress:</label>
+    <input type="text" id="businessAddress" placeholder="City,Street" />
   </div>
 
   <div class="form-row">
@@ -151,7 +151,7 @@ async function autofillFromProfile(uid){
 
   setIfEmpty("businessName", p.businessName ?? "");
   setIfEmpty("email", p.email ?? "");
-  setIfEmpty("businessPhone", p.businessPhone ?? "");
+  setIfEmpty("businessAddress", p.businessAddress ?? "");
 
   console.log(`✅ Gemeente email auto-filled from ${p.__source}`);
 }
@@ -287,9 +287,9 @@ document.getElementById("translateBtn")?.addEventListener("click", () => {
   window.fillEmail = function (index) {
     const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]")[index];
     if (!saved) return;
-    document.getElementById("fromName").value = saved.fromName;
-    document.getElementById("fromEmail").value = saved.fromEmail;
-    document.getElementById("fromAddress").value = saved.fromAddress;
+    document.getElementById("businessName").value = saved.businessName;
+    document.getElementById("email").value = saved.email;
+    document.getElementById("businessAddress").value = saved.businessAddress;
     document.getElementById("toGemeente").value = saved.toGemeente;
     document.getElementById("toEmail").value = saved.toEmail;
     document.getElementById("subject").value = saved.subject;
@@ -297,7 +297,7 @@ document.getElementById("translateBtn")?.addEventListener("click", () => {
     document.getElementById("todayDate").value = saved.date;
     document.getElementById("city").value = saved.city;
    document.getElementById("signature").value =
-  "Met vriendelijke groet,\n" + get("fromName") + "\n" + get("fromAddress");
+  "Met vriendelijke groet,\n" + get("businessName") + "\n" + get("businessAddress");
     document.getElementById("savedEmailsModal").style.display = "none";
   };
 
@@ -352,7 +352,7 @@ document.getElementById("translateBtn")?.addEventListener("click", () => {
   doc.text("Email to Gemeente", 14, y);
   y += 10;
 
-  addSection("From", `${get("fromName")}\n${get("fromEmail")}\n${get("fromAddress")}`);
+  addSection("From", `${get("businessName")}\n${get("email")}\n${get("businessAddress")}`);
   addSection("To", `${get("toGemeente")}\n${get("toEmail")}`);
   addSection("Subject", get("subject"));
   addSection("Message", get("messageBody"));
