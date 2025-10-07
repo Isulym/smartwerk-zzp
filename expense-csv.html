@@ -3,8 +3,25 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>💰 SmartWerk — Expense Tracker</title>
+  <title>💰 SmartWerk — Expense Tracker (PRO)</title>
   <link rel="stylesheet" href="style-expense-csv.css"/>
+  <style>
+    body { background:#0f172a; color:#e5e7eb; font-family:'Inter',sans-serif; }
+    h1,h2{color:#fff;}
+    section{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:15px;}
+    input,select,textarea{width:100%;padding:8px;border-radius:6px;border:none;margin-top:4px;background:#334155;color:#fff;}
+    label{font-size:14px;color:#94a3b8;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .btn-primary{background:#3b82f6;color:#fff;padding:10px 20px;border:none;border-radius:8px;cursor:pointer;}
+    .btn{background:#475569;color:#fff;padding:10px 16px;border:none;border-radius:8px;cursor:pointer;}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;}
+    #smartSuggestModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);
+      display:none;align-items:center;justify-content:center;z-index:1000;}
+    .modal-content{background:#1e293b;padding:20px;border-radius:12px;width:90%;max-width:400px;text-align:center;}
+    .suggest-btn{display:block;width:100%;padding:10px;margin:8px 0;border:none;border-radius:8px;
+      background:#3b82f6;color:#fff;font-size:15px;cursor:pointer;}
+    .hint{background:#10b981;color:#fff;padding:8px;border-radius:6px;text-align:center;margin-top:10px;display:none;}
+  </style>
 </head>
 <body>
   <header>
@@ -16,61 +33,140 @@
   </header>
 
   <main>
+    <!-- BUSINESS INFO -->
     <section>
       <h2>🏢 Business Info</h2>
-      <input id="businessName" placeholder="Business Name / Full Name" />
-      <input id="email" placeholder="Business Email" />
-      <input id="businessPhone" placeholder="Business Phone" />
+      <div class="grid-2">
+        <div>
+          <label>Business Name</label>
+          <input id="businessName" placeholder="Your business or full name"/>
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="email" placeholder="your@email.com"/>
+        </div>
+      </div>
+      <label>Address</label>
+      <input id="businessAddress" placeholder="Street, City"/>
     </section>
 
+    <!-- EXPENSE DETAILS -->
     <section>
-      <h2>📅 Expense Details</h2>
-      <input id="expenseId" placeholder="Expense ID (auto)" readonly />
-      <input id="expenseDate" type="date" />
-      <input id="description" placeholder="Description (e.g. Software Subscription)" />
-      <input id="amount" placeholder="Amount (excl. VAT)" />
-      <input id="vat" placeholder="VAT %" />
-      <input id="country" placeholder="Country" />
-      <select id="type">
-        <option value="One-time">One-time</option>
-        <option value="Monthly">Monthly</option>
-      </select>
-    </section>
+      <h2>💸 Expense Details</h2>
+      <div class="grid-2">
+        <div>
+          <label>Expense ID</label>
+          <input id="expenseId" readonly placeholder="EXP-2025-001"/>
+        </div>
+        <div>
+          <label>Date</label>
+          <input type="date" id="date"/>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Expense Name / Description</label>
+          <input id="description" placeholder="e.g. Adobe subscription"/>
+        </div>
+        <div>
+          <label>Expense Type</label>
+          <select id="type">
+            <option>One-time</option>
+            <option>Monthly</option>
+            <option>Annual</option>
+          </select>
+        </div>
+      </div>
 
-    <section>
-      <h2>📂 Category</h2>
-      <input id="category" placeholder="Auto / Tools / Marketing / Travel..." />
-      <button id="btnSmartSuggest" class="btn small">🤖 Smart Suggest</button>
-    </section>
+      <div class="grid-2">
+        <div>
+          <label>Category</label>
+          <input id="category" placeholder="Select or use Smart Suggest"/>
+        </div>
+        <div>
+          <label>Country / Location</label>
+          <select id="country">
+            <option>Netherlands</option>
+            <option>Belgium</option>
+            <option>Germany</option>
+            <option>France</option>
+            <option>Spain</option>
+          </select>
+        </div>
+      </div>
 
-    <section>
-      <h2>🧮 Live Calculator</h2>
-      <p>Subtotal: <span id="subtotal">—</span></p>
-      <p>VAT Total: <span id="vatTotal">—</span></p>
-      <p><strong>Total (incl. VAT):</strong> <span id="total">—</span></p>
-    </section>
+      <div class="grid-2">
+        <div>
+          <label>Amount (excl. VAT)</label>
+          <input id="amount" type="number" placeholder="0.00"/>
+        </div>
+        <div>
+          <label>VAT %</label>
+          <select id="vat">
+            <option value="0">0%</option>
+            <option value="9">9%</option>
+            <option value="21" selected>21%</option>
+          </select>
+        </div>
+      </div>
 
-    <section>
-      <h2>💡 Deduction Breakdown</h2>
-      <ul id="deductionsList">
-        <li>💼 ZZP Deduction — applied automatically</li>
-        <li>🏢 MKB Deduction — if eligible</li>
-        <li>🚀 Startersaftrek — if new entrepreneur</li>
-        <li>⚖️ KOR Scheme — if below threshold</li>
-      </ul>
-    </section>
+      <div class="grid-2">
+        <div>
+          <label>Invoice Attached</label>
+          <select id="invoiceAttached"><option>No</option><option>Yes</option></select>
+        </div>
+        <div>
+          <label>Payment Method</label>
+          <select id="paymentMethod">
+            <option>Bank</option><option>Credit Card</option><option>Cash</option>
+            <option>PayPal</option><option>Other</option>
+          </select>
+        </div>
+      </div>
 
-    <section class="actions">
-      <button id="aiFill" class="btn">🤖 AI Fill Example</button>
-      <button id="saveBtn" class="btn-primary">💾 Save Expense</button>
+      <div class="grid-2">
+        <div>
+          <label>Payment Status</label>
+          <select id="status">
+            <option>Paid</option><option>Pending</option><option>Overdue</option><option>Scheduled</option>
+          </select>
+        </div>
+        <div>
+          <label>Notes</label>
+          <input id="notes" placeholder="Optional notes..."/>
+        </div>
+      </div>
+
+      <div style="margin-top:15px;">
+        <p>Subtotal: <span id="subtotalDisplay">€0.00</span></p>
+        <p>VAT: <span id="vatDisplay">€0.00</span></p>
+        <p><strong>Total: <span id="totalDisplay">€0.00</span></strong></p>
+      </div>
+
+      <div class="actions">
+        <button id="saveBtn" class="btn-primary">💾 Save Expense</button>
+        <button id="viewBtn" class="btn">📂 View Saved</button>
+        <button id="smartSuggestBtn" class="btn">🤖 Smart Suggest</button>
+      </div>
+      <div id="smartHint" class="hint"></div>
     </section>
   </main>
 
-  <footer>
-    <p>© 2025 SmartWerk</p>
-  </footer>
+  <!-- Smart Suggest Modal -->
+  <div id="smartSuggestModal">
+    <div class="modal-content">
+      <h3>🤖 Smart Suggest Category</h3>
+      <button class="suggest-btn" data-cat="Office & Supplies">🧾 Office & Supplies</button>
+      <button class="suggest-btn" data-cat="Travel & Transport">🚗 Travel & Transport</button>
+      <button class="suggest-btn" data-cat="Meals & Entertainment">☕ Meals & Entertainment</button>
+      <button class="suggest-btn" data-cat="Software & Tools">💻 Software & Tools</button>
+      <button class="suggest-btn" data-cat="Accounting & Legal">🧮 Accounting & Legal</button>
+      <button class="btn" onclick="document.getElementById('smartSuggestModal').style.display='none'">✖ Close</button>
+    </div>
+  </div>
 
-  <!-- 🔥 FIREBASE -->
+  <footer><p>© 2025 SmartWerk</p></footer>
+
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -86,129 +182,109 @@
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const $ = (id)=>document.getElementById(id);
 
-    const $ = id => document.getElementById(id);
-    const val = id => (document.getElementById(id)?.value || "").trim();
-    const setVal = (id,v="") => { const el=$(id); if(el) el.value=v; };
-
+    // 🔹 Генерація ID
     async function generateExpenseId(uid){
       const ref = doc(db,"users",uid);
       const year = new Date().getFullYear();
       let out="";
       await runTransaction(db, async(tx)=>{
-        const snap=await tx.get(ref);
-        const last=snap.exists()? (snap.data().lastExpenseNumber||0):0;
-        const next=last+1;
+        const snap = await tx.get(ref);
+        const last = snap.exists()? (snap.data().lastExpenseNumber||0):0;
+        const next = last+1;
         tx.set(ref,{lastExpenseNumber:next},{merge:true});
         out=`EXP-${year}-${String(next).padStart(3,"0")}`;
       });
       return out;
     }
 
-    async function logActivity(uid,type,message){
-      try{
-        await addDoc(collection(db,"users",uid,"events"),{
-          type,message,createdAt:serverTimestamp()
-        });
-      }catch(e){console.warn("Log failed:",e);}
+    // 🔹 Розрахунок Total
+    function updateTotals(){
+      const amt=parseFloat($("#amount")?.value||0);
+      const vat=parseFloat($("#vat")?.value||0);
+      const vatAmt=(amt*vat/100)||0;
+      const total=amt+vatAmt;
+      $("#subtotalDisplay").innerText=`€${amt.toFixed(2)}`;
+      $("#vatDisplay").innerText=`€${vatAmt.toFixed(2)}`;
+      $("#totalDisplay").innerText=`€${total.toFixed(2)}`;
     }
+    ["amount","vat"].forEach(id=>{
+      document.addEventListener("input",(e)=>{
+        if(e.target.id===id) updateTotals();
+      });
+    });
 
+    // 🔹 Smart Suggest Modal
+    $("#smartSuggestBtn").addEventListener("click",()=>{
+      $("#smartSuggestModal").style.display="flex";
+    });
+    document.querySelectorAll(".suggest-btn").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        $("#category").value=btn.dataset.cat;
+        $("#smartSuggestModal").style.display="none";
+        const hint=$("#smartHint");
+        hint.innerText=`✅ Category set to: ${btn.dataset.cat}`;
+        hint.style.display="block";
+        setTimeout(()=>hint.style.display="none",2500);
+      });
+    });
+
+    // 🔹 Автозаповнення профілю
     async function autofillProfile(uid){
-      const ref = doc(db,"users",uid,"settings","profile");
-      const snap = await getDoc(ref);
-      if(!snap.exists()) return;
-      const p=snap.data();
-      setVal("businessName",p.businessName||"");
-      setVal("email",p.email||"");
-      setVal("businessPhone",p.businessPhone||"");
+      try{
+        const snap=await getDoc(doc(db,"users",uid,"settings","profile"));
+        if(snap.exists()){
+          const p=snap.data();
+          $("#businessName").value=p.businessName||"";
+          $("#email").value=p.email||"";
+          $("#businessAddress").value=p.businessAddress||"";
+        }
+      }catch(e){console.warn("Profile autofill error:",e);}
     }
 
-    async function saveExpense(){
-      const user=auth.currentUser;
-      if(!user){alert("Please log in"); return;}
-      const uid=user.uid;
-
-      let expenseId=val("expenseId");
-      if(!expenseId){
-        expenseId=await generateExpenseId(uid);
-        setVal("expenseId",expenseId);
-      }
-
-      const amount=parseFloat(val("amount")||"0");
-      const vat=parseFloat(val("vat")||"0");
-      const vatTotal=(amount*vat)/100;
-      const total=amount+vatTotal;
+    // 🔹 Збереження у Firestore
+    async function saveExpense(uid){
+      const id=$("#expenseId").value||await generateExpenseId(uid);
+      const amt=parseFloat($("#amount").value||0);
+      const vat=parseFloat($("#vat").value||0);
+      const vatAmt=amt*vat/100;
+      const total=amt+vatAmt;
 
       const data={
-        expenseId,
-        expenseDate: val("expenseDate"),
-        description: val("description"),
-        type: val("type"),
-        amount,
-        vat,
-        vatTotal,
-        total,
-        category: val("category"),
-        country: val("country"),
-        businessName: val("businessName"),
-        email: val("email"),
-        businessPhone: val("businessPhone"),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        userId: uid,
+        expenseId:id,
+        date:$("#date").value,
+        description:$("#description").value,
+        type:$("#type").value,
+        category:$("#category").value,
+        country:$("#country").value,
+        amount:amt,
+        vatPercent:vat,
+        vatAmount:vatAmt,
+        total:total,
+        invoiceAttached:$("#invoiceAttached").value,
+        paymentMethod:$("#paymentMethod").value,
+        status:$("#status").value,
+        notes:$("#notes").value,
+        businessName:$("#businessName").value,
+        email:$("#email").value,
+        businessAddress:$("#businessAddress").value,
+        createdAt:serverTimestamp()
       };
-
-      await setDoc(doc(db,"users",uid,"expenses",expenseId),data,{merge:true});
-      await logActivity(uid,"Expense Saved",`${expenseId} created`);
-      alert(`✅ Expense saved as ${expenseId}`);
-      location.href="expense-csv-list.html";
+      await addDoc(collection(db,"users",uid,"expenses"),data);
+      await addDoc(collection(db,"users",uid,"events"),{type:"Expense Created",message:`${id} saved`,createdAt:serverTimestamp()});
+      alert("✅ Expense saved successfully!");
+      $("#expenseId").value=id;
     }
 
     onAuthStateChanged(auth,async(user)=>{
       if(!user){location.href="login.html";return;}
       await autofillProfile(user.uid);
-      $("saveBtn").addEventListener("click",(e)=>{e.preventDefault();saveExpense();});
+      $("#saveBtn").addEventListener("click",()=>saveExpense(user.uid));
+      $("#viewBtn").addEventListener("click",()=>location.href="expense-csv-list.html");
+      const id=await generateExpenseId(user.uid);
+      $("#expenseId").value=id;
     });
-  </script>
-
-  <!-- 🤖 AI + SMART CALCULATOR -->
-  <script>
-  const $ = id => document.getElementById(id);
-
-  document.getElementById("aiFill")?.addEventListener("click",()=>{
-    $("description").value="Adobe Creative Cloud Subscription";
-    $("amount").value="60";
-    $("vat").value="21";
-    $("country").value="Netherlands";
-    $("type").value="Monthly";
-    $("category").value="Software / Tools";
-    updateCalc();
-  });
-
-  document.getElementById("btnSmartSuggest")?.addEventListener("click",()=>{
-    const desc = ($("description")?.value||"").toLowerCase();
-    let suggestion="General";
-    if(desc.includes("fuel")||desc.includes("transport")) suggestion="Travel";
-    else if(desc.includes("software")||desc.includes("app")||desc.includes("cloud")) suggestion="Software";
-    else if(desc.includes("marketing")||desc.includes("ads")||desc.includes("facebook")) suggestion="Marketing";
-    else if(desc.includes("office")||desc.includes("rent")) suggestion="Office";
-    $("category").value=suggestion;
-    alert(`💡 Suggested Category: ${suggestion}`);
-  });
-
-  function updateCalc(){
-    const amount=parseFloat($("amount")?.value||"0");
-    const vat=parseFloat($("vat")?.value||"0");
-    const vatTotal=(amount*vat)/100;
-    const total=amount+vatTotal;
-    $("subtotal").innerText=amount.toFixed(2)+" €";
-    $("vatTotal").innerText=vatTotal.toFixed(2)+" €";
-    $("total").innerText=total.toFixed(2)+" €";
-  }
-
-  ["amount","vat"].forEach(id=>{
-    $(id)?.addEventListener("input",updateCalc);
-  });
   </script>
 </body>
 </html>
