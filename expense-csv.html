@@ -186,11 +186,11 @@
 
     const $ = (id)=>document.getElementById(id);
 
-    // читання профілю з будь-якого місця
+    // 🔹 читання профілю з можливих шляхів
     async function readProfile(uid){
       const paths = [
+        ["users", uid, "profile", uid],
         ["users", uid, "settings", "profile"],
-        ["users", uid, "profile", "main"],
         ["users", uid]
       ];
       for (const p of paths){
@@ -205,11 +205,11 @@
 
     async function autofillProfile(uid){
       const p = await readProfile(uid);
-      if(!p) { console.warn("⚠️ Profile not found"); return; }
+      if(!p){ console.warn("⚠️ No profile found"); return; }
       if($("#businessName")) $("#businessName").value = p.businessName || "";
       if($("#email")) $("#email").value = p.email || "";
       if($("#businessAddress")) $("#businessAddress").value = p.businessAddress || "";
-      console.log("✅ Profile autofilled");
+      console.log("✅ Auto-filled from profile");
     }
 
     async function generateExpenseId(uid){
@@ -258,9 +258,10 @@
     }
 
     async function saveExpense(uid){
-      const id=$("#expenseId").value || await generateExpenseId(uid);
-      const amt=parseFloat($("#amount").value||0);
-      const vat=parseFloat($("#vat").value||0);
+      const idField = document.getElementById("expenseId");
+      const id = (idField && idField.value) ? idField.value : await generateExpenseId(uid);
+      const amt=parseFloat($("#amount")?.value||0);
+      const vat=parseFloat($("#vat")?.value||0);
       const vatAmt=amt*vat/100;
       const total=amt+vatAmt;
 
@@ -290,7 +291,6 @@
       initSmartSuggest();
     });
 
-    // безпечне очікування DOM для елементів
     const waitForEl = id => new Promise(resolve=>{
       const el = document.getElementById(id);
       if(el) return resolve(el);
@@ -303,12 +303,10 @@
 
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
-
       await autofillProfile(user.uid);
       const idEl = await waitForEl("expenseId");
       const newId = await generateExpenseId(user.uid);
       idEl.value = newId;
-
       const saveBtn = await waitForEl("saveBtn");
       const viewBtn = await waitForEl("viewBtn");
       saveBtn.addEventListener("click",()=>saveExpense(user.uid));
