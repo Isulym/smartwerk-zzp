@@ -186,31 +186,47 @@
 
     const $ = (id)=>document.getElementById(id);
 
-    // 🔹 читання профілю з можливих шляхів
-    async function readProfile(uid){
-      const paths = [
-        ["users", uid, "profile", uid],
-        ["users", uid, "settings", "profile"],
-        ["users", uid]
-      ];
-      for (const p of paths){
-        try {
-          const ref = doc(db, ...p);
-          const snap = await getDoc(ref);
-          if (snap.exists()) return snap.data();
-        } catch(_){}
-      }
-      return null;
-    }
+  // ======== Read Profile (full safe version) ========
+async function readProfile(uid){
+  const possiblePaths = [
+    ["users", uid, "profile", "main"],     // 🔹 найпоширеніший варіант
+    ["users", uid, "profile", uid],
+    ["users", uid, "settings", "profile"],
+    ["users", uid]
+  ];
 
-    async function autofillProfile(uid){
-      const p = await readProfile(uid);
-      if(!p){ console.warn("⚠️ No profile found"); return; }
-      if($("#businessName")) $("#businessName").value = p.businessName || "";
-      if($("#email")) $("#email").value = p.email || "";
-      if($("#businessAddress")) $("#businessAddress").value = p.businessAddress || "";
-      console.log("✅ Auto-filled from profile");
+  for (const path of possiblePaths){
+    try {
+      const ref = doc(db, ...path);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        console.log(`✅ Profile found at /${path.join("/")}`);
+        return snap.data();
+      }
+    } catch(e) {
+      console.warn(`⚠️ Error reading ${path.join("/")}:`, e.message);
     }
+  }
+
+  console.warn("❌ No profile document found for user");
+  return null;
+}
+
+// ======== Auto-fill fields from Profile ========
+async function autofillProfile(uid){
+  const p = await readProfile(uid);
+  if(!p) return;
+
+  const setIfExists = (id, val) => {
+    const el = document.getElementById(id);
+    if(el && !el.value) el.value = val || "";
+  };
+
+  setIfExists("businessName", p.businessName || p.fullName || "");
+  setIfExists("email", p.email || p.businessEmail || "");
+  setIfExists("businessAddress", p.businessAddress || p.address || "");
+  console.log("✅ Profile auto-filled successfully");
+}
 
     async function generateExpenseId(uid){
       const ref = doc(db,"users",uid);
