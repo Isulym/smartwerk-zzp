@@ -257,34 +257,40 @@
       });
     }
 
-    async function saveExpense(uid){
-      const idField = document.getElementById("expenseId");
-      const id = (idField && idField.value) ? idField.value : await generateExpenseId(uid);
-      const amt=parseFloat($("#amount")?.value||0);
-      const vat=parseFloat($("#vat")?.value||0);
-      const vatAmt=amt*vat/100;
-      const total=amt+vatAmt;
+   async function saveExpense(uid){
+  const getVal = (id) => document.getElementById(id)?.value || ""; // безпечний селектор
+  const idField = document.getElementById("expenseId");
+  const id = (idField && idField.value) ? idField.value : await generateExpenseId(uid);
 
-      const data={
-        expenseId:id,
-        date:$("#date").value,
-        description:$("#description").value,
-        type:$("#type").value,
-        category:$("#category").value,
-        country:$("#country").value,
-        amount:amt,vatPercent:vat,vatAmount:vatAmt,total:total,
-        invoiceAttached:$("#invoiceAttached").value,
-        paymentMethod:$("#paymentMethod").value,
-        status:$("#status").value,
-        notes:$("#notes").value,
-        businessName:$("#businessName").value,
-        email:$("#email").value,
-        businessAddress:$("#businessAddress").value,
-        createdAt:serverTimestamp()
-      };
-      await addDoc(collection(db,"users",uid,"expenses"),data);
-      alert("✅ Expense saved!");
-    }
+  const amt = parseFloat(getVal("amount")) || 0;
+  const vat = parseFloat(getVal("vat")) || 0;
+  const vatAmt = amt * vat / 100;
+  const total = amt + vatAmt;
+
+  const data = {
+    expenseId: id,
+    date: getVal("date"),
+    description: getVal("description"),
+    type: getVal("type"),
+    category: getVal("category"),
+    country: getVal("country"),
+    amount: amt,
+    vatPercent: vat,
+    vatAmount: vatAmt,
+    total: total,
+    invoiceAttached: getVal("invoiceAttached"),
+    paymentMethod: getVal("paymentMethod"),
+    status: getVal("status"),
+    notes: getVal("notes"),
+    businessName: getVal("businessName"),
+    email: getVal("email"),
+    businessAddress: getVal("businessAddress"),
+    createdAt: serverTimestamp()
+  };
+
+  await addDoc(collection(db, "users", uid, "expenses"), data);
+  alert(`✅ Expense saved successfully as ${id}`);
+}
 
     document.addEventListener("DOMContentLoaded",()=>{
       ["amount","vat"].forEach(id=>$("#"+id)?.addEventListener("input",updateTotals));
