@@ -138,12 +138,12 @@
       <td>€${(exp.vatAmount||0).toFixed(2)}</td>
       <td><strong>€${(exp.total||0).toFixed(2)}</strong></td>
       <td>
-        <button class="btn small" onclick="editExpense('${exp.id}')">✏</button>
-        <button class="btn small" onclick="showDetails('${exp.id}')">🔍</button>
-        <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId||""}')">🗑</button>
-        <button class="btn small" onclick="exportExpensePDF('${exp.id}',true)">📄</button>
-        <button class="btn small" onclick="exportExpensePDF('${exp.id}',false)">💼</button>
-        <button class="btn small" onclick="exportExpenseCSV('${exp.id}')">📊</button>
+        <button class="btn small" onclick="editExpense('${exp.id}')">✏️ Edit</button>
+        <button class="btn small" onclick="showDetails('${exp.id}')">🔍 rewiew</button>
+        <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId||""}')">🗑 Delete</button>
+        <button class="btn small" onclick="exportExpensePDF('${exp.id}',true)">📄 PDF</button>
+        <button class="btn small" onclick="exportExpensePDF('${exp.id}',false)">PRO 📄 PDF without branding</button>
+        <button class="btn small" onclick="exportExpenseCSV('${exp.id}')">📊 EXPORT CSV</button>
       </td>`;
     body.appendChild(tr);
   });
