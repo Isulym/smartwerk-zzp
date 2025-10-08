@@ -169,171 +169,164 @@
   <footer><p>© 2025 SmartWerk</p></footer>
 
   <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, addDoc, collection, runTransaction, serverTimestamp } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, addDoc, collection, runTransaction, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    const $ = (id)=>document.getElementById(id);
+const $ = (id)=>document.getElementById(id);
 
-  // ======== Read Profile (full safe version) ========
+// ======== Read Profile ========
 async function readProfile(uid){
-  const possiblePaths = [
-    ["users", uid, "profile", "main"],     // 🔹 найпоширеніший варіант
+  const paths = [
+    ["users", uid, "profile", "main"],
     ["users", uid, "profile", uid],
     ["users", uid, "settings", "profile"],
     ["users", uid]
   ];
-
-  for (const path of possiblePaths){
-    try {
-      const ref = doc(db, ...path);
+  for (const p of paths){
+    try{
+      const ref = doc(db,...p);
       const snap = await getDoc(ref);
-      if (snap.exists()) {
-        console.log(`✅ Profile found at /${path.join("/")}`);
+      if(snap.exists()){
+        console.log(`✅ Profile found: /${p.join("/")}`);
         return snap.data();
       }
-    } catch(e) {
-      console.warn(`⚠️ Error reading ${path.join("/")}:`, e.message);
-    }
+    }catch(e){ console.warn(e.message); }
   }
-
-  console.warn("❌ No profile document found for user");
+  console.warn("❌ No profile found");
   return null;
 }
 
-// ======== Auto-fill fields from Profile ========
 async function autofillProfile(uid){
   const p = await readProfile(uid);
   if(!p) return;
-
-  const setIfExists = (id, val) => {
-    const el = document.getElementById(id);
-    if(el && !el.value) el.value = val || "";
-  };
-
-  setIfExists("businessName", p.businessName || p.fullName || "");
-  setIfExists("email", p.email || p.businessEmail || "");
-  setIfExists("businessAddress", p.businessAddress || p.address || "");
-  console.log("✅ Profile auto-filled successfully");
+  const set = (id,v)=>{ const el=$(id); if(el && !el.value) el.value=v||""; };
+  set("businessName",p.businessName||p.fullName||"");
+  set("email",p.email||p.businessEmail||"");
+  set("businessAddress",p.businessAddress||p.address||"");
+  console.log("✅ Profile auto-filled");
 }
 
-    async function generateExpenseId(uid){
-      const ref = doc(db,"users",uid);
-      const year = new Date().getFullYear();
-      let out="";
-      await runTransaction(db, async(tx)=>{
-        const snap = await tx.get(ref);
-        const last = snap.exists()? (snap.data().lastExpenseNumber||0):0;
-        const next = last+1;
-        tx.set(ref,{lastExpenseNumber:next},{merge:true});
-        out=`EXP-${year}-${String(next).padStart(3,"0")}`;
-      });
-      return out;
-    }
-
-    function updateTotals(){
-      const amt=parseFloat($("#amount")?.value||0);
-      const vat=parseFloat($("#vat")?.value||0);
-      const vatAmt=(amt*vat/100)||0;
-      const total=amt+vatAmt;
-      $("#subtotalDisplay").innerText=`€${amt.toFixed(2)}`;
-      $("#vatDisplay").innerText=`€${vatAmt.toFixed(2)}`;
-      $("#totalDisplay").innerText=`€${total.toFixed(2)}`;
-    }
-
-    function initSmartSuggest(){
-      const modal=$("#smartSuggestModal");
-      const btn=$("#smartSuggestBtn");
-      const close=$("#closeSuggest");
-      const cat=$("#category");
-      const hint=$("#smartHint");
-
-      btn?.addEventListener("click",()=>modal.classList.add("active"));
-      close?.addEventListener("click",()=>modal.classList.remove("active"));
-
-      document.querySelectorAll(".suggest-btn").forEach(el=>{
-        el.addEventListener("click",()=>{
-          cat.value=el.dataset.cat;
-          modal.classList.remove("active");
-          hint.innerText=`✅ Category: ${el.dataset.cat}`;
-          hint.style.display="block";
-          setTimeout(()=>hint.style.display="none",2500);
-        });
-      });
-    }
-
-   async function saveExpense(uid){
-  const getVal = (id) => document.getElementById(id)?.value || ""; // безпечний селектор
-  const idField = document.getElementById("expenseId");
-  const id = (idField && idField.value) ? idField.value : await generateExpenseId(uid);
-
-  const amt = parseFloat(getVal("amount")) || 0;
-  const vat = parseFloat(getVal("vat")) || 0;
-  const vatAmt = amt * vat / 100;
-  const total = amt + vatAmt;
-
-  const data = {
-    expenseId: id,
-    date: getVal("date"),
-    description: getVal("description"),
-    type: getVal("type"),
-    category: getVal("category"),
-    country: getVal("country"),
-    amount: amt,
-    vatPercent: vat,
-    vatAmount: vatAmt,
-    total: total,
-    invoiceAttached: getVal("invoiceAttached"),
-    paymentMethod: getVal("paymentMethod"),
-    status: getVal("status"),
-    notes: getVal("notes"),
-    businessName: getVal("businessName"),
-    email: getVal("email"),
-    businessAddress: getVal("businessAddress"),
-    createdAt: serverTimestamp()
-  };
-
-  await addDoc(collection(db, "users", uid, "expenses"), data);
-  alert(`✅ Expense saved successfully as ${id}`);
+// ======== Expense ID Generator ========
+async function generateExpenseId(uid){
+  const ref=doc(db,"users",uid);
+  const year=new Date().getFullYear();
+  let out="";
+  await runTransaction(db, async(tx)=>{
+    const s=await tx.get(ref);
+    const last=s.exists()?(s.data().lastExpenseNumber||0):0;
+    const next=last+1;
+    tx.set(ref,{lastExpenseNumber:next},{merge:true});
+    out=`EXP-${year}-${String(next).padStart(3,"0")}`;
+  });
+  return out;
 }
 
-    document.addEventListener("DOMContentLoaded",()=>{
-      ["amount","vat"].forEach(id=>$("#"+id)?.addEventListener("input",updateTotals));
-      initSmartSuggest();
-    });
+// ======== Totals ========
+function updateTotals(){
+  const amt=parseFloat($("#amount")?.value||0);
+  const vat=parseFloat($("#vat")?.value||0);
+  const vatAmt=(amt*vat/100)||0;
+  const total=amt+vatAmt;
+  if($("#subtotalDisplay")) $("#subtotalDisplay").innerText=`€${amt.toFixed(2)}`;
+  if($("#vatDisplay")) $("#vatDisplay").innerText=`€${vatAmt.toFixed(2)}`;
+  if($("#totalDisplay")) $("#totalDisplay").innerText=`€${total.toFixed(2)}`;
+}
 
-    const waitForEl = id => new Promise(resolve=>{
-      const el = document.getElementById(id);
-      if(el) return resolve(el);
-      const obs = new MutationObserver(()=>{
-        const found = document.getElementById(id);
-        if(found){ obs.disconnect(); resolve(found); }
-      });
-      obs.observe(document.body,{childList:true,subtree:true});
-    });
+// ======== Smart Suggest ========
+function initSmartSuggest(){
+  const modal=$("#smartSuggestModal");
+  const btn=$("#smartSuggestBtn");
+  const close=$("#closeSuggest");
+  const cat=$("#category");
+  const hint=$("#smartHint");
 
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href="login.html"; return; }
-      await autofillProfile(user.uid);
-      const idEl = await waitForEl("expenseId");
-      const newId = await generateExpenseId(user.uid);
-      idEl.value = newId;
-      const saveBtn = await waitForEl("saveBtn");
-      const viewBtn = await waitForEl("viewBtn");
-      saveBtn.addEventListener("click",()=>saveExpense(user.uid));
-      viewBtn.addEventListener("click",()=>location.href="expense-csv-list.html");
+  btn?.addEventListener("click",()=>{
+    modal.classList.add("active");
+    modal.style.pointerEvents="auto";
+  });
+  close?.addEventListener("click",()=>{
+    modal.classList.remove("active");
+    modal.style.pointerEvents="none";
+  });
+
+  document.querySelectorAll(".suggest-btn").forEach(el=>{
+    el.addEventListener("click",()=>{
+      cat.value=el.dataset.cat;
+      modal.classList.remove("active");
+      hint.innerText=`✅ Category set: ${el.dataset.cat}`;
+      hint.style.opacity="1";
+      hint.style.display="block";
+      setTimeout(()=>{hint.style.opacity="0";},2000);
+      setTimeout(()=>{hint.style.display="none";},2500);
     });
-  </script>
+  });
+}
+
+// ======== Save Expense ========
+async function saveExpense(uid){
+  const get=(id)=>$(id)?.value||"";
+  const idField=$("#expenseId");
+  const id=(idField && idField.value)?idField.value:await generateExpenseId(uid);
+  const amt=parseFloat(get("amount"))||0;
+  const vat=parseFloat(get("vat"))||0;
+  const vatAmt=amt*vat/100;
+  const total=amt+vatAmt;
+
+  const data={
+    expenseId:id,
+    date:get("date"),
+    description:get("description"),
+    type:get("type"),
+    category:get("category"),
+    country:get("country"),
+    amount:amt,
+    vatPercent:vat,
+    vatAmount:vatAmt,
+    total:total,
+    invoiceAttached:get("invoiceAttached"),
+    paymentMethod:get("paymentMethod"),
+    status:get("status"),
+    notes:get("notes"),
+    businessName:get("businessName"),
+    email:get("email"),
+    businessAddress:get("businessAddress"),
+    createdAt:serverTimestamp()
+  };
+
+  await addDoc(collection(db,"users",uid,"expenses"),data);
+  alert(`✅ Expense saved successfully (${id})`);
+}
+
+// ======== INIT ========
+document.addEventListener("DOMContentLoaded",()=>{
+  ["amount","vat"].forEach(id=>$("#"+id)?.addEventListener("input",updateTotals));
+  initSmartSuggest();
+  updateTotals();
+});
+
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){ location.href="login.html"; return; }
+  await autofillProfile(user.uid);
+  const idEl=$("#expenseId");
+  const newId=await generateExpenseId(user.uid);
+  if(idEl) idEl.value=newId;
+  updateTotals();
+
+  $("#saveBtn")?.addEventListener("click",()=>saveExpense(user.uid));
+  $("#viewBtn")?.addEventListener("click",()=>location.href="expense-csv-list.html");
+});
+</script>
 </body>
 </html>
