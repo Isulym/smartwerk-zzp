@@ -11,7 +11,7 @@
     table{width:100%;border-collapse:collapse;margin-top:15px;}
     th,td{border-bottom:1px solid #1e293b;padding:8px;text-align:left;}
     th{color:#3b82f6;}
-    tr:hover{background:#1e293b;}
+    tr:hover{background:#1e293b;cursor:pointer;}
     input,select{background:#1e293b;color:#fff;border:none;border-radius:6px;padding:6px 8px;}
     .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
     .btn{background:#475569;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;}
@@ -19,6 +19,14 @@
     .summary{margin-top:15px;padding:10px;background:#1e293b;border-radius:8px;}
     .summary p{margin:3px 0;}
     .small{padding:5px 8px;font-size:13px;}
+    .details-modal{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:999;
+    }
+    .details-modal.active{display:flex;}
+    .details-box{background:#1e293b;padding:20px;border-radius:12px;max-width:500px;width:90%;}
+    .details-box h3{margin-top:0;color:#3b82f6;}
+    .details-box p{margin:4px 0;}
   </style>
 </head>
 <body>
@@ -50,11 +58,12 @@
     <table id="expensesTable">
       <thead>
         <tr>
-          <th>ID</th><th>Date</th><th>Description</th><th>Category</th><th>Country</th>
-          <th>Amount</th><th>VAT</th><th>Total</th><th>Status</th><th>Actions</th>
+          <th>ID</th><th>Date</th><th>Description</th><th>Category</th>
+          <th>Type</th><th>Payment Method</th><th>Status</th>
+          <th>Amount</th><th>VAT</th><th>Total</th><th>Actions</th>
         </tr>
       </thead>
-      <tbody id="expensesBody"><tr><td colspan="10">Loading...</td></tr></tbody>
+      <tbody id="expensesBody"><tr><td colspan="11">Loading...</td></tr></tbody>
     </table>
 
     <div class="summary">
@@ -64,6 +73,14 @@
       <p><strong>Total: <span id="sumTotal">€0.00</span></strong></p>
     </div>
   </main>
+
+  <div class="details-modal" id="detailsModal">
+    <div class="details-box">
+      <h3>Expense Details</h3>
+      <div id="detailsContent"></div>
+      <button class="btn" id="closeDetails">✖ Close</button>
+    </div>
+  </div>
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
@@ -89,7 +106,7 @@
 
     async function loadExpenses(uid){
       const body=$("expensesBody");
-      body.innerHTML="<tr><td colspan='10'>Loading...</td></tr>";
+      body.innerHTML="<tr><td colspan='11'>Loading...</td></tr>";
       const snap=await getDocs(collection(db,"users",uid,"expenses"));
       const list=snap.docs.map(d=>({id:d.id,...d.data()}));
       allExpenses=list.sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -99,7 +116,7 @@
     function renderExpenses(list){
       const body=$("expensesBody");
       body.innerHTML="";
-      if(!list.length){ body.innerHTML="<tr><td colspan='10'>No expenses yet.</td></tr>"; return; }
+      if(!list.length){ body.innerHTML="<tr><td colspan='11'>No expenses yet.</td></tr>"; return; }
 
       let sub=0,vat=0,total=0;
       list.forEach(exp=>{
@@ -113,13 +130,15 @@
           <td>${exp.date||""}</td>
           <td>${exp.description||""}</td>
           <td>${exp.category||""}</td>
-          <td>${exp.country||""}</td>
+          <td>${exp.type||""}</td>
+          <td>${exp.paymentMethod||""}</td>
+          <td>${exp.status||""}</td>
           <td>€${(exp.amount||0).toFixed(2)}</td>
           <td>€${(exp.vatAmount||0).toFixed(2)}</td>
           <td><strong>€${(exp.total||0).toFixed(2)}</strong></td>
-          <td>${exp.status||""}</td>
           <td>
             <button class="btn small" onclick="editExpense('${exp.id}')">✏</button>
+            <button class="btn small" onclick="showDetails('${exp.id}')">🔍</button>
             <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId||""}')">🗑</button>
           </td>`;
         body.appendChild(tr);
@@ -129,6 +148,32 @@
       $("sumVat").textContent=`€${vat.toFixed(2)}`;
       $("sumTotal").textContent=`€${total.toFixed(2)}`;
     }
+
+    function showDetails(id){
+      const exp=allExpenses.find(e=>e.id===id);
+      if(!exp)return;
+      const box=$("detailsContent");
+      box.innerHTML=`
+        <p><strong>ID:</strong> ${exp.expenseId}</p>
+        <p><strong>Date:</strong> ${exp.date}</p>
+        <p><strong>Description:</strong> ${exp.description}</p>
+        <p><strong>Type:</strong> ${exp.type}</p>
+        <p><strong>Category:</strong> ${exp.category}</p>
+        <p><strong>Country:</strong> ${exp.country}</p>
+        <p><strong>Payment Method:</strong> ${exp.paymentMethod}</p>
+        <p><strong>Status:</strong> ${exp.status}</p>
+        <p><strong>Amount:</strong> €${(exp.amount||0).toFixed(2)}</p>
+        <p><strong>VAT:</strong> €${(exp.vatAmount||0).toFixed(2)}</p>
+        <p><strong>Total:</strong> €${(exp.total||0).toFixed(2)}</p>
+        <p><strong>Notes:</strong> ${exp.notes||"—"}</p>
+        <p><strong>Invoice Attached:</strong> ${exp.invoiceAttached||"No"}</p>
+        <p><strong>Business:</strong> ${exp.businessName||""}</p>
+        <p><strong>Email:</strong> ${exp.email||""}</p>
+        <p><strong>Address:</strong> ${exp.businessAddress||""}</p>`;
+      $("detailsModal").classList.add("active");
+    }
+
+    $("closeDetails")?.addEventListener("click",()=>$("detailsModal").classList.remove("active"));
 
     async function deleteExpense(docId, displayId){
       if(!confirm(`Delete expense ${displayId}?`))return;
@@ -155,49 +200,12 @@
       renderExpenses(list);
     }
 
-    function exportCSV(){
-      if(!allExpenses.length)return alert("No data to export");
-      const headers=["ID","Date","Description","Category","Country","Amount","VAT","Total","Status"];
-      const rows=allExpenses.map(e=>[
-        e.expenseId,e.date,e.description,e.category,e.country,
-        e.amount?.toFixed(2),e.vatAmount?.toFixed(2),e.total?.toFixed(2),e.status
-      ]);
-      const csv=[headers.join(","),...rows.map(r=>r.join(","))].join("\n");
-      const blob=new Blob([csv],{type:"text/csv"});
-      const a=document.createElement("a");
-      a.href=URL.createObjectURL(blob);
-      a.download="SmartWerk_Expenses.csv";
-      a.click();
-    }
-
-    function exportPDF(){
-      if(!allExpenses.length)return alert("No data to export");
-      const isPro=$("proMode").checked;
-      const doc=new jsPDF();
-      doc.setFontSize(16);
-      doc.text("SmartWerk — Expense Report",14,20);
-      let y=30;
-      allExpenses.forEach(e=>{
-        doc.setFontSize(11);
-        doc.text(`${e.expenseId||""} | ${e.description||""} | €${(e.total||0).toFixed(2)} | ${e.status}`,14,y);
-        y+=6; if(y>270){doc.addPage();y=20;}
-      });
-      if(!isPro){
-        doc.setFontSize(10);
-        doc.setTextColor(150);
-        doc.text("Generated with SmartWerk — smartwerk.nl",14,290);
-      }
-      doc.save("SmartWerk_Expenses.pdf");
-    }
-
     document.addEventListener("DOMContentLoaded",()=>{
       ["search","filterStatus","filterCountry"].forEach(id=>$(id)?.addEventListener("input",filterAndSearch));
       $("refreshBtn")?.addEventListener("click",()=>{
         const user=auth.currentUser;
         if(user)loadExpenses(user.uid);
       });
-      $("csvBtn")?.addEventListener("click",exportCSV);
-      $("pdfBtn")?.addEventListener("click",exportPDF);
     });
 
     onAuthStateChanged(auth, user=>{
@@ -205,6 +213,7 @@
       loadExpenses(user.uid);
       window.deleteExpense=deleteExpense;
       window.editExpense=editExpense;
+      window.showDetails=showDetails;
     });
   </script>
 </body>
