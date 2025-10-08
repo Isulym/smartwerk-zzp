@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📊 SmartWerk — Saved Expenses</title>
+  <link rel="stylesheet" href="style-invoices.css"/>
+  <style>
+    body { background:#0f172a; color:#e5e7eb; font-family:'Inter',sans-serif; }
+    h1,h2{color:#fff;}
+    table{width:100%;border-collapse:collapse;margin-top:15px;}
+    th,td{border-bottom:1px solid #1e293b;padding:8px;text-align:left;}
+    th{color:#3b82f6;}
+    tr:hover{background:#1e293b;}
+    input,select{background:#1e293b;color:#fff;border:none;border-radius:6px;padding:6px 8px;}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+    .btn{background:#475569;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;}
+    .btn-primary{background:#3b82f6;}
+    .summary{margin-top:15px;padding:10px;background:#1e293b;border-radius:8px;}
+    .summary p{margin:3px 0;}
+    .small{padding:5px 8px;font-size:13px;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📊 SmartWerk — Saved Expenses</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="expense-csv.html" class="btn">➕ New Expense</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="🔍 Search by description or ID...">
+      <select id="filterStatus">
+        <option value="">All Statuses</option>
+        <option>Paid</option><option>Pending</option><option>Overdue</option><option>Scheduled</option>
+      </select>
+      <select id="filterCountry">
+        <option value="">All Countries</option>
+        <option>Netherlands</option><option>Belgium</option><option>Germany</option><option>France</option><option>Spain</option>
+      </select>
+      <button class="btn" id="refreshBtn">🔄 Refresh</button>
+      <button class="btn" id="csvBtn">📊 Export CSV</button>
+      <button class="btn" id="pdfBtn">📄 Export PDF</button>
+      <label style="font-size:13px;"><input type="checkbox" id="proMode"> PRO (no branding)</label>
+    </div>
+
+    <table id="expensesTable">
+      <thead>
+        <tr>
+          <th>ID</th><th>Date</th><th>Description</th><th>Category</th><th>Country</th>
+          <th>Amount</th><th>VAT</th><th>Total</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="expensesBody"><tr><td colspan="10">Loading...</td></tr></tbody>
+    </table>
+
+    <div class="summary">
+      <h3>📈 Summary</h3>
+      <p>Subtotal: <span id="sumSubtotal">€0.00</span></p>
+      <p>VAT: <span id="sumVat">€0.00</span></p>
+      <p><strong>Total: <span id="sumTotal">€0.00</span></strong></p>
+    </div>
+  </main>
+
+  <footer><p>© 2025 SmartWerk</p></footer>
+
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.es.min.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    const $ = (id)=>document.getElementById(id);
+
+    let allExpenses=[];
+
+    async function loadExpenses(uid){
+      const body=$("expensesBody");
+      body.innerHTML="<tr><td colspan='10'>Loading...</td></tr>";
+      const snap=await getDocs(collection(db,"users",uid,"expenses"));
+      const list=snap.docs.map(d=>({id:d.id,...d.data()}));
+      allExpenses=list.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      renderExpenses(allExpenses);
+    }
+
+    function renderExpenses(list){
+      const body=$("expensesBody");
+      body.innerHTML="";
+      if(!list.length){ body.innerHTML="<tr><td colspan='10'>No expenses yet.</td></tr>"; return; }
+
+      let sub=0,vat=0,total=0;
+      list.forEach(exp=>{
+        sub+=exp.amount||0;
+        vat+=exp.vatAmount||0;
+        total+=exp.total||0;
+
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td>${exp.expenseId||""}</td>
+          <td>${exp.date||""}</td>
+          <td>${exp.description||""}</td>
+          <td>${exp.category||""}</td>
+          <td>${exp.country||""}</td>
+          <td>€${(exp.amount||0).toFixed(2)}</td>
+          <td>€${(exp.vatAmount||0).toFixed(2)}</td>
+          <td><strong>€${(exp.total||0).toFixed(2)}</strong></td>
+          <td>${exp.status||""}</td>
+          <td>
+            <button class="btn small" onclick="editExpense('${exp.id}')">✏</button>
+            <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId||""}')">🗑</button>
+          </td>`;
+        body.appendChild(tr);
+      });
+
+      $("sumSubtotal").textContent=`€${sub.toFixed(2)}`;
+      $("sumVat").textContent=`€${vat.toFixed(2)}`;
+      $("sumTotal").textContent=`€${total.toFixed(2)}`;
+    }
+
+    async function deleteExpense(docId, displayId){
+      if(!confirm(`Delete expense ${displayId}?`))return;
+      const user=auth.currentUser;
+      await deleteDoc(doc(db,"users",user.uid,"expenses",docId));
+      alert("🗑 Expense deleted");
+      loadExpenses(user.uid);
+    }
+
+    function editExpense(docId){
+      localStorage.setItem("editExpenseId",docId);
+      location.href="expense-csv.html";
+    }
+
+    function filterAndSearch(){
+      const q=$("search").value.toLowerCase();
+      const status=$("filterStatus").value;
+      const country=$("filterCountry").value;
+      let list=allExpenses.filter(e=>{
+        return (!q || e.description?.toLowerCase().includes(q) || e.expenseId?.toLowerCase().includes(q)) &&
+               (!status || e.status===status) &&
+               (!country || e.country===country);
+      });
+      renderExpenses(list);
+    }
+
+    function exportCSV(){
+      if(!allExpenses.length)return alert("No data to export");
+      const headers=["ID","Date","Description","Category","Country","Amount","VAT","Total","Status"];
+      const rows=allExpenses.map(e=>[
+        e.expenseId,e.date,e.description,e.category,e.country,
+        e.amount?.toFixed(2),e.vatAmount?.toFixed(2),e.total?.toFixed(2),e.status
+      ]);
+      const csv=[headers.join(","),...rows.map(r=>r.join(","))].join("\n");
+      const blob=new Blob([csv],{type:"text/csv"});
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download="SmartWerk_Expenses.csv";
+      a.click();
+    }
+
+    function exportPDF(){
+      if(!allExpenses.length)return alert("No data to export");
+      const isPro=$("proMode").checked;
+      const doc=new jsPDF();
+      doc.setFontSize(16);
+      doc.text("SmartWerk — Expense Report",14,20);
+      let y=30;
+      allExpenses.forEach(e=>{
+        doc.setFontSize(11);
+        doc.text(`${e.expenseId||""} | ${e.description||""} | €${(e.total||0).toFixed(2)} | ${e.status}`,14,y);
+        y+=6; if(y>270){doc.addPage();y=20;}
+      });
+      if(!isPro){
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        doc.text("Generated with SmartWerk — smartwerk.nl",14,290);
+      }
+      doc.save("SmartWerk_Expenses.pdf");
+    }
+
+    document.addEventListener("DOMContentLoaded",()=>{
+      ["search","filterStatus","filterCountry"].forEach(id=>$(id)?.addEventListener("input",filterAndSearch));
+      $("refreshBtn")?.addEventListener("click",()=>{
+        const user=auth.currentUser;
+        if(user)loadExpenses(user.uid);
+      });
+      $("csvBtn")?.addEventListener("click",exportCSV);
+      $("pdfBtn")?.addEventListener("click",exportPDF);
+    });
+
+    onAuthStateChanged(auth, user=>{
+      if(!user){location.href="login.html";return;}
+      loadExpenses(user.uid);
+      window.deleteExpense=deleteExpense;
+      window.editExpense=editExpense;
+    });
+  </script>
+</body>
+</html>
