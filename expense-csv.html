@@ -168,7 +168,7 @@
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-  <script type="module">
+ <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, addDoc, collection, runTransaction, serverTimestamp } 
@@ -184,148 +184,160 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const $ = (id)=>document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 
 // ======== Read Profile ========
-async function readProfile(uid){
+async function readProfile(uid) {
   const paths = [
     ["users", uid, "profile", "main"],
     ["users", uid, "profile", uid],
     ["users", uid, "settings", "profile"],
-    ["users", uid]
+    ["users", uid],
   ];
-  for (const p of paths){
-    try{
-      const ref = doc(db,...p);
+  for (const p of paths) {
+    try {
+      const ref = doc(db, ...p);
       const snap = await getDoc(ref);
-      if(snap.exists()){
+      if (snap.exists()) {
         console.log(`✅ Profile found: /${p.join("/")}`);
         return snap.data();
       }
-    }catch(e){ console.warn(e.message); }
+    } catch (e) {
+      console.warn(e.message);
+    }
   }
   console.warn("❌ No profile found");
   return null;
 }
 
-async function autofillProfile(uid){
+async function autofillProfile(uid) {
   const p = await readProfile(uid);
-  if(!p) return;
-  const set = (id,v)=>{ const el=$(id); if(el && !el.value) el.value=v||""; };
-  set("businessName",p.businessName||p.fullName||"");
-  set("email",p.email||p.businessEmail||"");
-  set("businessAddress",p.businessAddress||p.address||"");
+  if (!p) return;
+  const set = (id, v) => {
+    const el = $(id);
+    if (el && !el.value) el.value = v || "";
+  };
+  set("businessName", p.businessName || p.fullName || "");
+  set("email", p.email || p.businessEmail || "");
+  set("businessAddress", p.businessAddress || p.address || "");
   console.log("✅ Profile auto-filled");
 }
 
 // ======== Expense ID Generator ========
-async function generateExpenseId(uid){
-  const ref=doc(db,"users",uid);
-  const year=new Date().getFullYear();
-  let out="";
-  await runTransaction(db, async(tx)=>{
-    const s=await tx.get(ref);
-    const last=s.exists()?(s.data().lastExpenseNumber||0):0;
-    const next=last+1;
-    tx.set(ref,{lastExpenseNumber:next},{merge:true});
-    out=`EXP-${year}-${String(next).padStart(3,"0")}`;
+async function generateExpenseId(uid) {
+  const ref = doc(db, "users", uid);
+  const year = new Date().getFullYear();
+  let out = "";
+  await runTransaction(db, async (tx) => {
+    const s = await tx.get(ref);
+    const last = s.exists() ? s.data().lastExpenseNumber || 0 : 0;
+    const next = last + 1;
+    tx.set(ref, { lastExpenseNumber: next }, { merge: true });
+    out = `EXP-${year}-${String(next).padStart(3, "0")}`;
   });
   return out;
 }
 
 // ======== Totals ========
-function updateTotals(){
-  const amt=parseFloat($("#amount")?.value||0);
-  const vat=parseFloat($("#vat")?.value||0);
-  const vatAmt=(amt*vat/100)||0;
-  const total=amt+vatAmt;
-  if($("#subtotalDisplay")) $("#subtotalDisplay").innerText=`€${amt.toFixed(2)}`;
-  if($("#vatDisplay")) $("#vatDisplay").innerText=`€${vatAmt.toFixed(2)}`;
-  if($("#totalDisplay")) $("#totalDisplay").innerText=`€${total.toFixed(2)}`;
+function updateTotals() {
+  const amt = parseFloat($("#amount")?.value || 0);
+  const vat = parseFloat($("#vat")?.value || 0);
+  const vatAmt = (amt * vat) / 100;
+  const total = amt + vatAmt;
+
+  if ($("#subtotalDisplay")) $("#subtotalDisplay").textContent = `€${amt.toFixed(2)}`;
+  if ($("#vatDisplay")) $("#vatDisplay").textContent = `€${vatAmt.toFixed(2)}`;
+  if ($("#totalDisplay")) $("#totalDisplay").textContent = `€${total.toFixed(2)}`;
 }
 
 // ======== Smart Suggest ========
-function initSmartSuggest(){
-  const modal=$("#smartSuggestModal");
-  const btn=$("#smartSuggestBtn");
-  const close=$("#closeSuggest");
-  const cat=$("#category");
-  const hint=$("#smartHint");
+function initSmartSuggest() {
+  const modal = $("#smartSuggestModal");
+  const openBtn = $("#smartSuggestBtn");
+  const closeBtn = $("#closeSuggest");
+  const cat = $("#category");
+  const hint = $("#smartHint");
 
-  btn?.addEventListener("click",()=>{
+  openBtn?.addEventListener("click", () => {
     modal.classList.add("active");
-    modal.style.pointerEvents="auto";
+    modal.style.pointerEvents = "auto";
   });
-  close?.addEventListener("click",()=>{
+  closeBtn?.addEventListener("click", () => {
     modal.classList.remove("active");
-    modal.style.pointerEvents="none";
+    modal.style.pointerEvents = "none";
   });
 
-  document.querySelectorAll(".suggest-btn").forEach(el=>{
-    el.addEventListener("click",()=>{
-      cat.value=el.dataset.cat;
+  document.querySelectorAll(".suggest-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const val = btn.dataset.cat;
+      if (cat) cat.value = val;
       modal.classList.remove("active");
-      hint.innerText=`✅ Category set: ${el.dataset.cat}`;
-      hint.style.opacity="1";
-      hint.style.display="block";
-      setTimeout(()=>{hint.style.opacity="0";},2000);
-      setTimeout(()=>{hint.style.display="none";},2500);
+      modal.style.pointerEvents = "none";
+
+      hint.textContent = `✅ Category set: ${val}`;
+      hint.style.display = "block";
+      hint.style.opacity = "1";
+      setTimeout(() => (hint.style.opacity = "0"), 2000);
+      setTimeout(() => (hint.style.display = "none"), 2500);
     });
   });
 }
 
 // ======== Save Expense ========
-async function saveExpense(uid){
-  const get=(id)=>$(id)?.value||"";
-  const idField=$("#expenseId");
-  const id=(idField && idField.value)?idField.value:await generateExpenseId(uid);
-  const amt=parseFloat(get("amount"))||0;
-  const vat=parseFloat(get("vat"))||0;
-  const vatAmt=amt*vat/100;
-  const total=amt+vatAmt;
+async function saveExpense(uid) {
+  const get = (id) => $(id)?.value || "";
+  const idField = $("#expenseId");
+  const id = (idField && idField.value) ? idField.value : await generateExpenseId(uid);
+  const amt = parseFloat(get("amount")) || 0;
+  const vat = parseFloat(get("vat")) || 0;
+  const vatAmt = amt * vat / 100;
+  const total = amt + vatAmt;
 
-  const data={
-    expenseId:id,
-    date:get("date"),
-    description:get("description"),
-    type:get("type"),
-    category:get("category"),
-    country:get("country"),
-    amount:amt,
-    vatPercent:vat,
-    vatAmount:vatAmt,
-    total:total,
-    invoiceAttached:get("invoiceAttached"),
-    paymentMethod:get("paymentMethod"),
-    status:get("status"),
-    notes:get("notes"),
-    businessName:get("businessName"),
-    email:get("email"),
-    businessAddress:get("businessAddress"),
-    createdAt:serverTimestamp()
+  const data = {
+    expenseId: id,
+    date: get("date"),
+    description: get("description"),
+    type: get("type"),
+    category: get("category"),
+    country: get("country"),
+    amount: amt,
+    vatPercent: vat,
+    vatAmount: vatAmt,
+    total: total,
+    invoiceAttached: get("invoiceAttached"),
+    paymentMethod: get("paymentMethod"),
+    status: get("status"),
+    notes: get("notes"),
+    businessName: get("businessName"),
+    email: get("email"),
+    businessAddress: get("businessAddress"),
+    createdAt: serverTimestamp(),
   };
 
-  await addDoc(collection(db,"users",uid,"expenses"),data);
+  await addDoc(collection(db, "users", uid, "expenses"), data);
   alert(`✅ Expense saved successfully (${id})`);
 }
 
 // ======== INIT ========
-document.addEventListener("DOMContentLoaded",()=>{
-  ["amount","vat"].forEach(id=>$("#"+id)?.addEventListener("input",updateTotals));
+document.addEventListener("DOMContentLoaded", () => {
+  ["amount", "vat"].forEach((id) => $(id)?.addEventListener("input", updateTotals));
   initSmartSuggest();
   updateTotals();
 });
 
-onAuthStateChanged(auth, async(user)=>{
-  if(!user){ location.href="login.html"; return; }
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
   await autofillProfile(user.uid);
-  const idEl=$("#expenseId");
-  const newId=await generateExpenseId(user.uid);
-  if(idEl) idEl.value=newId;
+  const idEl = $("#expenseId");
+  const newId = await generateExpenseId(user.uid);
+  if (idEl) idEl.value = newId;
   updateTotals();
 
-  $("#saveBtn")?.addEventListener("click",()=>saveExpense(user.uid));
-  $("#viewBtn")?.addEventListener("click",()=>location.href="expense-csv-list.html");
+  $("#saveBtn")?.addEventListener("click", () => saveExpense(user.uid));
+  $("#viewBtn")?.addEventListener("click", () => (location.href = "expense-csv-list.html"));
 });
 </script>
 </body>
