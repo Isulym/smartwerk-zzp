@@ -189,78 +189,103 @@
       loadExpenses(user.uid);
     }
 
-     // === EXPORT PDF ===
-    window.exportExpensePDF = function(id, withBranding=true){
-      const exp = allExpenses.find(e => e.id === id);
-      if(!exp) return alert("Expense not found.");
+    // === EXPORT PDF (PRO DESIGN) ===
+window.exportExpensePDF = function(id, withBranding = true) {
+  const exp = allExpenses.find(e => e.id === id);
+  if (!exp) return alert("Expense not found.");
 
-      const doc = new jsPDF();
-      let y = 20;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+  const blue = [59, 130, 246]; // SmartWerk blue
+  let y = 20;
 
-      // HEADER
-      doc.setFont("helvetica","bold").setFontSize(20).text("Expense Report",14,y);
-      y+=10;
-      doc.setDrawColor(60,130,255);
-      doc.line(14,y,196,y);
-      y+=8;
+  // 🔹 HEADER
+  if (withBranding) {
+    doc.setFillColor(...blue);
+    doc.rect(0, 0, 210, 30, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold").setFontSize(20);
+    doc.text("SmartWerk Expense Report", 14, 20);
+  } else {
+    doc.setFont("helvetica", "bold").setFontSize(18);
+    doc.text("Expense Report", 14, 20);
+  }
 
-      // BUSINESS INFO
-      doc.setFontSize(13).setFont("helvetica","bold").text("Business Info",14,y); y+=7;
-      doc.setFont("helvetica","normal").setFontSize(11);
-      doc.text(`${exp.businessName||"-"}\n${exp.email||"-"}\n${exp.businessAddress||"-"}`,14,y);
-      y+=22;
+  y = 40;
 
-      // EXPENSE DETAILS
-      doc.setFontSize(13).setFont("helvetica","bold").text("Expense Details",14,y); y+=7;
-      const lines = [
-        ["Expense ID", exp.expenseId],
-        ["Date", exp.date],
-        ["Description", exp.description],
-        ["Type", exp.type],
-        ["Category", exp.category],
-        ["Country", exp.country],
-        ["Payment Method", exp.paymentMethod],
-        ["Status", exp.status],
-        ["Invoice Attached", exp.invoiceAttached]
-      ];
-      doc.setFont("helvetica","normal").setFontSize(11);
-      lines.forEach(([k,v])=>{
-        doc.text(`${k}: ${v||"-"}`,14,y);
-        y+=6;
-      });
+  // 🧾 Expense header info
+  doc.setFont("helvetica", "normal").setFontSize(12).setTextColor(0, 0, 0);
+  doc.text(`Expense ID: ${exp.expenseId || "—"}`, 14, y);
+  y += 6;
+  doc.text(`Date: ${exp.date || "—"}`, 14, y);
+  y += 10;
 
-      // TOTALS
-      y+=4;
-      doc.setFont("helvetica","bold").setFontSize(13).text("Totals",14,y); y+=7;
-      doc.setFont("helvetica","normal").setFontSize(11);
-      doc.text(`Subtotal: €${(exp.amount||0).toFixed(2)}`,14,y); y+=6;
-      doc.text(`VAT (${exp.vatPercent||21}%): €${(exp.vatAmount||0).toFixed(2)}`,14,y); y+=6;
-      doc.text(`Total: €${(exp.total||0).toFixed(2)}`,14,y); y+=10;
+  // 🏢 Business Info
+  doc.setDrawColor(...blue);
+  doc.setFont("helvetica", "bold").setFontSize(13);
+  doc.text("Business Information", 14, y);
+  y += 6;
+  doc.setFont("helvetica", "normal").setFontSize(11);
+  doc.text(`${exp.businessName || "-"}\n${exp.email || "-"}\n${exp.businessAddress || "-"}`, 14, y);
+  y += 22;
 
-      // BRANDING
-      if(withBranding){
-        doc.setDrawColor(60,130,255);
-        doc.line(14,282,196,282);
-        doc.setFontSize(9).setTextColor(120);
-        doc.text("Generated with SmartWerk — smartwerk.nl",14,288);
-      }
+  // 💸 Expense Details (table style)
+  doc.setFont("helvetica", "bold").setFontSize(13);
+  doc.text("Expense Details", 14, y);
+  y += 6;
+  doc.setFont("helvetica", "normal").setFontSize(11);
 
-      doc.save(`Expense-${exp.expenseId||"SmartWerk"}.pdf`);
-    };
+  const details = [
+    ["Description", exp.description],
+    ["Type", exp.type],
+    ["Category", exp.category],
+    ["Country", exp.country],
+    ["Payment Method", exp.paymentMethod],
+    ["Status", exp.status],
+    ["Invoice Attached", exp.invoiceAttached],
+    ["Notes", exp.notes || "—"]
+  ];
 
-    // === EXPORT CSV ===
-    window.exportExpenseCSV = function(id){
-      const exp = allExpenses.find(e => e.id === id);
-      if(!exp) return alert("Expense not found.");
-      const headers = Object.keys(exp);
-      const values = Object.values(exp).map(v=>`"${String(v??"").replace(/"/g,'""')}"`);
-      const csv = [headers.join(","),values.join(",")].join("\n");
-      const blob = new Blob([csv],{type:"text/csv"});
-      const url = URL.createObjectURL(blob);
-      const a=document.createElement("a");
-      a.href=url; a.download=`Expense-${exp.expenseId||"SmartWerk"}.csv`; a.click();
-      URL.revokeObjectURL(url);
-    };
+  details.forEach(([label, value]) => {
+    if (y > 260) { doc.addPage(); y = 20; }
+    doc.setFont("helvetica", "bold");
+    doc.text(`${label}:`, 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(value || "—"), 70, y);
+    y += 7;
+  });
+
+  // 💰 Totals section
+  y += 6;
+  doc.setDrawColor(...blue);
+  doc.setLineWidth(0.5);
+  doc.line(14, y, 196, y);
+  y += 8;
+
+  doc.setFont("helvetica", "bold").setFontSize(13);
+  doc.text("Totals", 14, y);
+  y += 7;
+
+  doc.setFont("helvetica", "normal").setFontSize(11);
+  doc.text(`Subtotal: €${(exp.amount || 0).toFixed(2)}`, 14, y);
+  y += 6;
+  doc.text(`VAT (${exp.vatPercent || 21}%): €${(exp.vatAmount || 0).toFixed(2)}`, 14, y);
+  y += 6;
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total: €${(exp.total || 0).toFixed(2)}`, 14, y);
+  y += 12;
+
+  // 🧠 SmartWerk branding
+  if (withBranding) {
+    doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(100);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
+    doc.setDrawColor(...blue);
+    doc.line(14, 284, 196, 284);
+  }
+
+  // 💾 Save file
+  doc.save(`SmartWerk_Expense_${exp.expenseId || "Report"}.pdf`);
+};
 
     function editExpense(docId){
       localStorage.setItem("editExpenseId",docId);
