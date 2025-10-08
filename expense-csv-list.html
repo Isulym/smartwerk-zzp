@@ -56,15 +56,15 @@
     </div>
 
     <table id="expensesTable">
-      <thead>
-        <tr>
-          <th>ID</th><th>Date</th><th>Description</th><th>Category</th>
-          <th>Type</th><th>Payment Method</th><th>Status</th>
-          <th>Amount</th><th>VAT</th><th>Total</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="expensesBody"><tr><td colspan="11">Loading...</td></tr></tbody>
-    </table>
+  <thead>
+    <tr>
+      <th>ID</th><th>Date</th><th>Description</th><th>Category</th>
+      <th>Type</th><th>Payment</th><th>Status</th>
+      <th>Amount</th><th>VAT</th><th>Total</th><th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="expensesBody"><tr><td colspan="11">Loading...</td></tr></tbody>
+</table>
 
     <div class="summary">
       <h3>📈 Summary</h3>
@@ -114,40 +114,46 @@
     }
 
     function renderExpenses(list){
-      const body=$("expensesBody");
-      body.innerHTML="";
-      if(!list.length){ body.innerHTML="<tr><td colspan='11'>No expenses yet.</td></tr>"; return; }
+  const body=$("expensesBody");
+  body.innerHTML="";
+  if(!list.length){
+    body.innerHTML="<tr><td colspan='11'>No expenses yet.</td></tr>";
+    return;
+  }
 
-      let sub=0,vat=0,total=0;
-      list.forEach(exp=>{
-        sub+=exp.amount||0;
-        vat+=exp.vatAmount||0;
-        total+=exp.total||0;
+  let sub=0, vat=0, total=0;
+  list.forEach(exp=>{
+    sub += exp.amount || 0;
+    vat += exp.vatAmount || 0;
+    total += exp.total || 0;
 
-        const tr=document.createElement("tr");
-        tr.innerHTML=`
-          <td>${exp.expenseId||""}</td>
-          <td>${exp.date||""}</td>
-          <td>${exp.description||""}</td>
-          <td>${exp.category||""}</td>
-          <td>${exp.type||""}</td>
-          <td>${exp.paymentMethod||""}</td>
-          <td>${exp.status||""}</td>
-          <td>€${(exp.amount||0).toFixed(2)}</td>
-          <td>€${(exp.vatAmount||0).toFixed(2)}</td>
-          <td><strong>€${(exp.total||0).toFixed(2)}</strong></td>
-          <td>
-            <button class="btn small" onclick="editExpense('${exp.id}')">✏</button>
-            <button class="btn small" onclick="showDetails('${exp.id}')">🔍</button>
-            <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId||""}')">🗑</button>
-          </td>`;
-        body.appendChild(tr);
-      });
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${exp.expenseId||""}</td>
+      <td>${exp.date||""}</td>
+      <td>${exp.description||""}</td>
+      <td>${exp.category||""}</td>
+      <td>${exp.type||""}</td>
+      <td>${exp.paymentMethod||""}</td>
+      <td>${exp.status||""}</td>
+      <td>€${(exp.amount||0).toFixed(2)}</td>
+      <td>€${(exp.vatAmount||0).toFixed(2)}</td>
+      <td><strong>€${(exp.total||0).toFixed(2)}</strong></td>
+      <td>
+        <button class="btn small" onclick="editExpense('${exp.id}')">✏</button>
+        <button class="btn small" onclick="showDetails('${exp.id}')">🔍</button>
+        <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId||""}')">🗑</button>
+        <button class="btn small" onclick="exportExpensePDF('${exp.id}',true)">📄</button>
+        <button class="btn small" onclick="exportExpensePDF('${exp.id}',false)">💼</button>
+        <button class="btn small" onclick="exportExpenseCSV('${exp.id}')">📊</button>
+      </td>`;
+    body.appendChild(tr);
+  });
 
-      $("sumSubtotal").textContent=`€${sub.toFixed(2)}`;
-      $("sumVat").textContent=`€${vat.toFixed(2)}`;
-      $("sumTotal").textContent=`€${total.toFixed(2)}`;
-    }
+  $("sumSubtotal").textContent=`€${sub.toFixed(2)}`;
+  $("sumVat").textContent=`€${vat.toFixed(2)}`;
+  $("sumTotal").textContent=`€${total.toFixed(2)}`;
+}
 
     function showDetails(id){
       const exp=allExpenses.find(e=>e.id===id);
@@ -183,6 +189,79 @@
       loadExpenses(user.uid);
     }
 
+     // === EXPORT PDF ===
+    window.exportExpensePDF = function(id, withBranding=true){
+      const exp = allExpenses.find(e => e.id === id);
+      if(!exp) return alert("Expense not found.");
+
+      const doc = new jsPDF();
+      let y = 20;
+
+      // HEADER
+      doc.setFont("helvetica","bold").setFontSize(20).text("Expense Report",14,y);
+      y+=10;
+      doc.setDrawColor(60,130,255);
+      doc.line(14,y,196,y);
+      y+=8;
+
+      // BUSINESS INFO
+      doc.setFontSize(13).setFont("helvetica","bold").text("Business Info",14,y); y+=7;
+      doc.setFont("helvetica","normal").setFontSize(11);
+      doc.text(`${exp.businessName||"-"}\n${exp.email||"-"}\n${exp.businessAddress||"-"}`,14,y);
+      y+=22;
+
+      // EXPENSE DETAILS
+      doc.setFontSize(13).setFont("helvetica","bold").text("Expense Details",14,y); y+=7;
+      const lines = [
+        ["Expense ID", exp.expenseId],
+        ["Date", exp.date],
+        ["Description", exp.description],
+        ["Type", exp.type],
+        ["Category", exp.category],
+        ["Country", exp.country],
+        ["Payment Method", exp.paymentMethod],
+        ["Status", exp.status],
+        ["Invoice Attached", exp.invoiceAttached]
+      ];
+      doc.setFont("helvetica","normal").setFontSize(11);
+      lines.forEach(([k,v])=>{
+        doc.text(`${k}: ${v||"-"}`,14,y);
+        y+=6;
+      });
+
+      // TOTALS
+      y+=4;
+      doc.setFont("helvetica","bold").setFontSize(13).text("Totals",14,y); y+=7;
+      doc.setFont("helvetica","normal").setFontSize(11);
+      doc.text(`Subtotal: €${(exp.amount||0).toFixed(2)}`,14,y); y+=6;
+      doc.text(`VAT (${exp.vatPercent||21}%): €${(exp.vatAmount||0).toFixed(2)}`,14,y); y+=6;
+      doc.text(`Total: €${(exp.total||0).toFixed(2)}`,14,y); y+=10;
+
+      // BRANDING
+      if(withBranding){
+        doc.setDrawColor(60,130,255);
+        doc.line(14,282,196,282);
+        doc.setFontSize(9).setTextColor(120);
+        doc.text("Generated with SmartWerk — smartwerk.nl",14,288);
+      }
+
+      doc.save(`Expense-${exp.expenseId||"SmartWerk"}.pdf`);
+    };
+
+    // === EXPORT CSV ===
+    window.exportExpenseCSV = function(id){
+      const exp = allExpenses.find(e => e.id === id);
+      if(!exp) return alert("Expense not found.");
+      const headers = Object.keys(exp);
+      const values = Object.values(exp).map(v=>`"${String(v??"").replace(/"/g,'""')}"`);
+      const csv = [headers.join(","),values.join(",")].join("\n");
+      const blob = new Blob([csv],{type:"text/csv"});
+      const url = URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url; a.download=`Expense-${exp.expenseId||"SmartWerk"}.csv`; a.click();
+      URL.revokeObjectURL(url);
+    };
+
     function editExpense(docId){
       localStorage.setItem("editExpenseId",docId);
       location.href="expense-csv.html";
@@ -215,6 +294,8 @@
       window.editExpense=editExpense;
       window.showDetails=showDetails;
     });
+
+    
   </script>
 </body>
 </html>
