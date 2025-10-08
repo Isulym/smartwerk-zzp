@@ -50,9 +50,7 @@
         <option>Netherlands</option><option>Belgium</option><option>Germany</option><option>France</option><option>Spain</option>
       </select>
       <button class="btn" id="refreshBtn">🔄 Refresh</button>
-      <button class="btn" id="csvBtn">📊 Export CSV</button>
-      <button class="btn" id="pdfBtn">📄 Export PDF</button>
-      <label style="font-size:13px;"><input type="checkbox" id="proMode"> PRO (no branding)</label>
+      <button id="exportAllPDF" class="btn">📄 Export All PDF</button>
     </div>
 
     <table id="expensesTable">
@@ -189,51 +187,65 @@
       loadExpenses(user.uid);
     }
 
-    // === EXPORT PDF (PRO DESIGN) ===
-window.exportExpensePDF = function(id, withBranding = true) {
-  const exp = allExpenses.find(e => e.id === id);
+ // === EXPORT PDF (SmartWerk PRO DESIGN v2.0) ===
+window.exportExpensePDF = function (id, withBranding = true) {
+  const exp = allExpenses.find((e) => e.id === id);
   if (!exp) return alert("Expense not found.");
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("p", "mm", "a4");
-  const blue = [59, 130, 246]; // SmartWerk blue
+  const blue = [59, 130, 246];
+  const gray = [245, 247, 250];
   let y = 20;
 
-  // 🔹 HEADER
+  // 🟦 HEADER
   if (withBranding) {
     doc.setFillColor(...blue);
     doc.rect(0, 0, 210, 30, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold").setFontSize(20);
-    doc.text("SmartWerk Expense Report", 14, 20);
+    doc.text("SmartWerk Expense Report", 20, 20);
+
+    // логотип SmartWerk (SVG через path)
+    doc.setDrawColor(255, 255, 255);
+    doc.setLineWidth(1.2);
+    doc.circle(190, 15, 5, "S");
+    doc.setFontSize(8).setFont("helvetica", "bold");
+    doc.text("SW", 187.8, 17.5);
   } else {
-    doc.setFont("helvetica", "bold").setFontSize(18);
-    doc.text("Expense Report", 14, 20);
+    doc.setFont("helvetica", "bold").setFontSize(18).setTextColor(0, 0, 0);
+    doc.text("Expense Report", 20, 20);
   }
 
   y = 40;
 
-  // 🧾 Expense header info
-  doc.setFont("helvetica", "normal").setFontSize(12).setTextColor(0, 0, 0);
-  doc.text(`Expense ID: ${exp.expenseId || "—"}`, 14, y);
+  // 🧾 Header Info
+  doc.setTextColor(0);
+  doc.setFont("helvetica", "normal").setFontSize(12);
+  doc.text(`Expense ID: ${exp.expenseId || "—"}`, 20, y);
   y += 6;
-  doc.text(`Date: ${exp.date || "—"}`, 14, y);
+  doc.text(`Date: ${exp.date || "—"}`, 20, y);
   y += 10;
 
-  // 🏢 Business Info
-  doc.setDrawColor(...blue);
+  // 🏢 BUSINESS INFO
+  doc.setFillColor(...gray);
+  doc.rect(14, y - 6, 182, 26, "F");
   doc.setFont("helvetica", "bold").setFontSize(13);
-  doc.text("Business Information", 14, y);
-  y += 6;
+  doc.setTextColor(...blue);
+  doc.text("Business Information", 20, y);
+  y += 7;
+  doc.setTextColor(0);
   doc.setFont("helvetica", "normal").setFontSize(11);
-  doc.text(`${exp.businessName || "-"}\n${exp.email || "-"}\n${exp.businessAddress || "-"}`, 14, y);
+  doc.text(`${exp.businessName || "-"}\n${exp.email || "-"}\n${exp.businessAddress || "-"}`, 20, y);
   y += 22;
 
-  // 💸 Expense Details (table style)
-  doc.setFont("helvetica", "bold").setFontSize(13);
-  doc.text("Expense Details", 14, y);
-  y += 6;
-  doc.setFont("helvetica", "normal").setFontSize(11);
+  // 💼 EXPENSE DETAILS
+  doc.setFillColor(...gray);
+  doc.rect(14, y - 6, 182, 70, "F");
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...blue);
+  doc.text("Expense Details", 20, y);
+  y += 8;
+  doc.setFont("helvetica", "normal").setFontSize(11).setTextColor(0);
 
   const details = [
     ["Description", exp.description],
@@ -243,49 +255,64 @@ window.exportExpensePDF = function(id, withBranding = true) {
     ["Payment Method", exp.paymentMethod],
     ["Status", exp.status],
     ["Invoice Attached", exp.invoiceAttached],
-    ["Notes", exp.notes || "—"]
+    ["Notes", exp.notes || "—"],
   ];
 
-  details.forEach(([label, value]) => {
-    if (y > 260) { doc.addPage(); y = 20; }
+  details.forEach(([k, v]) => {
     doc.setFont("helvetica", "bold");
-    doc.text(`${label}:`, 14, y);
+    doc.text(`${k}:`, 20, y);
     doc.setFont("helvetica", "normal");
-    doc.text(String(value || "—"), 70, y);
+    doc.text(String(v || "—"), 80, y);
     y += 7;
   });
 
-  // 💰 Totals section
   y += 6;
   doc.setDrawColor(...blue);
-  doc.setLineWidth(0.5);
   doc.line(14, y, 196, y);
+  y += 10;
+
+  // 💰 TOTALS
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(...blue);
+  doc.text("Totals", 20, y);
   y += 8;
-
-  doc.setFont("helvetica", "bold").setFontSize(13);
-  doc.text("Totals", 14, y);
-  y += 7;
-
-  doc.setFont("helvetica", "normal").setFontSize(11);
-  doc.text(`Subtotal: €${(exp.amount || 0).toFixed(2)}`, 14, y);
+  doc.setFont("helvetica", "normal").setFontSize(11).setTextColor(0);
+  doc.text(`Subtotal: €${(exp.amount || 0).toFixed(2)}`, 20, y);
   y += 6;
-  doc.text(`VAT (${exp.vatPercent || 21}%): €${(exp.vatAmount || 0).toFixed(2)}`, 14, y);
+  doc.text(`VAT (${exp.vatPercent || 21}%): €${(exp.vatAmount || 0).toFixed(2)}`, 20, y);
   y += 6;
   doc.setFont("helvetica", "bold");
-  doc.text(`Total: €${(exp.total || 0).toFixed(2)}`, 14, y);
-  y += 12;
+  doc.text(`Total: €${(exp.total || 0).toFixed(2)}`, 20, y);
+  y += 20;
 
-  // 🧠 SmartWerk branding
+  // 🧠 BRAND FOOTER
   if (withBranding) {
-    doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(100);
-    doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
     doc.setDrawColor(...blue);
+    doc.setLineWidth(0.3);
     doc.line(14, 284, 196, 284);
+    doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(120);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 20, 290);
   }
 
-  // 💾 Save file
-  doc.save(`SmartWerk_Expense_${exp.expenseId || "Report"}.pdf`);
+  // 💾 SAVE
+  const fileName = withBranding
+    ? `SmartWerk_Expense_${exp.expenseId || "Report"}.pdf`
+    : `Expense_${exp.expenseId || "Report"}_PRO.pdf`;
+  doc.save(fileName);
 };
+
+      // === EXPORT CSV ===
+    window.exportExpenseCSV = function(id){
+      const exp = allExpenses.find(e => e.id === id);
+      if(!exp) return alert("Expense not found.");
+      const headers = Object.keys(exp);
+      const values = Object.values(exp).map(v=>`"${String(v??"").replace(/"/g,'""')}"`);
+      const csv = [headers.join(","),values.join(",")].join("\n");
+      const blob = new Blob([csv],{type:"text/csv"});
+      const url = URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url; a.download=`Expense-${exp.expenseId||"SmartWerk"}.csv`; a.click();
+      URL.revokeObjectURL(url);
+    };
 
     function editExpense(docId){
       localStorage.setItem("editExpenseId",docId);
@@ -311,6 +338,117 @@ window.exportExpensePDF = function(id, withBranding = true) {
         if(user)loadExpenses(user.uid);
       });
     });
+
+    // === EXPORT ALL EXPENSES (BATCH PDF) ===
+window.exportAllExpensesPDF = async function(withBranding = true) {
+  if (!allExpenses || allExpenses.length === 0) {
+    alert("No expenses found to export.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+  const blue = [59, 130, 246];
+  const gray = [245, 247, 250];
+  const pageHeight = 297;
+  let y = 20;
+  let page = 1;
+
+  // 🔹 HEADER
+  const drawHeader = () => {
+    if (withBranding) {
+      doc.setFillColor(...blue);
+      doc.rect(0, 0, 210, 30, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold").setFontSize(20);
+      doc.text("SmartWerk Expense Summary", 20, 20);
+      doc.setFontSize(10);
+      doc.text(`Page ${page}`, 180, 20);
+    } else {
+      doc.setFont("helvetica", "bold").setFontSize(16);
+      doc.text("Expense Summary Report", 20, 20);
+      doc.setFontSize(10);
+      doc.text(`Page ${page}`, 180, 20);
+    }
+    y = 40;
+  };
+
+  drawHeader();
+
+  // 🔹 TABLE HEADER
+  const drawTableHeader = () => {
+    doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(...blue);
+    doc.text("ID", 14, y);
+    doc.text("Date", 34, y);
+    doc.text("Description", 64, y);
+    doc.text("Category", 114, y);
+    doc.text("Amount", 154, y);
+    doc.text("Total", 184, y);
+    y += 5;
+    doc.setDrawColor(...blue);
+    doc.line(14, y, 196, y);
+    y += 4;
+  };
+
+  drawTableHeader();
+
+  // 🔹 TABLE CONTENT
+  doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(0);
+
+  let subtotal = 0, vatSum = 0, totalSum = 0;
+
+  allExpenses.forEach((exp, i) => {
+    if (y > pageHeight - 30) {
+      page++;
+      doc.addPage();
+      drawHeader();
+      drawTableHeader();
+    }
+
+    subtotal += exp.amount || 0;
+    vatSum += exp.vatAmount || 0;
+    totalSum += exp.total || 0;
+
+    doc.text(exp.expenseId || "-", 14, y);
+    doc.text(exp.date || "-", 34, y);
+    doc.text((exp.description || "-").substring(0, 25), 64, y);
+    doc.text(exp.category || "-", 114, y);
+    doc.text(`€${(exp.amount || 0).toFixed(2)}`, 154, y, { align: "right" });
+    doc.text(`€${(exp.total || 0).toFixed(2)}`, 196, y, { align: "right" });
+    y += 6;
+  });
+
+  // 🔹 TOTALS
+  if (y > pageHeight - 40) { doc.addPage(); drawHeader(); }
+
+  y += 8;
+  doc.setDrawColor(...blue);
+  doc.line(14, y, 196, y);
+  y += 10;
+
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(...blue);
+  doc.text("Summary Totals", 14, y);
+  y += 7;
+  doc.setFont("helvetica", "normal").setFontSize(11).setTextColor(0);
+  doc.text(`Subtotal: €${subtotal.toFixed(2)}`, 14, y); y += 6;
+  doc.text(`VAT: €${vatSum.toFixed(2)}`, 14, y); y += 6;
+  doc.setFont("helvetica", "bold");
+  doc.text(`Grand Total: €${totalSum.toFixed(2)}`, 14, y); y += 20;
+
+  // 🔹 FOOTER
+  if (withBranding) {
+    doc.setDrawColor(...blue);
+    doc.line(14, 284, 196, 284);
+    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(120);
+    doc.text("Generated with SmartWerk — smartwerk.nl", 20, 290);
+  }
+
+  const name = withBranding ? "SmartWerk_All_Expenses.pdf" : "All_Expenses_PRO.pdf";
+  doc.save(name);
+};
+
+// === Connect button ===
+document.getElementById("exportAllPDF")?.addEventListener("click", () => exportAllExpensesPDF(true));
 
     onAuthStateChanged(auth, user=>{
       if(!user){location.href="login.html";return;}
