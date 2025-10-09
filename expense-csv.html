@@ -405,44 +405,52 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  // 🔹 Автозаповнення профілю
   await autofillFromProfile(user.uid);
 
+  // 🔹 Перевірка — редагування чи новий запис
   const editId = localStorage.getItem("editExpenseId");
 
   if (editId) {
-    // 🧩 Режим редагування
     console.log("✏️ Editing existing expense:", editId);
-    const ref = doc(db, "users", user.uid, "expenses", editId);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const exp = snap.data();
+    try {
+      const ref = doc(db, "users", user.uid, "expenses", editId);
+      const snap = await getDoc(ref);
 
-      // заповнюємо всі поля
-      for (const [key, val] of Object.entries(exp)) {
-        const el = document.getElementById(key);
-        if (el && typeof val !== "object") el.value = val;
-      }
+      if (snap.exists()) {
+        const exp = snap.data();
 
-      // 🧮 оновлюємо обчислення
-      renderTotals();
+        // заповнюємо всі поля
+        for (const [key, val] of Object.entries(exp)) {
+          const el = document.getElementById(key);
+          if (el && typeof val !== "object") el.value = val;
+        }
 
-      // 🧾 вибираємо правильний VAT %
-      if ($("#vat") && exp.vatPercent !== undefined) {
-        $("#vat").value = String(exp.vatPercent);
-      }
+        // 🧮 оновлюємо обчислення
+        renderTotals();
 
-      // змінюємо кнопку на "Update"
-      const btn = $("#saveBtn");
-      if (btn) btn.textContent = "💾 Update Expense";
+        // 🧾 вибираємо правильний VAT %
+        if ($("#vat") && exp.vatPercent !== undefined) {
+          $("#vat").value = String(exp.vatPercent);
+        }
 
-      btn?.addEventListener("click", async () => {
-        await saveExpense(user.uid, editId);
+        // змінюємо кнопку на "Update"
+        const btn = $("#saveBtn");
+        if (btn) btn.textContent = "💾 Update Expense";
+
+        // натискання на Save (оновити)
+        btn?.addEventListener("click", async () => {
+          await saveExpense(user.uid, editId);
+          localStorage.removeItem("editExpenseId");
+          alert("✅ Expense updated successfully!");
+          location.href = "expense-csv-list.html";
+        });
+      } else {
+        console.warn("⚠️ Expense not found for editing");
         localStorage.removeItem("editExpenseId");
-        alert("✅ Expense updated successfully!");
-        location.href = "expense-csv-list.html";
-      });
-    } else {
-      console.warn("Expense not found for editing");
+      }
+    } catch (err) {
+      console.error("❌ Error loading expense:", err);
     }
   } else {
     // 🆕 Новий запис
@@ -450,10 +458,17 @@ onAuthStateChanged(auth, async (user) => {
     const newId = await generateExpenseId(user.uid);
     if (idEl) idEl.value = newId;
 
-    $("#saveBtn")?.addEventListener("click", () => saveExpense(user.uid));
+    // натискання на Save (новий запис)
+    $("#saveBtn")?.addEventListener("click", async () => {
+      await saveExpense(user.uid);
+      alert("✅ Expense saved successfully!");
+    });
   }
 
-  $("#viewBtn")?.addEventListener("click", () => (location.href = "expense-csv-list.html"));
+  // 📂 Перехід до списку збережених
+  $("#viewBtn")?.addEventListener("click", () => {
+    location.href = "expense-csv-list.html";
+  });
 });
   </script>
 </body>
