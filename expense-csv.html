@@ -424,7 +424,7 @@ onAuthStateChanged(auth, async (user) => {
       }
 
       // 🧮 оновлюємо обчислення
-      updateTotals();
+      renderTotals();
 
       // 🧾 вибираємо правильний VAT %
       if ($("#vat") && exp.vatPercent !== undefined) {
