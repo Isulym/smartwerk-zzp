@@ -400,78 +400,89 @@ async function loadExpenseForEdit(uid) {
 
 
 onAuthStateChanged(auth, async (user) => {
+  // Якщо користувач не увійшов — перенаправляємо
   if (!user) {
-    console.warn("User not logged in, redirecting...");
+    console.warn("⛔ No user — redirecting to login...");
     location.href = "login.html";
     return;
   }
 
-  console.log("✅ Authenticated user:", user.uid);
+  console.log("✅ User authenticated:", user.uid);
 
-  // 1️⃣ Автопрофіль
-  await autofillFromProfile(user.uid);
+  // Автозаповнення профілю
+  try {
+    await autofillFromProfile(user.uid);
+  } catch (err) {
+    console.warn("⚠️ Could not autofill profile:", err.message);
+  }
 
-  // 2️⃣ Якщо є ID редагування — завантажуємо існуючий документ
+  // Гарантуємо, що кнопки вже в DOM
+  const saveBtn = document.getElementById("saveBtn");
+  const viewBtn = document.getElementById("viewBtn");
+
+  if (!saveBtn || !viewBtn) {
+    console.error("❌ Buttons not found in DOM!");
+    return;
+  }
+
+  // Перевіряємо, чи є ID для редагування
   const editId = localStorage.getItem("editExpenseId");
+
   if (editId) {
+    console.log("✏️ Edit mode for expense:", editId);
     try {
-      console.log("✏️ Editing existing expense:", editId);
       const ref = doc(db, "users", user.uid, "expenses", editId);
       const snap = await getDoc(ref);
-
       if (snap.exists()) {
         const exp = snap.data();
 
-        // заповнюємо всі поля
+        // заповнюємо поля
         Object.entries(exp).forEach(([key, val]) => {
           const el = document.getElementById(key);
           if (el && typeof val !== "object") el.value = val;
         });
 
-        // обчислення
         renderTotals();
 
-        // VAT
-        if ($("#vat") && exp.vatPercent !== undefined) {
-          $("#vat").value = String(exp.vatPercent);
-        }
-
         // змінюємо назву кнопки
-        const btn = $("#saveBtn");
-        if (btn) btn.textContent = "💾 Update Expense";
+        saveBtn.textContent = "💾 Update Expense";
 
-        // дію кнопки Save → оновлення
-        btn?.addEventListener("click", async () => {
-          await saveExpense(user.uid, editId);
-          localStorage.removeItem("editExpenseId");
-          alert("✅ Expense updated successfully!");
-          // не робимо redirect одразу — даємо користувачу бачити результат
-          setTimeout(() => (location.href = "expense-csv-list.html"), 600);
+        saveBtn.addEventListener("click", async () => {
+          try {
+            await saveExpense(user.uid, editId);
+            localStorage.removeItem("editExpenseId");
+            alert("✅ Expense updated successfully!");
+            setTimeout(() => (location.href = "expense-csv-list.html"), 700);
+          } catch (e) {
+            console.error("❌ Error updating:", e.message);
+          }
         });
       } else {
-        console.warn("⚠️ Expense not found for editing, fallback to new mode");
+        console.warn("⚠️ Expense not found, switching to New mode");
         localStorage.removeItem("editExpenseId");
       }
     } catch (err) {
-      console.error("❌ Error loading expense:", err);
+      console.error("❌ Load error:", err);
     }
-  }
+  } else {
+    // Новий запис
+    const idEl = document.getElementById("expenseId");
+    if (idEl) idEl.value = await generateExpenseId(user.uid);
 
-  // 3️⃣ Якщо створюється новий запис
-  if (!editId) {
-    const idEl = $("#expenseId");
-    const newId = await generateExpenseId(user.uid);
-    if (idEl) idEl.value = newId;
-
-    $("#saveBtn")?.addEventListener("click", async () => {
-      await saveExpense(user.uid);
-      alert("✅ Expense saved successfully!");
-      setTimeout(() => (location.href = "expense-csv-list.html"), 600);
+    saveBtn.addEventListener("click", async () => {
+      try {
+        await saveExpense(user.uid);
+        alert("✅ Expense saved!");
+        setTimeout(() => (location.href = "expense-csv-list.html"), 700);
+      } catch (e) {
+        console.error("❌ Save error:", e.message);
+      }
     });
   }
 
-  // 4️⃣ Кнопка переходу до списку
-  $("#viewBtn")?.addEventListener("click", () => {
+  // Кнопка View Saved
+  viewBtn.addEventListener("click", () => {
+    console.log("📂 Opening Saved Expenses");
     location.href = "expense-csv-list.html";
   });
 });
