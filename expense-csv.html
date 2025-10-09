@@ -295,15 +295,19 @@
       }catch(e){ console.warn("Event log failed:", e.message); }
     }
 
-    async function saveExpense(uid) {
-  const editId = localStorage.getItem("editExpenseId");
+   import { setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+async function saveExpense(uid, editId = null) {
   const get = (id) => $(id)?.value || "";
+  const idField = $("#expenseId");
+  const id = (idField && idField.value) ? idField.value : await generateExpenseId(uid);
   const amt = parseFloat(get("amount")) || 0;
   const vat = parseFloat(get("vat")) || 0;
   const vatAmt = amt * vat / 100;
   const total = amt + vatAmt;
 
   const data = {
+    expenseId: id,
     date: get("date"),
     description: get("description"),
     type: get("type"),
@@ -324,17 +328,15 @@
   };
 
   if (editId) {
-    // 🔄 Update existing expense
+    // ✏️ update existing
     await setDoc(doc(db, "users", uid, "expenses", editId), data, { merge: true });
-    localStorage.removeItem("editExpenseId");
-    alert(`✅ Expense updated (${editId})`);
   } else {
-    // 💾 Create new expense
-    const id = await generateExpenseId(uid);
-    data.expenseId = id;
-    await addDoc(collection(db, "users", uid, "expenses"), data);
-    alert(`✅ Expense saved successfully (${id})`);
+    // 🆕 create new
+    await addDoc(collection(db, "users", uid, "expenses"), { ...data, createdAt: serverTimestamp() });
   }
+
+  alert(`✅ Expense ${editId ? "updated" : "saved"} successfully (${id})`);
+}
 
   location.href = "expense-csv-list.html";
 }
@@ -394,22 +396,64 @@ async function loadExpenseForEdit(uid) {
   }
 }
 
-    onAuthStateChanged(auth, async(user)=>{
-      if(!user){ location.href="login.html"; return; }
+    import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-      await autofillFromProfile(user.uid);
-      await loadExpenseForEdit(user.uid);
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
 
-      // set new expense id preview
-      const idEl = $("expenseId");
-      if(idEl && !idEl.value){
-        idEl.value = await generateExpenseId(user.uid);
+  await autofillProfile(user.uid);
+
+  const editId = localStorage.getItem("editExpenseId");
+
+  if (editId) {
+    // 🧩 Режим редагування
+    console.log("✏️ Editing existing expense:", editId);
+    const ref = doc(db, "users", user.uid, "expenses", editId);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const exp = snap.data();
+
+      // заповнюємо всі поля
+      for (const [key, val] of Object.entries(exp)) {
+        const el = document.getElementById(key);
+        if (el && typeof val !== "object") el.value = val;
       }
 
-      // bind buttons
-      $("saveBtn")?.addEventListener("click", ()=> saveExpense(user.uid));
-      $("viewBtn")?.addEventListener("click", ()=> location.href="expense-csv-list.html");
-    });
+      // 🧮 оновлюємо обчислення
+      updateTotals();
+
+      // 🧾 вибираємо правильний VAT %
+      if ($("#vat") && exp.vatPercent !== undefined) {
+        $("#vat").value = String(exp.vatPercent);
+      }
+
+      // змінюємо кнопку на "Update"
+      const btn = $("#saveBtn");
+      if (btn) btn.textContent = "💾 Update Expense";
+
+      btn?.addEventListener("click", async () => {
+        await saveExpense(user.uid, editId);
+        localStorage.removeItem("editExpenseId");
+        alert("✅ Expense updated successfully!");
+        location.href = "expense-csv-list.html";
+      });
+    } else {
+      console.warn("Expense not found for editing");
+    }
+  } else {
+    // 🆕 Новий запис
+    const idEl = $("#expenseId");
+    const newId = await generateExpenseId(user.uid);
+    if (idEl) idEl.value = newId;
+
+    $("#saveBtn")?.addEventListener("click", () => saveExpense(user.uid));
+  }
+
+  $("#viewBtn")?.addEventListener("click", () => (location.href = "expense-csv-list.html"));
+});
   </script>
 </body>
 </html>
