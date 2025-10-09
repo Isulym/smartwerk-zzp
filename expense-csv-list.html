@@ -300,19 +300,44 @@ window.exportExpensePDF = function (id, withBranding = true) {
   doc.save(fileName);
 };
 
-      // === EXPORT CSV ===
-    window.exportExpenseCSV = function(id){
-      const exp = allExpenses.find(e => e.id === id);
-      if(!exp) return alert("Expense not found.");
-      const headers = Object.keys(exp);
-      const values = Object.values(exp).map(v=>`"${String(v??"").replace(/"/g,'""')}"`);
-      const csv = [headers.join(","),values.join(",")].join("\n");
-      const blob = new Blob([csv],{type:"text/csv"});
-      const url = URL.createObjectURL(blob);
-      const a=document.createElement("a");
-      a.href=url; a.download=`Expense-${exp.expenseId||"SmartWerk"}.csv`; a.click();
-      URL.revokeObjectURL(url);
-    };
+  // === EXPORT ALL TO CSV ===
+window.exportExpenseCSV = function() {
+  if (!allExpenses || !allExpenses.length) {
+    alert("No data to export.");
+    return;
+  }
+
+  const headers = [
+    "Expense ID","Date","Description","Category","Type","Country",
+    "Amount (€)","VAT (€)","Total (€)","Payment Method","Status"
+  ];
+
+  const rows = allExpenses.map(e => [
+    e.expenseId || "",
+    e.date || "",
+    e.description || "",
+    e.category || "",
+    e.type || "",
+    e.country || "",
+    (e.amount || 0).toFixed(2),
+    (e.vatAmount || 0).toFixed(2),
+    (e.total || 0).toFixed(2),
+    e.paymentMethod || "",
+    e.status || ""
+  ]);
+
+  const csvContent =
+    [headers.join(",")].concat(rows.map(r => r.join(","))).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "SmartWerk_Expenses.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
     function editExpense(docId){
       localStorage.setItem("editExpenseId",docId);
