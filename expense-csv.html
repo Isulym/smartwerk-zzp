@@ -176,6 +176,7 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, doc, getDoc, addDoc, setDoc, collection, runTransaction, serverTimestamp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+     // import { setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -295,7 +296,7 @@
       }catch(e){ console.warn("Event log failed:", e.message); }
     }
 
-   import { setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  
 
 async function saveExpense(uid, editId = null) {
   const get = (id) => $(id)?.value || "";
