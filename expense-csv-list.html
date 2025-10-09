@@ -51,19 +51,22 @@
       </select>
       <button class="btn" id="refreshBtn">🔄 Refresh</button>
      <!-- приклад у тулбарі -->
-<button id="exportAllPdfBtn"  class="btn">📄 Export All PDF</button>
-<button id="exportAllPdfProBtn"  class="btn">🏷️ Export All PDF (PRO)</button>
+      <button id="exportAllPdfBtn"  class="btn">📄 Export All PDF</button>
+      <button id="exportAllPdfProBtn"  class="btn">🏷️ Export All PDF (PRO)</button>
+      <button id="exportSelectedPdfBtn" class="btn">📄 Export Selected PDF</button>
+      <button id="exportSelectedCsvBtn" class="btn">📊 Export Selected CSV</button>
     </div>
 
-    <table id="expensesTable">
+   <table id="expensesTable">
   <thead>
     <tr>
+      <th><input type="checkbox" id="selectAll"></th>
       <th>ID</th><th>Date</th><th>Description</th><th>Category</th>
       <th>Type</th><th>Payment</th><th>Status</th>
       <th>Amount</th><th>VAT</th><th>Total</th><th>Actions</th>
     </tr>
   </thead>
-  <tbody id="expensesBody"><tr><td colspan="11">Loading...</td></tr></tbody>
+  <tbody id="expensesBody"><tr><td colspan="12">Loading...</td></tr></tbody>
 </table>
 
     <div class="summary">
@@ -107,55 +110,70 @@
 
     let allExpenses=[];
 
-    async function loadExpenses(uid){
-      const body=$("expensesBody");
-      body.innerHTML="<tr><td colspan='11'>Loading...</td></tr>";
-      const snap=await getDocs(collection(db,"users",uid,"expenses"));
-      const list=snap.docs.map(d=>({id:d.id,...d.data()}));
-      allExpenses=list.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      renderExpenses(allExpenses);
-    }
+   import { onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    function renderExpenses(list){
+function loadExpenses(uid){
   const body=$("expensesBody");
-  body.innerHTML="";
-  if(!list.length){
-    body.innerHTML="<tr><td colspan='11'>No expenses yet.</td></tr>";
+  body.innerHTML="<tr><td colspan='11'>Loading...</td></tr>";
+
+  const q = collection(db, "users", uid, "expenses");
+  onSnapshot(q, (snap) => {
+    allExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allExpenses.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    renderExpenses(allExpenses);
+    document.title = `📊 SmartWerk — ${allExpenses.length} expenses`;
+    console.log("✅ Loaded", allExpenses.length, "expenses");
+  });
+}
+
+  function renderExpenses(list) {
+  const body = $("expensesBody");
+  body.innerHTML = "";
+
+  if (!list.length) {
+    body.innerHTML = "<tr><td colspan='12'>No expenses yet.</td></tr>";
     return;
   }
 
-  let sub=0, vat=0, total=0;
-  list.forEach(exp=>{
+  let sub = 0, vat = 0, total = 0;
+  list.forEach((exp) => {
     sub += exp.amount || 0;
     vat += exp.vatAmount || 0;
     total += exp.total || 0;
 
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${exp.expenseId||""}</td>
-      <td>${exp.date||""}</td>
-      <td>${exp.description||""}</td>
-      <td>${exp.category||""}</td>
-      <td>${exp.type||""}</td>
-      <td>${exp.paymentMethod||""}</td>
-      <td>${exp.status||""}</td>
-      <td>€${(exp.amount||0).toFixed(2)}</td>
-      <td>€${(exp.vatAmount||0).toFixed(2)}</td>
-      <td><strong>€${(exp.total||0).toFixed(2)}</strong></td>
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="checkbox" class="rowSelect" data-id="${exp.id}"></td>
+      <td>${exp.expenseId || ""}</td>
+      <td>${exp.date || ""}</td>
+      <td>${exp.description || ""}</td>
+      <td>${exp.category || ""}</td>
+      <td>${exp.type || ""}</td>
+      <td>${exp.paymentMethod || ""}</td>
+      <td>${exp.status || ""}</td>
+      <td>€${(exp.amount || 0).toFixed(2)}</td>
+      <td>€${(exp.vatAmount || 0).toFixed(2)}</td>
+      <td><strong>€${(exp.total || 0).toFixed(2)}</strong></td>
       <td>
         <button class="btn small" onclick="editExpense('${exp.id}')">✏️ Edit</button>
-        <button class="btn small" onclick="showDetails('${exp.id}')">🔍 rewiew</button>
-        <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId||""}')">🗑 Delete</button>
+        <button class="btn small" onclick="showDetails('${exp.id}')">🔍 Review</button>
+        <button class="btn small" onclick="deleteExpense('${exp.id}','${exp.expenseId || ""}')">🗑 Delete</button>
         <button class="btn small" onclick="exportExpensePDF('${exp.id}',true)">📄 PDF</button>
-        <button class="btn small" onclick="exportExpensePDF('${exp.id}',false)">PRO 📄 PDF without branding</button>
-        <button class="btn small" onclick="exportExpenseCSV('${exp.id}')">📊 EXPORT CSV</button>
+        <button class="btn small" onclick="exportExpensePDF('${exp.id}',false)">PRO 📄</button>
+        <button class="btn small" onclick="exportExpenseCSV('${exp.id}')">📊 CSV</button>
       </td>`;
     body.appendChild(tr);
   });
 
-  $("sumSubtotal").textContent=`€${sub.toFixed(2)}`;
-  $("sumVat").textContent=`€${vat.toFixed(2)}`;
-  $("sumTotal").textContent=`€${total.toFixed(2)}`;
+  $("sumSubtotal").textContent = `€${sub.toFixed(2)}`;
+  $("sumVat").textContent = `€${vat.toFixed(2)}`;
+  $("sumTotal").textContent = `€${total.toFixed(2)}`;
+
+  // Select all toggle
+  const selectAll = $("selectAll");
+  selectAll?.addEventListener("change", (e) => {
+    document.querySelectorAll(".rowSelect").forEach((cb) => (cb.checked = e.target.checked));
+  });
 }
 
     function showDetails(id){
@@ -613,6 +631,66 @@ window.exportAllPDF = function ({ pro = false } = {}) {
 // === Connect button ===
 document.getElementById("exportAllPdfBtn")?.addEventListener("click", () => exportAllPDF({ pro:false }));
 document.getElementById("exportAllPdfProBtn")?.addEventListener("click", () => exportAllPDF({ pro:true }));    
+
+    function getSelectedExpenses() {
+  const selectedIds = Array.from(document.querySelectorAll(".rowSelect:checked"))
+    .map((cb) => cb.dataset.id);
+  return allExpenses.filter((e) => selectedIds.includes(e.id));
+}
+
+function exportSelectedPDF({ pro = false } = {}) {
+  const selected = getSelectedExpenses();
+  if (!selected.length) {
+    alert("Please select at least one expense to export.");
+    return;
+  }
+  // тимчасово копіюємо масив
+  window.selectedExpenses = selected;
+  console.log(`📄 Exporting ${selected.length} expenses`);
+  // Використовуємо існуючу функцію exportAllPDF, але з selected
+  const original = window.allExpenses;
+  window.allExpenses = selected;
+  exportAllPDF({ pro });
+  window.allExpenses = original;
+}
+
+function exportSelectedCSV() {
+  const selected = getSelectedExpenses();
+  if (!selected.length) {
+    alert("Please select at least one expense to export.");
+    return;
+  }
+  const headers = [
+    "Expense ID","Date","Description","Category","Type","Country",
+    "Amount (€)","VAT (€)","Total (€)","Payment Method","Status"
+  ];
+  const rows = selected.map(e => [
+    e.expenseId || "",
+    e.date || "",
+    e.description || "",
+    e.category || "",
+    e.type || "",
+    e.country || "",
+    (e.amount || 0).toFixed(2),
+    (e.vatAmount || 0).toFixed(2),
+    (e.total || 0).toFixed(2),
+    e.paymentMethod || "",
+    e.status || ""
+  ]);
+  const csv = [headers.join(",")].concat(rows.map(r=>r.join(","))).join("\n");
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "SmartWerk_Selected_Expenses.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// 🔗 Buttons
+$("exportSelectedPdfBtn")?.addEventListener("click",()=>exportSelectedPDF({pro:false}));
+$("exportSelectedCsvBtn")?.addEventListener("click",()=>exportSelectedCSV());
 
     onAuthStateChanged(auth, user=>{
       if(!user){location.href="login.html";return;}
