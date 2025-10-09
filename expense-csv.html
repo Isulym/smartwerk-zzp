@@ -295,40 +295,49 @@
       }catch(e){ console.warn("Event log failed:", e.message); }
     }
 
-    async function saveExpense(uid){
-      const idEl = $("expenseId");
-      const expenseId = (idEl && idEl.value) ? idEl.value : await generateExpenseId(uid);
-      if(idEl) idEl.value = expenseId;
+    async function saveExpense(uid) {
+  const editId = localStorage.getItem("editExpenseId");
+  const get = (id) => $(id)?.value || "";
+  const amt = parseFloat(get("amount")) || 0;
+  const vat = parseFloat(get("vat")) || 0;
+  const vatAmt = amt * vat / 100;
+  const total = amt + vatAmt;
 
-      const { amt, vatAmt, total } = computeTotals();
+  const data = {
+    date: get("date"),
+    description: get("description"),
+    type: get("type"),
+    category: get("category"),
+    country: get("country"),
+    amount: amt,
+    vatPercent: vat,
+    vatAmount: vatAmt,
+    total: total,
+    invoiceAttached: get("invoiceAttached"),
+    paymentMethod: get("paymentMethod"),
+    status: get("status"),
+    notes: get("notes"),
+    businessName: get("businessName"),
+    email: get("email"),
+    businessAddress: get("businessAddress"),
+    updatedAt: serverTimestamp(),
+  };
 
-      const data = {
-        expenseId,
-        date:          safeVal("date") || new Date().toISOString().slice(0,10),
-        description:   safeVal("description"),
-        type:          safeVal("type"),
-        category:      safeVal("category"),
-        country:       safeVal("country"),
-        amount:        amt,
-        vatPercent:    clampNum(parseFloat(safeVal("vat"))),
-        vatAmount:     vatAmt,
-        total:         total,
-        invoiceAttached: safeVal("invoiceAttached"),
-        paymentMethod: safeVal("paymentMethod"),
-        status:        safeVal("status"),
-        notes:         safeVal("notes"),
-        businessName:  safeVal("businessName"),
-        email:         safeVal("email"),
-        businessAddress: safeVal("businessAddress"),
-        createdAt:     serverTimestamp(),
-        updatedAt:     serverTimestamp()
-      };
+  if (editId) {
+    // 🔄 Update existing expense
+    await setDoc(doc(db, "users", uid, "expenses", editId), data, { merge: true });
+    localStorage.removeItem("editExpenseId");
+    alert(`✅ Expense updated (${editId})`);
+  } else {
+    // 💾 Create new expense
+    const id = await generateExpenseId(uid);
+    data.expenseId = id;
+    await addDoc(collection(db, "users", uid, "expenses"), data);
+    alert(`✅ Expense saved successfully (${id})`);
+  }
 
-      await addDoc(collection(db,"users",uid,"expenses"), data);
-      await logEvent(uid,"Expense Created", `${expenseId} — ${data.description || "No description"}`);
-      alert(`✅ Expense saved (${expenseId})`);
-    }
-
+  location.href = "expense-csv-list.html";
+}
     /* ================ INIT ================ */
     document.addEventListener("DOMContentLoaded", ()=>{
       ensureEls([
@@ -354,10 +363,42 @@
       renderTotals();
     });
 
+    // === LOAD EXPENSE FOR EDIT ===
+async function loadExpenseForEdit(uid) {
+  const editId = localStorage.getItem("editExpenseId");
+  if (!editId) return;
+
+  try {
+    const snap = await getDoc(doc(db, "users", uid, "expenses", editId));
+    if (!snap.exists()) {
+      console.warn("⚠️ Expense not found for edit:", editId);
+      localStorage.removeItem("editExpenseId");
+      return;
+    }
+    const e = snap.data();
+
+    // Автоматично заповнюємо всі поля
+    const fields = [
+      "expenseId","date","description","type","category","country",
+      "amount","vat","invoiceAttached","paymentMethod","status","notes",
+      "businessName","email","businessAddress"
+    ];
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && e[id] !== undefined) el.value = e[id];
+    });
+
+    console.log(`✅ Expense ${editId} loaded for editing`);
+  } catch (err) {
+    console.error("❌ Error loading expense:", err);
+  }
+}
+
     onAuthStateChanged(auth, async(user)=>{
       if(!user){ location.href="login.html"; return; }
 
       await autofillFromProfile(user.uid);
+      await loadExpenseForEdit(user.uid);
 
       // set new expense id preview
       const idEl = $("expenseId");
