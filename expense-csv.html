@@ -177,6 +177,7 @@
     import { getFirestore, doc, getDoc, addDoc, setDoc, collection, runTransaction, serverTimestamp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
      // import { setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      // import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -397,7 +398,6 @@ async function loadExpenseForEdit(uid) {
   }
 }
 
-    import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
