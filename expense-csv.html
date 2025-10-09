@@ -405,7 +405,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  await autofillProfile(user.uid);
+  await autofillFromProfile(user.uid);
 
   const editId = localStorage.getItem("editExpenseId");
 
