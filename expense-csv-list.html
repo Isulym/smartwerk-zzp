@@ -50,7 +50,9 @@
         <option>Netherlands</option><option>Belgium</option><option>Germany</option><option>France</option><option>Spain</option>
       </select>
       <button class="btn" id="refreshBtn">🔄 Refresh</button>
-      <button id="exportAllPDF" class="btn">📄 Export All PDF</button>
+     <!-- приклад у тулбарі -->
+<button id="exportAllPdfBtn"  class="btn">📄 Export All PDF</button>
+<button id="exportAllPdfProBtn"  class="btn">🏷️ Export All PDF (PRO)</button>
     </div>
 
     <table id="expensesTable">
@@ -81,7 +83,10 @@
   </div>
 
   <footer><p>© 2025 SmartWerk</p></footer>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- jsPDF (UMD) -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<!-- AutoTable плагін -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -471,9 +476,143 @@ window.exportAllExpensesPDF = async function(withBranding = true) {
   const name = withBranding ? "SmartWerk_All_Expenses.pdf" : "All_Expenses_PRO.pdf";
   doc.save(name);
 };
+// Глобальний масив з витратами має бути оновлений у твоєму onSnapshot:
+// let allExpenses = [];
+// onSnapshot(...){ allExpenses = snap.docs.map(d => ({ id:d.id, ...d.data() })); renderTable(allExpenses); }
+
+function euro(n) {
+  const v = Number(n || 0);
+  return "€ " + v.toFixed(2);
+}
+
+function addHeaderFooter(doc, { pro }) {
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    // Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.text("SmartWerk — Expenses Report", 40, 30);
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(new Date().toLocaleString(), 40, 44);
+
+    // Footer
+    const pageLabel = `Page ${i} / ${pageCount}`;
+    doc.setFontSize(9);
+    doc.text(pageLabel, 40, doc.internal.pageSize.getHeight() - 20);
+
+    if (!pro) {
+      const brand = "Generated with SmartWerk — smartwerk.nl";
+      const w = doc.getTextWidth(brand);
+      doc.text(
+        brand,
+        doc.internal.pageSize.getWidth() - 40 - w,
+        doc.internal.pageSize.getHeight() - 20
+      );
+    }
+  }
+}
+
+window.exportAllPDF = function ({ pro = false } = {}) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("jsPDF is not loaded");
+    return;
+  }
+  if (!Array.isArray(window.allExpenses) || !window.allExpenses.length) {
+    alert("No data to export.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+  // Дані
+  const headers = [
+    "Expense ID",
+    "Date",
+    "Description",
+    "Category",
+    "Type",
+    "Country",
+    "Amount",
+    "VAT",
+    "Total",
+    "Method",
+    "Status",
+  ];
+
+  const body = window.allExpenses.map(e => ([
+    e.expenseId || "",
+    e.date || "",
+    e.description || "",
+    e.category || "",
+    e.type || "",
+    e.country || "",
+    euro(e.amount),
+    euro(e.vatAmount),
+    euro(e.total),
+    e.paymentMethod || "",
+    e.status || "",
+  ]));
+
+  // Підсумки
+  const sum = (k) => window.allExpenses.reduce((a, b) => a + (Number(b[k]) || 0), 0);
+  const totals = {
+    amount: sum("amount"),
+    vat: sum("vatAmount"),
+    total: sum("total"),
+  };
+
+  // Основна таблиця
+  doc.autoTable({
+    head: [headers],
+    body,
+    startY: 70,
+    styles: { font: "helvetica", fontSize: 9, cellPadding: 6, overflow: "linebreak" },
+    headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: "bold" },
+    columnStyles: {
+      6: { halign: "right" },
+      7: { halign: "right" },
+      8: { halign: "right" },
+    },
+    didDrawPage: () => { /* header/footer додамо після autoTable */ },
+    margin: { left: 40, right: 40 },
+  });
+
+  // Блок з підсумками
+  const endY = doc.lastAutoTable.finalY || 70;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("Totals", 40, endY + 24);
+
+  doc.autoTable({
+    startY: endY + 30,
+    theme: "plain",
+    styles: { fontSize: 11 },
+    body: [
+      ["Subtotal", euro(totals.amount)],
+      ["VAT",      euro(totals.vat)],
+      ["Total",    euro(totals.total)],
+    ],
+    columnStyles: {
+      0: { fontStyle: "bold" },
+      1: { halign: "right" },
+    },
+    margin: { left: 40, right: 40 },
+  });
+
+  // Додаємо хедер/футер на всі сторінки
+  addHeaderFooter(doc, { pro });
+
+  doc.save(pro ? "SmartWerk_Expenses_All_PRO.pdf" : "SmartWerk_Expenses_All.pdf");
+};
+    
 
 // === Connect button ===
-document.getElementById("exportAllPDF")?.addEventListener("click", () => exportAllExpensesPDF(true));
+document.getElementById("exportAllPdfBtn")?.addEventListener("click", () => exportAllPDF({ pro:false }));
+document.getElementById("exportAllPdfProBtn")?.addEventListener("click", () => exportAllPDF({ pro:true }));    
 
     onAuthStateChanged(auth, user=>{
       if(!user){location.href="login.html";return;}
