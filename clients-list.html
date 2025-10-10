@@ -74,7 +74,7 @@ input,select{background:#1e293b;border:none;color:#e5e7eb;padding:6px 8px;border
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
+import "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"; // ✅ fixed import
 
 const firebaseConfig={apiKey:"AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",authDomain:"smartwerk8520.firebaseapp.com",projectId:"smartwerk8520",appId:"1:607670981972:web:c07103c981c86860d724c1"};
 const app=getApps().length?getApp():initializeApp(firebaseConfig);
@@ -150,9 +150,9 @@ async function exportCSV(uid){
  showMsg("📊 CSV exported");
 }
 
-// ---- PDF Export (standard + PRO) ----
+// ---- PDF Export (Standard + PRO) ----
 async function exportPDF(uid,pro=false){
- const { jsPDF } = window.jspdf;
+ const { jsPDF } = window.jspdf; // ✅ correct reference
  const doc=new jsPDF({orientation:"landscape"});
  const snap=await getDocs(collection(db,"users",uid,"clients"));
  let y=20;
