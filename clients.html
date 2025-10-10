@@ -280,6 +280,12 @@ document.addEventListener("DOMContentLoaded",()=>{
 onAuthStateChanged(auth, async(user)=>{
   if(!user){ location.href="login.html"; return; }
 
+  // чекаємо доки сторінка повністю готова
+  await new Promise(resolve => {
+    if (document.readyState === "complete") resolve();
+    else window.addEventListener("DOMContentLoaded", resolve, { once: true });
+  });
+
   const editId = localStorage.getItem("editClientId");
   const btn = $("#saveBtn");
 
@@ -302,7 +308,10 @@ onAuthStateChanged(auth, async(user)=>{
     }
   }else{
     // новий
-    $("#clientId").value=await generateClientId(user.uid);
+    const clientIdEl = $("#clientId");
+    if(clientIdEl){
+      clientIdEl.value = await generateClientId(user.uid);
+    }
     btn.onclick=()=>saveClient(user.uid);
   }
 });
