@@ -158,32 +158,39 @@
     const db = getFirestore(app);
     const $ = (id)=>document.getElementById(id);
 
-    // === Smart Suggest (auto-fill country by email domain)
-    function smartSuggest() {
-      const email = $("#email")?.value || "";
-      const hint = $("#smartHint");
-      const domain = email.split("@")[1]?.toLowerCase() || "";
-      let suggestedCountry = "";
+   function smartSuggest() {
+  const email = ($("#email")?.value || "").trim().toLowerCase();
+  const hint = $("#smartHint");
+  if (!email.includes("@")) {
+    hint.textContent = "⚠️ Please enter a valid email first";
+    hint.style.display = "block";
+    setTimeout(() => (hint.style.display = "none"), 2500);
+    return;
+  }
+  const domain = email.split("@")[1];
+  let suggestedCountry = "";
 
-      if (domain.endsWith(".nl")) suggestedCountry = "Netherlands";
-      else if (domain.endsWith(".be")) suggestedCountry = "Belgium";
-      else if (domain.endsWith(".de")) suggestedCountry = "Germany";
-      else if (domain.endsWith(".fr")) suggestedCountry = "France";
-      else if (domain.endsWith(".es")) suggestedCountry = "Spain";
-      else if (domain.endsWith(".pl")) suggestedCountry = "Poland";
-      else if (domain.endsWith(".uk")) suggestedCountry = "United Kingdom";
+  if (domain.endsWith(".nl")) suggestedCountry = "Netherlands";
+  else if (domain.endsWith(".be")) suggestedCountry = "Belgium";
+  else if (domain.endsWith(".de")) suggestedCountry = "Germany";
+  else if (domain.endsWith(".fr")) suggestedCountry = "France";
+  else if (domain.endsWith(".es")) suggestedCountry = "Spain";
+  else if (domain.endsWith(".pl")) suggestedCountry = "Poland";
+  else if (domain.endsWith(".uk") || domain.endsWith(".co.uk")) suggestedCountry = "United Kingdom";
 
-      if (suggestedCountry) {
-        $("#country").value = suggestedCountry;
-        hint.textContent = `✅ Country automatically set to ${suggestedCountry}`;
-        hint.style.display = "block";
-        setTimeout(() => (hint.style.display = "none"), 2500);
-      } else {
-        hint.textContent = "⚠️ No suggestion found for this email domain";
-        hint.style.display = "block";
-        setTimeout(() => (hint.style.display = "none"), 2500);
-      }
-    }
+  if (suggestedCountry) {
+    $("#country").value = suggestedCountry;
+    hint.textContent = `✅ Country automatically set to ${suggestedCountry}`;
+  } else {
+    hint.textContent = "⚠️ No suggestion found for this email domain";
+  }
+  hint.style.display = "block";
+  setTimeout(() => (hint.style.display = "none"), 2500);
+}
+
+// Виклик також при вводі email:
+$("#email")?.addEventListener("blur", smartSuggest);
+$("#smartSuggestBtn")?.addEventListener("click", smartSuggest);
 
     // === Save client to Firestore
     async function saveClient(uid) {
