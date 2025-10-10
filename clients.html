@@ -6,52 +6,25 @@
   <title>👥 SmartWerk — Add Client</title>
   <link rel="stylesheet" href="style-invoices.css" />
   <style>
-    body {
-      background: #0f172a;
-      color: #e5e7eb;
-      font-family: "Inter", sans-serif;
-      padding: 20px;
-    }
-    h1, h2 { color: #fff; }
-    section {
-      background: #1e293b;
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-    }
-    label { color: #94a3b8; font-size: 14px; }
-    input, select, textarea {
-      width: 100%;
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-      background: #334155;
-      color: #fff;
-      margin-top: 4px;
-    }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn { background: #475569; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; }
-    .btn-primary { background: #3b82f6; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-    .hint {
-      background: #10b981;
-      color: #fff;
-      padding: 8px;
-      border-radius: 6px;
-      text-align: center;
-      margin-top: 10px;
-      display: none;
-      transition: opacity 0.3s ease;
-    }
-    footer { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
+    body { background:#0f172a; color:#e5e7eb; font-family:Inter,system-ui,sans-serif; padding:20px; }
+    h1,h2{ color:#fff; }
+    section{ background:#1e293b; padding:16px; border-radius:12px; margin-bottom:15px; }
+    label{ color:#94a3b8; font-size:14px; }
+    input,select,textarea{ width:100%; padding:8px; border-radius:6px; border:none; background:#334155; color:#fff; margin-top:4px; }
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .btn{ background:#475569; color:#fff; border:none; border-radius:8px; padding:10px 16px; cursor:pointer; }
+    .btn-primary{ background:#3b82f6; }
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:15px; }
+    .hint{ background:#10b981; color:#fff; padding:8px; border-radius:6px; text-align:center; margin-top:10px; display:none; transition:opacity .3s; }
+    footer{ text-align:center; margin-top:20px; font-size:13px; color:#64748b; }
   </style>
 </head>
 <body>
   <header>
     <h1>👥 SmartWerk — Add Client</h1>
     <nav>
-      <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="clients-list.html" class="btn">📂 Saved Clients</a>
+      <a href="dashboard.html" class="btn" type="button">← Dashboard</a>
+      <a href="clients-list.html" class="btn" type="button">📂 Saved Clients</a>
     </nav>
   </header>
 
@@ -59,6 +32,22 @@
     <!-- CLIENT INFO -->
     <section>
       <h2>🏢 Client Information</h2>
+
+      <div class="grid-2">
+        <div>
+          <label>Client ID</label>
+          <input id="clientId" placeholder="CL-2025-001" readonly />
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="status">
+            <option selected>Active</option>
+            <option>Prospect</option>
+            <option>Inactive</option>
+          </select>
+        </div>
+      </div>
+
       <div class="grid-2">
         <div>
           <label>Company / Full Name</label>
@@ -102,7 +91,7 @@
           <label>Payment Term</label>
           <select id="paymentTerm">
             <option>14 days</option>
-            <option>30 days</option>
+            <option selected>30 days</option>
             <option>60 days</option>
             <option>On Receipt</option>
           </select>
@@ -125,16 +114,17 @@
       </div>
       <div class="grid-2">
         <div>
-          <label>Status</label>
-          <select id="status">
-            <option>Active</option>
-            <option>Prospect</option>
-            <option>Inactive</option>
-          </select>
-        </div>
-        <div>
           <label>Tags</label>
           <input id="tags" placeholder="VIP, Long-term, etc." />
+        </div>
+        <div>
+          <label>Default Currency</label>
+          <select id="currency">
+            <option selected>EUR</option>
+            <option>USD</option>
+            <option>GBP</option>
+            <option>PLN</option>
+          </select>
         </div>
       </div>
       <label>Notes</label>
@@ -142,9 +132,9 @@
     </section>
 
     <div class="actions">
-      <button id="saveBtn" class="btn-primary">💾 Save Client</button>
-      <button id="viewBtn" class="btn">📂 View Saved Clients</button>
-      <button id="smartSuggestBtn" class="btn">🤖 Smart Suggest</button>
+      <button id="saveBtn" class="btn-primary" type="button">💾 Save Client</button>
+      <button id="viewBtn" class="btn" type="button">📂 View Saved Clients</button>
+      <button id="smartSuggestBtn" class="btn" type="button">🤖 Smart Suggest</button>
     </div>
     <div id="smartHint" class="hint"></div>
   </main>
@@ -154,114 +144,227 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, doc, setDoc, serverTimestamp } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { 
+      getFirestore, collection, addDoc, doc, setDoc, updateDoc, getDoc,
+      runTransaction, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    /* ---------- Firebase ---------- */
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
       projectId: "smartwerk8520",
       appId: "1:607670981972:web:c07103c981c86860d724c1",
     };
-
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db   = getFirestore(app);
+
+    /* ---------- Helpers ---------- */
     const $ = (id)=>document.getElementById(id);
+    const val = (id)=>$(id)?.value?.trim() || "";
 
-    // === VALIDATION ===
-    function validateClient() {
-      const email = $("#email").value.trim();
-      const phone = $("#phone").value.trim();
-      const emailPattern = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
-      const phonePattern = /^[0-9+\\s-]{6,20}$/;
+    /* ---------- Client ID generator ---------- */
+    async function generateClientId(uid){
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out = "";
+      await runTransaction(db, async(tx)=>{
+        const snap = await tx.get(ref);
+        const last = snap.exists() ? (snap.data().lastClientNumber||0) : 0;
+        const next = last + 1;
+        tx.set(ref, { lastClientNumber: next }, { merge:true });
+        out = `CL-${year}-${String(next).padStart(3,"0")}`;
+      });
+      return out;
+    }
 
-      if (email && !emailPattern.test(email)) {
-        alert("❗ Please enter a valid email address.");
-        return false;
-      }
-      if (phone && !phonePattern.test(phone)) {
-        alert("❗ Please enter a valid phone number.");
-        return false;
-      }
-      if (!$("#clientName").value.trim()) {
+    /* ---------- Validation ---------- */
+    function validate(){
+      const email = val("email");
+      const phone = val("phone");
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phonePattern = /^[0-9+\s\-()]{6,20}$/;
+
+      if(!val("clientName")){
         alert("❗ Client Name is required.");
+        return false;
+      }
+      if(email && !emailPattern.test(email)){
+        alert("❗ Enter a valid email address.");
+        return false;
+      }
+      if(phone && !phonePattern.test(phone)){
+        alert("❗ Enter a valid phone number.");
         return false;
       }
       return true;
     }
 
-    // === SMART SUGGEST ===
-    function smartSuggest() {
-      const email = ($("#email")?.value || "").trim().toLowerCase();
+    /* ---------- Smart Suggest ---------- */
+    function smartSuggest(){
+      const email = val("email").toLowerCase();
       const hint = $("#smartHint");
+      let messages = [];
 
-      if (!email.includes("@")) {
-        hint.textContent = "⚠️ Please enter a valid email first";
+      if(email.includes("@")){
+        const domain = email.split("@")[1]||"";
+        const ends = (t)=>domain.endsWith(t);
+
+        if(ends(".nl")) $("#country").value="Netherlands";
+        else if(ends(".be")) $("#country").value="Belgium";
+        else if(ends(".de")) $("#country").value="Germany";
+        else if(ends(".fr")) $("#country").value="France";
+        else if(ends(".es")) $("#country").value="Spain";
+        else if(ends(".pl")) $("#country").value="Poland";
+        else if(ends(".uk")||ends(".co.uk")) $("#country").value="United Kingdom";
+
+        messages.push("Country suggested from email domain");
+
+        // теги/статус за доменом
+        const isFreeMail = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
+        if(isFreeMail){
+          if(!val("tags")) $("#tags").value = "Prospect";
+          $("#status").value = "Prospect";
+          messages.push("Status set to Prospect (freemail)");
+        }else{
+          if(!val("tags")) $("#tags").value = domain.split(".")[0];
+          messages.push("Tags suggested from domain");
+        }
+
+        // телефон — автопрефікс
+        if(!val("phone")){
+          if(ends(".nl")) $("#phone").value = "+31 ";
+          if(ends(".be")) $("#phone").value = "+32 ";
+          if(ends(".de")) $("#phone").value = "+49 ";
+          if(ends(".fr")) $("#phone").value = "+33 ";
+          if(ends(".es")) $("#phone").value = "+34 ";
+          if(ends(".pl")) $("#phone").value = "+48 ";
+          if(ends(".uk")||ends(".co.uk")) $("#phone").value = "+44 ";
+        }
+      }else{
+        messages.push("Enter email to get better suggestions");
+      }
+
+      if(hint){
+        hint.textContent = "✅ " + messages.join(" · ");
         hint.style.display = "block";
-        setTimeout(() => (hint.style.display = "none"), 2500);
-        return;
+        hint.style.opacity = "1";
+        setTimeout(()=>hint.style.opacity="0", 1800);
+        setTimeout(()=>hint.style.display="none", 2300);
       }
-
-      const domain = email.split("@")[1];
-      let suggestedCountry = "";
-
-      if (domain.endsWith(".nl")) suggestedCountry = "Netherlands";
-      else if (domain.endsWith(".be")) suggestedCountry = "Belgium";
-      else if (domain.endsWith(".de")) suggestedCountry = "Germany";
-      else if (domain.endsWith(".fr")) suggestedCountry = "France";
-      else if (domain.endsWith(".es")) suggestedCountry = "Spain";
-      else if (domain.endsWith(".pl")) suggestedCountry = "Poland";
-      else if (domain.endsWith(".uk") || domain.endsWith(".co.uk")) suggestedCountry = "United Kingdom";
-
-      if (suggestedCountry) {
-        $("#country").value = suggestedCountry;
-        hint.textContent = `✅ Country automatically set to ${suggestedCountry}`;
-      } else {
-        hint.textContent = "⚠️ No suggestion found for this email domain";
-      }
-
-      hint.style.display = "block";
-      setTimeout(() => (hint.style.display = "none"), 2500);
     }
 
-    // === SAVE CLIENT ===
-    async function saveClient(uid) {
-      if (!validateClient()) return;
+    /* ---------- Save (create/update) ---------- */
+    async function saveClient(uid, editId=null){
+      if(!validate()) return;
+
+      let id = val("clientId");
+      if(!id){
+        id = await generateClientId(uid);
+        if($("#clientId")) $("#clientId").value = id;
+      }
 
       const data = {
-        clientName: $("#clientName").value.trim(),
-        contactPerson: $("#contactPerson").value.trim(),
-        email: $("#email").value.trim(),
-        phone: $("#phone").value.trim(),
-        address: $("#address").value.trim(),
-        country: $("#country").value,
-        kvk: $("#kvk").value.trim(),
-        vatNumber: $("#vatNumber").value.trim(),
-        paymentTerm: $("#paymentTerm").value,
-        status: $("#status").value,
-        notes: $("#notes").value.trim(),
-        tags: $("#tags").value.split(",").map(t=>t.trim()).filter(t=>t),
-        createdAt: serverTimestamp(),
+        clientId: id,
+        clientName: val("clientName"),
+        contactPerson: val("contactPerson"),
+        email: val("email"),
+        phone: val("phone"),
+        address: val("address"),
+        country: $("#country")?.value || "",
+        kvk: val("kvk"),
+        vatNumber: val("vatNumber"),
+        paymentTerm: $("#paymentTerm")?.value || "30 days",
+        status: $("#status")?.value || "Active",
+        currency: $("#currency")?.value || "EUR",
+        tags: val("tags") ? val("tags").split(",").map(t=>t.trim()).filter(Boolean) : [],
+        notes: val("notes"),
         updatedAt: serverTimestamp(),
       };
 
-      const ref = await addDoc(collection(db, "users", uid, "clients"), data);
-      await setDoc(ref, { id: ref.id }, { merge: true });
-      alert("✅ Client saved successfully!");
+      if(editId){
+        await updateDoc(doc(db,"users",uid,"clients",editId), data);
+        try {
+          await addDoc(collection(db,"users",uid,"events"),{
+            type:"Client Updated", message:`${data.clientName} (${id})`, createdAt: serverTimestamp()
+          });
+        } catch(_) {}
+        alert("✅ Client updated successfully!");
+      }else{
+        const ref = await addDoc(collection(db,"users",uid,"clients"), { ...data, createdAt: serverTimestamp() });
+        await setDoc(ref, { id: ref.id }, { merge:true });
+        try {
+          await addDoc(collection(db,"users",uid,"events"),{
+            type:"Client Saved", message:`${data.clientName} (${id})`, createdAt: serverTimestamp()
+          });
+        } catch(_) {}
+        alert("✅ Client saved successfully!");
+      }
     }
 
-    // === AUTH ===
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        location.href = "login.html";
-        return;
-      }
-
-      $("#saveBtn")?.addEventListener("click", () => saveClient(user.uid));
-      $("#viewBtn")?.addEventListener("click", () => location.href = "clients-list.html");
+    /* ---------- UI bindings (always) ---------- */
+    document.addEventListener("DOMContentLoaded", ()=>{
       $("#smartSuggestBtn")?.addEventListener("click", smartSuggest);
       $("#email")?.addEventListener("blur", smartSuggest);
+      $("#viewBtn")?.addEventListener("click", ()=> location.href="clients-list.html");
+
+      // До авторизації — підказка
+      $("#saveBtn")?.addEventListener("click", ()=>{
+        if(!auth.currentUser){ alert("Please log in to save a client."); }
+      });
+    });
+
+    /* ---------- Auth: edit/new logic ---------- */
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href="login.html"; return; }
+
+      const editId = localStorage.getItem("editClientId");
+
+      if(editId){
+        // режим редагування
+        try{
+          const snap = await getDoc(doc(db,"users",user.uid,"clients",editId));
+          if(snap.exists()){
+            const c = snap.data();
+            // заповнюємо всі прості поля
+            const map = ["clientId","clientName","contactPerson","email","phone","address","kvk","vatNumber","notes"];
+            map.forEach(k=>{ if($(k) && c[k]!==undefined) $(k).value = Array.isArray(c[k])? c[k].join(", "): c[k]; });
+            if($("#country") && c.country) $("#country").value = c.country;
+            if($("#paymentTerm") && c.paymentTerm) $("#paymentTerm").value = c.paymentTerm;
+            if($("#status") && c.status) $("#status").value = c.status;
+            if($("#currency") && c.currency) $("#currency").value = c.currency;
+            if($("#tags") && Array.isArray(c.tags)) $("#tags").value = c.tags.join(", ");
+
+            // кнопка — Update
+            const btn = $("#saveBtn");
+            if(btn) btn.textContent = "💾 Update Client";
+
+            // перевішуємо обробник на оновлення
+            const clone = btn.cloneNode(true);
+            btn.parentNode.replaceChild(clone, btn);
+            clone.addEventListener("click", ()=> saveClient(user.uid, editId));
+          }else{
+            console.warn("⚠️ Client not found for edit");
+            localStorage.removeItem("editClientId");
+          }
+        }catch(e){
+          console.error("Load client error:", e.message);
+        }
+      }else{
+        // новий клієнт — згенерувати ID і прив’язати Save
+        try{
+          if($("#clientId") && !$("#clientId").value){
+            $("#clientId").value = await generateClientId(user.uid);
+          }
+        }catch(_){}
+        const btn = $("#saveBtn");
+        if(btn){
+          const clone = btn.cloneNode(true);
+          btn.parentNode.replaceChild(clone, btn);
+          clone.addEventListener("click", ()=> saveClient(user.uid));
+        }
+      }
     });
   </script>
 </body>
