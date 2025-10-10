@@ -132,9 +132,9 @@
     </section>
 
     <div class="actions">
-      <button id="saveBtn" class="btn-primary" type="button">💾 Save Client</button>
-      <button id="viewBtn" class="btn" type="button">📂 View Saved Clients</button>
-      <button id="smartSuggestBtn" class="btn" type="button">🤖 Smart Suggest</button>
+      <button id="saveBtn" class="btn-primary" type="button" onclick="_swSave()">💾 Save Client</button>
+      <button id="viewBtn" class="btn" type="button" onclick="_swView()">📂 View Saved Clients</button>
+      <button id="smartSuggestBtn" class="btn" type="button" onclick="_swSmart()">🤖 Smart Suggest</button>
     </div>
     <div id="smartHint" class="hint"></div>
   </main>
@@ -283,6 +283,28 @@
         if(editId){ localStorage.removeItem("editClientId"); }
       });
     });
+
+    // --- Глобальні обгортки для надійного виклику з HTML ---
+window._swSmart = () => {
+  try { smartSuggest(); } catch (e) { console.error("SmartSuggest error:", e); alert("Smart Suggest failed"); }
+};
+
+window._swView = () => {
+  try { location.href = "clients-list.html"; } catch (e) { console.error("View error:", e); }
+};
+
+window._swSave = async () => {
+  try {
+    const u = auth.currentUser;
+    if (!u) { alert("Please log in to save a client."); return; }
+    const editId = localStorage.getItem("editClientId") || null;
+    await saveClient(u.uid, editId);
+    if (editId) localStorage.removeItem("editClientId");
+  } catch (e) {
+    console.error("Save error:", e);
+    alert("Save failed. See console for details.");
+  }
+};
 
     /* ---------- Auth + Prefill (edit/new) ---------- */
     onAuthStateChanged(auth, async (user)=>{
