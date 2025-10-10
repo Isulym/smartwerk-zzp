@@ -144,10 +144,8 @@
 <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-  getFirestore, collection, addDoc, doc, setDoc, updateDoc, getDoc,
-  runTransaction, serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, setDoc, updateDoc, getDoc, runTransaction, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ---------- Firebase ---------- */
 const firebaseConfig = {
@@ -160,191 +158,176 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-/* ---------- Helpers ---------- */
-const $ = (id)=>document.getElementById(id);
-const val = (id)=>$(id)?.value?.trim() || "";
+const $ = (id) => document.getElementById(id);
+const val = (id) => $(id)?.value?.trim() || "";
 
-/* ---------- ID generator ---------- */
-async function generateClientId(uid){
-  const ref = doc(db,"users",uid);
+/* ---------- Client ID generator ---------- */
+async function generateClientId(uid) {
+  const ref = doc(db, "users", uid);
   const year = new Date().getFullYear();
-  let out="";
-  await runTransaction(db, async(tx)=>{
+  let out = "";
+  await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
-    const last = snap.exists()? (snap.data().lastClientNumber||0):0;
-    const next = last+1;
-    tx.set(ref,{lastClientNumber:next},{merge:true});
-    out=`CL-${year}-${String(next).padStart(3,"0")}`;
+    const last = snap.exists() ? (snap.data().lastClientNumber || 0) : 0;
+    const next = last + 1;
+    tx.set(ref, { lastClientNumber: next }, { merge: true });
+    out = `CL-${year}-${String(next).padStart(3, "0")}`;
   });
   return out;
 }
 
+/* ---------- Smart Suggest ---------- */
+function smartSuggest() {
+  const email = val("email").toLowerCase();
+  const hint = $("#smartHint");
+  let messages = [];
+
+  if (email.includes("@")) {
+    const domain = email.split("@")[1] || "";
+    const ends = (t) => domain.endsWith(t);
+
+    const countryMap = {
+      ".nl": "Netherlands", ".be": "Belgium", ".de": "Germany", ".fr": "France",
+      ".es": "Spain", ".pl": "Poland", ".uk": "United Kingdom", ".co.uk": "United Kingdom"
+    };
+    for (const [suffix, country] of Object.entries(countryMap)) {
+      if (ends(suffix)) $("#country").value = country;
+    }
+
+    const isFree = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
+    if (isFree) {
+      $("#status").value = "Prospect";
+      $("#tags").value = "Prospect";
+      messages.push("Detected freemail — status set to Prospect");
+    } else {
+      $("#tags").value = domain.split(".")[0];
+      messages.push("Tags set from email domain");
+    }
+
+    if (!val("phone")) {
+      const prefixMap = { ".nl": "+31", ".be": "+32", ".de": "+49", ".fr": "+33", ".es": "+34", ".pl": "+48", ".uk": "+44", ".co.uk": "+44" };
+      for (const [suffix, code] of Object.entries(prefixMap)) {
+        if (ends(suffix)) $("#phone").value = code + " ";
+      }
+    }
+  } else {
+    messages.push("Enter an email for suggestions");
+  }
+
+  hint.textContent = "✅ " + messages.join(" · ");
+  hint.style.display = "block";
+  hint.style.opacity = "1";
+  setTimeout(() => (hint.style.opacity = "0"), 2000);
+  setTimeout(() => (hint.style.display = "none"), 2500);
+}
+
 /* ---------- Validation ---------- */
-function validate(){
+function validate() {
+  if (!val("clientName")) {
+    alert("❗ Client Name is required.");
+    return false;
+  }
   const email = val("email");
   const phone = val("phone");
-  if(!val("clientName")) return alert("❗ Client Name is required.");
-  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert("❗ Invalid email.");
-  if(phone && !/^[0-9+\s\-()]{6,20}$/.test(phone)) return alert("❗ Invalid phone number.");
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    alert("❗ Invalid email address.");
+    return false;
+  }
+  if (phone && !/^[0-9+\s\-()]{6,20}$/.test(phone)) {
+    alert("❗ Invalid phone number.");
+    return false;
+  }
   return true;
 }
 
-/* ---------- Smart Suggest ---------- */
-function smartSuggest(){
-  const email = val("email").toLowerCase();
-  const hint = $("#smartHint");
-  let msg = [];
-
-  if(email.includes("@")){
-    const domain = email.split("@")[1]||"";
-    const ends = (t)=>domain.endsWith(t);
-
-    // країна
-    if(ends(".nl")) $("#country").value="Netherlands";
-    else if(ends(".be")) $("#country").value="Belgium";
-    else if(ends(".de")) $("#country").value="Germany";
-    else if(ends(".fr")) $("#country").value="France";
-    else if(ends(".es")) $("#country").value="Spain";
-    else if(ends(".pl")) $("#country").value="Poland";
-    else if(ends(".uk")||ends(".co.uk")) $("#country").value="United Kingdom";
-    msg.push("🌍 Country suggested");
-
-    // статус
-    const isFree = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
-    if(isFree){ $("#status").value="Prospect"; msg.push("Status → Prospect"); }
-
-    // телефон
-    if(!val("phone")){
-      if(ends(".nl")) $("#phone").value="+31 ";
-      if(ends(".be")) $("#phone").value="+32 ";
-      if(ends(".de")) $("#phone").value="+49 ";
-      if(ends(".fr")) $("#phone").value="+33 ";
-      if(ends(".es")) $("#phone").value="+34 ";
-      if(ends(".pl")) $("#phone").value="+48 ";
-      if(ends(".uk")||ends(".co.uk")) $("#phone").value="+44 ";
-    }
-  }else{
-    msg.push("Type email to get suggestions");
-  }
-
-  if(hint){
-    hint.textContent = "✅ " + msg.join(" · ");
-    hint.style.display = "block";
-    hint.style.opacity = "1";
-    setTimeout(()=>hint.style.opacity="0", 1800);
-    setTimeout(()=>hint.style.display="none", 2300);
-  }
-}
-
 /* ---------- Save Client ---------- */
-async function saveClient(uid, editId=null){
-  if(!validate()) return;
-  let id = val("clientId") || await generateClientId(uid);
-  $("#clientId").value = id;
+async function saveClient(uid, editId = null) {
+  if (!validate()) return;
+
+  let id = val("clientId");
+  const idEl = $("#clientId");
+  if (!id) {
+    id = await generateClientId(uid);
+    if (idEl) idEl.value = id;
+  }
 
   const data = {
-    clientId:id,
-    clientName:val("clientName"),
-    contactPerson:val("contactPerson"),
-    email:val("email"),
-    phone:val("phone"),
-    address:val("address"),
-    country:$("#country")?.value||"",
-    kvk:val("kvk"),
-    vatNumber:val("vatNumber"),
-    paymentTerm:$("#paymentTerm")?.value||"30 days",
-    status:$("#status")?.value||"Active",
-    currency:$("#currency")?.value||"EUR",
-    tags:val("tags")?val("tags").split(",").map(t=>t.trim()):[],
-    notes:val("notes"),
-    updatedAt:serverTimestamp(),
+    clientId: id,
+    clientName: val("clientName"),
+    contactPerson: val("contactPerson"),
+    email: val("email"),
+    phone: val("phone"),
+    address: val("address"),
+    country: $("#country")?.value || "",
+    kvk: val("kvk"),
+    vatNumber: val("vatNumber"),
+    paymentTerm: $("#paymentTerm")?.value || "30 days",
+    status: $("#status")?.value || "Active",
+    currency: $("#currency")?.value || "EUR",
+    tags: val("tags") ? val("tags").split(",").map(t => t.trim()) : [],
+    notes: val("notes"),
+    updatedAt: serverTimestamp(),
   };
 
-  if(editId){
-    await updateDoc(doc(db,"users",uid,"clients",editId),data);
+  if (editId) {
+    await updateDoc(doc(db, "users", uid, "clients", editId), data);
     alert("✅ Client updated successfully!");
-  }else{
-    await addDoc(collection(db,"users",uid,"clients"),{...data,createdAt:serverTimestamp()});
+  } else {
+    await addDoc(collection(db, "users", uid, "clients"), { ...data, createdAt: serverTimestamp() });
     alert("✅ Client saved successfully!");
   }
 }
 
-/* ---------- Initial UI ---------- */
-document.addEventListener("DOMContentLoaded",()=>{
+/* ---------- DOM Ready ---------- */
+document.addEventListener("DOMContentLoaded", () => {
   $("#smartSuggestBtn")?.addEventListener("click", smartSuggest);
   $("#email")?.addEventListener("blur", smartSuggest);
-  $("#viewBtn")?.addEventListener("click", ()=> location.href="clients-list.html");
+  $("#viewBtn")?.addEventListener("click", () => (location.href = "clients-list.html"));
 });
 
-/* ---------- Auth logic ---------- */
+/* ---------- Auth + Logic ---------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     location.href = "login.html";
     return;
   }
 
-  // ✅ чекаємо доки DOM завантажиться
   await new Promise((resolve) => {
     if (document.readyState === "complete" || document.readyState === "interactive") resolve();
-    else window.addEventListener("DOMContentLoaded", resolve, { once: true });
+    else document.addEventListener("DOMContentLoaded", resolve, { once: true });
   });
 
   const editId = localStorage.getItem("editClientId");
-
-  // знайдемо кнопку, але тільки після завантаження DOM
-  const btn = document.getElementById("saveBtn");
-  if (!btn) {
-    console.error("❌ Save button (#saveBtn) not found in DOM");
-    return;
-  }
+  const btn = $("#saveBtn");
+  if (!btn) return console.error("❌ Save button not found");
 
   if (editId) {
-    // ✏️ режим редагування
-    try {
-      const snap = await getDoc(doc(db, "users", user.uid, "clients", editId));
-      if (snap.exists()) {
-        const c = snap.data();
+    const snap = await getDoc(doc(db, "users", user.uid, "clients", editId));
+    if (snap.exists()) {
+      const c = snap.data();
+      ["clientId","clientName","contactPerson","email","phone","address","kvk","vatNumber","notes"].forEach(k=>{
+        if($(k) && c[k]!==undefined) $(k).value = Array.isArray(c[k])?c[k].join(", "):c[k];
+      });
+      if($("#country")&&c.country)$("#country").value=c.country;
+      if($("#paymentTerm")&&c.paymentTerm)$("#paymentTerm").value=c.paymentTerm;
+      if($("#status")&&c.status)$("#status").value=c.status;
+      if($("#currency")&&c.currency)$("#currency").value=c.currency;
+      if($("#tags")&&Array.isArray(c.tags))$("#tags").value=c.tags.join(", ");
 
-        // заповнюємо всі поля
-        ["clientId", "clientName", "contactPerson", "email", "phone", "address", "kvk", "vatNumber", "notes"].forEach(k => {
-          const el = document.getElementById(k);
-          if (el && c[k] !== undefined)
-            el.value = Array.isArray(c[k]) ? c[k].join(", ") : c[k];
-        });
-        if ($("#country") && c.country) $("#country").value = c.country;
-        if ($("#paymentTerm") && c.paymentTerm) $("#paymentTerm").value = c.paymentTerm;
-        if ($("#status") && c.status) $("#status").value = c.status;
-        if ($("#currency") && c.currency) $("#currency").value = c.currency;
-        if ($("#tags") && Array.isArray(c.tags)) $("#tags").value = c.tags.join(", ");
-
-        // оновлюємо текст кнопки
-        btn.textContent = "💾 Update Client";
-        btn.onclick = () => saveClient(user.uid, editId);
-        console.log("✏️ Edit mode active");
-      } else {
-        console.warn("⚠️ Client not found for editing");
-        localStorage.removeItem("editClientId");
-      }
-    } catch (err) {
-      console.error("❌ Error loading client:", err);
+      btn.textContent = "💾 Update Client";
+      btn.onclick = () => saveClient(user.uid, editId);
+      console.log("✏️ Edit mode active");
+    } else {
+      console.warn("⚠️ Client not found for edit");
+      localStorage.removeItem("editClientId");
     }
   } else {
-    // 🆕 режим створення нового клієнта
-    try {
-      const idEl = document.getElementById("clientId");
-      if (idEl && !idEl.value) {
-        idEl.value = await generateClientId(user.uid);
-      }
-    } catch (e) {
-      console.warn("⚠️ Cannot generate client ID:", e.message);
-    }
-
+    const idEl = $("#clientId");
+    if (idEl && !idEl.value) idEl.value = await generateClientId(user.uid);
     btn.onclick = () => saveClient(user.uid);
     console.log("🆕 New client mode active");
   }
 });
-
-console.log("✅ Script loaded successfully");
 </script>
 </body>
 </html>
