@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>👥 SmartWerk — Add Client</title>
+  <link rel="stylesheet" href="style-invoices.css" />
+  <style>
+    body {
+      background: #0f172a;
+      color: #e5e7eb;
+      font-family: "Inter", sans-serif;
+      padding: 20px;
+    }
+    h1, h2 { color: #fff; }
+    section {
+      background: #1e293b;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+    label { color: #94a3b8; font-size: 14px; }
+    input, select, textarea {
+      width: 100%; padding: 8px; border-radius: 6px; border: none;
+      background: #334155; color: #fff; margin-top: 4px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { background: #475569; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; }
+    .btn-primary { background: #3b82f6; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+    .hint {
+      background: #10b981; color: #fff; padding: 8px; border-radius: 6px;
+      text-align: center; margin-top: 10px; display: none;
+    }
+    footer { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>👥 SmartWerk — Add Client</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="clients-list.html" class="btn">📂 Saved Clients</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- CLIENT INFO -->
+    <section>
+      <h2>🏢 Client Information</h2>
+      <div class="grid-2">
+        <div>
+          <label>Company / Full Name</label>
+          <input id="clientName" placeholder="Company or Full Name" />
+        </div>
+        <div>
+          <label>Contact Person</label>
+          <input id="contactPerson" placeholder="e.g. John de Vries" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>Email</label>
+          <input id="email" type="email" placeholder="client@example.com" />
+        </div>
+        <div>
+          <label>Phone</label>
+          <input id="phone" placeholder="+31 6 12345678" />
+        </div>
+      </div>
+
+      <label>Address</label>
+      <input id="address" placeholder="Street, City, ZIP" />
+
+      <div class="grid-2">
+        <div>
+          <label>Country</label>
+          <select id="country">
+            <option value="">Select Country</option>
+            <option>Netherlands</option>
+            <option>Belgium</option>
+            <option>Germany</option>
+            <option>France</option>
+            <option>Spain</option>
+            <option>Poland</option>
+            <option>United Kingdom</option>
+          </select>
+        </div>
+        <div>
+          <label>Payment Term</label>
+          <select id="paymentTerm">
+            <option>14 days</option>
+            <option>30 days</option>
+            <option>60 days</option>
+            <option>On Receipt</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPANY DATA -->
+    <section>
+      <h2>💼 Company Data</h2>
+      <div class="grid-2">
+        <div>
+          <label>KvK Number</label>
+          <input id="kvk" placeholder="e.g. 12345678" />
+        </div>
+        <div>
+          <label>VAT Number</label>
+          <input id="vatNumber" placeholder="e.g. NL001234567B01" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Status</label>
+          <select id="status">
+            <option>Active</option>
+            <option>Prospect</option>
+            <option>Inactive</option>
+          </select>
+        </div>
+        <div>
+          <label>Tags</label>
+          <input id="tags" placeholder="VIP, Long-term, etc." />
+        </div>
+      </div>
+      <label>Notes</label>
+      <textarea id="notes" rows="3" placeholder="Additional comments or notes"></textarea>
+    </section>
+
+    <div class="actions">
+      <button id="saveBtn" class="btn-primary">💾 Save Client</button>
+      <button id="viewBtn" class="btn">📂 View Saved Clients</button>
+      <button id="smartSuggestBtn" class="btn">🤖 Smart Suggest</button>
+    </div>
+    <div id="smartHint" class="hint"></div>
+  </main>
+
+  <footer><p>© 2025 SmartWerk</p></footer>
+
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const $ = (id)=>document.getElementById(id);
+
+    // === Smart Suggest (auto-fill country by email domain)
+    function smartSuggest() {
+      const email = $("#email")?.value || "";
+      const hint = $("#smartHint");
+      const domain = email.split("@")[1]?.toLowerCase() || "";
+      let suggestedCountry = "";
+
+      if (domain.endsWith(".nl")) suggestedCountry = "Netherlands";
+      else if (domain.endsWith(".be")) suggestedCountry = "Belgium";
+      else if (domain.endsWith(".de")) suggestedCountry = "Germany";
+      else if (domain.endsWith(".fr")) suggestedCountry = "France";
+      else if (domain.endsWith(".es")) suggestedCountry = "Spain";
+      else if (domain.endsWith(".pl")) suggestedCountry = "Poland";
+      else if (domain.endsWith(".uk")) suggestedCountry = "United Kingdom";
+
+      if (suggestedCountry) {
+        $("#country").value = suggestedCountry;
+        hint.textContent = `✅ Country automatically set to ${suggestedCountry}`;
+        hint.style.display = "block";
+        setTimeout(() => (hint.style.display = "none"), 2500);
+      } else {
+        hint.textContent = "⚠️ No suggestion found for this email domain";
+        hint.style.display = "block";
+        setTimeout(() => (hint.style.display = "none"), 2500);
+      }
+    }
+
+    // === Save client to Firestore
+    async function saveClient(uid) {
+      const data = {
+        clientName: $("#clientName").value,
+        contactPerson: $("#contactPerson").value,
+        email: $("#email").value,
+        phone: $("#phone").value,
+        address: $("#address").value,
+        country: $("#country").value,
+        kvk: $("#kvk").value,
+        vatNumber: $("#vatNumber").value,
+        paymentTerm: $("#paymentTerm").value,
+        status: $("#status").value,
+        notes: $("#notes").value,
+        tags: $("#tags").value.split(",").map(t=>t.trim()).filter(t=>t),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "users", uid, "clients"), data);
+      alert("✅ Client saved successfully!");
+    }
+
+    // === Auth logic
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        location.href = "login.html";
+        return;
+      }
+
+      $("#saveBtn")?.addEventListener("click", async () => {
+        await saveClient(user.uid);
+      });
+
+      $("#viewBtn")?.addEventListener("click", () => {
+        location.href = "clients-list.html";
+      });
+
+      $("#smartSuggestBtn")?.addEventListener("click", smartSuggest);
+    });
+  </script>
+</body>
+</html>
