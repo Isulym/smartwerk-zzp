@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📋 SmartWerk — Saved Clients</title>
+<link rel="stylesheet" href="style-invoices.css">
+<style>
+body{background:#0f172a;color:#e5e7eb;font-family:'Inter',sans-serif;padding:20px;}
+h1{color:#fff;margin-bottom:10px;}
+header,footer{text-align:center;margin-bottom:20px;}
+.btn{background:#475569;color:#fff;padding:8px 14px;border:none;border-radius:8px;cursor:pointer;transition:.2s;}
+.btn:hover{opacity:.85;}
+.btn-primary{background:#3b82f6;}
+.btn-danger{background:#ef4444;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{padding:10px;text-align:left;}
+th{background:#1e293b;color:#93c5fd;text-transform:uppercase;font-size:12px;}
+tr:nth-child(even){background:#1e293b;}
+tr:hover{background:#334155;}
+.status{font-weight:600;padding:4px 8px;border-radius:6px;font-size:13px;}
+.status.active{background:#065f46;color:#a7f3d0;}
+.status.prospect{background:#78350f;color:#fcd34d;}
+.status.inactive{background:#7f1d1d;color:#fecaca;}
+.actions{display:flex;gap:8px;flex-wrap:wrap;}
+input,select{background:#1e293b;border:none;color:#e5e7eb;padding:6px 8px;border-radius:6px;}
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;justify-content:space-between;}
+#msg{margin-top:10px;text-align:center;color:#10b981;display:none;}
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 SmartWerk — Saved Clients</h1>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+    <a href="dashboard.html" class="btn">← Dashboard</a>
+    <a href="clients.html" class="btn btn-primary">＋ Add Client</a>
+    <button id="refreshBtn" class="btn">🔄 Refresh</button>
+    <button id="exportCSV" class="btn">📊 Export CSV</button>
+    <button id="exportPDF" class="btn">📄 Export PDF</button>
+    <button id="exportPDFPro" class="btn btn-primary">💎 PRO Export PDF (no brand)</button>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Search by name, email or country..." style="flex:1;">
+    <select id="statusFilter">
+      <option value="">All Statuses</option>
+      <option>Active</option>
+      <option>Prospect</option>
+      <option>Inactive</option>
+    </select>
+  </div>
+</header>
+
+<main>
+  <table id="clientsTable">
+    <thead>
+      <tr>
+        <th>Client ID</th>
+        <th>Name / Company</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Country</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="clientsBody"><tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr></tbody>
+  </table>
+  <div id="msg">✅ Synced with Cloud</div>
+</main>
+
+<footer><p>© 2025 SmartWerk</p></footer>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
+
+const firebaseConfig={apiKey:"AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",authDomain:"smartwerk8520.firebaseapp.com",projectId:"smartwerk8520",appId:"1:607670981972:web:c07103c981c86860d724c1"};
+const app=getApps().length?getApp():initializeApp(firebaseConfig);
+const auth=getAuth(app);const db=getFirestore(app);
+const $=id=>document.getElementById(id);
+
+function showMsg(txt){const m=$("msg");m.textContent=txt;m.style.display="block";setTimeout(()=>m.style.display="none",2500);}
+
+// ---- Load Clients ----
+async function loadClients(uid){
+ const tbody=$("clientsBody");
+ tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr>`;
+ const snap=await getDocs(collection(db,"users",uid,"clients"));
+ const arr=[];snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+ window._clientsCache=arr;
+ renderClients(arr);
+ showMsg("✅ Synced with Cloud");
+}
+
+// ---- Render Table ----
+function renderClients(clients){
+ const tbody=$("clientsBody");
+ const q=$("searchInput").value.toLowerCase();
+ const f=$("statusFilter").value;
+ let filtered=clients.filter(c=>{
+   const m=(c.clientName||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.country||"").toLowerCase().includes(q);
+   const s=!f||c.status===f;
+   return m&&s;
+ });
+ if(filtered.length===0){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:#94a3b8;">No clients found</td></tr>`;return;}
+ tbody.innerHTML="";
+ filtered.forEach(c=>{
+   const tr=document.createElement("tr");
+   const statusClass=c.status?.toLowerCase()==="active"?"active":c.status?.toLowerCase()==="prospect"?"prospect":"inactive";
+   tr.innerHTML=`
+   <td>${c.clientId||"-"}</td>
+   <td>${c.clientName||""}</td>
+   <td>${c.email||""}</td>
+   <td>${c.phone||""}</td>
+   <td><span class="status ${statusClass}">${c.status||""}</span></td>
+   <td>${c.country||""}</td>
+   <td class="actions">
+     <button class="btn" onclick="editClient('${c.id}')">✏️</button>
+     <button class="btn btn-danger" onclick="deleteClient('${c.id}')">🗑</button>
+   </td>`;
+   tbody.appendChild(tr);
+ });
+}
+
+// ---- Edit ----
+window.editClient=(id)=>{localStorage.setItem("editClientId",id);location.href="clients.html";}
+
+// ---- Delete ----
+window.deleteClient=async(id)=>{
+ if(!confirm("Delete this client?"))return;
+ const user=auth.currentUser;
+ await deleteDoc(doc(db,"users",user.uid,"clients",id));
+ showMsg("🗑 Client deleted");
+ loadClients(user.uid);
+}
+
+// ---- CSV Export ----
+async function exportCSV(uid){
+ const snap=await getDocs(collection(db,"users",uid,"clients"));
+ let csv="Client ID,Name,Email,Phone,Status,Country\n";
+ snap.forEach(d=>{
+   const c=d.data();
+   csv+=`"${c.clientId||""}","${c.clientName||""}","${c.email||""}","${c.phone||""}","${c.status||""}","${c.country||""}"\n`;
+ });
+ const blob=new Blob([csv],{type:"text/csv"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="SmartWerk_Clients.csv";a.click();
+ showMsg("📊 CSV exported");
+}
+
+// ---- PDF Export (standard + PRO) ----
+async function exportPDF(uid,pro=false){
+ const { jsPDF } = window.jspdf;
+ const doc=new jsPDF({orientation:"landscape"});
+ const snap=await getDocs(collection(db,"users",uid,"clients"));
+ let y=20;
+ doc.setFontSize(18);
+ doc.text("Client List",14,15);
+ snap.forEach((d,i)=>{
+   const c=d.data();
+   doc.setFontSize(10);
+   doc.text(`${i+1}. ${c.clientName||"-"} | ${c.email||"-"} | ${c.phone||"-"} | ${c.status||"-"} | ${c.country||"-"}`,14,y);
+   y+=7;if(y>190){doc.addPage();y=20;}
+ });
+ if(!pro){
+   doc.setFontSize(10);
+   doc.text("Generated by SmartWerk © 2025",14,200);
+ }
+ doc.save(pro?"SmartWerk_Clients_PRO.pdf":"SmartWerk_Clients.pdf");
+ showMsg(pro?"💎 PRO PDF exported":"📄 PDF exported");
+}
+
+// ---- Auth ----
+onAuthStateChanged(auth,async(user)=>{
+ if(!user){location.href="login.html";return;}
+ $("refreshBtn").onclick=()=>loadClients(user.uid);
+ $("exportCSV").onclick=()=>exportCSV(user.uid);
+ $("exportPDF").onclick=()=>exportPDF(user.uid,false);
+ $("exportPDFPro").onclick=()=>exportPDF(user.uid,true);
+ $("searchInput").oninput=()=>renderClients(window._clientsCache||[]);
+ $("statusFilter").onchange=()=>renderClients(window._clientsCache||[]);
+ loadClients(user.uid);
+});
+</script>
+</body>
+</html>
