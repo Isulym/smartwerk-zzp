@@ -21,16 +21,27 @@
     }
     label { color: #94a3b8; font-size: 14px; }
     input, select, textarea {
-      width: 100%; padding: 8px; border-radius: 6px; border: none;
-      background: #334155; color: #fff; margin-top: 4px;
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      background: #334155;
+      color: #fff;
+      margin-top: 4px;
     }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .btn { background: #475569; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; }
     .btn-primary { background: #3b82f6; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
     .hint {
-      background: #10b981; color: #fff; padding: 8px; border-radius: 6px;
-      text-align: center; margin-top: 10px; display: none;
+      background: #10b981;
+      color: #fff;
+      padding: 8px;
+      border-radius: 6px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+      transition: opacity 0.3s ease;
     }
     footer { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
   </style>
@@ -143,7 +154,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } 
+    import { getFirestore, collection, addDoc, doc, setDoc, serverTimestamp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -158,79 +169,99 @@
     const db = getFirestore(app);
     const $ = (id)=>document.getElementById(id);
 
-   function smartSuggest() {
-  const email = ($("#email")?.value || "").trim().toLowerCase();
-  const hint = $("#smartHint");
-  if (!email.includes("@")) {
-    hint.textContent = "⚠️ Please enter a valid email first";
-    hint.style.display = "block";
-    setTimeout(() => (hint.style.display = "none"), 2500);
-    return;
-  }
-  const domain = email.split("@")[1];
-  let suggestedCountry = "";
+    // === VALIDATION ===
+    function validateClient() {
+      const email = $("#email").value.trim();
+      const phone = $("#phone").value.trim();
+      const emailPattern = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      const phonePattern = /^[0-9+\\s-]{6,20}$/;
 
-  if (domain.endsWith(".nl")) suggestedCountry = "Netherlands";
-  else if (domain.endsWith(".be")) suggestedCountry = "Belgium";
-  else if (domain.endsWith(".de")) suggestedCountry = "Germany";
-  else if (domain.endsWith(".fr")) suggestedCountry = "France";
-  else if (domain.endsWith(".es")) suggestedCountry = "Spain";
-  else if (domain.endsWith(".pl")) suggestedCountry = "Poland";
-  else if (domain.endsWith(".uk") || domain.endsWith(".co.uk")) suggestedCountry = "United Kingdom";
+      if (email && !emailPattern.test(email)) {
+        alert("❗ Please enter a valid email address.");
+        return false;
+      }
+      if (phone && !phonePattern.test(phone)) {
+        alert("❗ Please enter a valid phone number.");
+        return false;
+      }
+      if (!$("#clientName").value.trim()) {
+        alert("❗ Client Name is required.");
+        return false;
+      }
+      return true;
+    }
 
-  if (suggestedCountry) {
-    $("#country").value = suggestedCountry;
-    hint.textContent = `✅ Country automatically set to ${suggestedCountry}`;
-  } else {
-    hint.textContent = "⚠️ No suggestion found for this email domain";
-  }
-  hint.style.display = "block";
-  setTimeout(() => (hint.style.display = "none"), 2500);
-}
+    // === SMART SUGGEST ===
+    function smartSuggest() {
+      const email = ($("#email")?.value || "").trim().toLowerCase();
+      const hint = $("#smartHint");
 
-// Виклик також при вводі email:
-$("#email")?.addEventListener("blur", smartSuggest);
-$("#smartSuggestBtn")?.addEventListener("click", smartSuggest);
+      if (!email.includes("@")) {
+        hint.textContent = "⚠️ Please enter a valid email first";
+        hint.style.display = "block";
+        setTimeout(() => (hint.style.display = "none"), 2500);
+        return;
+      }
 
-    // === Save client to Firestore
+      const domain = email.split("@")[1];
+      let suggestedCountry = "";
+
+      if (domain.endsWith(".nl")) suggestedCountry = "Netherlands";
+      else if (domain.endsWith(".be")) suggestedCountry = "Belgium";
+      else if (domain.endsWith(".de")) suggestedCountry = "Germany";
+      else if (domain.endsWith(".fr")) suggestedCountry = "France";
+      else if (domain.endsWith(".es")) suggestedCountry = "Spain";
+      else if (domain.endsWith(".pl")) suggestedCountry = "Poland";
+      else if (domain.endsWith(".uk") || domain.endsWith(".co.uk")) suggestedCountry = "United Kingdom";
+
+      if (suggestedCountry) {
+        $("#country").value = suggestedCountry;
+        hint.textContent = `✅ Country automatically set to ${suggestedCountry}`;
+      } else {
+        hint.textContent = "⚠️ No suggestion found for this email domain";
+      }
+
+      hint.style.display = "block";
+      setTimeout(() => (hint.style.display = "none"), 2500);
+    }
+
+    // === SAVE CLIENT ===
     async function saveClient(uid) {
+      if (!validateClient()) return;
+
       const data = {
-        clientName: $("#clientName").value,
-        contactPerson: $("#contactPerson").value,
-        email: $("#email").value,
-        phone: $("#phone").value,
-        address: $("#address").value,
+        clientName: $("#clientName").value.trim(),
+        contactPerson: $("#contactPerson").value.trim(),
+        email: $("#email").value.trim(),
+        phone: $("#phone").value.trim(),
+        address: $("#address").value.trim(),
         country: $("#country").value,
-        kvk: $("#kvk").value,
-        vatNumber: $("#vatNumber").value,
+        kvk: $("#kvk").value.trim(),
+        vatNumber: $("#vatNumber").value.trim(),
         paymentTerm: $("#paymentTerm").value,
         status: $("#status").value,
-        notes: $("#notes").value,
+        notes: $("#notes").value.trim(),
         tags: $("#tags").value.split(",").map(t=>t.trim()).filter(t=>t),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "users", uid, "clients"), data);
+      const ref = await addDoc(collection(db, "users", uid, "clients"), data);
+      await setDoc(ref, { id: ref.id }, { merge: true });
       alert("✅ Client saved successfully!");
     }
 
-    // === Auth logic
+    // === AUTH ===
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         location.href = "login.html";
         return;
       }
 
-      $("#saveBtn")?.addEventListener("click", async () => {
-        await saveClient(user.uid);
-      });
-
-      $("#viewBtn")?.addEventListener("click", () => {
-        location.href = "clients-list.html";
-      });
-
+      $("#saveBtn")?.addEventListener("click", () => saveClient(user.uid));
+      $("#viewBtn")?.addEventListener("click", () => location.href = "clients-list.html");
       $("#smartSuggestBtn")?.addEventListener("click", smartSuggest);
+      $("#email")?.addEventListener("blur", smartSuggest);
     });
   </script>
 </body>
