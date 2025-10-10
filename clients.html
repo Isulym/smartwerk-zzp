@@ -179,48 +179,60 @@
     }
 
     /* ---------- Smart Suggest ---------- */
-    function smartSuggest(){
-      const email = val("email").toLowerCase();
-      const hint = $("#smartHint");
-      let messages = [];
+  function smartSuggest() {
+  const email = val("email").toLowerCase();
+  const hint = document.getElementById("smartHint");
+  let messages = [];
 
-      if(email.includes("@")){
-        const domain = email.split("@")[1] || "";
-        const ends = (t)=>domain.endsWith(t);
+  if (!hint) {
+    console.warn("⚠️ #smartHint element not found in DOM");
+    alert("Smart Suggest hint element missing!");
+    return;
+  }
 
-        const countryMap = {
-          ".nl":"Netherlands",".be":"Belgium",".de":"Germany",".fr":"France",
-          ".es":"Spain",".pl":"Poland",".uk":"United Kingdom",".co.uk":"United Kingdom"
-        };
-        for(const [suffix,country] of Object.entries(countryMap)){
-          if(ends(suffix)) $("#country").value = country;
-        }
+  if (email.includes("@")) {
+    const domain = email.split("@")[1] || "";
+    const ends = (t) => domain.endsWith(t);
 
-        const isFree = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
-        if(isFree){
-          $("#status").value = "Prospect";
-          $("#tags").value = "Prospect";
-          messages.push("Detected freemail — status Prospect");
-        }else{
-          $("#tags").value = domain.split(".")[0];
-          messages.push("Tags suggested from domain");
-        }
-
-        if(!val("phone")){
-          const prefix={".nl":"+31",".be":"+32",".de":"+49",".fr":"+33",".es":"+34",".pl":"+48",".uk":"+44",".co.uk":"+44"};
-          for(const [s,code] of Object.entries(prefix)){ if(ends(s)) $("#phone").value = code+" "; }
-        }
-      }else{
-        messages.push("Enter email for smart suggestions");
-      }
-
-      hint.textContent = "✅ " + messages.join(" · ");
-      hint.style.display = "block";
-      hint.style.opacity = "1";
-      setTimeout(()=>hint.style.opacity="0", 1800);
-      setTimeout(()=>hint.style.display="none", 2300);
+    const countryMap = {
+      ".nl": "Netherlands", ".be": "Belgium", ".de": "Germany",
+      ".fr": "France", ".es": "Spain", ".pl": "Poland",
+      ".uk": "United Kingdom", ".co.uk": "United Kingdom"
+    };
+    for (const [suffix, country] of Object.entries(countryMap)) {
+      if (ends(suffix)) document.getElementById("country").value = country;
     }
 
+    const isFree = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
+    if (isFree) {
+      document.getElementById("status").value = "Prospect";
+      document.getElementById("tags").value = "Prospect";
+      messages.push("Detected freemail — status Prospect");
+    } else {
+      document.getElementById("tags").value = domain.split(".")[0];
+      messages.push("Tags suggested from domain");
+    }
+
+    if (!val("phone")) {
+      const prefixMap = {
+        ".nl": "+31", ".be": "+32", ".de": "+49", ".fr": "+33",
+        ".es": "+34", ".pl": "+48", ".uk": "+44", ".co.uk": "+44"
+      };
+      for (const [s, code] of Object.entries(prefixMap)) {
+        if (ends(s)) document.getElementById("phone").value = code + " ";
+      }
+    }
+  } else {
+    messages.push("Enter email for smart suggestions");
+  }
+
+  // Вивід підказки
+  hint.textContent = "✅ " + messages.join(" · ");
+  hint.style.display = "block";
+  hint.style.opacity = "1";
+  setTimeout(() => (hint.style.opacity = "0"), 2000);
+  setTimeout(() => (hint.style.display = "none"), 2500);
+}
     /* ---------- Validation ---------- */
     function validate(){
       if(!val("clientName")){ alert("❗ Client Name is required."); return false; }
