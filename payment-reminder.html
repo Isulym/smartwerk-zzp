@@ -320,6 +320,18 @@ window.saveReminder = saveReminder;
       if(lang==="nl") setVal("message","Beste klant,\n\nDit is een herinnering voor uw openstaande factuur. Gelieve zo snel mogelijk te betalen.\n\nMet vriendelijke groet,\nSmartWerk");
       if(lang==="en") setVal("message","Dear client,\n\nThis is a reminder for your outstanding invoice. Please make the payment soon.\n\nBest regards,\nSmartWerk");
     };
+    // 🌿 Автоматичне заповнення даних клієнта, якщо прийшли з clients-list
+document.addEventListener("DOMContentLoaded", () => {
+  const savedClient = localStorage.getItem("selectedClient");
+  if (savedClient) {
+    const c = JSON.parse(savedClient);
+    if ($("clientName")) $("clientName").value = c.clientName || "";
+    if ($("clientEmail")) $("clientEmail").value = c.email || "";
+    if ($("clientAddress")) $("clientAddress").value = c.address || "";
+    localStorage.removeItem("selectedClient");
+    console.log("✅ Client data autofilled into Payment Reminder");
+  }
+});
 
     /* INIT */
     onAuthStateChanged(auth, async (user)=>{
