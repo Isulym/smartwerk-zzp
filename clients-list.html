@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📋 SmartWerk — Saved Clients</title>
-<link rel="stylesheet" href="style-invoices.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{background:#0f172a;color:#e5e7eb;font-family:'Inter',sans-serif;padding:20px;}
 h1{color:#fff;margin-bottom:10px;}
 header,footer{text-align:center;margin-bottom:20px;}
-.btn{background:#475569;color:#fff;padding:8px 14px;border:none;border-radius:8px;cursor:pointer;transition:.2s;}
+.btn{background:#475569;color:#fff;padding:6px 12px;border:none;border-radius:8px;cursor:pointer;transition:.2s;}
 .btn:hover{opacity:.85;}
 .btn-primary{background:#3b82f6;}
 .btn-danger{background:#ef4444;}
@@ -22,180 +22,214 @@ tr:hover{background:#334155;}
 .status.active{background:#065f46;color:#a7f3d0;}
 .status.prospect{background:#78350f;color:#fcd34d;}
 .status.inactive{background:#7f1d1d;color:#fecaca;}
-.actions{display:flex;gap:8px;flex-wrap:wrap;}
+.actions{display:flex;gap:4px;flex-wrap:wrap;}
 input,select{background:#1e293b;border:none;color:#e5e7eb;padding:6px 8px;border-radius:6px;}
 .search-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;justify-content:space-between;}
 #msg{margin-top:10px;text-align:center;color:#10b981;display:none;}
+.kpi-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
+.kpi-card{background:#1e293b;padding:12px;border-radius:12px;text-align:center;}
+.kpi-card h3{margin:4px 0;font-size:14px;color:#94a3b8;}
+.kpi-card p{font-size:22px;font-weight:700;margin:0;}
+canvas{background:#1e293b;border-radius:12px;padding:10px;}
 </style>
 </head>
 <body>
-<header>
-  <h1>📋 SmartWerk — Saved Clients</h1>
-  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-    <a href="dashboard.html" class="btn">← Dashboard</a>
-    <a href="clients.html" class="btn btn-primary">＋ Add Client</a>
-    <button id="refreshBtn" class="btn">🔄 Refresh</button>
-    <button id="exportCSV" class="btn">📊 Export CSV</button>
-    <button id="exportPDF" class="btn">📄 Export PDF</button>
-    <button id="exportPDFPro" class="btn btn-primary">💎 PRO Export PDF (no brand)</button>
-  </div>
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="🔍 Search by name, email or country..." style="flex:1;">
-    <select id="statusFilter">
-      <option value="">All Statuses</option>
-      <option>Active</option>
-      <option>Prospect</option>
-      <option>Inactive</option>
-    </select>
-  </div>
-</header>
+<h1>📋 SmartWerk — Saved Clients</h1>
 
-<main>
-  <table id="clientsTable">
-    <thead>
-      <tr>
-        <th>Client ID</th>
-        <th>Name / Company</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Status</th>
-        <th>Country</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="clientsBody"><tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr></tbody>
-  </table>
-  <div id="msg">✅ Synced with Cloud</div>
-</main>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+  <a href="dashboard.html" class="btn">← Dashboard</a>
+  <a href="clients.html" class="btn btn-primary">＋ Add Client</a>
+  <button id="refreshBtn" class="btn">🔄 Refresh</button>
+</div>
 
+<!-- 📊 KPI Summary -->
+<section class="kpi-container">
+  <div class="kpi-card"><h3>🟢 Active</h3><p id="kpi-active">0</p></div>
+  <div class="kpi-card"><h3>🟡 Prospect</h3><p id="kpi-prospect">0</p></div>
+  <div class="kpi-card"><h3>🔴 Inactive</h3><p id="kpi-inactive">0</p></div>
+  <div class="kpi-card"><h3>👥 Total</h3><p id="kpi-total">0</p></div>
+</section>
+
+<!-- 📈 Chart -->
+<canvas id="clientChart" height="100"></canvas>
+
+<!-- 🔍 Search -->
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Search..." style="flex:1;">
+  <select id="statusFilter">
+    <option value="">All Statuses</option>
+    <option>Active</option>
+    <option>Prospect</option>
+    <option>Inactive</option>
+  </select>
+</div>
+
+<!-- 🧾 Table -->
+<table id="clientsTable">
+  <thead>
+    <tr>
+      <th>Client ID</th>
+      <th>Name / Company</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Status</th>
+      <th>Country</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="clientsBody"><tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr></tbody>
+</table>
+
+<div id="msg">✅ Synced with Cloud</div>
 <footer><p>© 2025 SmartWerk</p></footer>
 
 <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"; // ✅ fixed import
+import "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
+import "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js";
 
 const firebaseConfig={apiKey:"AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",authDomain:"smartwerk8520.firebaseapp.com",projectId:"smartwerk8520",appId:"1:607670981972:web:c07103c981c86860d724c1"};
 const app=getApps().length?getApp():initializeApp(firebaseConfig);
-const auth=getAuth(app);const db=getFirestore(app);
+const auth=getAuth(app);
+const db=getFirestore(app);
 const $=id=>document.getElementById(id);
 
 function showMsg(txt){const m=$("msg");m.textContent=txt;m.style.display="block";setTimeout(()=>m.style.display="none",2500);}
 
-// ---- Load Clients ----
+let chart=null;
+function updateKPI(clients){
+ const total=clients.length;
+ const active=clients.filter(c=>c.status==="Active").length;
+ const prospect=clients.filter(c=>c.status==="Prospect").length;
+ const inactive=clients.filter(c=>c.status==="Inactive").length;
+ $("kpi-active").textContent=active;
+ $("kpi-prospect").textContent=prospect;
+ $("kpi-inactive").textContent=inactive;
+ $("kpi-total").textContent=total;
+
+ // Chart
+ if(chart){chart.destroy();}
+ const ctx=$("clientChart");
+ chart=new Chart(ctx,{type:"bar",data:{
+  labels:["Active","Prospect","Inactive"],
+  datasets:[{label:"Clients",data:[active,prospect,inactive],backgroundColor:["#10b981","#fbbf24","#ef4444"]}]
+ },options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+}
+
+// Load clients
 async function loadClients(uid){
- const tbody=$("clientsBody");
- tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr>`;
- const snap=await getDocs(collection(db,"users",uid,"clients"));
- const arr=[];snap.forEach(d=>arr.push({id:d.id,...d.data()}));
- window._clientsCache=arr;
- renderClients(arr);
- showMsg("✅ Synced with Cloud");
+  const tbody=$("clientsBody");
+  tbody.innerHTML=`<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>Loading...</td></tr>`;
+  const snap=await getDocs(collection(db,"users",uid,"clients"));
+  const arr=[];
+  snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+  window._clients=arr;
+  renderClients(arr);
+  updateKPI(arr);
 }
 
-// ---- Render Table ----
-function renderClients(clients){
- const tbody=$("clientsBody");
- const q=$("searchInput").value.toLowerCase();
- const f=$("statusFilter").value;
- let filtered=clients.filter(c=>{
-   const m=(c.clientName||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.country||"").toLowerCase().includes(q);
-   const s=!f||c.status===f;
-   return m&&s;
- });
- if(filtered.length===0){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:#94a3b8;">No clients found</td></tr>`;return;}
- tbody.innerHTML="";
- filtered.forEach(c=>{
-   const tr=document.createElement("tr");
-   const statusClass=c.status?.toLowerCase()==="active"?"active":c.status?.toLowerCase()==="prospect"?"prospect":"inactive";
-   tr.innerHTML=`
-   <td>${c.clientId||"-"}</td>
-   <td>${c.clientName||""}</td>
-   <td>${c.email||""}</td>
-   <td>${c.phone||""}</td>
-   <td><span class="status ${statusClass}">${c.status||""}</span></td>
-   <td>${c.country||""}</td>
-   <td class="actions">
-     <button class="btn" onclick="editClient('${c.id}')">✏️</button>
-     <button class="btn btn-danger" onclick="deleteClient('${c.id}')">🗑</button>
-   </td>`;
-   tbody.appendChild(tr);
- });
+// Render table
+function renderClients(list){
+  const tbody=$("clientsBody");
+  const q=$("searchInput").value.toLowerCase();
+  const f=$("statusFilter").value;
+  let filtered=list.filter(c=>{
+    const m=(c.clientName||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.country||"").toLowerCase().includes(q);
+    const s=!f||c.status===f;
+    return m&&s;
+  });
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>No clients</td></tr>`;updateKPI(filtered);return;}
+  tbody.innerHTML="";
+  filtered.forEach(c=>{
+    const statusClass=c.status?.toLowerCase()==="active"?"active":c.status?.toLowerCase()==="prospect"?"prospect":"inactive";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${c.clientId||"-"}</td>
+      <td>${c.clientName||""}</td>
+      <td>${c.email||""}</td>
+      <td>${c.phone||""}</td>
+      <td><span class="status ${statusClass}">${c.status||""}</span></td>
+      <td>${c.country||""}</td>
+      <td class="actions">
+        <button class="btn" onclick="editClient('${c.id}')">✏️</button>
+        <button class="btn btn-danger" onclick="deleteClient('${c.id}')">🗑</button>
+        <button class="btn" onclick="exportClientPDF('${c.id}',true)">📄 PDF</button>
+        <button class="btn btn-primary" onclick="exportClientPDF('${c.id}',false)">💎 PRO</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  updateKPI(filtered);
 }
 
-// ---- Edit ----
+// Edit
 window.editClient=(id)=>{localStorage.setItem("editClientId",id);location.href="clients.html";}
 
-// ---- Delete ----
+// Delete
 window.deleteClient=async(id)=>{
- if(!confirm("Delete this client?"))return;
- const user=auth.currentUser;
- await deleteDoc(doc(db,"users",user.uid,"clients",id));
- showMsg("🗑 Client deleted");
- loadClients(user.uid);
+  if(!confirm("Delete this client?"))return;
+  const user=auth.currentUser;
+  await deleteDoc(doc(db,"users",user.uid,"clients",id));
+  showMsg("🗑 Deleted");
+  loadClients(user.uid);
 }
 
-// ---- CSV Export ----
-async function exportCSV(uid){
- const snap=await getDocs(collection(db,"users",uid,"clients"));
- let csv="Client ID,Name,Email,Phone,Status,Country\n";
- snap.forEach(d=>{
-   const c=d.data();
-   csv+=`"${c.clientId||""}","${c.clientName||""}","${c.email||""}","${c.phone||""}","${c.status||""}","${c.country||""}"\n`;
- });
- const blob=new Blob([csv],{type:"text/csv"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");a.href=url;a.download="SmartWerk_Clients.csv";a.click();
- showMsg("📊 CSV exported");
-}
+// Export one client (PDF)
+window.exportClientPDF=(id,withBranding=true)=>{
+  const c=window._clients.find(x=>x.id===id);
+  if(!c)return alert("Client not found");
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF("p","mm","a4");
+  const blue=[59,130,246];
 
-// ---- PDF Export (styled) ----
-async function exportPDF(uid,pro=false){
- const { jsPDF } = window.jspdf;
- const doc=new jsPDF({orientation:"landscape"});
- const snap=await getDocs(collection(db,"users",uid,"clients"));
- const clients=[];
- snap.forEach(d=>{
-   const c=d.data();
-   clients.push([c.clientId||"",c.clientName||"",c.email||"",c.phone||"",c.status||"",c.country||""]);
- });
+  // Header
+  if(withBranding){
+    doc.setFillColor(...blue);
+    doc.rect(0,0,210,25,"F");
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(18).text("SmartWerk — Client Summary",15,17);
+  }else{
+    doc.setFontSize(18).setTextColor(0,0,0).text("Client Summary",15,17);
+  }
 
- // Header
- doc.setFontSize(18);
- doc.setTextColor(59,130,246);
- doc.text("SmartWerk — Client List",14,15);
- if(!pro){
-   doc.setFontSize(10);
-   doc.setTextColor(100,100,100);
-   doc.text("Generated by SmartWerk © 2025",14,200);
- }
+  const rows=[
+    ["Client ID",c.clientId||""],
+    ["Name / Company",c.clientName||""],
+    ["Email",c.email||""],
+    ["Phone",c.phone||""],
+    ["Status",c.status||""],
+    ["Country",c.country||""],
+    ["KvK",c.kvk||""],
+    ["VAT",c.vatNumber||""],
+    ["Tags",(c.tags||[]).join(", ")],
+    ["Notes",c.notes||""]
+  ];
 
- // Table
- doc.autoTable({
-   head:[["Client ID","Name / Company","Email","Phone","Status","Country"]],
-   body:clients,
-   startY:25,
-   styles:{fontSize:9,cellPadding:3,halign:'left'},
-   headStyles:{fillColor:[59,130,246],textColor:255,fontStyle:'bold'},
-   alternateRowStyles:{fillColor:[240,240,240]},
-   theme:"striped"
- });
+  doc.autoTable({
+    startY:35,
+    head:[["Field","Value"]],
+    body:rows,
+    theme:"grid",
+    headStyles:{fillColor:withBranding?blue:[180,180,180],textColor:255},
+    styles:{fontSize:10,cellPadding:4,overflow:'linebreak'},
+    alternateRowStyles:{fillColor:[245,245,245]}
+  });
 
- doc.save(pro?"SmartWerk_Clients_PRO.pdf":"SmartWerk_Clients.pdf");
- showMsg(pro?"💎 PRO PDF exported":"📄 PDF exported");
-}
+  if(withBranding){
+    doc.setFontSize(9).setTextColor(100).text("Generated by SmartWerk © 2025",14,290);
+  }
+  doc.save(withBranding?`SmartWerk_Client_${c.clientId||"info"}.pdf`:`Client_${c.clientId||"info"}_PRO.pdf`);
+  showMsg(withBranding?"📄 PDF exported":"💎 PRO PDF exported");
+};
 
-// ---- Auth ----
+// Auth
 onAuthStateChanged(auth,async(user)=>{
- if(!user){location.href="login.html";return;}
- $("refreshBtn").onclick=()=>loadClients(user.uid);
- $("exportCSV").onclick=()=>exportCSV(user.uid);
- $("exportPDF").onclick=()=>exportPDF(user.uid,false);
- $("exportPDFPro").onclick=()=>exportPDF(user.uid,true);
- $("searchInput").oninput=()=>renderClients(window._clientsCache||[]);
- $("statusFilter").onchange=()=>renderClients(window._clientsCache||[]);
- loadClients(user.uid);
+  if(!user){location.href="login.html";return;}
+  $("refreshBtn").onclick=()=>loadClients(user.uid);
+  $("searchInput").oninput=()=>renderClients(window._clients||[]);
+  $("statusFilter").onchange=()=>renderClients(window._clients||[]);
+  loadClients(user.uid);
 });
 </script>
 </body>
