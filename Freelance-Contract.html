@@ -281,9 +281,9 @@
             img.src=c.sigClient;
           }
         }
-        $("btn-save").onclick=async()=>{await saveContract(user.uid,editId);localStorage.removeItem("editContractId");location.href="contracts-list.html";}
+        $("btn-save").onclick=async()=>{await saveContract(user.uid,editId);localStorage.removeItem("editContractId");location.href="Freelance-Contract-list.html";}
       }else{
-        $("btn-save").onclick=async()=>{await saveContract(user.uid,null);location.href="contracts-list.html";}
+        $("btn-save").onclick=async()=>{await saveContract(user.uid,null);location.href="Freelance-Contract-list.html";}
       }
     });
   </script>
