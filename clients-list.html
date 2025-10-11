@@ -173,6 +173,7 @@ function renderClients(list) {
       <td>${c.country || ""}</td>
       <td class="actions">
         <button class="btn btn-primary" onclick="createInvoice('${c.id}')">📄 Invoice</button>
+        <button class="btn btn-primary" onclick="createQuote('${c.id}')">💼 Quote</button>
         <button class="btn" onclick="editClient('${c.id}')">✏️ Edit</button>
         <button class="btn btn-danger" onclick="deleteClient('${c.id}')">🗑 Delete</button>
         <button class="btn" onclick="exportClientPDF('${c.id}',true)">📄 PDF</button>
@@ -204,6 +205,29 @@ window.createInvoice = (id) => {
 
   // переходимо на сторінку інвойсу
   location.href = "invoices.html";
+};
+    // 🌿 Створити Quote / Offer з клієнта
+window.createQuote = (id) => {
+  const c = window._clients.find(x => x.id === id);
+  if (!c) return alert("Client not found");
+
+  // зберігаємо дані клієнта у localStorage
+  localStorage.setItem("selectedClient", JSON.stringify({
+    clientId: c.clientId,
+    clientName: c.clientName,
+    contactPerson: c.contactPerson || "",
+    email: c.email,
+    phone: c.phone,
+    address: c.address,
+    country: c.country,
+    kvk: c.kvk,
+    vatNumber: c.vatNumber,
+    paymentTerm: c.paymentTerm,
+    currency: c.currency
+  }));
+
+  // переходимо на сторінку Quote / Offer
+  location.href = "quote-offer.html";
 };
 
 window.editClient = (id) => {
