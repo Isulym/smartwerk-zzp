@@ -174,6 +174,7 @@ function renderClients(list) {
       <td class="actions">
         <button class="btn btn-primary" onclick="createInvoice('${c.id}')">📄 Invoice</button>
         <button class="btn btn-primary" onclick="createQuote('${c.id}')">💼 Quote</button>
+        <button class="btn" onclick="createReminder('${c.id}')">📬 Reminder</button>
         <button class="btn" onclick="editClient('${c.id}')">✏️ Edit</button>
         <button class="btn btn-danger" onclick="deleteClient('${c.id}')">🗑 Delete</button>
         <button class="btn" onclick="exportClientPDF('${c.id}',true)">📄 PDF</button>
@@ -228,6 +229,22 @@ window.createQuote = (id) => {
 
   // переходимо на сторінку Quote / Offer
   location.href = "quote-offer.html";
+};
+    // 🌿 Створити Payment Reminder з клієнта
+window.createReminder = (id) => {
+  const c = window._clients.find(x => x.id === id);
+  if (!c) return alert("Client not found");
+
+  // зберігаємо дані клієнта
+  localStorage.setItem("selectedClient", JSON.stringify({
+    clientId: c.clientId,
+    clientName: c.clientName,
+    email: c.email,
+    address: c.address
+  }));
+
+  // переходимо до шаблону Reminder
+  location.href = "payment-reminder.html";
 };
 
 window.editClient = (id) => {
