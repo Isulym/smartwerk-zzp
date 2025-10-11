@@ -264,7 +264,7 @@
 
       const editId = localStorage.getItem("editContractId");
       if(editId){
-        const snap = await getDoc(doc(db,"users",user.uid,"contracts",editId));
+        const snap = await getDoc(doc(db,"users",uid));
         if(snap.exists()){
           const c = snap.data();
           ["contractId","contractDate","status","clientName","clientEmail","clientPhone","clientAddress","businessName","email","businessAddress","services","rate","hours","startDate","endDate","notes"].forEach(k=>{
