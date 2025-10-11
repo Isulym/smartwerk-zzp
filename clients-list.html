@@ -172,7 +172,7 @@ function renderClients(list) {
       <td><span class="status ${statusClass}">${c.status || ""}</span></td>
       <td>${c.country || ""}</td>
       <td class="actions">
-        <button class="btn btn-primary" onclick="createInvoice('${c.id}')">📄 Invoice</button>
+        <button class="btn btn-primary" onclick="createInvoices('${c.id}')">📄 Invoice</button>
         <button class="btn" onclick="editClient('${c.id}')">✏️ Edit</button>
         <button class="btn btn-danger" onclick="deleteClient('${c.id}')">🗑 Delete</button>
         <button class="btn" onclick="exportClientPDF('${c.id}',true)">📄 PDF</button>
