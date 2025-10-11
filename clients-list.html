@@ -1,173 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📋 SmartWerk — Saved Clients</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body{background:#0f172a;color:#e5e7eb;font-family:'Inter',sans-serif;padding:20px;}
-h1{color:#fff;margin-bottom:10px;}
-header,footer{text-align:center;margin-bottom:20px;}
-.btn{background:#475569;color:#fff;padding:6px 12px;border:none;border-radius:8px;cursor:pointer;transition:.2s;}
-.btn:hover{opacity:.85;}
-.btn-primary{background:#3b82f6;}
-.btn-danger{background:#ef4444;}
-table{width:100%;border-collapse:collapse;margin-top:15px;}
-th,td{padding:10px;text-align:left;}
-th{background:#1e293b;color:#93c5fd;text-transform:uppercase;font-size:12px;}
-tr:nth-child(even){background:#1e293b;}
-tr:hover{background:#334155;}
-.status{font-weight:600;padding:4px 8px;border-radius:6px;font-size:13px;}
-.status.active{background:#065f46;color:#a7f3d0;}
-.status.prospect{background:#78350f;color:#fcd34d;}
-.status.inactive{background:#7f1d1d;color:#fecaca;}
-.actions{display:flex;gap:4px;flex-wrap:wrap;}
-input,select{background:#1e293b;border:none;color:#e5e7eb;padding:6px 8px;border-radius:6px;}
-.search-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;justify-content:space-between;}
-#msg{margin-top:10px;text-align:center;color:#10b981;display:none;}
-.kpi-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
-.kpi-card{background:#1e293b;padding:12px;border-radius:12px;text-align:center;}
-.kpi-card h3{margin:4px 0;font-size:14px;color:#94a3b8;}
-.kpi-card p{font-size:22px;font-weight:700;margin:0;}
-canvas{background:#1e293b;border-radius:1px;padding:1px;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📋 SmartWerk — Saved Clients</title>
+  <link rel="stylesheet" href="style-clients-list.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<h1>📋 SmartWerk — Saved Clients</h1>
+  <h1>📋 SmartWerk — Saved Clients</h1>
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-  <a href="dashboard.html" class="btn">← Dashboard</a>
-  <a href="clients.html" class="btn btn-primary">＋ Add Client</a>
-  <button id="refreshBtn" class="btn">🔄 Refresh</button>
-</div>
+  <div class="top-buttons">
+    <a href="dashboard.html" class="btn">← Dashboard</a>
+    <a href="clients.html" class="btn btn-primary">＋ Add Client</a>
+    <button id="refreshBtn" class="btn">🔄 Refresh</button>
+  </div>
 
-<!-- 📊 KPI Summary -->
-<section class="kpi-container">
-  <div class="kpi-card"><h3>🟢 Active</h3><p id="kpi-active">0</p></div>
-  <div class="kpi-card"><h3>🟡 Prospect</h3><p id="kpi-prospect">0</p></div>
-  <div class="kpi-card"><h3>🔴 Inactive</h3><p id="kpi-inactive">0</p></div>
-  <div class="kpi-card"><h3>👥 Total</h3><p id="kpi-total">0</p></div>
-</section>
+  <!-- KPI -->
+  <section class="kpi-container">
+    <div class="kpi-card"><h3>🟢 Active</h3><p id="kpi-active">0</p></div>
+    <div class="kpi-card"><h3>🟡 Prospect</h3><p id="kpi-prospect">0</p></div>
+    <div class="kpi-card"><h3>🔴 Inactive</h3><p id="kpi-inactive">0</p></div>
+    <div class="kpi-card"><h3>👥 Total</h3><p id="kpi-total">0</p></div>
+  </section>
 
-<!-- 📈 Chart -->
-<canvas id="clientChart" width="400" height="150"></canvas>
+  <!-- Chart -->
+  <canvas id="clientChart" width="400" height="150"></canvas>
 
-<!-- 🔍 Search -->
-<div class="search-bar">
-  <input type="text" id="searchInput" placeholder="🔍 Search..." style="flex:1;">
-  <select id="statusFilter">
-    <option value="">All Statuses</option>
-    <option>Active</option>
-    <option>Prospect</option>
-    <option>Inactive</option>
-  </select>
-</div>
+  <!-- Search -->
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Search..." style="flex:1;">
+    <select id="statusFilter">
+      <option value="">All Statuses</option>
+      <option>Active</option>
+      <option>Prospect</option>
+      <option>Inactive</option>
+    </select>
+  </div>
 
-<!-- 🧾 Table -->
-<table id="clientsTable">
-  <thead>
-    <tr>
-      <th>Client ID</th>
-      <th>Name / Company</th>
-      <th>Email</th>
-      <th>Phone</th>
-      <th>Status</th>
-      <th>Country</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="clientsBody"><tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr></tbody>
-</table>
+  <!-- Table -->
+  <table id="clientsTable">
+    <thead>
+      <tr>
+        <th>Client ID</th>
+        <th>Name / Company</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Country</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="clientsBody">
+      <tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr>
+    </tbody>
+  </table>
 
-<div id="msg">✅ Synced with Cloud</div>
-<footer><p>© 2025 SmartWerk</p></footer>
+  <div id="msg">✅ Synced with Cloud</div>
+  <footer><p>© 2025 SmartWerk</p></footer>
 
-<script type="module">
+  <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
 import "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js";
 
-const firebaseConfig={apiKey:"AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",authDomain:"smartwerk8520.firebaseapp.com",projectId:"smartwerk8520",appId:"1:607670981972:web:c07103c981c86860d724c1"};
-const app=getApps().length?getApp():initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
-const $=id=>document.getElementById(id);
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1",
+};
 
-let currentUid=null;
-let chart=null;
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = (id) => document.getElementById(id);
 
-// 🌿 Helper: повідомлення
-function showMsg(txt){const m=$("msg");m.textContent=txt;m.style.display="block";setTimeout(()=>m.style.display="none",2500);}
+let currentUid = null;
+let chart = null;
 
-// 🌿 KPI та графік
-function updateKPI(clients){
- const total=clients.length;
- const active=clients.filter(c=>c.status==="Active").length;
- const prospect=clients.filter(c=>c.status==="Prospect").length;
- const inactive=clients.filter(c=>c.status==="Inactive").length;
- $("kpi-active").textContent=active;
- $("kpi-prospect").textContent=prospect;
- $("kpi-inactive").textContent=inactive;
- $("kpi-total").textContent=total;
-
- if(chart){chart.destroy();}
- const ctx=$("clientChart");
- chart=new Chart(ctx,{type:"bar",data:{
-  labels:["Active","Prospect","Inactive"],
-  datasets:[{label:"Clients",data:[active,prospect,inactive],backgroundColor:["#10b981","#fbbf24","#ef4444"]}]
- },options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+function showMsg(txt) {
+  const m = $("msg");
+  m.textContent = txt;
+  m.style.display = "block";
+  setTimeout(() => (m.style.display = "none"), 2500);
 }
 
-// 🌿 Завантаження клієнтів
-async function loadClients(uid){
-  if(!uid){console.warn("No UID for loadClients");return;}
-  const tbody=$("clientsBody");
-  tbody.innerHTML=`<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>Loading...</td></tr>`;
-  try{
-    const snap=await getDocs(collection(db,"users",uid,"clients"));
-    const arr=[];
-    snap.forEach(d=>arr.push({id:d.id,...d.data()}));
-    window._clients=arr;
+function updateKPI(clients) {
+  const total = clients.length;
+  const active = clients.filter(c => c.status === "Active").length;
+  const prospect = clients.filter(c => c.status === "Prospect").length;
+  const inactive = clients.filter(c => c.status === "Inactive").length;
+
+  $("kpi-active").textContent = active;
+  $("kpi-prospect").textContent = prospect;
+  $("kpi-inactive").textContent = inactive;
+  $("kpi-total").textContent = total;
+
+  if (chart) chart.destroy();
+  const ctx = $("clientChart");
+  chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Active", "Prospect", "Inactive"],
+      datasets: [{
+        label: "Clients",
+        data: [active, prospect, inactive],
+        backgroundColor: ["#10b981", "#fbbf24", "#ef4444"]
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: "#94a3b8", font: { size: 10 } } },
+        x: { ticks: { color: "#94a3b8", font: { size: 10 } } }
+      },
+      animation: { duration: 800 }
+    }
+  });
+}
+
+async function loadClients(uid) {
+  if (!uid) return;
+  const tbody = $("clientsBody");
+  tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>Loading...</td></tr>`;
+  try {
+    const snap = await getDocs(collection(db, "users", uid, "clients"));
+    const arr = [];
+    snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+    window._clients = arr;
     renderClients(arr);
     updateKPI(arr);
     showMsg("✅ Clients synced");
-  }catch(e){
-    console.error("❌ Load clients error:",e);
-    tbody.innerHTML=`<tr><td colspan='7' style='text-align:center;color:#ef4444;'>Error loading clients</td></tr>`;
+  } catch (e) {
+    console.error("❌ Load error:", e);
+    tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#ef4444;'>Error loading clients</td></tr>`;
   }
 }
 
-// 🌿 Рендер таблиці
-function renderClients(list){
-  const tbody=$("clientsBody");
-  const q=$("searchInput").value.toLowerCase();
-  const f=$("statusFilter").value;
-  const filtered=list.filter(c=>{
-    const match=(c.clientName||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.country||"").toLowerCase().includes(q);
-    const statusOk=!f||c.status===f;
-    return match&&statusOk;
+function renderClients(list) {
+  const tbody = $("clientsBody");
+  const q = $("searchInput").value.toLowerCase();
+  const f = $("statusFilter").value;
+  const filtered = list.filter(c => {
+    const match = (c.clientName || "").toLowerCase().includes(q) ||
+      (c.email || "").toLowerCase().includes(q) ||
+      (c.country || "").toLowerCase().includes(q);
+    const statusOk = !f || c.status === f;
+    return match && statusOk;
   });
 
-  if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>No clients found</td></tr>`;
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>No clients found</td></tr>`;
     updateKPI(filtered);
     return;
   }
 
-  tbody.innerHTML="";
-  filtered.forEach(c=>{
-    const statusClass=c.status?.toLowerCase()==="active"?"active":c.status?.toLowerCase()==="prospect"?"prospect":"inactive";
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${c.clientId||"-"}</td>
-      <td>${c.clientName||""}</td>
-      <td>${c.email||""}</td>
-      <td>${c.phone||""}</td>
-      <td><span class="status ${statusClass}">${c.status||""}</span></td>
-      <td>${c.country||""}</td>
+  tbody.innerHTML = "";
+  filtered.forEach(c => {
+    const statusClass =
+      c.status?.toLowerCase() === "active" ? "active" :
+      c.status?.toLowerCase() === "prospect" ? "prospect" : "inactive";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${c.clientId || "-"}</td>
+      <td>${c.clientName || ""}</td>
+      <td>${c.email || ""}</td>
+      <td>${c.phone || ""}</td>
+      <td><span class="status ${statusClass}">${c.status || ""}</span></td>
+      <td>${c.country || ""}</td>
       <td class="actions">
         <button class="btn" onclick="editClient('${c.id}')">✏️ Edit</button>
         <button class="btn btn-danger" onclick="deleteClient('${c.id}')">🗑 Delete</button>
@@ -179,76 +182,78 @@ function renderClients(list){
   updateKPI(filtered);
 }
 
-// 🌿 Редагування
-window.editClient=(id)=>{localStorage.setItem("editClientId",id);location.href="clients.html";}
+window.editClient = (id) => {
+  localStorage.setItem("editClientId", id);
+  location.href = "clients.html";
+};
 
-// 🌿 Видалення
-window.deleteClient=async(id)=>{
-  if(!confirm("Delete this client?"))return;
-  const user=auth.currentUser;
-  await deleteDoc(doc(db,"users",user.uid,"clients",id));
+window.deleteClient = async (id) => {
+  if (!confirm("Delete this client?")) return;
+  const user = auth.currentUser;
+  await deleteDoc(doc(db, "users", user.uid, "clients", id));
   showMsg("🗑 Client deleted");
   loadClients(user.uid);
-}
+};
 
-// 🌿 Експорт PDF
-window.exportClientPDF=(id,withBranding=true)=>{
-  const c=window._clients.find(x=>x.id===id);
-  if(!c)return alert("Client not found");
-  const { jsPDF }=window.jspdf;
-  const doc=new jsPDF("p","mm","a4");
-  const blue=[59,130,246];
+window.exportClientPDF = (id, withBranding = true) => {
+  const c = window._clients.find(x => x.id === id);
+  if (!c) return alert("Client not found");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+  const blue = [59, 130, 246];
 
-  if(withBranding){
+  if (withBranding) {
     doc.setFillColor(...blue);
-    doc.rect(0,0,210,25,"F");
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(18).text("SmartWerk — Client Summary",15,17);
-  }else{
-    doc.setFontSize(18).setTextColor(0,0,0).text("Client Summary",15,17);
+    doc.rect(0, 0, 210, 25, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18).text("SmartWerk — Client Summary", 15, 17);
+  } else {
+    doc.setFontSize(18).setTextColor(0, 0, 0).text("Client Summary", 15, 17);
   }
 
-  const rows=[
-    ["Client ID",c.clientId||""],
-    ["Name / Company",c.clientName||""],
-    ["Email",c.email||""],
-    ["Phone",c.phone||""],
-    ["Status",c.status||""],
-    ["Country",c.country||""],
-    ["KvK",c.kvk||""],
-    ["VAT",c.vatNumber||""],
-    ["Tags",(c.tags||[]).join(", ")],
-    ["Notes",c.notes||""]
+  const rows = [
+    ["Client ID", c.clientId || ""],
+    ["Name / Company", c.clientName || ""],
+    ["Email", c.email || ""],
+    ["Phone", c.phone || ""],
+    ["Status", c.status || ""],
+    ["Country", c.country || ""],
+    ["KvK", c.kvk || ""],
+    ["VAT", c.vatNumber || ""],
+    ["Tags", (c.tags || []).join(", ")],
+    ["Notes", c.notes || ""]
   ];
 
   doc.autoTable({
-    startY:35,
-    head:[["Field","Value"]],
-    body:rows,
-    theme:"grid",
-    headStyles:{fillColor:withBranding?blue:[180,180,180],textColor:255},
-    styles:{fontSize:10,cellPadding:4,overflow:'linebreak'},
-    alternateRowStyles:{fillColor:[245,245,245]}
+    startY: 35,
+    head: [["Field", "Value"]],
+    body: rows,
+    theme: "grid",
+    headStyles: { fillColor: withBranding ? blue : [180, 180, 180], textColor: 255 },
+    styles: { fontSize: 10, cellPadding: 4, overflow: "linebreak" },
+    alternateRowStyles: { fillColor: [245, 245, 245] }
   });
 
-  if(withBranding){
-    doc.setFontSize(9).setTextColor(100).text("Generated by SmartWerk © 2025",14,290);
-  }
-
-  const filename=withBranding?`SmartWerk_Client_${c.clientId||"info"}.pdf`:`Client_${c.clientId||"info"}_PRO.pdf`;
+  if (withBranding) doc.setFontSize(9).setTextColor(100).text("Generated by SmartWerk © 2025", 14, 290);
+  const filename = withBranding
+    ? `SmartWerk_Client_${c.clientId || "info"}.pdf`
+    : `Client_${c.clientId || "info"}_PRO.pdf`;
   doc.save(filename);
-  showMsg(withBranding?"📄 PDF exported":"💎 PRO PDF exported");
+  showMsg(withBranding ? "📄 PDF exported" : "💎 PRO PDF exported");
 };
 
-// 🌿 Auth
-onAuthStateChanged(auth,async(user)=>{
-  if(!user){location.href="login.html";return;}
-  currentUid=user.uid;
-  $("refreshBtn").onclick=()=>loadClients(currentUid);
-  $("searchInput").oninput=()=>renderClients(window._clients||[]);
-  $("statusFilter").onchange=()=>renderClients(window._clients||[]);
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+  currentUid = user.uid;
+  $("refreshBtn").onclick = () => loadClients(currentUid);
+  $("searchInput").oninput = () => renderClients(window._clients || []);
+  $("statusFilter").onchange = () => renderClients(window._clients || []);
   loadClients(currentUid);
 });
-</script>
+    
+  </script>
 </body>
 </html>
