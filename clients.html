@@ -23,8 +23,8 @@
   <header>
     <h1>👥 SmartWerk — Add Client</h1>
     <nav>
-      <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="clients-list.html" class="btn">📂 Saved Clients</a>
+      <a href="dashboard.html" class="btn" type="button">← Dashboard</a>
+      <a href="clients-list.html" class="btn" type="button" id="viewBtnTop">📂 Saved Clients</a>
     </nav>
   </header>
 
@@ -32,6 +32,7 @@
     <!-- CLIENT INFO -->
     <section>
       <h2>🏢 Client Information</h2>
+
       <div class="grid-2">
         <div>
           <label>Client ID</label>
@@ -140,138 +141,223 @@
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-<script type="module">
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, getDoc, runTransaction, serverTimestamp } 
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <!-- APP -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, getDoc, runTransaction, serverTimestamp } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig={apiKey:"AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",authDomain:"smartwerk8520.firebaseapp.com",projectId:"smartwerk8520",appId:"1:607670981972:web:c07103c981c86860d724c1"};
-const app=getApps().length?getApp():initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
-const $=(id)=>document.getElementById(id);
-const val=(id)=>$(id)?.value?.trim()||"";
+    /* ---------- Firebase ---------- */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-/* ---------- Client ID generator ---------- */
-async function generateClientId(uid){
-  const ref=doc(db,"users",uid);
-  const year=new Date().getFullYear();
-  let out="";
-  await runTransaction(db,async(tx)=>{
-    const snap=await tx.get(ref);
-    const last=snap.exists()?(snap.data().lastClientNumber||0):0;
-    const next=last+1;
-    tx.set(ref,{lastClientNumber:next},{merge:true});
-    out=`CL-${year}-${String(next).padStart(3,"0")}`;
-  });
-  return out;
-}
+    /* ---------- Helpers ---------- */
+    const $   = (id)=>document.getElementById(id);
+    const val = (id)=>$(id)?.value?.trim() || "";
 
-/* ---------- Smart Suggest ---------- */
-function smartSuggest(){
-  const email=val("email").toLowerCase();
-  const hint=$("#smartHint");
-  let messages=[];
-  if(email.includes("@")){
-    const domain=email.split("@")[1]||"";
-    const ends=(t)=>domain.endsWith(t);
-    const countryMap={".nl":"Netherlands",".be":"Belgium",".de":"Germany",".fr":"France",".es":"Spain",".pl":"Poland",".uk":"United Kingdom",".co.uk":"United Kingdom"};
-    for(const[suffix,country]of Object.entries(countryMap)){
-      if(ends(suffix)&&!$("#country").value)$("#country").value=country;
+    function logBind() {
+      console.log("🔗 Bind buttons:", {
+        save: !!$("saveBtn"),
+        view: !!$("viewBtn"),
+        smart: !!$("smartSuggestBtn"),
+        viewTop: !!$("viewBtnTop"),
+        hint: !!$("smartHint"),
+      });
     }
-    const isFree=/(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
-    if(isFree&&!$("#status").value){$("#status").value="Prospect";$("#tags").value="Prospect";messages.push("Detected freemail — status Prospect");}
-    else if(!val("tags")){$("#tags").value=domain.split(".")[0];messages.push("Tags suggested from domain");}
-  }else{messages.push("Enter email for smart suggestions");}
-  hint.textContent="✅ "+messages.join(" · ");
-  hint.style.display="block";hint.style.opacity="1";
-  setTimeout(()=>hint.style.opacity="0",2000);
-  setTimeout(()=>hint.style.display="none",2500);
-}
 
-/* ---------- Validation ---------- */
-function validate(){
-  if(!val("clientName")){alert("❗ Client Name is required.");return false;}
-  const email=val("email");const phone=val("phone");
-  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){alert("❗ Invalid email address.");return false;}
-  if(phone&&!/^[0-9+\s\-()]{6,20}$/.test(phone)){alert("❗ Invalid phone number.");return false;}
-  return true;
-}
+    /* ---------- Client ID generator ---------- */
+    async function generateClientId(uid){
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out="";
+      await runTransaction(db, async(tx)=>{
+        const snap = await tx.get(ref);
+        const last = snap.exists()? (snap.data().lastClientNumber||0) : 0;
+        const next = last + 1;
+        tx.set(ref,{ lastClientNumber: next },{ merge:true });
+        out = `CL-${year}-${String(next).padStart(3,"0")}`;
+      });
+      return out;
+    }
 
-/* ---------- Save Client ---------- */
-async function saveClient(uid,editId=null){
-  if(!validate())return;
-  let id=val("clientId");
-  if(!id){id=await generateClientId(uid);if($("#clientId"))$("#clientId").value=id;}
-  const data={
-    clientId:id,
-    clientName:val("clientName"),
-    contactPerson:val("contactPerson"),
-    email:val("email"),
-    phone:val("phone"),
-    address:val("address"),
-    country:$("#country")?.value||"",
-    kvk:val("kvk"),
-    vatNumber:val("vatNumber"),
-    paymentTerm:$("#paymentTerm")?.value||"30 days",
-    status:$("#status")?.value||"Active",
-    currency:$("#currency")?.value||"EUR",
-    tags:val("tags")?val("tags").split(",").map(t=>t.trim()).filter(Boolean):[],
-    notes:val("notes"),
-    updatedAt:serverTimestamp(),
-  };
-  if(editId){
-    await updateDoc(doc(db,"users",uid,"clients",editId),data);
-    alert("✅ Client updated successfully!");
-  }else{
-    await addDoc(collection(db,"users",uid,"clients"),{...data,createdAt:serverTimestamp()});
-    alert("✅ Client saved successfully!");
-  }
-  // ⬇ Redirect after save
-  location.href="clients-list.html";
-}
+    /* ---------- Smart Suggest ---------- */
+    function smartSuggest() {
+      const hint = $("smartHint");
+      if(!hint){ console.warn("⚠️ #smartHint missing"); return; }
 
-/* ---------- Auth + Prefill ---------- */
-onAuthStateChanged(auth,async(user)=>{
-  if(!user){location.href="login.html";return;}
-  const editId=localStorage.getItem("editClientId");
-  if(editId){
-    try{
-      const snap=await getDoc(doc(db,"users",user.uid,"clients",editId));
-      if(snap.exists()){
-        const c=snap.data();
-        ["clientId","clientName","contactPerson","email","phone","address","kvk","vatNumber","notes"].forEach(k=>{
-          if($(k)&&c[k]!==undefined)$(k).value=Array.isArray(c[k])?c[k].join(", "):c[k];
-        });
-        if($("#country")&&c.country)$("#country").value=c.country;
-        if($("#paymentTerm")&&c.paymentTerm)$("#paymentTerm").value=c.paymentTerm;
-        if($("#status")&&c.status)$("#status").value=c.status;
-        if($("#currency")&&c.currency)$("#currency").value=c.currency;
-        if($("#tags")&&Array.isArray(c.tags))$("#tags").value=c.tags.join(", ");
-        $("#saveBtn").textContent="💾 Update Client";
-      }else{
-        localStorage.removeItem("editClientId");
-        if($("#clientId")&&!$("#clientId").value)$("#clientId").value=await generateClientId(user.uid);
+      const email = val("email").toLowerCase();
+      let messages = [];
+
+      if (email.includes("@")) {
+        const domain = email.split("@")[1] || "";
+        const ends = (t) => domain.endsWith(t);
+
+        const countryMap = {
+          ".nl": "Netherlands", ".be": "Belgium", ".de": "Germany",
+          ".fr": "France", ".es": "Spain", ".pl": "Poland",
+          ".uk": "United Kingdom", ".co.uk": "United Kingdom"
+        };
+        for (const [suffix, country] of Object.entries(countryMap)) {
+          if (ends(suffix) && $("country")) $("country").value = country;
+        }
+
+        const isFree = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
+        if (isFree) {
+          if ($("status")) $("status").value = "Prospect";
+          if ($("tags") && !val("tags")) $("tags").value = "Prospect";
+          messages.push("Freemail detected → Status: Prospect");
+        } else {
+          if ($("tags") && !val("tags")) $("tags").value = domain.split(".")[0];
+          messages.push("Tags suggested from domain");
+        }
+
+        if (!val("phone") && $("phone")) {
+          const prefixMap = {
+            ".nl": "+31", ".be": "+32", ".de": "+49", ".fr": "+33",
+            ".es": "+34", ".pl": "+48", ".uk": "+44", ".co.uk": "+44"
+          };
+          for (const [s, code] of Object.entries(prefixMap)) {
+            if (ends(s)) $("phone").value = code + " ";
+          }
+        }
+      } else {
+        messages.push("Enter an email for better suggestions");
       }
-    }catch(e){console.error("Load client error:",e);}
-  }else{
-    if($("#clientId")&&!$("#clientId").value)$("#clientId").value=await generateClientId(user.uid);
-  }
-});
 
-/* ---------- Event Bindings ---------- */
-document.addEventListener("DOMContentLoaded",()=>{
-  $("#smartSuggestBtn")?.addEventListener("click",smartSuggest);
-  $("#viewBtn")?.addEventListener("click",()=>location.href="clients-list.html");
-  $("#saveBtn")?.addEventListener("click",async()=>{
-    const u=auth.currentUser;
-    if(!u){alert("Please log in.");return;}
-    const editId=localStorage.getItem("editClientId")||null;
-    await saveClient(u.uid,editId);
-    localStorage.removeItem("editClientId");
-  });
-});
-</script>
+      hint.textContent = "✅ " + messages.join(" · ");
+      hint.style.display = "block";
+      hint.style.opacity = "1";
+      setTimeout(()=>hint.style.opacity="0", 2000);
+      setTimeout(()=>hint.style.display="none", 2500);
+    }
+
+    /* ---------- Validation ---------- */
+    function validate() {
+      if (!val("clientName")) { alert("❗ Client Name is required."); return false; }
+      const email = val("email");
+      const phone = val("phone");
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert("❗ Invalid email address."); return false; }
+      if (phone && !/^[0-9+\s\-()]{6,20}$/.test(phone)) { alert("❗ Invalid phone number."); return false; }
+      return true;
+    }
+
+    /* ---------- Save Client (create/update) ---------- */
+    async function saveClient(uid, editId=null){
+      if(!validate()) return;
+
+      let id = val("clientId");
+      if(!id){
+        id = await generateClientId(uid);
+        if($("clientId")) $("clientId").value = id;
+      }
+
+      const data = {
+        clientId: id,
+        clientName: val("clientName"),
+        contactPerson: val("contactPerson"),
+        email: val("email"),
+        phone: val("phone"),
+        address: val("address"),
+        country: $("country")?.value || "",
+        kvk: val("kvk"),
+        vatNumber: val("vatNumber"),
+        paymentTerm: $("paymentTerm")?.value || "30 days",
+        status: $("status")?.value || "Active",
+        currency: $("currency")?.value || "EUR",
+        tags: val("tags") ? val("tags").split(",").map(t=>t.trim()).filter(Boolean) : [],
+        notes: val("notes"),
+        updatedAt: serverTimestamp(),
+      };
+
+      if(editId){
+        await updateDoc(doc(db,"users",uid,"clients",editId), data);
+        alert("✅ Client updated successfully!");
+      }else{
+        await addDoc(collection(db,"users",uid,"clients"), { ...data, createdAt: serverTimestamp() });
+        alert("✅ Client saved successfully!");
+      }
+
+      // редірект у список
+      location.href = "clients-list.html";
+    }
+
+    /* ---------- DOM Ready: bind buttons ---------- */
+    document.addEventListener("DOMContentLoaded", () => {
+      // Bind
+      $("smartSuggestBtn")?.addEventListener("click", smartSuggest);
+      $("email")?.addEventListener("blur", smartSuggest);
+      $("viewBtn")?.addEventListener("click", ()=> location.href="clients-list.html");
+      $("viewBtnTop")?.addEventListener("click", (e)=>{ e.preventDefault(); location.href="clients-list.html"; });
+
+      // Save — викликаємо пізніше з uid
+      $("saveBtn")?.addEventListener("click", async ()=>{
+        const u = auth.currentUser;
+        if(!u){ alert("Please log in to save a client."); return; }
+        const editId = localStorage.getItem("editClientId") || null;
+        await saveClient(u.uid, editId);
+        if(editId){ localStorage.removeItem("editClientId"); }
+      });
+
+      logBind();
+    });
+
+    /* ---------- Auth + Prefill (edit/new) ---------- */
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href="login.html"; return; }
+
+      // гарантуємо наявність DOM
+      if(document.readyState==="loading"){
+        await new Promise(res=>document.addEventListener("DOMContentLoaded", res, {once:true}));
+      }
+
+      const editId = localStorage.getItem("editClientId");
+
+      if(editId){
+        // Режим редагування
+        try{
+          const snap = await getDoc(doc(db,"users",user.uid,"clients",editId));
+          if(snap.exists()){
+            const c = snap.data();
+            // прості поля
+            ["clientId","clientName","contactPerson","email","phone","address","kvk","vatNumber","notes"].forEach(k=>{
+              if($(k) && c[k]!==undefined) $(k).value = Array.isArray(c[k]) ? c[k].join(", ") : c[k];
+            });
+            if($("country")&&c.country) $("country").value = c.country;
+            if($("paymentTerm")&&c.paymentTerm) $("paymentTerm").value = c.paymentTerm;
+            if($("status")&&c.status) $("status").value = c.status;
+            if($("currency")&&c.currency) $("currency").value = c.currency;
+            if($("tags")&&Array.isArray(c.tags)) $("tags").value = c.tags.join(", ");
+
+            const saveBtn = $("saveBtn");
+            if(saveBtn) saveBtn.textContent = "💾 Update Client";
+          }else{
+            console.warn("⚠️ Client not found for edit:", editId);
+            localStorage.removeItem("editClientId");
+            // Згенеруємо ID для нового
+            if($("clientId") && !$("clientId").value){
+              $("clientId").value = await generateClientId(user.uid);
+            }
+          }
+        }catch(e){
+          console.error("Load client error:", e);
+        }
+      }else{
+        // Новий — згенеруємо ID, якщо ще нема
+        try{
+          if($("clientId") && !$("clientId").value){
+            $("clientId").value = await generateClientId(user.uid);
+          }
+        }catch(e){ console.warn("ID gen error:", e); }
+      }
+    });
+  </script>
 </body>
 </html>
