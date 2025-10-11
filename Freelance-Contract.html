@@ -5,64 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📄 SmartWerk — Freelance Contract</title>
   <link rel="stylesheet" href="style-invoices.css"/>
-   <style>
+  <style>
     body{background:#0f172a;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif;padding:20px}
     h1,h2{color:#fff}
     section{background:#1e293b;padding:16px;border-radius:12px;margin-bottom:16px}
     label{color:#94a3b8;font-size:14px}
     input,select,textarea{width:100%;padding:8px;border-radius:8px;border:none;background:#334155;color:#fff;margin-top:4px}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     .btn{background:#475569;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}
     .btn-primary{background:#3b82f6}
-    .btn-danger{background:#ef4444}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-    canvas.sig{width:100%;height:160px;background:#0b1220;border:1px dashed #334155;border-radius:10px}
+    canvas.sig{width:100%;height:160px;background:#fff;border:1px dashed #334155;border-radius:10px}
     .muted{color:#94a3b8;font-size:13px}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
   </style>
- 
 </head>
 <body>
-  <header class="row">
-    <h1 style="margin:0">📄 SmartWerk — Freelance Contract</h1>
-    <div class="toolbar">
-      <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="contracts-list.html" class="btn">📂 Saved Contracts</a>
-      <button id="btn-save" class="btn btn-primary">💾 Save Contract</button>
-      <button id="btn-export" class="btn">📄 Export PDF</button>
-      <button id="btn-export-pro" class="btn">💎 Export PDF (PRO)</button>
-      <button id="btn-clear-sigs" class="btn btn-danger">🧹 Clear Signatures</button>
-    </div>
+  <header class="toolbar">
+    <a href="dashboard.html" class="btn">← Dashboard</a>
+    <a href="contracts-list.html" class="btn">📂 Saved Contracts</a>
+    <button id="btn-save" class="btn btn-primary">💾 Save Contract</button>
   </header>
 
   <main>
-    <!-- Parties / Client -->
     <section>
-      <h2>👤 Parties</h2>
+      <h2>👤 Contract Information</h2>
       <div class="grid-2">
         <div>
           <label>Contract ID</label>
-          <input id="contractId" placeholder="CN-2025-001" readonly />
+          <input id="contractId" placeholder="CN-2025-001" readonly/>
         </div>
         <div>
-          <label>Contract Date</label>
-          <input id="contractDate" type="date" />
+          <label>Date</label>
+          <input id="contractDate" type="date"/>
         </div>
       </div>
 
       <div class="grid-2" style="margin-top:8px">
         <div>
-          <label>Select Client (from Saved)</label>
-          <select id="clientSelect">
-            <option value="">— choose client —</option>
-          </select>
+          <label>Select Client</label>
+          <select id="clientSelect"><option value="">— choose client —</option></select>
         </div>
         <div>
           <label>Status</label>
           <select id="status">
-            <option>Draft</option>
             <option selected>Active</option>
+            <option>Draft</option>
             <option>Signed</option>
             <option>Archived</option>
           </select>
@@ -71,8 +58,8 @@
 
       <div class="grid-2" style="margin-top:8px">
         <div>
-          <label>Client Name / Company</label>
-          <input id="clientName" placeholder="Client company or full name"/>
+          <label>Client Name</label>
+          <input id="clientName" placeholder="Client or company name"/>
         </div>
         <div>
           <label>Client Email</label>
@@ -92,46 +79,35 @@
       </div>
     </section>
 
-    <!-- Your (Freelancer) Profile -->
     <section>
-      <h2>🏢 Freelancer (Your Business)</h2>
+      <h2>🏢 Freelancer Info</h2>
       <div class="grid-2">
         <div>
           <label>Business Name</label>
-          <input id="businessName" placeholder="Your business or full name"/>
+          <input id="businessName" placeholder="Your business or name"/>
         </div>
         <div>
           <label>Email</label>
           <input id="email" type="email" placeholder="your@email.com"/>
         </div>
       </div>
-      <label>Business Address</label>
+      <label>Address</label>
       <input id="businessAddress" placeholder="Street, City, ZIP"/>
     </section>
 
-    <!-- Scope -->
     <section>
-      <h2>🧩 Scope & Terms</h2>
-      <label>Project / Services Description</label>
-      <textarea id="services" rows="4" placeholder="Describe the scope of work, deliverables, acceptance criteria..."></textarea>
+      <h2>🧾 Project Details</h2>
+      <label>Project Description</label>
+      <textarea id="services" rows="4" placeholder="Describe project, deliverables, and expectations"></textarea>
 
-      <div class="grid-3" style="margin-top:8px">
+      <div class="grid-2" style="margin-top:8px">
         <div>
-          <label>Hourly Rate (EUR)</label>
-          <input id="rate" type="number" step="0.01" min="0" placeholder="65.00"/>
+          <label>Hourly Rate (€)</label>
+          <input id="rate" type="number" step="0.01" placeholder="65.00"/>
         </div>
         <div>
           <label>Estimated Hours</label>
-          <input id="hours" type="number" step="0.5" min="0" placeholder="20"/>
-        </div>
-        <div>
-          <label>Currency</label>
-          <select id="currency">
-            <option selected>EUR</option>
-            <option>USD</option>
-            <option>GBP</option>
-            <option>PLN</option>
-          </select>
+          <input id="hours" type="number" step="0.5" placeholder="20"/>
         </div>
       </div>
 
@@ -146,72 +122,38 @@
         </div>
       </div>
 
-      <div class="grid-2" style="margin-top:8px">
-        <div>
-          <label>Payment Term</label>
-          <select id="paymentTerm">
-            <option>14 days</option>
-            <option selected>30 days</option>
-            <option>60 days</option>
-            <option>On Receipt</option>
-          </select>
-        </div>
-        <div>
-          <label>Late Fee (%)</label>
-          <input id="lateFee" type="number" step="0.1" min="0" placeholder="1.0"/>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top:8px">
-        <div>
-          <label><input type="checkbox" id="nda" /> NDA / Confidentiality</label>
-          <p class="muted">If checked, adds NDA clause to the contract.</p>
-        </div>
-        <div>
-          <label><input type="checkbox" id="ipOwnership" checked/> IP Ownership → Client</label>
-          <p class="muted">Default: deliverables ownership transfers upon full payment.</p>
-        </div>
-      </div>
+      <label style="margin-top:8px;display:block">Notes</label>
+      <textarea id="notes" rows="3" placeholder="Additional information or terms"></textarea>
     </section>
 
-    <!-- Signatures -->
     <section>
       <h2>✍️ Signatures</h2>
       <div class="grid-2">
         <div>
           <label>Freelancer Signature</label>
           <canvas id="sigFreelancer" class="sig"></canvas>
-          <div class="row" style="margin-top:6px">
-            <button id="clearFreelancer" class="btn btn-danger" type="button">Clear</button>
-          </div>
         </div>
         <div>
           <label>Client Signature</label>
           <canvas id="sigClient" class="sig"></canvas>
-          <div class="row" style="margin-top:6px">
-            <button id="clearClient" class="btn btn-danger" type="button">Clear</button>
-          </div>
         </div>
       </div>
-      <p class="muted" style="margin-top:6px">Sign on touch devices (finger) або мишкою на десктопі.</p>
+      <p class="muted" style="margin-top:6px">Sign with mouse or touch — white background for clarity.</p>
     </section>
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-  <!-- UMD libraries (NOT ESM) -->
+  <!-- Signatures -->
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- Firebase (ESM) -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, collection, getDocs, runTransaction, serverTimestamp } 
+    import { getFirestore, doc, getDoc, addDoc, updateDoc, collection, getDocs, runTransaction, serverTimestamp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    /* ========= Firebase ========= */
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
@@ -220,91 +162,26 @@
     };
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
+    const db = getFirestore(app);
 
-    /* ========= Helpers ========= */
-    const $ = (id)=>document.getElementById(id);
-    const v = (id)=>$(id)?.value?.trim() || "";
-    const setIfEmpty = (id, val)=>{ const el=$(id); if(el && !el.value) el.value = val||""; };
-    const toNum = (x)=>{ const n = parseFloat(x); return Number.isFinite(n)?n:0; };
+    const $ = id => document.getElementById(id);
+    const val = id => $(id)?.value?.trim() || "";
 
-    function todayISO(){ return new Date().toISOString().slice(0,10); }
+    /* === Signatures === */
+    let sigFreelancer, sigClient;
 
-    /* ========= Signature Pads ========= */
-    let sigPadFreelancer, sigPadClient;
-
-    function initSignatures(){
-      const c1 = $("sigFreelancer"), c2 = $("sigClient");
-      if(!c1 || !c2) { console.error("Signature canvases missing"); return; }
-
-      // Resize for crisp lines on HiDPI
-      [c1,c2].forEach(canvas=>{
+    function initSignatures() {
+      const canvases = [$("sigFreelancer"), $("sigClient")];
+      canvases.forEach(c => {
         const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        canvas.width  = canvas.clientWidth * ratio;
-        canvas.height = canvas.clientHeight * ratio;
-        const ctx = canvas.getContext("2d");
-        ctx.scale(ratio, ratio);
+        c.width = c.clientWidth * ratio;
+        c.height = c.clientHeight * ratio;
+        c.getContext("2d").scale(ratio, ratio);
       });
-
-      sigPadFreelancer = new window.SignaturePad($("sigFreelancer"), { backgroundColor: "rgba(0,0,0,0)" });
-      sigPadClient     = new window.SignaturePad($("sigClient"),     { backgroundColor: "rgba(0,0,0,0)" });
-
-      $("clearFreelancer")?.addEventListener("click", ()=>sigPadFreelancer.clear());
-      $("clearClient")?.addEventListener("click", ()=>sigPadClient.clear());
+      sigFreelancer = new window.SignaturePad($("sigFreelancer"), { backgroundColor: "#fff" });
+      sigClient = new window.SignaturePad($("sigClient"), { backgroundColor: "#fff" });
     }
 
-    /* ========= Profile autofill ========= */
-    async function readProfile(uid){
-      const candidates = [
-        ["users",uid,"settings","profile"],
-        ["users",uid,"profile","main"],
-        ["users",uid]
-      ];
-      for(const p of candidates){
-        try{
-          const snap = await getDoc(doc(db, ...p));
-          if(snap.exists()) return snap.data();
-        }catch(_){}
-      }
-      return null;
-    }
-
-    async function autofillFromProfile(uid){
-      const p = await readProfile(uid);
-      if(!p) return;
-      setIfEmpty("businessName", p.businessName || p.fullName || "");
-      setIfEmpty("email", p.email || p.businessEmail || "");
-      setIfEmpty("businessAddress", p.businessAddress || p.address || "");
-    }
-
-    /* ========= Clients dropdown ========= */
-    async function loadClients(uid){
-      const sel = $("clientSelect");
-      if(!sel) return;
-      sel.innerHTML = `<option value="">— choose client —</option>`;
-      const snap = await getDocs(collection(db,"users",uid,"clients"));
-      const arr = [];
-      snap.forEach(d=>arr.push({id:d.id,...d.data()}));
-      arr.sort((a,b)=>(a.clientName||"").localeCompare(b.clientName||""));
-      arr.forEach(c=>{
-        const opt=document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = `${c.clientName||"(no name)"} — ${c.email||""}`;
-        sel.appendChild(opt);
-      });
-      // On change -> fill client fields
-      sel.onchange = ()=>{
-        const id = sel.value;
-        const c  = arr.find(x=>x.id===id);
-        if(!c) return;
-        $("clientName").value   = c.clientName || "";
-        $("clientEmail").value  = c.email || "";
-        $("clientPhone").value  = c.phone || "";
-        $("clientAddress").value= c.address || (c.country?("("+c.country+")"):"");
-      };
-    }
-
-    /* ========= Contract ID generator ========= */
     async function generateContractId(uid){
       const ref = doc(db,"users",uid);
       const year = new Date().getFullYear();
@@ -319,51 +196,55 @@
       return out;
     }
 
-    /* ========= Save ========= */
-    async function saveContract(uid, editId=null){
-      // signatures
-      const sigFreelancerData = (sigPadFreelancer && !sigPadFreelancer.isEmpty()) ? sigPadFreelancer.toDataURL("image/png") : "";
-      const sigClientData     = (sigPadClient     && !sigPadClient.isEmpty())     ? sigPadClient.toDataURL("image/png")     : "";
+    async function loadClients(uid){
+      const sel = $("clientSelect");
+      const snap = await getDocs(collection(db,"users",uid,"clients"));
+      sel.innerHTML = `<option value="">— choose client —</option>`;
+      const arr = [];
+      snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+      arr.forEach(c=>{
+        const opt=document.createElement("option");
+        opt.value=c.id;
+        opt.textContent=c.clientName||"(no name)";
+        sel.appendChild(opt);
+      });
+      sel.onchange=()=>{
+        const c=arr.find(x=>x.id===sel.value);
+        if(!c)return;
+        $("clientName").value=c.clientName||"";
+        $("clientEmail").value=c.email||"";
+        $("clientPhone").value=c.phone||"";
+        $("clientAddress").value=c.address||"";
+      };
+    }
 
-      let id = v("contractId");
-      if(!id){
-        id = await generateContractId(uid);
-        $("contractId").value = id;
-      }
+    async function saveContract(uid, editId=null){
+      const sig1 = !sigFreelancer.isEmpty()? sigFreelancer.toDataURL() : "";
+      const sig2 = !sigClient.isEmpty()? sigClient.toDataURL() : "";
+
+      let id = val("contractId");
+      if(!id){ id = await generateContractId(uid); $("contractId").value=id; }
 
       const data = {
         contractId: id,
-        contractDate: v("contractDate"),
+        contractDate: val("contractDate"),
         status: $("status")?.value || "Active",
-
-        // parties
         clientId: $("clientSelect")?.value || "",
-        clientName: v("clientName"),
-        clientEmail: v("clientEmail"),
-        clientPhone: v("clientPhone"),
-        clientAddress: v("clientAddress"),
-
-        // your profile
-        businessName: v("businessName"),
-        email: v("email"),
-        businessAddress: v("businessAddress"),
-
-        // scope
-        services: v("services"),
-        rate: toNum(v("rate")),
-        hours: toNum(v("hours")),
-        currency: $("currency")?.value || "EUR",
-        startDate: v("startDate"),
-        endDate: v("endDate"),
-        paymentTerm: $("paymentTerm")?.value || "30 days",
-        lateFee: toNum(v("lateFee")),
-        nda: !!$("nda")?.checked,
-        ipOwnership: !!$("ipOwnership")?.checked,
-
-        // signatures
-        sigFreelancer: sigFreelancerData,
-        sigClient: sigClientData,
-
+        clientName: val("clientName"),
+        clientEmail: val("clientEmail"),
+        clientPhone: val("clientPhone"),
+        clientAddress: val("clientAddress"),
+        businessName: val("businessName"),
+        email: val("email"),
+        businessAddress: val("businessAddress"),
+        services: val("services"),
+        rate: parseFloat(val("rate"))||0,
+        hours: parseFloat(val("hours"))||0,
+        startDate: val("startDate"),
+        endDate: val("endDate"),
+        notes: val("notes"),
+        sigFreelancer: sig1,
+        sigClient: sig2,
         updatedAt: serverTimestamp()
       };
 
@@ -371,221 +252,38 @@
         await updateDoc(doc(db,"users",uid,"contracts",editId), data);
         alert("✅ Contract updated");
       }else{
-        await addDoc(collection(db,"users",uid,"contracts"), { ...data, createdAt: serverTimestamp() });
+        await addDoc(collection(db,"users",uid,"contracts"), {...data, createdAt: serverTimestamp()});
         alert("✅ Contract saved");
       }
     }
 
-    /* ========= PDF ========= */
-    function addHeader(doc, withBranding){
-      if(withBranding){
-        const blue=[59,130,246];
-        doc.setFillColor(...blue);
-        doc.rect(0,0,210,24,"F");
-        doc.setTextColor(255,255,255);
-        doc.setFont("helvetica","bold").setFontSize(16);
-        doc.text("SmartWerk — Freelance Contract", 14, 16);
-      }else{
-        doc.setFont("helvetica","bold").setFontSize(16).setTextColor(0,0,0);
-        doc.text("Freelance Contract", 14, 16);
-      }
-    }
-
-    function euro(v,curr){ return `${curr||"EUR"} ${Number(v||0).toFixed(2)}`; }
-
-    async function exportPDF(withBranding=true){
-      const { jsPDF } = window.jspdf;
-      if(!jsPDF){ alert("jsPDF not loaded"); return; }
-      const doc = new jsPDF("p","mm","a4");
-      addHeader(doc, withBranding);
-      let y = 30;
-
-      const contractId = v("contractId") || "(draft)";
-      const cDate = v("contractDate") || todayISO();
-
-      doc.setFont("helvetica","normal").setFontSize(11).setTextColor(0,0,0);
-      doc.text(`Contract ID: ${contractId}`, 14, y); y+=6;
-      doc.text(`Date: ${cDate}`, 14, y); y+=8;
-
-      // Parties
-      doc.setFont("helvetica","bold").setFontSize(12).setTextColor(59,130,246);
-      doc.text("Parties", 14, y); y+=6;
-      doc.setFont("helvetica","normal").setFontSize(11).setTextColor(0,0,0);
-      const parties = [
-        ["Client", `${v("clientName")}\n${v("clientEmail")}  ${v("clientPhone")}\n${v("clientAddress")}`],
-        ["Freelancer", `${v("businessName")}\n${v("email")}\n${v("businessAddress")}`],
-      ];
-      parties.forEach(([k,val])=>{
-        doc.setFont("helvetica","bold"); doc.text(`${k}:`,14,y);
-        doc.setFont("helvetica","normal");
-        const lines = doc.splitTextToSize(val, 170);
-        doc.text(lines, 40, y);
-        y += lines.length*6 + 2;
-      });
-      y += 2;
-
-      // Scope
-      doc.setFont("helvetica","bold").setFontSize(12).setTextColor(59,130,246);
-      doc.text("Scope & Terms", 14, y); y+=6;
-      doc.setFont("helvetica","normal").setFontSize(11).setTextColor(0,0,0);
-
-      const scopeRows = [
-        ["Services", v("services")||"—"],
-        ["Rate", `${euro(v("rate"), v("currency"))} / hour`],
-        ["Estimated Hours", v("hours")||"—"],
-        ["Start Date", v("startDate")||"—"],
-        ["End Date", v("endDate")||"—"],
-        ["Payment Term", $("paymentTerm")?.value || "30 days"],
-        ["Late Fee (%)", v("lateFee")||"—"],
-        ["NDA", $("nda")?.checked ? "Yes" : "No"],
-        ["IP Ownership", $("ipOwnership")?.checked ? "Client" : "Freelancer"],
-      ];
-
-      doc.autoTable({
-        startY: y,
-        head:[["Field","Value"]],
-        body: scopeRows,
-        theme: "grid",
-        styles:{ fontSize:10, cellPadding:3 },
-        headStyles:{ fillColor: [59,130,246], textColor:255 },
-        margin:{ left: 14, right: 14 }
-      });
-      y = doc.lastAutoTable.finalY + 10;
-
-      // Signatures
-      doc.setFont("helvetica","bold").setFontSize(12).setTextColor(59,130,246);
-      doc.text("Signatures", 14, y); y+=6;
-      doc.setFont("helvetica","normal").setFontSize(11).setTextColor(0,0,0);
-
-      doc.text("Freelancer:", 14, y);
-      doc.text("Client:", 120, y);
-      y+=4;
-
-      // draw boxes
-      doc.setDrawColor(200);
-      doc.rect(14, y, 80, 35);
-      doc.rect(120, y, 80, 35);
-
-      // add signature images if present
-      const addSig = (dataUrl, x, y, w, h)=>{
-        if(dataUrl){
-          try{ doc.addImage(dataUrl, "PNG", x+2, y+2, w-4, h-4); }catch(_){}
-        }
-      };
-      addSig( (window.sigPadFreelancer && !window.sigPadFreelancer.isEmpty()) ? window.sigPadFreelancer.toDataURL("image/png") : "", 14, y, 80, 35);
-      addSig( (window.sigPadClient && !window.sigPadClient.isEmpty()) ? window.sigPadClient.toDataURL("image/png") : "", 120, y, 80, 35);
-
-      y += 42;
-      doc.text(`${v("businessName")}`, 14, y);
-      doc.text(`${v("clientName")}`, 120, y);
-      y += 6;
-      doc.text(`${todayISO()}`, 14, y);
-      doc.text(`${todayISO()}`, 120, y);
-
-      if(withBranding){
-        doc.setFont("helvetica","normal").setFontSize(10).setTextColor(120);
-        doc.text("Generated with SmartWerk — smartwerk.nl", 14, 290);
-      }
-
-      const fname = withBranding ? `SmartWerk_Contract_${contractId}.pdf` : `Contract_${contractId}_PRO.pdf`;
-      doc.save(fname);
-    }
-
-    /* ========= INIT (DOM + Auth) ========= */
-    document.addEventListener("DOMContentLoaded", ()=>{
-      // default dates
-      const d = $("contractDate"); if(d && !d.value) d.value = todayISO();
-      const sd = $("startDate");   if(sd && !sd.value) sd.value = todayISO();
-
-      initSignatures();
-
-      $("btn-export")?.addEventListener("click", ()=>exportPDF(true));
-      $("btn-export-pro")?.addEventListener("click", ()=>exportPDF(false));
-      $("btn-clear-sigs")?.addEventListener("click", ()=>{
-        sigPadFreelancer?.clear(); sigPadClient?.clear();
-      });
-    });
-
-    onAuthStateChanged(auth, async (user)=>{
+    onAuthStateChanged(auth, async user=>{
       if(!user){ location.href="login.html"; return; }
-
-      await autofillFromProfile(user.uid);
+      initSignatures();
       await loadClients(user.uid);
 
-      // new / edit
       const editId = localStorage.getItem("editContractId");
       if(editId){
-        try{
-          const snap = await getDoc(doc(db,"users",user.uid,"contracts",editId));
-          if(snap.exists()){
-            const c = snap.data();
-            const map = [
-              "contractId","contractDate","status",
-              "clientName","clientEmail","clientPhone","clientAddress",
-              "businessName","email","businessAddress",
-              "services","rate","hours","startDate","endDate","lateFee"
-            ];
-            map.forEach(k=>{ if($(k) && c[k]!==undefined) $(k).value = c[k]; });
-            if($("currency") && c.currency) $("currency").value = c.currency;
-            if($("paymentTerm") && c.paymentTerm) $("paymentTerm").value = c.paymentTerm;
-            if($("nda")) $("nda").checked = !!c.nda;
-            if($("ipOwnership")) $("ipOwnership").checked = !!c.ipOwnership;
-
-            // clientSelect (if exists in your list)
-            if($("clientSelect") && c.clientId){
-              $("clientSelect").value = c.clientId;
-            }
-
-            // restore signatures
-            if(c.sigFreelancer && window.sigPadFreelancer){
-              const img = new Image();
-              img.onload = ()=> {
-                const ctx = $("sigFreelancer").getContext("2d");
-                ctx.clearRect(0,0,$("sigFreelancer").width,$("sigFreelancer").height);
-                ctx.drawImage(img, 0,0, $("sigFreelancer").clientWidth, $("sigFreelancer").clientHeight);
-              };
-              img.src = c.sigFreelancer;
-            }
-            if(c.sigClient && window.sigPadClient){
-              const img2 = new Image();
-              img2.onload = ()=> {
-                const ctx2 = $("sigClient").getContext("2d");
-                ctx2.clearRect(0,0,$("sigClient").width,$("sigClient").height);
-                ctx2.drawImage(img2, 0,0, $("sigClient").clientWidth, $("sigClient").clientHeight);
-              };
-              img2.src = c.sigClient;
-            }
-
-            $("btn-save")?.addEventListener("click", async ()=>{
-              await saveContract(user.uid, editId);
-              localStorage.removeItem("editContractId");
-              // back to list
-              location.href = "contracts-list.html";
-            });
-          }else{
-            console.warn("⚠️ Contract not found for edit");
-            localStorage.removeItem("editContractId");
-            // generate ID for new
-            if($("contractId") && !$("contractId").value){
-              $("contractId").value = await generateContractId(user.uid);
-            }
-            $("btn-save")?.addEventListener("click", async ()=>{
-              await saveContract(user.uid, null);
-              location.href = "contracts-list.html";
-            });
+        const snap = await getDoc(doc(db,"users",user.uid,"contracts",editId));
+        if(snap.exists()){
+          const c = snap.data();
+          ["contractId","contractDate","status","clientName","clientEmail","clientPhone","clientAddress","businessName","email","businessAddress","services","rate","hours","startDate","endDate","notes"].forEach(k=>{
+            if($(k) && c[k]!==undefined) $(k).value=c[k];
+          });
+          if(c.sigFreelancer){
+            const img=new Image();
+            img.onload=()=>{$("sigFreelancer").getContext("2d").drawImage(img,0,0,$("sigFreelancer").width,$("sigFreelancer").height);}
+            img.src=c.sigFreelancer;
           }
-        }catch(e){
-          console.error("Load contract error:", e);
+          if(c.sigClient){
+            const img=new Image();
+            img.onload=()=>{$("sigClient").getContext("2d").drawImage(img,0,0,$("sigClient").width,$("sigClient").height);}
+            img.src=c.sigClient;
+          }
         }
+        $("btn-save").onclick=async()=>{await saveContract(user.uid,editId);localStorage.removeItem("editContractId");location.href="contracts-list.html";}
       }else{
-        // new
-        if($("contractId") && !$("contractId").value){
-          $("contractId").value = await generateContractId(user.uid);
-        }
-        $("btn-save")?.addEventListener("click", async ()=>{
-          await saveContract(user.uid, null);
-          location.href = "contracts-list.html";
-        });
+        $("btn-save").onclick=async()=>{await saveContract(user.uid,null);location.href="contracts-list.html";}
       }
     });
   </script>
