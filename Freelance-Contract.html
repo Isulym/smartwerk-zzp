@@ -1,290 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📄 SmartWerk — Freelance Contract</title>
-  <link rel="stylesheet" href="style-invoices.css"/>
+  <link rel="stylesheet" href="style-contract.css" />
   <style>
-    body{background:#0f172a;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif;padding:20px}
-    h1,h2{color:#fff}
-    section{background:#1e293b;padding:16px;border-radius:12px;margin-bottom:16px}
-    label{color:#94a3b8;font-size:14px}
-    input,select,textarea{width:100%;padding:8px;border-radius:8px;border:none;background:#334155;color:#fff;margin-top:4px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .btn{background:#475569;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}
-    .btn-primary{background:#3b82f6}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-    canvas.sig{width:100%;height:160px;background:#fff;border:1px dashed #334155;border-radius:10px}
-    .muted{color:#94a3b8;font-size:13px}
+    body {
+      background:#0f172a;
+      color:#e5e7eb;
+      font-family:'Inter',sans-serif;
+      padding:20px;
+    }
+    h1,h2 { color:#fff; }
+    section {
+      background:#1e293b;
+      padding:16px;
+      border-radius:12px;
+      margin-bottom:15px;
+    }
+    label { color:#94a3b8; font-size:14px; }
+    input,textarea {
+      width:100%;
+      padding:8px;
+      border-radius:6px;
+      border:none;
+      background:#334155;
+      color:#fff;
+      margin-top:4px;
+    }
+    .grid-2 {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .actions {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:15px;
+    }
+    .btn {
+      background:#475569;
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      padding:10px 16px;
+      cursor:pointer;
+    }
+    .btn-primary { background:#3b82f6; }
+    canvas {
+      background:#fff;
+      border-radius:6px;
+      width:100%;
+      height:180px;
+    }
+    footer {
+      text-align:center;
+      margin-top:20px;
+      font-size:13px;
+      color:#64748b;
+    }
   </style>
 </head>
 <body>
-  <header class="toolbar">
-    <a href="dashboard.html" class="btn">← Dashboard</a>
-    <a href="Freelance-Contract-list.html" class="btn">📂 Saved Contracts</a>
-    <button id="btn-save" class="btn btn-primary">💾 Save Contract</button>
+  <header>
+    <h1>📄 Freelance Contract</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="contracts-list.html" class="btn">📂 View Saved Contracts</a>
+    </nav>
   </header>
 
   <main>
+    <!-- BUSINESS INFO -->
     <section>
-      <h2>👤 Contract Information</h2>
-      <div class="grid-2">
-        <div>
-          <label>Contract ID</label>
-          <input id="contractId" placeholder="CN-2025-001" readonly/>
-        </div>
-        <div>
-          <label>Date</label>
-          <input id="contractDate" type="date"/>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top:8px">
-        <div>
-          <label>Select Client</label>
-          <select id="clientSelect"><option value="">— choose client —</option></select>
-        </div>
-        <div>
-          <label>Status</label>
-          <select id="status">
-            <option selected>Active</option>
-            <option>Draft</option>
-            <option>Signed</option>
-            <option>Archived</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top:8px">
-        <div>
-          <label>Client Name</label>
-          <input id="clientName" placeholder="Client or company name"/>
-        </div>
-        <div>
-          <label>Client Email</label>
-          <input id="clientEmail" type="email" placeholder="client@example.com"/>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Client Phone</label>
-          <input id="clientPhone" placeholder="+31 6 12345678"/>
-        </div>
-        <div>
-          <label>Client Address</label>
-          <input id="clientAddress" placeholder="Street, City, ZIP, Country"/>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <h2>🏢 Freelancer Info</h2>
+      <h2>🏢 Business Info</h2>
       <div class="grid-2">
         <div>
           <label>Business Name</label>
-          <input id="businessName" placeholder="Your business or name"/>
+          <input id="businessName" placeholder="Your business name"/>
         </div>
         <div>
           <label>Email</label>
-          <input id="email" type="email" placeholder="your@email.com"/>
+          <input id="businessEmail" placeholder="you@email.com"/>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Address</label>
+          <input id="businessAddress" placeholder="Street, City"/>
+        </div>
+        <div>
+          <label>KvK / VAT</label>
+          <input id="businessKvK" placeholder="KvK or VAT number"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENT INFO -->
+    <section>
+      <h2>👤 Client Info</h2>
+      <div class="grid-2">
+        <div>
+          <label>Client Name</label>
+          <input id="clientName" placeholder="Client or Company name"/>
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="clientEmail" placeholder="client@email.com"/>
         </div>
       </div>
       <label>Address</label>
-      <input id="businessAddress" placeholder="Street, City, ZIP"/>
+      <input id="clientAddress" placeholder="Street, City, Country"/>
     </section>
 
+    <!-- PROJECT -->
     <section>
-      <h2>🧾 Project Details</h2>
+      <h2>💼 Project Details</h2>
+      <label>Project Title</label>
+      <input id="projectTitle" placeholder="e.g. Website redesign"/>
       <label>Project Description</label>
-      <textarea id="services" rows="4" placeholder="Describe project, deliverables, and expectations"></textarea>
-
-      <div class="grid-2" style="margin-top:8px">
-        <div>
-          <label>Hourly Rate (€)</label>
-          <input id="rate" type="number" step="0.01" placeholder="65.00"/>
-        </div>
-        <div>
-          <label>Estimated Hours</label>
-          <input id="hours" type="number" step="0.5" placeholder="20"/>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top:8px">
+      <textarea id="projectDescription" rows="3" placeholder="Describe the project scope..."></textarea>
+      <div class="grid-2">
         <div>
           <label>Start Date</label>
-          <input id="startDate" type="date"/>
+          <input type="date" id="startDate"/>
         </div>
         <div>
           <label>End Date</label>
-          <input id="endDate" type="date"/>
+          <input type="date" id="endDate"/>
         </div>
       </div>
-
-      <label style="margin-top:8px;display:block">Notes</label>
-      <textarea id="notes" rows="3" placeholder="Additional information or terms"></textarea>
     </section>
 
+    <!-- PAYMENT -->
+    <section>
+      <h2>💰 Payment Terms</h2>
+      <div class="grid-2">
+        <div>
+          <label>Rate / Amount</label>
+          <input id="rate" placeholder="e.g. €1500 fixed or €50/hour"/>
+        </div>
+        <div>
+          <label>Payment Due</label>
+          <select id="paymentDue">
+            <option>Upon completion</option>
+            <option>50% upfront, 50% on delivery</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+          </select>
+        </div>
+      </div>
+      <label>Additional Terms</label>
+      <textarea id="extraTerms" rows="3" placeholder="Include revision, delivery or bonus terms..."></textarea>
+    </section>
+
+    <!-- LEGAL -->
+    <section>
+      <h2>⚖️ Legal Terms</h2>
+      <textarea id="legal" rows="4" placeholder="All work will remain property of the freelancer until full payment is received. The client agrees to..."></textarea>
+    </section>
+
+    <!-- SIGNATURE -->
     <section>
       <h2>✍️ Signatures</h2>
       <div class="grid-2">
         <div>
           <label>Freelancer Signature</label>
-          <canvas id="sigFreelancer" class="sig"></canvas>
+          <canvas id="freelancerSign"></canvas>
         </div>
         <div>
           <label>Client Signature</label>
-          <canvas id="sigClient" class="sig"></canvas>
+          <canvas id="clientSign"></canvas>
         </div>
       </div>
-      <p class="muted" style="margin-top:6px">Sign with mouse or touch — white background for clarity.</p>
     </section>
+
+    <div class="actions">
+      <button id="saveBtn" class="btn-primary">💾 Save Contract</button>
+      <button id="viewBtn" class="btn">📂 View Saved Contracts</button>
+    </div>
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-  <!-- Signatures -->
-  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
-
-  <!-- Firebase -->
+  <!-- SCRIPT -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, addDoc, updateDoc, collection, getDocs, runTransaction, serverTimestamp } 
+    import { getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, runTransaction, serverTimestamp } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
       projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
+      appId: "1:607670981972:web:c07103c981c86860d724c1"
     };
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
-
+    const db   = getFirestore(app);
     const $ = id => document.getElementById(id);
     const val = id => $(id)?.value?.trim() || "";
 
-    /* === Signatures === */
-    let sigFreelancer, sigClient;
-
+    /* ✏️ Init Signature Canvases */
     function initSignatures() {
-      const canvases = [$("sigFreelancer"), $("sigClient")];
-      canvases.forEach(c => {
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        c.width = c.clientWidth * ratio;
-        c.height = c.clientHeight * ratio;
-        c.getContext("2d").scale(ratio, ratio);
+      ["freelancerSign","clientSign"].forEach(id=>{
+        const canvas=$(id);
+        if(!canvas) return;
+        const ctx=canvas.getContext("2d");
+        let drawing=false;
+        ctx.lineWidth=1.8;
+        ctx.strokeStyle="#000";
+        canvas.addEventListener("mousedown",()=>drawing=true);
+        canvas.addEventListener("mouseup",()=>drawing=false);
+        canvas.addEventListener("mouseout",()=>drawing=false);
+        canvas.addEventListener("mousemove",(e)=>{
+          if(!drawing)return;
+          const r=canvas.getBoundingClientRect();
+          ctx.lineTo(e.clientX-r.left,e.clientY-r.top);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(e.clientX-r.left,e.clientY-r.top);
+        });
       });
-      sigFreelancer = new window.SignaturePad($("sigFreelancer"), { backgroundColor: "#fff" });
-      sigClient = new window.SignaturePad($("sigClient"), { backgroundColor: "#fff" });
     }
 
-    async function generateContractId(uid){
-      const ref = doc(db,"users",uid);
-      const year = new Date().getFullYear();
-      let out="";
-      await runTransaction(db, async(tx)=>{
-        const snap = await tx.get(ref);
-        const last = snap.exists()? (snap.data().lastContractNumber||0):0;
-        const next = last + 1;
-        tx.set(ref,{ lastContractNumber: next },{ merge:true });
-        out = `CN-${year}-${String(next).padStart(3,"0")}`;
-      });
-      return out;
-    }
-
-    async function loadClients(uid){
-      const sel = $("clientSelect");
-      const snap = await getDocs(collection(db,"users",uid,"clients"));
-      sel.innerHTML = `<option value="">— choose client —</option>`;
-      const arr = [];
-      snap.forEach(d=>arr.push({id:d.id,...d.data()}));
-      arr.forEach(c=>{
-        const opt=document.createElement("option");
-        opt.value=c.id;
-        opt.textContent=c.clientName||"(no name)";
-        sel.appendChild(opt);
-      });
-      sel.onchange=()=>{
-        const c=arr.find(x=>x.id===sel.value);
-        if(!c)return;
-        $("clientName").value=c.clientName||"";
-        $("clientEmail").value=c.email||"";
-        $("clientPhone").value=c.phone||"";
-        $("clientAddress").value=c.address||"";
+    /* 🧾 Save contract */
+    async function saveContract(uid){
+      const data={
+        businessName:val("businessName"),
+        businessEmail:val("businessEmail"),
+        businessAddress:val("businessAddress"),
+        businessKvK:val("businessKvK"),
+        clientName:val("clientName"),
+        clientEmail:val("clientEmail"),
+        clientAddress:val("clientAddress"),
+        projectTitle:val("projectTitle"),
+        projectDescription:val("projectDescription"),
+        startDate:val("startDate"),
+        endDate:val("endDate"),
+        rate:val("rate"),
+        paymentDue:val("paymentDue"),
+        extraTerms:val("extraTerms"),
+        legal:val("legal"),
+        createdAt:serverTimestamp(),
+        updatedAt:serverTimestamp()
       };
+      await addDoc(collection(db,"users",uid,"contracts"),data);
+      await addDoc(collection(db,"users",uid,"events"),{
+        type:"Contract Saved",message:`${data.clientName||'Unnamed'} contract saved`,createdAt:serverTimestamp()
+      });
+      alert("✅ Contract saved successfully!");
     }
 
-    async function saveContract(uid, editId=null){
-      const sig1 = !sigFreelancer.isEmpty()? sigFreelancer.toDataURL() : "";
-      const sig2 = !sigClient.isEmpty()? sigClient.toDataURL() : "";
-
-      let id = val("contractId");
-      if(!id){ id = await generateContractId(uid); $("contractId").value=id; }
-
-      const data = {
-        contractId: id,
-        contractDate: val("contractDate"),
-        status: $("status")?.value || "Active",
-        clientId: $("clientSelect")?.value || "",
-        clientName: val("clientName"),
-        clientEmail: val("clientEmail"),
-        clientPhone: val("clientPhone"),
-        clientAddress: val("clientAddress"),
-        businessName: val("businessName"),
-        email: val("email"),
-        businessAddress: val("businessAddress"),
-        services: val("services"),
-        rate: parseFloat(val("rate"))||0,
-        hours: parseFloat(val("hours"))||0,
-        startDate: val("startDate"),
-        endDate: val("endDate"),
-        notes: val("notes"),
-        sigFreelancer: sig1,
-        sigClient: sig2,
-        updatedAt: serverTimestamp()
-      };
-
-      if(editId){
-        await updateDoc(doc(db,"users",uid,"contracts",editId), data);
-        alert("✅ Contract updated");
-      }else{
-        await addDoc(collection(db,"users",uid,"contracts"), {...data, createdAt: serverTimestamp()});
-        alert("✅ Contract saved");
-      }
-    }
-
-    onAuthStateChanged(auth, async user=>{
-      if(!user){ location.href="login.html"; return; }
-      initSignatures();
-      await loadClients(user.uid);
-
-      const editId = localStorage.getItem("editContractId");
-      if(editId){
-        const snap = await getDoc(doc(db,"users",uid));
-        if(snap.exists()){
-          const c = snap.data();
-          ["contractId","contractDate","status","clientName","clientEmail","clientPhone","clientAddress","businessName","email","businessAddress","services","rate","hours","startDate","endDate","notes"].forEach(k=>{
-            if($(k) && c[k]!==undefined) $(k).value=c[k];
-          });
-          if(c.sigFreelancer){
-            const img=new Image();
-            img.onload=()=>{$("sigFreelancer").getContext("2d").drawImage(img,0,0,$("sigFreelancer").width,$("sigFreelancer").height);}
-            img.src=c.sigFreelancer;
-          }
-          if(c.sigClient){
-            const img=new Image();
-            img.onload=()=>{$("sigClient").getContext("2d").drawImage(img,0,0,$("sigClient").width,$("sigClient").height);}
-            img.src=c.sigClient;
+    /* 🔹 Autofill Business Info from profile */
+    async function autofillProfile(uid){
+      try{
+        const paths=[
+          ["users",uid,"settings","profile"],
+          ["users",uid,"profile","main"],
+          ["users",uid]
+        ];
+        for(const p of paths){
+          const snap=await getDoc(doc(db,...p));
+          if(snap.exists()){
+            const d=snap.data();
+            if($("businessName") && d.businessName) $("businessName").value=d.businessName;
+            if($("businessEmail") && d.email) $("businessEmail").value=d.email;
+            if($("businessAddress") && d.businessAddress) $("businessAddress").value=d.businessAddress;
+            if($("businessKvK") && d.kvk) $("businessKvK").value=d.kvk;
+            console.log("✅ Profile autofilled from:",p.join("/"));
+            break;
           }
         }
-        $("btn-save").onclick=async()=>{await saveContract(user.uid,editId);localStorage.removeItem("editContractId");location.href="Freelance-Contract-list.html";}
-      }else{
-        $("btn-save").onclick=async()=>{await saveContract(user.uid,null);location.href="Freelance-Contract-list.html";}
-      }
+      }catch(e){ console.warn("Profile autofill error:",e.message); }
+    }
+
+    /* 🔹 Auth state */
+    onAuthStateChanged(auth,async(user)=>{
+      if(!user){location.href="login.html";return;}
+      await autofillProfile(user.uid);
+      initSignatures();
+      $("saveBtn").onclick=()=>saveContract(user.uid);
+      $("viewBtn").onclick=()=>location.href="contracts-list.html";
     });
   </script>
 </body>
