@@ -23,8 +23,8 @@
   <header>
     <h1>👥 SmartWerk — Add Client</h1>
     <nav>
-      <a href="dashboard.html" class="btn" type="button">← Dashboard</a>
-      <a href="clients-list.html" class="btn" type="button">📂 Saved Clients</a>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="clients-list.html" class="btn">📂 Saved Clients</a>
     </nav>
   </header>
 
@@ -32,7 +32,6 @@
     <!-- CLIENT INFO -->
     <section>
       <h2>🏢 Client Information</h2>
-
       <div class="grid-2">
         <div>
           <label>Client ID</label>
@@ -41,7 +40,7 @@
         <div>
           <label>Status</label>
           <select id="status">
-            <option selected>Active</option>
+            <option>Active</option>
             <option>Prospect</option>
             <option>Inactive</option>
           </select>
@@ -132,238 +131,147 @@
     </section>
 
     <div class="actions">
-      <button id="saveBtn" class="btn-primary" type="button" onclick="_swSave()">💾 Save Client</button>
-      <button id="viewBtn" class="btn" type="button" onclick="_swView()">📂 View Saved Clients</button>
-      <button id="smartSuggestBtn" class="btn" type="button" onclick="_swSmart()">🤖 Smart Suggest</button>
+      <button id="saveBtn" class="btn-primary" type="button">💾 Save Client</button>
+      <button id="viewBtn" class="btn" type="button">📂 View Saved Clients</button>
+      <button id="smartSuggestBtn" class="btn" type="button">🤖 Smart Suggest</button>
     </div>
     <div id="smartHint" class="hint"></div>
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-  <!-- APP -->
-  <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, doc, updateDoc, getDoc, runTransaction, serverTimestamp } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, getDoc, runTransaction, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    /* ---------- Firebase ---------- */
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-      authDomain: "smartwerk8520.firebaseapp.com",
-      projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
-    };
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+const firebaseConfig={apiKey:"AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",authDomain:"smartwerk8520.firebaseapp.com",projectId:"smartwerk8520",appId:"1:607670981972:web:c07103c981c86860d724c1"};
+const app=getApps().length?getApp():initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const $=(id)=>document.getElementById(id);
+const val=(id)=>$(id)?.value?.trim()||"";
 
-    /* ---------- Helpers ---------- */
-    const $ = (id)=>document.getElementById(id);
-    const val = (id)=>$(id)?.value?.trim() || "";
-
-    /* ---------- Client ID generator ---------- */
-    async function generateClientId(uid){
-      const ref = doc(db,"users",uid);
-      const year = new Date().getFullYear();
-      let out="";
-      await runTransaction(db, async(tx)=>{
-        const snap = await tx.get(ref);
-        const last = snap.exists()? (snap.data().lastClientNumber||0) : 0;
-        const next = last + 1;
-        tx.set(ref,{ lastClientNumber: next },{ merge:true });
-        out = `CL-${year}-${String(next).padStart(3,"0")}`;
-      });
-      return out;
-    }
-
-    /* ---------- Smart Suggest ---------- */
-  function smartSuggest() {
-  const email = val("email").toLowerCase();
-  const hint = document.getElementById("smartHint");
-  let messages = [];
-
-  if (!hint) {
-    console.warn("⚠️ #smartHint element not found in DOM");
-    alert("Smart Suggest hint element missing!");
-    return;
-  }
-
-  if (email.includes("@")) {
-    const domain = email.split("@")[1] || "";
-    const ends = (t) => domain.endsWith(t);
-
-    const countryMap = {
-      ".nl": "Netherlands", ".be": "Belgium", ".de": "Germany",
-      ".fr": "France", ".es": "Spain", ".pl": "Poland",
-      ".uk": "United Kingdom", ".co.uk": "United Kingdom"
-    };
-    for (const [suffix, country] of Object.entries(countryMap)) {
-      if (ends(suffix)) document.getElementById("country").value = country;
-    }
-
-    const isFree = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
-    if (isFree) {
-      document.getElementById("status").value = "Prospect";
-      document.getElementById("tags").value = "Prospect";
-      messages.push("Detected freemail — status Prospect");
-    } else {
-      document.getElementById("tags").value = domain.split(".")[0];
-      messages.push("Tags suggested from domain");
-    }
-
-    if (!val("phone")) {
-      const prefixMap = {
-        ".nl": "+31", ".be": "+32", ".de": "+49", ".fr": "+33",
-        ".es": "+34", ".pl": "+48", ".uk": "+44", ".co.uk": "+44"
-      };
-      for (const [s, code] of Object.entries(prefixMap)) {
-        if (ends(s)) document.getElementById("phone").value = code + " ";
-      }
-    }
-  } else {
-    messages.push("Enter email for smart suggestions");
-  }
-
-  // Вивід підказки
-  hint.textContent = "✅ " + messages.join(" · ");
-  hint.style.display = "block";
-  hint.style.opacity = "1";
-  setTimeout(() => (hint.style.opacity = "0"), 2000);
-  setTimeout(() => (hint.style.display = "none"), 2500);
+/* ---------- Client ID generator ---------- */
+async function generateClientId(uid){
+  const ref=doc(db,"users",uid);
+  const year=new Date().getFullYear();
+  let out="";
+  await runTransaction(db,async(tx)=>{
+    const snap=await tx.get(ref);
+    const last=snap.exists()?(snap.data().lastClientNumber||0):0;
+    const next=last+1;
+    tx.set(ref,{lastClientNumber:next},{merge:true});
+    out=`CL-${year}-${String(next).padStart(3,"0")}`;
+  });
+  return out;
 }
-    /* ---------- Validation ---------- */
-    function validate(){
-      if(!val("clientName")){ alert("❗ Client Name is required."); return false; }
-      const email = val("email");
-      const phone = val("phone");
-      if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ alert("❗ Invalid email address."); return false; }
-      if(phone && !/^[0-9+\s\-()]{6,20}$/.test(phone)){ alert("❗ Invalid phone number."); return false; }
-      return true;
+
+/* ---------- Smart Suggest ---------- */
+function smartSuggest(){
+  const email=val("email").toLowerCase();
+  const hint=$("#smartHint");
+  let messages=[];
+  if(email.includes("@")){
+    const domain=email.split("@")[1]||"";
+    const ends=(t)=>domain.endsWith(t);
+    const countryMap={".nl":"Netherlands",".be":"Belgium",".de":"Germany",".fr":"France",".es":"Spain",".pl":"Poland",".uk":"United Kingdom",".co.uk":"United Kingdom"};
+    for(const[suffix,country]of Object.entries(countryMap)){
+      if(ends(suffix)&&!$("#country").value)$("#country").value=country;
     }
+    const isFree=/(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
+    if(isFree&&!$("#status").value){$("#status").value="Prospect";$("#tags").value="Prospect";messages.push("Detected freemail — status Prospect");}
+    else if(!val("tags")){$("#tags").value=domain.split(".")[0];messages.push("Tags suggested from domain");}
+  }else{messages.push("Enter email for smart suggestions");}
+  hint.textContent="✅ "+messages.join(" · ");
+  hint.style.display="block";hint.style.opacity="1";
+  setTimeout(()=>hint.style.opacity="0",2000);
+  setTimeout(()=>hint.style.display="none",2500);
+}
 
-    /* ---------- Save Client (create/update) ---------- */
-    async function saveClient(uid, editId=null){
-      if(!validate()) return;
+/* ---------- Validation ---------- */
+function validate(){
+  if(!val("clientName")){alert("❗ Client Name is required.");return false;}
+  const email=val("email");const phone=val("phone");
+  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){alert("❗ Invalid email address.");return false;}
+  if(phone&&!/^[0-9+\s\-()]{6,20}$/.test(phone)){alert("❗ Invalid phone number.");return false;}
+  return true;
+}
 
-      let id = val("clientId");
-      if(!id){
-        id = await generateClientId(uid);
-        if($("#clientId")) $("#clientId").value = id;
-      }
-
-      const data = {
-        clientId: id,
-        clientName: val("clientName"),
-        contactPerson: val("contactPerson"),
-        email: val("email"),
-        phone: val("phone"),
-        address: val("address"),
-        country: $("#country")?.value || "",
-        kvk: val("kvk"),
-        vatNumber: val("vatNumber"),
-        paymentTerm: $("#paymentTerm")?.value || "30 days",
-        status: $("#status")?.value || "Active",
-        currency: $("#currency")?.value || "EUR",
-        tags: val("tags") ? val("tags").split(",").map(t=>t.trim()).filter(Boolean) : [],
-        notes: val("notes"),
-        updatedAt: serverTimestamp(),
-      };
-
-      if(editId){
-        await updateDoc(doc(db,"users",uid,"clients",editId), data);
-        alert("✅ Client updated successfully!");
-      }else{
-        await addDoc(collection(db,"users",uid,"clients"), { ...data, createdAt: serverTimestamp() });
-        alert("✅ Client saved successfully!");
-      }
-    }
-
-    /* ---------- DOM listeners (always bind) ---------- */
-    document.addEventListener("DOMContentLoaded", ()=>{
-      $("#smartSuggestBtn")?.addEventListener("click", smartSuggest);
-      $("#email")?.addEventListener("blur", smartSuggest);
-      $("#viewBtn")?.addEventListener("click", ()=> location.href="clients-list.html");
-
-      // SAVE: однакова логіка — бере поточний uid, сам вирішує create/update
-      $("#saveBtn")?.addEventListener("click", async ()=>{
-        const u = auth.currentUser;
-        if(!u){ alert("Please log in to save a client."); return; }
-        const editId = localStorage.getItem("editClientId") || null;
-        await saveClient(u.uid, editId);
-        if(editId){ localStorage.removeItem("editClientId"); }
-      });
-    });
-
-    // --- Глобальні обгортки для надійного виклику з HTML ---
-window._swSmart = () => {
-  try { smartSuggest(); } catch (e) { console.error("SmartSuggest error:", e); alert("Smart Suggest failed"); }
-};
-
-window._swView = () => {
-  try { location.href = "clients-list.html"; } catch (e) { console.error("View error:", e); }
-};
-
-window._swSave = async () => {
-  try {
-    const u = auth.currentUser;
-    if (!u) { alert("Please log in to save a client."); return; }
-    const editId = localStorage.getItem("editClientId") || null;
-    await saveClient(u.uid, editId);
-    if (editId) localStorage.removeItem("editClientId");
-  } catch (e) {
-    console.error("Save error:", e);
-    alert("Save failed. See console for details.");
+/* ---------- Save Client ---------- */
+async function saveClient(uid,editId=null){
+  if(!validate())return;
+  let id=val("clientId");
+  if(!id){id=await generateClientId(uid);if($("#clientId"))$("#clientId").value=id;}
+  const data={
+    clientId:id,
+    clientName:val("clientName"),
+    contactPerson:val("contactPerson"),
+    email:val("email"),
+    phone:val("phone"),
+    address:val("address"),
+    country:$("#country")?.value||"",
+    kvk:val("kvk"),
+    vatNumber:val("vatNumber"),
+    paymentTerm:$("#paymentTerm")?.value||"30 days",
+    status:$("#status")?.value||"Active",
+    currency:$("#currency")?.value||"EUR",
+    tags:val("tags")?val("tags").split(",").map(t=>t.trim()).filter(Boolean):[],
+    notes:val("notes"),
+    updatedAt:serverTimestamp(),
+  };
+  if(editId){
+    await updateDoc(doc(db,"users",uid,"clients",editId),data);
+    alert("✅ Client updated successfully!");
+  }else{
+    await addDoc(collection(db,"users",uid,"clients"),{...data,createdAt:serverTimestamp()});
+    alert("✅ Client saved successfully!");
   }
-};
+  // ⬇ Redirect after save
+  location.href="clients-list.html";
+}
 
-    /* ---------- Auth + Prefill (edit/new) ---------- */
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href="login.html"; return; }
-
-      // Чекаємо, доки DOM точно є
-      if(document.readyState==="loading"){
-        await new Promise(res=>document.addEventListener("DOMContentLoaded", res, {once:true}));
-      }
-
-      const editId = localStorage.getItem("editClientId");
-
-      if(editId){
-        // Режим редагування
-        try{
-          const snap = await getDoc(doc(db,"users",user.uid,"clients",editId));
-          if(snap.exists()){
-            const c = snap.data();
-            ["clientId","clientName","contactPerson","email","phone","address","kvk","vatNumber","notes"].forEach(k=>{
-              if($(k) && c[k]!==undefined) $(k).value = Array.isArray(c[k]) ? c[k].join(", ") : c[k];
-            });
-            if($("#country")&&c.country)$("#country").value=c.country;
-            if($("#paymentTerm")&&c.paymentTerm)$("#paymentTerm").value=c.paymentTerm;
-            if($("#status")&&c.status)$("#status").value=c.status;
-            if($("#currency")&&c.currency)$("#currency").value=c.currency;
-            if($("#tags")&&Array.isArray(c.tags))$("#tags").value=c.tags.join(", ");
-
-            const saveBtn=$("#saveBtn");
-            if(saveBtn) saveBtn.textContent="💾 Update Client";
-          }else{
-            console.warn("⚠️ Client not found for edit:", editId);
-            localStorage.removeItem("editClientId");
-            // Згенеруємо ID для нового
-            if($("#clientId") && !$("#clientId").value){
-              $("#clientId").value = await generateClientId(user.uid);
-            }
-          }
-        }catch(e){
-          console.error("Load client error:", e);
-        }
+/* ---------- Auth + Prefill ---------- */
+onAuthStateChanged(auth,async(user)=>{
+  if(!user){location.href="login.html";return;}
+  const editId=localStorage.getItem("editClientId");
+  if(editId){
+    try{
+      const snap=await getDoc(doc(db,"users",user.uid,"clients",editId));
+      if(snap.exists()){
+        const c=snap.data();
+        ["clientId","clientName","contactPerson","email","phone","address","kvk","vatNumber","notes"].forEach(k=>{
+          if($(k)&&c[k]!==undefined)$(k).value=Array.isArray(c[k])?c[k].join(", "):c[k];
+        });
+        if($("#country")&&c.country)$("#country").value=c.country;
+        if($("#paymentTerm")&&c.paymentTerm)$("#paymentTerm").value=c.paymentTerm;
+        if($("#status")&&c.status)$("#status").value=c.status;
+        if($("#currency")&&c.currency)$("#currency").value=c.currency;
+        if($("#tags")&&Array.isArray(c.tags))$("#tags").value=c.tags.join(", ");
+        $("#saveBtn").textContent="💾 Update Client";
       }else{
-        // Новий — генеруємо ID, якщо ще нема
-        if($("#clientId") && !$("#clientId").value){
-          $("#clientId").value = await generateClientId(user.uid);
-        }
+        localStorage.removeItem("editClientId");
+        if($("#clientId")&&!$("#clientId").value)$("#clientId").value=await generateClientId(user.uid);
       }
-    });
-  </script>
+    }catch(e){console.error("Load client error:",e);}
+  }else{
+    if($("#clientId")&&!$("#clientId").value)$("#clientId").value=await generateClientId(user.uid);
+  }
+});
+
+/* ---------- Event Bindings ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  $("#smartSuggestBtn")?.addEventListener("click",smartSuggest);
+  $("#viewBtn")?.addEventListener("click",()=>location.href="clients-list.html");
+  $("#saveBtn")?.addEventListener("click",async()=>{
+    const u=auth.currentUser;
+    if(!u){alert("Please log in.");return;}
+    const editId=localStorage.getItem("editClientId")||null;
+    await saveClient(u.uid,editId);
+    localStorage.removeItem("editClientId");
+  });
+});
+</script>
 </body>
 </html>
