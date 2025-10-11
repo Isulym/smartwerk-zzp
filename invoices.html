@@ -434,6 +434,19 @@ async function loadProfileData(uid){
     console.error("Profile load error:", e);
   }
 }
+    // 🌿 Автоматичне заповнення даних клієнта
+document.addEventListener("DOMContentLoaded", () => {
+  const savedClient = localStorage.getItem("selectedClient");
+  if (savedClient) {
+    const c = JSON.parse(savedClient);
+    if ($("clientName")) $("clientName").value = c.clientName || "";
+    if ($("clientEmail")) $("clientEmail").value = c.email || "";
+    if ($("clientPhone")) $("clientPhone").value = c.phone || "";
+    if ($("clientAddress")) $("clientAddress").value = c.address || "";
+    localStorage.removeItem("selectedClient");
+    console.log("✅ Client data autofilled from clients-list");
+  }
+});
     
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
