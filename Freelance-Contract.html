@@ -248,24 +248,43 @@ async function saveContract(uid){
 onAuthStateChanged(auth, async (user) => {
   if (!user) { location.href = "login.html"; return; }
 
-  // ✅ Чекаємо, поки DOM повністю готовий
+  // 🔹 Гарантовано чекаємо DOM
   await new Promise((resolve) => {
     if (document.readyState === "complete" || document.readyState === "interactive") resolve();
     else document.addEventListener("DOMContentLoaded", resolve, { once: true });
   });
 
+  // 🔹 Додаткова перевірка наявності #contractId (на випадок затримки рендеру)
+  for (let i = 0; i < 10; i++) {
+    if (document.getElementById("contractId")) break;
+    await new Promise(r => setTimeout(r, 100)); // чекаємо 100мс
+  }
+
   const uid = user.uid;
   const id = await generateContractId(uid);
 
-  $("#contractId").textContent = id;
-  $("#createdDate").textContent = new Date().toLocaleDateString();
+  const idEl = document.getElementById("contractId");
+  const dateEl = document.getElementById("createdDate");
+
+  if (!idEl || !dateEl) {
+    console.error("❌ Elements not found: #contractId or #createdDate");
+    alert("Error: contract fields not found. Try refreshing the page.");
+    return;
+  }
+
+  idEl.textContent = id;
+  dateEl.textContent = new Date().toLocaleDateString();
 
   await autofillProfile(uid);
   await loadClients(uid);
   initSignatures();
 
-  $("#saveBtn").onclick = () => saveContract(uid);
-  $("#viewBtn").onclick = () => (location.href = "contracts-list.html");
+  const saveBtn = document.getElementById("saveBtn");
+  const viewBtn = document.getElementById("viewBtn");
+  if (saveBtn) saveBtn.onclick = () => saveContract(uid);
+  if (viewBtn) viewBtn.onclick = () => (location.href = "contracts-list.html");
+
+  console.log("✅ Contract page fully initialized.");
 });
 </script>
 </body>
