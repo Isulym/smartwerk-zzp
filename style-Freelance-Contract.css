@@ -1,172 +1,164 @@
-:root {
-  --bg: #0e1014;
-  --card: #151823;
-  --line: #232a42;
-  --muted: #9aa3b2;
-  --ok: #27c693;
-  --warn: #ffb020;
-  --err: #ff5470;
-  --panel: #151b28;
-  --panel2: #141827;
-  --accent: #3b79ff;
-  --text: #f0f0f0;
-}
-
+/* ===== SmartWerk Contract — Professional Dark Theme ===== */
 body {
+  background: #0f172a;
+  color: #e5e7eb;
+  font-family: "Inter", system-ui, sans-serif;
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-}
-
-.contract-wrapper {
-  max-width: 1200px;
-  margin: 40px auto;
   padding: 20px;
-  background: var(--panel);
-  border-radius: 12px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.3);
+  line-height: 1.6;
 }
 
-h2 {
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 6px;
-  margin-bottom: 20px;
-  color: var(--accent);
-  font-size: 18px;
-}
-
-.form-section {
+/* HEADER */
+header {
   display: flex;
-  gap: 40px;
+  justify-content: space-between;
+  align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
+}
+header h1 {
+  color: #fff;
+  font-size: 1.6rem;
+  margin: 0;
+}
+header nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  background: #475569;
+  color: #fff;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+.btn:hover {
+  background: #64748b;
+}
+.btn-primary {
+  background: #3b82f6;
+}
+.btn-primary:hover {
+  background: #2563eb;
 }
 
-.form-section > div {
-  flex: 1;
-  min-width: 280px;
+/* MAIN CONTENT */
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+section.block {
+  background: #f8fafc;
+  color: #0f172a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+section.block h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+  border-left: 4px solid #3b82f6;
+  padding-left: 10px;
+  margin-bottom: 15px;
 }
 
+/* FORM ELEMENTS */
 label {
   display: block;
+  color: #475569;
   font-size: 14px;
-  color: var(--muted);
   margin-bottom: 4px;
 }
-
-input,
-textarea {
+input, select, textarea {
   width: 100%;
-  padding: 8px 10px;
-  font-size: 14px;
-  background: var(--panel2);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  color: var(--text);
-  transition: border 0.3s, background 0.3s;
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: #1a1f2f;
-}
-
-textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-.contract-buttons {
-  margin-top: 40px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.contract-buttons button {
-  padding: 10px 20px;
-  font-size: 14px;
-  background: var(--accent);
-  border: none;
+  padding: 8px;
   border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  transition: background 0.3s;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+input[readonly] {
+  background: #e2e8f0;
+  color: #475569;
+}
+textarea {
+  resize: vertical;
+  min-height: 60px;
 }
 
-.contract-buttons button:hover {
-  background: #2a66db;
+/* GRID LAYOUTS */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
 }
 
+/* SIGNATURES */
+.signatures canvas {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 5px;
+  cursor: crosshair;
+}
+.signatures h3 {
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+.signatures p {
+  font-size: 13px;
+  color: #475569;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+.actions .btn-primary {
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* FOOTER */
 footer {
-  margin-top: 60px;
   text-align: center;
   font-size: 13px;
-  color: var(--muted);
+  color: #94a3b8;
+  margin-top: 30px;
 }
 
-/* Back buttons */
-.back-buttons {
-  display: flex;
-  justify-content: flex-start;
-  gap: 10px;
-  padding: 20px;
-}
-
-.back-buttons a {
-  background: var(--accent);
-  color: white;
-  text-decoration: none;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.back-buttons a:hover {
-  background: #2a66db;
-}
-
-.contract-buttons button,
-button#btnAiFill,
-button#btnSave,
-button#btnLoad,
-button#btnExportPDF,
-button#btnExportDOCX {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.contract-buttons button:hover,
-button#btnAiFill:hover,
-button#btnSave:hover,
-button#btnLoad:hover,
-button#btnExportPDF:hover,
-button#btnExportDOCX:hover {
-  background: #2a66db;
-}
-.buttons button {
-  background: var(--accent, #3b79ff);
-  color: #fff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  margin: 5px 8px 5px 0;
-  transition: background 0.3s ease;
-  box-shadow: 0 2px 6px rgba(59, 121, 255, 0.3);
-}
-
-.buttons button:hover {
-  background: #2a66db;
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .grid-2, .grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .actions {
+    justify-content: center;
+  }
 }
