@@ -245,17 +245,27 @@ async function saveContract(uid){
 }
 
 // Auth
-onAuthStateChanged(auth,async(user)=>{
-  if(!user){location.href="login.html";return;}
-  const uid=user.uid;
-  const id=await generateContractId(uid);
-  $("#contractId").textContent=id;
-  $("#createdDate").textContent=new Date().toLocaleDateString();
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  // ✅ Чекаємо, поки DOM повністю готовий
+  await new Promise((resolve) => {
+    if (document.readyState === "complete" || document.readyState === "interactive") resolve();
+    else document.addEventListener("DOMContentLoaded", resolve, { once: true });
+  });
+
+  const uid = user.uid;
+  const id = await generateContractId(uid);
+
+  $("#contractId").textContent = id;
+  $("#createdDate").textContent = new Date().toLocaleDateString();
+
   await autofillProfile(uid);
   await loadClients(uid);
   initSignatures();
-  $("#saveBtn").onclick=()=>saveContract(uid);
-  $("#viewBtn").onclick=()=>location.href="contracts-list.html";
+
+  $("#saveBtn").onclick = () => saveContract(uid);
+  $("#viewBtn").onclick = () => (location.href = "contracts-list.html");
 });
 </script>
 </body>
