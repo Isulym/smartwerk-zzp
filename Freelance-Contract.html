@@ -32,7 +32,15 @@ footer{text-align:center;margin-top:20px;font-size:13px;color:#64748b;}
 <!-- INFO BOX -->
 <div class="info-box">
   <p><strong>Contract ID:</strong> <span id="contractId">Generating...</span></p>
-  <p><strong>Status:</strong> <span id="contractStatus">Draft</span></p>
+  <p>
+    <strong>Status:</strong>
+    <select id="contractStatus">
+      <option selected>Draft</option>
+      <option>Signed</option>
+      <option>Completed</option>
+      <option>Cancelled</option>
+    </select>
+  </p>
   <p><strong>Created:</strong> <span id="createdDate"></span></p>
 </div>
 
@@ -125,7 +133,6 @@ footer{text-align:center;margin-top:20px;font-size:13px;color:#64748b;}
 
   <div class="actions">
     <button id="saveBtn" class="btn-primary">💾 Save Contract</button>
-    <button id="viewBtn" class="btn">📂 View Saved Contracts</button>
   </div>
 </main>
 
@@ -157,7 +164,7 @@ async function generateContractId(uid){
   return out;
 }
 
-// Signatures
+// Init Signatures (fixed)
 function initSignatures(){
   ["freelancerSign","clientSign"].forEach(id=>{
     const canvas=$(id);
@@ -167,8 +174,8 @@ function initSignatures(){
     let drawing=false;
     const start=(x,y)=>{
       drawing=true;ctx.beginPath();ctx.moveTo(x,y);
-      if(id==="freelancerSign") $("#freelancerDate").textContent=new Date().toLocaleDateString();
-      if(id==="clientSign") $("#clientDate").textContent=new Date().toLocaleDateString();
+      if(id==="freelancerSign" && $("#freelancerDate")) $("#freelancerDate").textContent=new Date().toLocaleDateString();
+      if(id==="clientSign" && $("#clientDate")) $("#clientDate").textContent=new Date().toLocaleDateString();
     };
     const draw=(x,y)=>{if(!drawing)return;ctx.lineTo(x,y);ctx.stroke();}
     const end=()=>{drawing=false;ctx.beginPath();}
@@ -176,16 +183,6 @@ function initSignatures(){
     canvas.addEventListener("mousemove",e=>draw(e.offsetX,e.offsetY));
     canvas.addEventListener("mouseup",end);
     canvas.addEventListener("mouseout",end);
-    canvas.addEventListener("touchstart",e=>{
-      e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();
-      start(t.clientX-r.left,t.clientY-r.top);
-    });
-    canvas.addEventListener("touchmove",e=>{
-      e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();
-      draw(t.clientX-r.left,t.clientY-r.top);
-    });
-    canvas.addEventListener("touchend",end);
-    canvas.addEventListener("dblclick",()=>ctx.clearRect(0,0,canvas.width,canvas.height));
   });
 }
 
@@ -194,11 +191,11 @@ async function autofillProfile(uid){
   const snap=await getDoc(doc(db,"users",uid,"profile","main"));
   if(snap.exists()){
     const d=snap.data();
-    if(d.businessName)$("businessName").value=d.businessName;
-    if(d.email)$("businessEmail").value=d.email;
-    if(d.businessAddress)$("businessAddress").value=d.businessAddress;
-    if(d.kvk)$("businessKvK").value=d.kvk;
-    if(d.iban)$("businessIBAN").value=d.iban;
+    $("businessName").value=d.businessName||"";
+    $("businessEmail").value=d.email||"";
+    $("businessAddress").value=d.businessAddress||"";
+    $("businessKvK").value=d.kvk||"";
+    $("businessIBAN").value=d.iban||"";
   }
 }
 
@@ -207,29 +204,30 @@ async function loadClients(uid){
   const sel=$("clientSelect");
   sel.innerHTML="<option value=''>Select client...</option>";
   const snap=await getDocs(collection(db,"users",uid,"clients"));
-  if(snap.empty){sel.innerHTML="<option disabled>(No clients)</option>";return;}
   snap.forEach(d=>{
     const c=d.data();
     const o=document.createElement("option");
-    o.value=JSON.stringify({name:c.clientName,email:c.email,address:c.address,phone:c.phone,kvk:c.kvk});
+    o.value=JSON.stringify(c);
     o.textContent=c.clientName||"(Unnamed)";
     sel.appendChild(o);
   });
   sel.onchange=()=>{
     if(!sel.value)return;
     const d=JSON.parse(sel.value);
-    $("clientName").value=d.name||""; $("clientEmail").value=d.email||"";
-    $("clientAddress").value=d.address||""; $("clientPhone").value=d.phone||"";
+    $("clientName").value=d.clientName||"";
+    $("clientEmail").value=d.email||"";
+    $("clientAddress").value=d.address||"";
+    $("clientPhone").value=d.phone||"";
     $("clientKvK").value=d.kvk||"";
   };
 }
 
-// Save Contract
+// Save
 async function saveContract(uid){
   const data={
     contractId:$("#contractId").textContent,
-    status:$("#contractStatus").textContent,
-    createdAt:serverTimestamp(),updatedAt:serverTimestamp(),
+    status:$("#contractStatus").value,
+    createdAt:serverTimestamp(),
     businessName:val("businessName"),businessEmail:val("businessEmail"),
     businessAddress:val("businessAddress"),businessKvK:val("businessKvK"),businessIBAN:val("businessIBAN"),
     clientName:val("clientName"),clientEmail:val("clientEmail"),clientAddress:val("clientAddress"),
@@ -245,46 +243,19 @@ async function saveContract(uid){
 }
 
 // Auth
-onAuthStateChanged(auth, async (user) => {
-  if (!user) { location.href = "login.html"; return; }
-
-  // 🔹 Гарантовано чекаємо DOM
-  await new Promise((resolve) => {
-    if (document.readyState === "complete" || document.readyState === "interactive") resolve();
-    else document.addEventListener("DOMContentLoaded", resolve, { once: true });
+onAuthStateChanged(auth,async(user)=>{
+  if(!user){location.href="login.html";return;}
+  await new Promise(res=>{
+    if(document.readyState==="complete"||document.readyState==="interactive")res();
+    else document.addEventListener("DOMContentLoaded",res,{once:true});
   });
-
-  // 🔹 Додаткова перевірка наявності #contractId (на випадок затримки рендеру)
-  for (let i = 0; i < 10; i++) {
-    if (document.getElementById("contractId")) break;
-    await new Promise(r => setTimeout(r, 100)); // чекаємо 100мс
-  }
-
-  const uid = user.uid;
-  const id = await generateContractId(uid);
-
-  const idEl = document.getElementById("contractId");
-  const dateEl = document.getElementById("createdDate");
-
-  if (!idEl || !dateEl) {
-    console.error("❌ Elements not found: #contractId or #createdDate");
-    alert("Error: contract fields not found. Try refreshing the page.");
-    return;
-  }
-
-  idEl.textContent = id;
-  dateEl.textContent = new Date().toLocaleDateString();
-
+  const uid=user.uid;
+  $("#contractId").textContent=await generateContractId(uid);
+  $("#createdDate").textContent=new Date().toLocaleDateString();
   await autofillProfile(uid);
   await loadClients(uid);
   initSignatures();
-
-  const saveBtn = document.getElementById("saveBtn");
-  const viewBtn = document.getElementById("viewBtn");
-  if (saveBtn) saveBtn.onclick = () => saveContract(uid);
-  if (viewBtn) viewBtn.onclick = () => (location.href = "contracts-list.html");
-
-  console.log("✅ Contract page fully initialized.");
+  $("#saveBtn").onclick=()=>saveContract(uid);
 });
 </script>
 </body>
