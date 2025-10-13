@@ -26,7 +26,7 @@
     <h1>📄 Freelance Contract</h1>
     <nav>
       <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="contracts-list.html" class="btn">📂 View Saved Contracts</a>
+      <a href="Freelance-Contract-list.html" class="btn">📂 View Saved Contracts</a>
     </nav>
   </header>
 
@@ -267,7 +267,7 @@
       };
       await addDoc(collection(db,"users",uid,"contracts"),data);
       alert("✅ Contract saved successfully!");
-      location.href="contracts-list.html";
+      location.href="Freelance-Contract-list.html";
     }
 
     // 🔹 Auth
@@ -277,7 +277,7 @@
       await loadClients(user.uid);
       initSignatures();
       $("saveBtn").onclick=()=>saveContract(user.uid);
-      $("viewBtn").onclick=()=>location.href="contracts-list.html";
+      $("viewBtn").onclick=()=>location.href="Freelance-Contract-list.html";
     });
   </script>
 </body>
