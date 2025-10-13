@@ -16,7 +16,7 @@
   </header>
 
   <main>
-    <!-- Project & Client -->
+    <!-- Contract Overview -->
     <section class="block">
       <h2>📋 Contract Overview</h2>
       <div class="grid-3">
@@ -110,8 +110,10 @@
       <h2>🧩 Project Details</h2>
       <label>Scope of Work</label>
       <textarea id="projectScope" rows="3"></textarea>
+
       <label>Timeline</label>
       <textarea id="timeline" rows="2"></textarea>
+
       <label>Payment Terms</label>
       <textarea id="paymentTerms" rows="2"></textarea>
     </section>
@@ -148,128 +150,139 @@ This contract is governed by the laws of the Netherlands. Intellectual property 
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-<script type="module">
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, getDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, addDoc, runTransaction } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1"
-};
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const $ = id => document.getElementById(id);
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1"
+    };
 
-// ✍️ Signatures
-function initSignatures() {
-  document.querySelectorAll(".signCanvas").forEach(canvas => {
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
-    let drawing=false;
-    canvas.addEventListener("mousedown", e=>{
-      drawing=true; ctx.beginPath(); ctx.moveTo(e.offsetX,e.offsetY);
-      if(canvas.id==="freelancerSign") $("#freelancerDate").textContent=new Date().toLocaleDateString();
-      if(canvas.id==="clientSign") $("#clientDate").textContent=new Date().toLocaleDateString();
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const $ = id => document.getElementById(id);
+
+    // ✍️ Signatures
+    function initSignatures() {
+      document.querySelectorAll(".signCanvas").forEach(canvas => {
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
+        let drawing = false;
+        canvas.addEventListener("mousedown", e => {
+          drawing = true;
+          ctx.beginPath();
+          ctx.moveTo(e.offsetX, e.offsetY);
+          if (canvas.id === "freelancerSign") $("#freelancerDate").textContent = new Date().toLocaleDateString();
+          if (canvas.id === "clientSign") $("#clientDate").textContent = new Date().toLocaleDateString();
+        });
+        canvas.addEventListener("mousemove", e => {
+          if (!drawing) return;
+          ctx.lineTo(e.offsetX, e.offsetY);
+          ctx.stroke();
+        });
+        ["mouseup", "mouseleave"].forEach(ev => canvas.addEventListener(ev, () => drawing = false));
+      });
+    }
+
+    // Auto Contract ID
+    async function generateContractId(uid) {
+      const ref = doc(db, "users", uid);
+      const year = new Date().getFullYear();
+      let out = "";
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        const last = snap.exists() ? (snap.data().lastContractNumber || 0) : 0;
+        const next = last + 1;
+        tx.set(ref, { lastContractNumber: next }, { merge: true });
+        out = `CT-${year}-${String(next).padStart(3, "0")}`;
+      });
+      return out;
+    }
+
+    // Load Clients
+    async function loadClients(uid) {
+      const select = $("#clientSelect");
+      const snap = await getDocs(collection(db, "users", uid, "clients"));
+      select.innerHTML = `<option value="">Select a client...</option>`;
+      snap.forEach(docSnap => {
+        const c = docSnap.data();
+        const opt = document.createElement("option");
+        opt.value = docSnap.id;
+        opt.textContent = c.clientName || "Unnamed";
+        select.appendChild(opt);
+      });
+    }
+
+    // Load Business Info
+    async function loadBusinessInfo(uid) {
+      const snap = await getDoc(doc(db, "users", uid, "profile", "main"));
+      if (snap.exists()) {
+        const d = snap.data();
+        $("businessName").value = d.businessName || "";
+        $("kvk").value = d.kvk || "";
+        $("vat").value = d.vat || "";
+        $("iban").value = d.iban || "";
+        $("businessAddress").value = d.address || "";
+      }
+    }
+
+    // Wait until DOM ready before binding clientSelect
+    document.addEventListener("DOMContentLoaded", () => {
+      const clientSelect = document.getElementById("clientSelect");
+      if (clientSelect) {
+        clientSelect.addEventListener("change", async () => {
+          const user = auth.currentUser;
+          const id = clientSelect.value;
+          if (!id) return;
+          const snap = await getDoc(doc(db, "users", user.uid, "clients", id));
+          if (snap.exists()) {
+            const c = snap.data();
+            $("clientName").value = c.clientName || "";
+            $("clientEmail").value = c.email || "";
+            $("clientPhone").value = c.phone || "";
+            $("clientAddress").value = c.address || "";
+          }
+        });
+      }
     });
-    canvas.addEventListener("mousemove", e=>{
-      if(!drawing)return; ctx.lineTo(e.offsetX,e.offsetY); ctx.stroke();
+
+    // Save Contract
+    async function saveContract(uid) {
+      const data = {
+        contractId: $("#contractId").value,
+        status: $("#status").value,
+        date: $("#date").value,
+        projectTitle: $("#projectTitle").value,
+        businessName: $("#businessName").value,
+        clientName: $("#clientName").value,
+        projectScope: $("#projectScope").value,
+        timeline: $("#timeline").value,
+        paymentTerms: $("#paymentTerms").value,
+        legalTerms: $("#legalTerms").value,
+        createdAt: new Date()
+      };
+      await addDoc(collection(db, "users", uid, "contracts"), data);
+      alert("✅ Contract saved successfully!");
+      location.href = "contracts-list.html";
+    }
+
+    // Auth + Initialization
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { location.href = "login.html"; return; }
+      $("#date").value = new Date().toISOString().split("T")[0];
+      $("#contractId").value = await generateContractId(user.uid);
+      await loadBusinessInfo(user.uid);
+      await loadClients(user.uid);
+      initSignatures();
+      $("#saveBtn").onclick = () => saveContract(user.uid);
     });
-    ["mouseup","mouseleave"].forEach(ev=>canvas.addEventListener(ev,()=>drawing=false));
-  });
-}
-
-// Auto ID
-async function generateContractId(uid){
-  const ref=doc(db,"users",uid);
-  const year=new Date().getFullYear();
-  let out="";
-  await runTransaction(db,async(tx)=>{
-    const snap=await tx.get(ref);
-    const last=snap.exists()?(snap.data().lastContractNumber||0):0;
-    const next=last+1;
-    tx.set(ref,{lastContractNumber:next},{merge:true});
-    out=`CT-${year}-${String(next).padStart(3,"0")}`;
-  });
-  return out;
-}
-
-// Load Clients
-async function loadClients(uid){
-  const select=$("#clientSelect");
-  const snap=await getDocs(collection(db,"users",uid,"clients"));
-  select.innerHTML=`<option value="">Select a client...</option>`;
-  snap.forEach(docSnap=>{
-    const c=docSnap.data();
-    const opt=document.createElement("option");
-    opt.value=docSnap.id;
-    opt.textContent=c.clientName||"Unnamed";
-    select.appendChild(opt);
-  });
-}
-
-// Auto-fill Business Info
-async function loadBusinessInfo(uid){
-  const snap=await getDoc(doc(db,"users",uid,"profile","main"));
-  if(snap.exists()){
-    const d=snap.data();
-    $("businessName").value=d.businessName||"";
-    $("kvk").value=d.kvk||"";
-    $("vat").value=d.vat||"";
-    $("iban").value=d.iban||"";
-    $("businessAddress").value=d.address||"";
-  }
-}
-
-// Auto-fill client
-$("#clientSelect").addEventListener("change",async()=>{
-  const user=auth.currentUser;
-  const id=$("#clientSelect").value;
-  if(!id)return;
-  const snap=await getDoc(doc(db,"users",user.uid,"clients",id));
-  if(snap.exists()){
-    const c=snap.data();
-    $("clientName").value=c.clientName||"";
-    $("clientEmail").value=c.email||"";
-    $("clientPhone").value=c.phone||"";
-    $("clientAddress").value=c.address||"";
-  }
-});
-
-// Save Contract
-async function saveContract(uid){
-  const data={
-    contractId:$("#contractId").value,
-    status:$("#status").value,
-    date:$("#date").value,
-    projectTitle:$("#projectTitle").value,
-    businessName:$("#businessName").value,
-    clientName:$("#clientName").value,
-    projectScope:$("#projectScope").value,
-    timeline:$("#timeline").value,
-    paymentTerms:$("#paymentTerms").value,
-    legalTerms:$("#legalTerms").value,
-    createdAt:new Date()
-  };
-  await addDoc(collection(db,"users",uid,"contracts"),data);
-  alert("✅ Contract saved successfully!");
-  location.href="contracts-list.html";
-}
-
-// Auth
-onAuthStateChanged(auth,async(user)=>{
-  if(!user){location.href="login.html";return;}
-  $("#date").value=new Date().toISOString().split("T")[0];
-  $("#contractId").value=await generateContractId(user.uid);
-  await loadBusinessInfo(user.uid);
-  await loadClients(user.uid);
-  initSignatures();
-  $("#saveBtn").onclick=()=>saveContract(user.uid);
-});
-</script>
+  </script>
 </body>
 </html>
