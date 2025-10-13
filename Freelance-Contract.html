@@ -1,110 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📄 SmartWerk — Freelance Contract</title>
-  <link rel="stylesheet" href="style-contract.css" />
-  <link rel="stylesheet" href="style-invoices.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📃 SmartWerk — Freelance Contract</title>
+  <link rel="stylesheet" href="style-invoices.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body{background:#0f172a;color:#e5e7eb;font-family:'Inter',sans-serif;padding:20px;}
-    h1,h2{color:#fff;}
-    section{background:#1e293b;padding:16px;border-radius:12px;margin-bottom:15px;}
-    label{color:#94a3b8;font-size:14px;}
-    input,select,textarea{width:100%;padding:8px;border-radius:6px;border:none;background:#334155;color:#fff;margin-top:4px;}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    .btn{background:#475569;color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;}
-    .btn-primary{background:#3b82f6;}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;}
-    .hint{background:#10b981;color:#fff;padding:8px;border-radius:6px;text-align:center;margin-top:10px;display:none;transition:opacity .3s;}
-    canvas{background:#fff;border:2px solid #94a3b8;border-radius:8px;width:100%;height:120px;cursor:crosshair;}
-    .status-draft{color:#fbbf24;}
-    .status-signed{color:#10b981;}
-    .status-completed{color:#60a5fa;}
+    body{background:#0f172a;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;padding:20px;}
+    h1,h2{color:#fff}
+    section{background:#1e293b;padding:16px;border-radius:12px;margin-bottom:14px}
+    label{color:#94a3b8;font-size:14px}
+    input,select,textarea{width:100%;padding:8px;border-radius:8px;border:none;background:#334155;color:#fff;margin-top:4px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{background:#475569;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer}
+    .btn-primary{background:#3b82f6}
+    canvas.signature{background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;display:block}
+    small.muted{color:#94a3b8}
   </style>
 </head>
 <body>
   <header>
-    <h1>📄 SmartWerk — Freelance Contract</h1>
-    <nav>
+    <h1>📃 SmartWerk — Freelance Contract</h1>
+    <nav class="actions" style="margin-bottom:10px">
       <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="contracts-list.html" class="btn">📂 View Saved Contracts</a>
+      <a href="Freelance-Contract-list.html" class="btn">📋 View Saved Contracts</a>
     </nav>
   </header>
 
   <main>
-    <!-- Contract Info -->
-    <section>
-      <h2>🧾 Contract Info</h2>
-      <div class="grid-2">
-        <div>
-          <label>Contract ID</label>
-          <input id="contractId" readonly placeholder="CON-2025-001" />
-        </div>
-        <div>
-          <label>Status</label>
-          <select id="status">
-            <option selected>Draft</option>
-            <option>Signed</option>
-            <option>Completed</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Contract Title</label>
-          <input id="title" placeholder="Website development contract" />
-        </div>
-        <div>
-          <label>Client</label>
-          <select id="clientSelect"><option value="">Select Client</option></select>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Amount (€)</label>
-          <input id="amount" type="number" placeholder="e.g. 1200" />
-        </div>
-        <div>
-          <label>Due Date</label>
-          <input id="dueDate" type="date" />
-        </div>
-      </div>
-    </section>
-
     <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
       <div class="grid-2">
-        <div><label>Business Name</label><input id="businessName" readonly /></div>
-        <div><label>Email</label><input id="businessEmail" readonly /></div>
+        <div>
+          <label>Business / Full Name</label>
+          <input id="businessName" placeholder="Your business or full name"/>
+        </div>
+        <div>
+          <label>Business Email</label>
+          <input id="email" type="email" placeholder="you@company.com"/>
+        </div>
       </div>
       <div class="grid-2">
-        <div><label>KvK</label><input id="kvk" readonly /></div>
-        <div><label>VAT</label><input id="vat" readonly /></div>
+        <div>
+          <label>Business Address</label>
+          <input id="businessAddress" placeholder="Street, City"/>
+        </div>
+        <div>
+          <label>Business Phone</label>
+          <input id="businessPhone" placeholder="+31 6 12345678"/>
+        </div>
       </div>
-      <label>Address</label><input id="businessAddress" readonly />
+      <small class="muted">Автопідтягується з profile.html, якщо заповнено.</small>
     </section>
 
-    <!-- Project Details -->
+    <!-- Client Select + Info -->
     <section>
-      <h2>💼 Project Details</h2>
-      <label>Description</label>
-      <textarea id="description" rows="3" placeholder="Describe the project scope..."></textarea>
+      <h2>👤 Client</h2>
+      <label>Select Client (optional)</label>
+      <select id="selectClient"><option value="">— Choose from saved clients —</option></select>
+
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label>Client Name</label>
+          <input id="clientName" placeholder="Client / Company"/>
+        </div>
+        <div>
+          <label>Client Email</label>
+          <input id="clientEmail" type="email" placeholder="client@email.com"/>
+        </div>
+      </div>
+      <label>Client Address</label>
+      <input id="clientAddress" placeholder="Street, City"/>
+    </section>
+
+    <!-- Contract Details -->
+    <section>
+      <h2>📄 Contract Details</h2>
+      <div class="grid-2">
+        <div>
+          <label>Contract ID</label>
+          <input id="contractId" placeholder="CTR-2025-001" readonly/>
+        </div>
+        <div>
+          <label>Contract Date</label>
+          <input id="contractDate" class="js-date" placeholder="Select date"/>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>Status</label>
+          <select id="status">
+            <option>Draft</option>
+            <option>Sent</option>
+            <option>Signed</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+        <div>
+          <label>Language (optional)</label>
+          <select id="lang">
+            <option value="en">English</option>
+            <option value="nl">Dutch</option>
+            <option value="uk">Ukrainian</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Project Description</label>
+      <textarea id="projectDescription" rows="3" placeholder="Scope, goals, timeline..."></textarea>
 
       <label>Deliverables</label>
-      <textarea id="deliverables" rows="3" placeholder="List of deliverables..."></textarea>
+      <textarea id="deliverables" rows="3" placeholder="What will be delivered..."></textarea>
 
       <label>Payment Terms</label>
-      <textarea id="paymentTerms" rows="3" placeholder="Payment schedule, invoices, etc."></textarea>
-    </section>
+      <textarea id="paymentTerms" rows="3" placeholder="When and how you are paid..."></textarea>
 
-    <!-- Legal Terms -->
-    <section>
-      <h2>⚖️ Legal Terms</h2>
-      <textarea id="legal" rows="4" placeholder="This agreement is governed by the laws of the Netherlands..."></textarea>
+      <label>Legal Notes</label>
+      <textarea id="legal" rows="3" placeholder="IP, confidentiality, termination, etc."></textarea>
+
+      <div class="actions" style="margin-top:8px">
+        <button class="btn" type="button" id="aiFill">🤖 AI Fill</button>
+        <button class="btn" type="button" id="aiDraft">✍️ AI Draft</button>
+        <button class="btn" type="button" id="aiStrict">💬 Strict</button>
+        <button class="btn" type="button" id="aiFriendly">👍 Friendly</button>
+        <button class="btn" type="button" id="aiEN">🌐 EN</button>
+        <button class="btn" type="button" id="aiNL">🌐 NL</button>
+      </div>
     </section>
 
     <!-- Signatures -->
@@ -112,146 +137,356 @@
       <h2>✍️ Signatures</h2>
       <div class="grid-2">
         <div>
-          <label>Freelancer Signature</label>
-          <canvas id="freelancerSign"></canvas>
-          <p>Date: <span id="freelancerDate"></span></p>
+          <label>Business Signature</label>
+          <canvas id="signatureBusiness" class="signature" width="500" height="150"></canvas>
+          <div class="actions" style="margin-top:6px">
+            <button class="btn" type="button" id="clearBusiness">Clear</button>
+          </div>
+          <p>Date: <span id="signatureBusinessDate"></span></p>
         </div>
         <div>
           <label>Client Signature</label>
-          <canvas id="clientSign"></canvas>
-          <p>Date: <span id="clientDate"></span></p>
+          <canvas id="signatureClient" class="signature" width="500" height="150"></canvas>
+          <div class="actions" style="margin-top:6px">
+            <button class="btn" type="button" id="clearClient">Clear</button>
+          </div>
+          <p>Date: <span id="signatureClientDate"></span></p>
         </div>
       </div>
     </section>
 
-    <div class="actions">
-      <button id="saveBtn" class="btn-primary">💾 Save Contract</button>
-      <button id="clearBtn" class="btn">🧹 Clear All</button>
-    </div>
-    <div id="msg" class="hint"></div>
+    <!-- Actions -->
+    <section class="actions">
+      <button id="saveBtn" class="btn-primary" type="button">💾 Save Contract</button>
+      <a href="Freelance-Contract-list.html" class="btn" type="button">📋 View Saved Contracts</a>
+    </section>
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-  <!-- Firebase + Script -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script type="module">
+    /* ================= FIREBASE ================= */
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, getDocs, collection, addDoc, serverTimestamp, runTransaction } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { 
+      getFirestore, doc, getDoc, setDoc, addDoc, collection, runTransaction, getDocs 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig={apiKey:"AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",authDomain:"smartwerk8520.firebaseapp.com",projectId:"smartwerk8520",appId:"1:607670981972:web:c07103c981c86860d724c1"};
-    const app=getApps().length?getApp():initializeApp(firebaseConfig);
-    const auth=getAuth(app);
-    const db=getFirestore(app);
-    const $=id=>document.getElementById(id);
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-    // 🔹 Toast message
-    function showMsg(txt){const m=$("msg");m.textContent=txt;m.style.display="block";m.style.opacity="1";setTimeout(()=>{m.style.opacity="0";setTimeout(()=>m.style.display="none",400)},2000);}
+    /* ================= HELPERS ================= */
+    const $ = (id)=>document.getElementById(id);
+    const getVal = (id)=>$(id)?.value?.trim() || "";
+    const setVal = (id,v)=>{ const el=$(id); if(el) el.value=v??""; };
+    const setText= (id,v)=>{ const el=$(id); if(el) el.textContent=v??""; };
 
-    // 🔹 Generate Contract ID
+    function fillCanvasWhite(canvas){
+      if(!canvas) return;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+
+    function setupSignature(canvasId, dateSpanId){
+      const canvas = $(canvasId);
+      const dateSpan = $(dateSpanId);
+      if(!canvas) return;
+      const ctx = canvas.getContext("2d");
+      fillCanvasWhite(canvas);
+
+      let drawing = false;
+      const start = (x,y)=>{
+        drawing=true;
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        // авто-дата при першому дотику
+        if(dateSpan && !dateSpan.textContent){
+          dateSpan.textContent = new Date().toLocaleDateString();
+        }
+      };
+      const move = (x,y)=>{
+        if(!drawing) return;
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#000000";
+        ctx.lineTo(x,y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+      };
+      const end = ()=>{ drawing=false; };
+
+      // mouse
+      canvas.addEventListener("mousedown",(e)=>{
+        const r=canvas.getBoundingClientRect();
+        start(e.clientX-r.left, e.clientY-r.top);
+      });
+      canvas.addEventListener("mousemove",(e)=>{
+        const r=canvas.getBoundingClientRect();
+        move(e.clientX-r.left, e.clientY-r.top);
+      });
+      canvas.addEventListener("mouseup",end);
+      canvas.addEventListener("mouseleave",end);
+
+      // touch
+      canvas.addEventListener("touchstart",(e)=>{
+        e.preventDefault();
+        const r=canvas.getBoundingClientRect();
+        const t=e.touches[0];
+        start(t.clientX-r.left, t.clientY-r.top);
+      }, {passive:false});
+      canvas.addEventListener("touchmove",(e)=>{
+        e.preventDefault();
+        const r=canvas.getBoundingClientRect();
+        const t=e.touches[0];
+        move(t.clientX-r.left, t.clientY-r.top);
+      }, {passive:false});
+      canvas.addEventListener("touchend",(e)=>{e.preventDefault();end();},{passive:false});
+
+      return {
+        clear(){
+          fillCanvasWhite(canvas);
+          if(dateSpan) dateSpan.textContent="";
+        },
+        toDataURL(){
+          return canvas.toDataURL();
+        }
+      };
+    }
+
     async function generateContractId(uid){
-      const ref=doc(db,"users",uid);
-      const year=new Date().getFullYear();
-      let id="";
-      await runTransaction(db,async(tx)=>{
-        const snap=await tx.get(ref);
-        const last=snap.exists()?(snap.data().lastContractNum||0):0;
-        const next=last+1;
-        tx.set(ref,{lastContractNum:next},{merge:true});
-        id=`CON-${year}-${String(next).padStart(3,"0")}`;
+      const ref = doc(db,"users",uid);
+      const year = new Date().getFullYear();
+      let out="";
+      await runTransaction(db, async(tx)=>{
+        const snap = await tx.get(ref);
+        const last = snap.exists() ? (snap.data().lastContractNumber||0) : 0;
+        const next = last+1;
+        tx.set(ref,{ lastContractNumber: next },{ merge:true });
+        out = `CTR-${year}-${String(next).padStart(3,"0")}`;
       });
-      return id;
+      return out;
     }
 
-    // 🔹 Signatures
-    function setupSignature(id,dateId){
-      const canvas=$(id),ctx=canvas.getContext("2d");
-      let drawing=false;
-      const start=(x,y)=>{drawing=true;ctx.moveTo(x,y);ctx.beginPath();
-        if(dateId)$(dateId).textContent=new Date().toLocaleDateString();
-      };
-      const draw=(x,y)=>{if(!drawing)return;ctx.lineTo(x,y);ctx.stroke();};
-      canvas.addEventListener("mousedown",e=>start(e.offsetX,e.offsetY));
-      canvas.addEventListener("mousemove",e=>draw(e.offsetX,e.offsetY));
-      canvas.addEventListener("mouseup",()=>drawing=false);
-      canvas.addEventListener("mouseleave",()=>drawing=false);
+    async function readProfile(uid){
+      const paths = [
+        ["users", uid, "settings", "profile"],
+        ["users", uid, "profile", "main"],
+        ["users", uid], // fallback
+      ];
+      for(const p of paths){
+        try{
+          const snap = await getDoc(doc(db, ...p));
+          if(snap.exists()) return snap.data();
+        }catch(_){}
+      }
+      return null;
     }
 
-    // 🔹 Load Clients for dropdown
     async function loadClients(uid){
-      const snap=await getDocs(collection(db,"users",uid,"clients"));
-      const sel=$("clientSelect");
-      sel.innerHTML=`<option value="">Select Client</option>`;
-      snap.forEach(d=>{
-        const c=d.data();
-        const opt=document.createElement("option");
-        opt.value=d.id;
-        opt.textContent=c.clientName||"Unnamed";
-        sel.appendChild(opt);
+      const sel = $("selectClient");
+      if(!sel) return;
+      sel.innerHTML = `<option value="">— Choose from saved clients —</option>`;
+      const snap = await getDocs(collection(db,"users",uid,"clients"));
+      const items = [];
+      snap.forEach(d=>items.push({id:d.id, ...d.data()}));
+      items
+        .sort((a,b)=> (a.clientName||"").localeCompare(b.clientName||""))
+        .forEach(c=>{
+          const opt=document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = `${c.clientName||"-"} ${c.clientId?`(${c.clientId})`:""}`;
+          opt.dataset.email = c.email || "";
+          opt.dataset.address = c.address || "";
+          sel.appendChild(opt);
+        });
+
+      // якщо прийшли зі списку з попереднім вибором
+      const pre = localStorage.getItem("selectedClientId");
+      if(pre){
+        sel.value = pre;
+        sel.dispatchEvent(new Event("change"));
+        localStorage.removeItem("selectedClientId");
+      }
+
+      sel.addEventListener("change", ()=>{
+        const id = sel.value;
+        const opt = sel.selectedOptions[0];
+        if(!id || !opt) return;
+        setVal("clientName", opt.textContent.replace(/\s*\(.*?\)\s*$/,""));
+        setVal("clientEmail", opt.dataset.email || "");
+        setVal("clientAddress", opt.dataset.address || "");
       });
     }
 
-    // 🔹 Auto-fill Client Info
-    async function fillClient(uid,id){
-      if(!id)return;
-      const snap=await getDoc(doc(db,"users",uid,"clients",id));
-      if(!snap.exists())return;
-      const c=snap.data();
-      $("description").value=`Project for ${c.clientName}, located in ${c.country||"N/A"}.`;
-    }
+    async function saveContract(uid, editId, sign){
+      // обов’язкові дані
+      let contractId = getVal("contractId");
+      if(!editId && !contractId){
+        contractId = await generateContractId(uid);
+        setVal("contractId", contractId);
+      }
 
-    // 🔹 Auto-fill Business Info from Profile
-    async function loadProfile(uid){
-      const snap=await getDoc(doc(db,"users",uid,"profile","data"));
-      if(!snap.exists())return;
-      const p=snap.data();
-      $("businessName").value=p.businessName||"";
-      $("businessEmail").value=p.email||"";
-      $("businessAddress").value=p.address||"";
-      $("kvk").value=p.kvk||"";
-      $("vat").value=p.vat||"";
-    }
-
-    // 🔹 Save Contract
-    async function saveContract(uid){
-      const idField=$("contractId");
-      let cid=idField.value;
-      if(!cid)cid=await generateContractId(uid);
-      const data={
-        contractId:cid,
-        title:$("title").value,
-        clientId:$("clientSelect").value,
-        amount:$("amount").value,
-        dueDate:$("dueDate").value,
-        status:$("status").value,
-        description:$("description").value,
-        deliverables:$("deliverables").value,
-        paymentTerms:$("paymentTerms").value,
-        legal:$("legal").value,
-        createdAt:serverTimestamp(),
-        updatedAt:serverTimestamp()
+      const data = {
+        contractId,
+        contractDate: getVal("contractDate"),
+        status: $("status")?.value || "Draft",
+        lang: $("lang")?.value || "en",
+        // business
+        businessName: getVal("businessName"),
+        email: getVal("email"),
+        businessAddress: getVal("businessAddress"),
+        businessPhone: getVal("businessPhone"),
+        // client
+        clientName: getVal("clientName"),
+        clientEmail: getVal("clientEmail"),
+        clientAddress: getVal("clientAddress"),
+        // body
+        projectDescription: getVal("projectDescription"),
+        deliverables: getVal("deliverables"),
+        paymentTerms: getVal("paymentTerms"),
+        legal: getVal("legal"),
+        // signatures
+        signatures: {
+          business: sign.business.toDataURL(),
+          client: sign.client.toDataURL(),
+          businessDate: $("signatureBusinessDate")?.textContent || "",
+          clientDate: $("signatureClientDate")?.textContent || "",
+        },
+        updatedAt: new Date().toISOString(),
       };
-      await addDoc(collection(db,"users",uid,"contracts"),data);
-      showMsg("✅ Contract saved!");
-      setTimeout(()=>location.href="contracts-list.html",800);
+
+      if(editId){
+        await setDoc(doc(db,"users",uid,"contracts",editId), data, { merge:true });
+        alert("✅ Contract updated");
+      }else{
+        await addDoc(collection(db,"users",uid,"contracts"), data);
+        alert(`✅ Contract saved as ${contractId}`);
+      }
+      localStorage.removeItem("editContractId");
+      location.href = "Freelance-Contract-list.html";
     }
 
-    // 🔹 Clear
-    function clearAll(){document.querySelectorAll("input,textarea,select").forEach(e=>{if(e.id!=="status")e.value="";});}
+    async function loadForEdit(uid, sign){
+      const editId = localStorage.getItem("editContractId");
+      if(!editId) return null;
 
-    // 🔹 Auth
-    onAuthStateChanged(auth,async(user)=>{
-      if(!user){location.href="login.html";return;}
-      await loadProfile(user.uid);
+      const snap = await getDoc(doc(db,"users",uid,"contracts",editId));
+      if(!snap.exists()){
+        localStorage.removeItem("editContractId");
+        return null;
+      }
+      const c = snap.data();
+
+      setVal("businessName", c.businessName);
+      setVal("email", c.email);
+      setVal("businessAddress", c.businessAddress);
+      setVal("businessPhone", c.businessPhone);
+
+      setVal("clientName", c.clientName);
+      setVal("clientEmail", c.clientEmail);
+      setVal("clientAddress", c.clientAddress);
+
+      setVal("contractId", c.contractId);
+      setVal("contractDate", c.contractDate);
+      if($("status") && c.status) $("status").value = c.status;
+      if($("lang") && c.lang) $("lang").value = c.lang;
+
+      setVal("projectDescription", c.projectDescription);
+      setVal("deliverables", c.deliverables);
+      setVal("paymentTerms", c.paymentTerms);
+      setVal("legal", c.legal);
+
+      if(c.signatures?.business){
+        const img=new Image();
+        img.onload=()=>{
+          const ctx=$("signatureBusiness").getContext("2d");
+          fillCanvasWhite($("signatureBusiness"));
+          ctx.drawImage(img,0,0);
+        };
+        img.src=c.signatures.business;
+        setText("signatureBusinessDate", c.signatures.businessDate || "");
+      }
+      if(c.signatures?.client){
+        const img=new Image();
+        img.onload=()=>{
+          const ctx=$("signatureClient").getContext("2d");
+          fillCanvasWhite($("signatureClient"));
+          ctx.drawImage(img,0,0);
+        };
+        img.src=c.signatures.client;
+        setText("signatureClientDate", c.signatures.clientDate || "");
+      }
+      return editId;
+    }
+
+    // ======= INIT =======
+    document.addEventListener("DOMContentLoaded", ()=>{
+      // flatpickr
+      if(window.flatpickr){
+        flatpickr(".js-date",{dateFormat:"Y-m-d"});
+      }
+      // AI helpers (локальні шаблони — без реального AI)
+      $("aiFill")?.addEventListener("click",()=>{
+        setVal("projectDescription","This agreement covers the freelance engagement, scope, timeline and collaboration model.");
+        setVal("deliverables","1) Wireframes\n2) UI screens\n3) Front-end build\n4) Handover");
+        setVal("paymentTerms","50% upfront, 50% on delivery. Payment due within 14 days of invoice date.");
+        setVal("legal","All IP transfers upon full payment. NDA and GDPR compliance apply.");
+      });
+      $("aiDraft")?.addEventListener("click",()=>setVal("paymentTerms","Payment within 30 days. Late fees may apply at 2% per month."));
+      $("aiStrict")?.addEventListener("click",()=>setVal("legal","This agreement is legally binding. Breach may result in legal action. Jurisdiction: NL."));
+      $("aiFriendly")?.addEventListener("click",()=>setVal("legal","We work in good faith with transparent communication and mutual respect."));
+      $("aiEN")?.addEventListener("click",()=>setVal("projectDescription","This contract covers the agreed freelance project including scope, deliverables and terms."));
+      $("aiNL")?.addEventListener("click",()=>setVal("projectDescription","Dit contract dekt het overeengekomen freelanceproject inclusief scope, deliverables en voorwaarden."));
+    });
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href="login.html"; return; }
+
+      // signatures
+      const signBusiness = setupSignature("signatureBusiness","signatureBusinessDate");
+      const signClient   = setupSignature("signatureClient","signatureClientDate");
+      $("clearBusiness")?.addEventListener("click", ()=>signBusiness?.clear());
+      $("clearClient")?.addEventListener("click",   ()=>signClient?.clear());
+
+      // profile autofill
+      const p = await readProfile(user.uid);
+      if(p){
+        if(!getVal("businessName"))    setVal("businessName",    p.businessName || p.fullName || "");
+        if(!getVal("email"))           setVal("email",           p.email || p.businessEmail || "");
+        if(!getVal("businessAddress")) setVal("businessAddress", p.businessAddress || p.address || "");
+        if(!getVal("businessPhone"))   setVal("businessPhone",   p.businessPhone || p.phone || "");
+      }
+
+      // clients dropdown
       await loadClients(user.uid);
-      const id=await generateContractId(user.uid);
-      $("contractId").value=id;
-      setupSignature("freelancerSign","freelancerDate");
-      setupSignature("clientSign","clientDate");
-      $("clientSelect").onchange=()=>fillClient(user.uid,$("clientSelect").value);
-      $("saveBtn").onclick=()=>saveContract(user.uid);
-      $("clearBtn").onclick=clearAll;
+
+      // new vs edit
+      const editId = await loadForEdit(user.uid, {business:signBusiness, client:signClient});
+      if(!editId){
+        // генеруємо ID і ставимо сьогоднішню дату за замовчуванням
+        if(!getVal("contractId")){
+          const newId = await generateContractId(user.uid);
+          setVal("contractId", newId);
+        }
+        if(!getVal("contractDate")){
+          setVal("contractDate", new Date().toISOString().slice(0,10));
+        }
+      }
+
+      // save
+      $("saveBtn")?.addEventListener("click", async ()=>{
+        await saveContract(user.uid, editId, {business:signBusiness, client:signClient});
+      });
     });
   </script>
 </body>
