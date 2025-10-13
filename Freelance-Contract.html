@@ -178,20 +178,40 @@
     const $ = id => document.getElementById(id);
 
     // Canvas Signatures
-    function initSignature(canvasId, dateId){
-      const canvas = $(canvasId);
-      const ctx = canvas.getContext("2d");
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 1.8;
-      let drawing = false;
-      canvas.addEventListener("mousedown", ()=>drawing=true);
-      canvas.addEventListener("mouseup", ()=>{drawing=false; $(dateId).textContent = new Date().toLocaleDateString();});
-      canvas.addEventListener("mousemove",(e)=>{
-        if(!drawing) return;
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-      });
-    }
+    function initSignatures() {
+  const canvases = document.querySelectorAll(".signCanvas");
+  canvases.forEach(canvas => {
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff"; // білий фон
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+
+    let drawing = false;
+
+    canvas.addEventListener("mousedown", e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+      const id = canvas.id;
+      if (id === "freelancerSign" && $("#freelancerDate"))
+        $("#freelancerDate").textContent = new Date().toLocaleDateString();
+      if (id === "clientSign" && $("#clientDate"))
+        $("#clientDate").textContent = new Date().toLocaleDateString();
+    });
+
+    canvas.addEventListener("mousemove", e => {
+      if (!drawing) return;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+    });
+
+    ["mouseup", "mouseleave"].forEach(ev =>
+      canvas.addEventListener(ev, () => (drawing = false))
+    );
+  });
+}
+document.addEventListener("DOMContentLoaded", initSignatures);
 
     // Generate Contract ID
     async function generateContractId(uid){
@@ -271,6 +291,29 @@
     // Auth
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
+      
+      // 🧩 Auto-fill Business Info from profile
+async function autofillProfile(uid) {
+  try {
+    const profileRef = doc(db, "users", uid, "profile", "main");
+    const snap = await getDoc(profileRef);
+    if (snap.exists()) {
+      const p = snap.data();
+      if ($("#businessName") && p.businessName) $("#businessName").value = p.businessName;
+      if ($("#businessEmail") && p.email) $("#businessEmail").value = p.email;
+      if ($("#businessPhone") && p.phone) $("#businessPhone").value = p.phone;
+      if ($("#businessAddress") && p.address) $("#businessAddress").value = p.address;
+      if ($("#kvk") && p.kvk) $("#kvk").value = p.kvk;
+      if ($("#vat") && p.vat) $("#vat").value = p.vat;
+      console.log("✅ Profile autofilled from Firestore");
+    } else {
+      await autofillProfile(user.uid);
+      console.warn("⚠️ No profile data found");
+    }
+  } catch (e) {
+    console.error("❌ Error loading profile:", e);
+  }
+}
 
       // Load defaults
       $("date").value = new Date().toISOString().split("T")[0];
