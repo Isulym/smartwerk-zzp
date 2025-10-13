@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>📄 SmartWerk — Freelance Contract</title>
 <style>
 body{background:#0f172a;color:#e5e7eb;font-family:'Inter',sans-serif;padding:20px;}
@@ -87,7 +87,10 @@ footer{text-align:center;margin-top:20px;font-size:13px;color:#64748b;}
       <div><label>Rate / Amount</label><input id="rate" placeholder="e.g. €1500 fixed or €50/hour"></div>
       <div><label>Payment Due</label>
         <select id="paymentDue">
-          <option>Upon completion</option><option>50% upfront, 50% on delivery</option><option>Weekly</option><option>Monthly</option>
+          <option>Upon completion</option>
+          <option>50% upfront, 50% on delivery</option>
+          <option>Weekly</option>
+          <option>Monthly</option>
         </select>
       </div>
     </div>
@@ -139,7 +142,7 @@ const app=getApps().length?getApp():initializeApp(firebaseConfig);
 const auth=getAuth(app); const db=getFirestore(app);
 const $=id=>document.getElementById(id); const val=id=>$(id)?.value?.trim()||"";
 
-// Contract ID
+// Generate Contract ID
 async function generateContractId(uid){
   const ref=doc(db,"users",uid);
   const year=new Date().getFullYear();
@@ -157,12 +160,13 @@ async function generateContractId(uid){
 // Signatures
 function initSignatures(){
   ["freelancerSign","clientSign"].forEach(id=>{
-    const canvas=$(id); if(!canvas)return;
-    canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+    const canvas=$(id);
     const ctx=canvas.getContext("2d");
+    canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
     ctx.lineWidth=2; ctx.strokeStyle="#000";
     let drawing=false;
-    const start=(x,y)=>{drawing=true;ctx.beginPath();ctx.moveTo(x,y);
+    const start=(x,y)=>{
+      drawing=true;ctx.beginPath();ctx.moveTo(x,y);
       if(id==="freelancerSign") $("#freelancerDate").textContent=new Date().toLocaleDateString();
       if(id==="clientSign") $("#clientDate").textContent=new Date().toLocaleDateString();
     };
@@ -173,13 +177,11 @@ function initSignatures(){
     canvas.addEventListener("mouseup",end);
     canvas.addEventListener("mouseout",end);
     canvas.addEventListener("touchstart",e=>{
-      e.preventDefault();
-      const t=e.touches[0],r=canvas.getBoundingClientRect();
+      e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();
       start(t.clientX-r.left,t.clientY-r.top);
     });
     canvas.addEventListener("touchmove",e=>{
-      e.preventDefault();
-      const t=e.touches[0],r=canvas.getBoundingClientRect();
+      e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();
       draw(t.clientX-r.left,t.clientY-r.top);
     });
     canvas.addEventListener("touchend",end);
@@ -189,28 +191,15 @@ function initSignatures(){
 
 // Autofill Profile
 async function autofillProfile(uid){
-  console.log("🔎 Checking profile for UID:",uid);
-  let found=false;
-  const paths=[
-    ["users",uid,"profile","main"],
-    ["users",uid],
-  ];
-  for(const p of paths){
-    try{
-      const snap=await getDoc(doc(db,...p));
-      if(snap.exists()){
-        const d=snap.data();
-        if(d.businessName) $("businessName").value=d.businessName;
-        if(d.email) $("businessEmail").value=d.email;
-        if(d.businessAddress) $("businessAddress").value=d.businessAddress;
-        if(d.kvk) $("businessKvK").value=d.kvk;
-        if(d.iban) $("businessIBAN").value=d.iban;
-        console.log("✅ Profile loaded from:",p.join("/"));
-        found=true; break;
-      }
-    }catch(e){console.warn("Profile check failed for path",p);}
+  const snap=await getDoc(doc(db,"users",uid,"profile","main"));
+  if(snap.exists()){
+    const d=snap.data();
+    if(d.businessName)$("businessName").value=d.businessName;
+    if(d.email)$("businessEmail").value=d.email;
+    if(d.businessAddress)$("businessAddress").value=d.businessAddress;
+    if(d.kvk)$("businessKvK").value=d.kvk;
+    if(d.iban)$("businessIBAN").value=d.iban;
   }
-  if(!found) console.warn("⚠️ No profile data found");
 }
 
 // Load Clients
@@ -218,38 +207,24 @@ async function loadClients(uid){
   const sel=$("clientSelect");
   sel.innerHTML="<option value=''>Select client...</option>";
   const snap=await getDocs(collection(db,"users",uid,"clients"));
-  if(snap.empty){
+  if(snap.empty){sel.innerHTML="<option disabled>(No clients)</option>";return;}
+  snap.forEach(d=>{
+    const c=d.data();
     const o=document.createElement("option");
-    o.textContent="(No saved clients)";
-    o.disabled=true;
-    sel.appendChild(o);
-    return;
-  }
-  snap.forEach(docu=>{
-    const c=docu.data();
-    const o=document.createElement("option");
-    o.value=JSON.stringify({
-      name:c.clientName||"",
-      email:c.email||"",
-      address:c.address||"",
-      phone:c.phone||"",
-      kvk:c.kvk||""
-    });
+    o.value=JSON.stringify({name:c.clientName,email:c.email,address:c.address,phone:c.phone,kvk:c.kvk});
     o.textContent=c.clientName||"(Unnamed)";
     sel.appendChild(o);
   });
   sel.onchange=()=>{
-    if(!sel.value) return;
+    if(!sel.value)return;
     const d=JSON.parse(sel.value);
-    $("clientName").value=d.name||"";
-    $("clientEmail").value=d.email||"";
-    $("clientAddress").value=d.address||"";
-    $("clientPhone").value=d.phone||"";
+    $("clientName").value=d.name||""; $("clientEmail").value=d.email||"";
+    $("clientAddress").value=d.address||""; $("clientPhone").value=d.phone||"";
     $("clientKvK").value=d.kvk||"";
   };
 }
 
-// Save
+// Save Contract
 async function saveContract(uid){
   const data={
     contractId:$("#contractId").textContent,
@@ -265,7 +240,7 @@ async function saveContract(uid){
     legal:val("legal")
   };
   await addDoc(collection(db,"users",uid,"contracts"),data);
-  alert("✅ Contract saved!");
+  alert("✅ Contract saved successfully!");
   location.href="contracts-list.html";
 }
 
