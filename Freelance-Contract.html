@@ -126,20 +126,21 @@
 
     <!-- Signatures -->
     <section class="block signatures">
-      <h2>✍️ Signatures</h2>
-      <div class="grid-2">
-        <div>
-          <h3>Freelancer</h3>
-          <canvas id="freelancerSign" class="sign-canvas" width="300" height="100"></canvas>
-          <p>Date: <span id="freelancerDate"></span></p>
-        </div>
-        <div>
-          <h3>Client</h3>
-          <canvas id="clientSign" class="sign-canvas" width="300" height="100"></canvas>
-          <p>Date: <span id="clientDate"></span></p>
-        </div>
-      </div>
-    </section>
+  <h2>✍️ Signatures</h2>
+  <div class="grid-2">
+    <div>
+      <h3>Freelancer</h3>
+      <!-- додай class="sign-canvas" (необов’язково, але корисно) -->
+      <canvas id="freelancerSign" class="sign-canvas" width="300" height="100"></canvas>
+      <p>Date: <span id="freelancerDate"></span></p>
+    </div>
+    <div>
+      <h3>Client</h3>
+      <canvas id="clientSign" class="sign-canvas" width="300" height="100"></canvas>
+      <p>Date: <span id="clientDate"></span></p>
+    </div>
+  </div>
+</section>
 
     <div class="actions">
       <button id="saveBtn" class="btn btn-primary">💾 Save Contract</button>
@@ -182,81 +183,63 @@
 
   /* -------------------- SIGNATURES (правильна обробка DPR + координат) -------------------- */
   function resizeCanvasToDPR(canvas){
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-    const rect = canvas.getBoundingClientRect();
-    // значення атрибутів width/height визначають внутрішню «площину» пікселів
-    canvas.width  = Math.round(rect.width  * dpr);
-    canvas.height = Math.round(rect.height * dpr);
-    const ctx = canvas.getContext("2d");
-    ctx.scale(dpr, dpr);
-    // заливаємо білим фоном (щоб підпис був видимий завжди)
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0,0,rect.width,rect.height);
-    // базові стилі для пера
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth   = 2;
-    ctx.lineCap     = "round";
-    return ctx;
-  }
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const rect = canvas.getBoundingClientRect();
+  canvas.width  = Math.round(rect.width  * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // масштаб під DPR
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0,0,rect.width,rect.height);
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  return ctx;
+}
 
-  function initSignatures(){
-    document.querySelectorAll(".sign-canvas").forEach((canvas)=>{
-      // щоб inline width/height = реальному CSS розміру — інакше шкалювання «ламає» координати
-      const displayWidth  = canvas.getAttribute("width")  ? parseInt(canvas.getAttribute("width"))  : 300;
-      const displayHeight = canvas.getAttribute("height") ? parseInt(canvas.getAttribute("height")) : 100;
-      // Примусово задаємо той самий розмір і через CSS — щоб getBoundingClientRect() відповідав
-      canvas.style.width  = displayWidth + "px";
-      canvas.style.height = displayHeight + "px";
+function initSignatures(){
+  // підхоплюємо або за класом, або за конкретними id — що є
+  const canvases = Array.from(document.querySelectorAll(".sign-canvas"));
+  ["freelancerSign","clientSign"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && !canvases.includes(el)) canvases.push(el);
+  });
 
-      let ctx = resizeCanvasToDPR(canvas);
-      let drawing=false;
+  canvases.forEach((canvas)=>{
+    // гарантуємо візуальний розмір = атрибутам
+    const displayW = parseInt(canvas.getAttribute("width")  || "300", 10);
+    const displayH = parseInt(canvas.getAttribute("height") || "100", 10);
+    canvas.style.width  = displayW + "px";
+    canvas.style.height = displayH + "px";
 
-      function getPos(e){
-        const rect=canvas.getBoundingClientRect();
-        const x=(e.clientX - rect.left);
-        const y=(e.clientY - rect.top);
-        return {x,y};
-      }
+    let ctx = resizeCanvasToDPR(canvas);
+    let drawing = false;
 
-      const start = (x,y)=>{
-        drawing=true;
-        ctx.beginPath();
-        ctx.moveTo(x,y);
-        if(canvas.id==="freelancerSign") $("#freelancerDate").textContent=new Date().toLocaleDateString();
-        if(canvas.id==="clientSign")     $("#clientDate").textContent    =new Date().toLocaleDateString();
-      };
-      const move  = (x,y)=>{ if(!drawing) return; ctx.lineTo(x,y); ctx.stroke(); };
-      const stop  = ()=>{ drawing=false; };
-
-      // Pointer Events (універсально для миші/тачу/стилуса)
-      canvas.addEventListener("pointerdown",(e)=>{ canvas.setPointerCapture(e.pointerId); const {x,y}=getPos(e); start(x,y); });
-      canvas.addEventListener("pointermove",(e)=>{ const {x,y}=getPos(e); move(x,y); });
-      canvas.addEventListener("pointerup",(e)=>{ stop(); });
-      canvas.addEventListener("pointercancel", stop);
-      canvas.addEventListener("pointerleave",  stop);
-
-      // На ресайз — перенамалюємо фон/шкалу
-      window.addEventListener("resize", ()=>{
-        ctx = resizeCanvasToDPR(canvas);
-      });
-    });
-  }
-
-  /* -------------------- ПРОФІЛЬ: розумний автозаповнювач з fallback-ами -------------------- */
-  async function readProfileMulti(uid){
-    const paths = [
-      ["users",uid,"profile","main"],     // основний варіант
-      ["users",uid,"settings","profile"], // альтернативний варіант
-      ["users",uid]                       // кореневий документ користувача (іноді тримають поля тут)
-    ];
-    for(const p of paths){
-      try{
-        const snap = await getDoc(doc(db, ...p));
-        if(snap.exists()) return snap.data();
-      }catch(_){}
+    function getPos(ev){
+      const rect = canvas.getBoundingClientRect();
+      return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
     }
-    return null;
-  }
+
+    const start = (x,y)=>{
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      // безпечні звернення — якщо елементів немає, помилок не буде
+      if(canvas.id === "freelancerSign") document.getElementById("freelancerDate")?.textContent = new Date().toLocaleDateString();
+      if(canvas.id === "clientSign")     document.getElementById("clientDate")?.textContent     = new Date().toLocaleDateString();
+    };
+    const move = (x,y)=>{ if(!drawing) return; ctx.lineTo(x,y); ctx.stroke(); };
+    const stop = ()=>{ drawing = false; };
+
+    canvas.addEventListener("pointerdown",(e)=>{ canvas.setPointerCapture(e.pointerId); const {x,y}=getPos(e); start(x,y); });
+    canvas.addEventListener("pointermove",(e)=>{ const {x,y}=getPos(e); move(x,y); });
+    canvas.addEventListener("pointerup",   stop);
+    canvas.addEventListener("pointercancel", stop);
+    canvas.addEventListener("pointerleave",  stop);
+
+    window.addEventListener("resize", ()=>{ ctx = resizeCanvasToDPR(canvas); });
+  });
+}
 
   function mapProfileToUI(p){
     // Підтримуємо синоніми полів
@@ -365,6 +348,21 @@
     location.href="contracts-list.html";
   }
 
+function domReadyEls(ids, timeout=6000){
+  return new Promise((resolve, reject)=>{
+    const start = performance.now();
+    (function tick(){
+      if(ids.every(id=>document.getElementById(id))) return resolve();
+      if(performance.now()-start>timeout) return reject(new Error("DOM elements not found"));
+      requestAnimationFrame(tick);
+    })();
+  });
+}
+
+// ...всередині onAuthStateChanged(auth, async (user)=>{ ... })
+await domReadyEls(["freelancerSign","clientSign","freelancerDate","clientDate"]);
+initSignatures();
+   
   /* -------------------- INIT -------------------- */
   onAuthStateChanged(auth, async (user)=>{
     if(!user){ location.href="login.html"; return; }
@@ -392,6 +390,7 @@
     // збереження
     $("#saveBtn")?.addEventListener("click", ()=>saveContract(user.uid));
   });
+   
 </script>
 </body>
 </html>
