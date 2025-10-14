@@ -157,22 +157,28 @@
       <textarea id="legalTerms" rows="4">This contract is governed by the laws of the Netherlands. Intellectual property created during this project will remain with the freelancer until full payment is received. Both parties agree to confidentiality regarding shared business or technical information.</textarea>
     </section>
 
-    <!-- Signatures -->
-    <section class="block">
-      <h2>✍️ Signatures</h2>
-      <div class="grid-2">
-        <div>
-          <h3>Freelancer</h3>
-          <canvas id="freelancerSign" class="sign-canvas"></canvas>
-          <p>Date: <span id="freelancerDate"></span></p>
-        </div>
-        <div>
-          <h3>Client</h3>
-          <canvas id="clientSign" class="sign-canvas"></canvas>
-          <p>Date: <span id="clientDate"></span></p>
-        </div>
+    <!-- ✍️ Signatures -->
+<section class="block signatures">
+  <h2>✍️ Signatures</h2>
+  <div class="grid-2">
+    <div class="signature-box">
+      <h3>Freelancer</h3>
+      <canvas id="freelancerSign" width="300" height="100"></canvas>
+      <div class="sign-footer">
+        <p>Date: <span id="freelancerDate"></span></p>
+        <button type="button" class="btn-clear" onclick="clearSignature('freelancerSign')">🧹 Clear</button>
       </div>
-    </section>
+    </div>
+    <div class="signature-box">
+      <h3>Client</h3>
+      <canvas id="clientSign" width="300" height="100"></canvas>
+      <div class="sign-footer">
+        <p>Date: <span id="clientDate"></span></p>
+        <button type="button" class="btn-clear" onclick="clearSignature('clientSign')">🧹 Clear</button>
+      </div>
+    </div>
+  </div>
+</section>
 
     <div style="text-align:center;">
       <button id="saveBtn" class="btn btn-primary">💾 Save Contract</button>
@@ -197,48 +203,82 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const $ = id => document.getElementById(id);
 
-// 🔹 Correct Signature Drawing
+// ✍️ Smart Signature Canvas — професійна реалізація
 function initSignatures() {
-  document.querySelectorAll(".sign-canvas").forEach(canvas => {
+  const canvases = [$("#freelancerSign"), $("#clientSign")];
+
+  canvases.forEach((canvas) => {
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#fff";
+
+    // базові параметри
+    const bg = "#ffffff"; // білий фон
+    const pen = "#000000"; // чорна ручка
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "#000";
+    ctx.strokeStyle = pen;
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
-    let drawing = false;
 
-    const getPos = e => {
+    let drawing = false;
+    let lastX = 0, lastY = 0;
+
+    const getPos = (e) => {
       const rect = canvas.getBoundingClientRect();
-      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      return {
+        x: (e.clientX || e.touches?.[0]?.clientX) - rect.left,
+        y: (e.clientY || e.touches?.[0]?.clientY) - rect.top,
+      };
     };
 
-    canvas.addEventListener("pointerdown", e => {
-      const { x, y } = getPos(e);
+    const start = (x, y) => {
       drawing = true;
+      lastX = x;
+      lastY = y;
       ctx.beginPath();
       ctx.moveTo(x, y);
-      const today = new Date().toLocaleDateString();
-      if (canvas.id === "freelancerSign") {
-        const el = document.getElementById("freelancerDate");
-        if (el) el.textContent = today;
-      }
-      if (canvas.id === "clientSign") {
-        const el = document.getElementById("clientDate");
-        if (el) el.textContent = today;
-      }
-    });
 
-    canvas.addEventListener("pointermove", e => {
+      // Авто-дата при початку підпису
+      if (canvas.id === "freelancerSign") $("#freelancerDate").textContent = new Date().toLocaleDateString();
+      if (canvas.id === "clientSign") $("#clientDate").textContent = new Date().toLocaleDateString();
+    };
+
+    const draw = (x, y) => {
       if (!drawing) return;
-      const { x, y } = getPos(e);
       ctx.lineTo(x, y);
       ctx.stroke();
+      lastX = x;
+      lastY = y;
+    };
+
+    const stop = () => (drawing = false);
+
+    canvas.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      const { x, y } = getPos(e);
+      start(x, y);
     });
-    canvas.addEventListener("pointerup", () => (drawing = false));
-    canvas.addEventListener("pointerleave", () => (drawing = false));
+    canvas.addEventListener("pointermove", (e) => {
+      if (!drawing) return;
+      const { x, y } = getPos(e);
+      draw(x, y);
+    });
+    canvas.addEventListener("pointerup", stop);
+    canvas.addEventListener("pointerleave", stop);
   });
 }
+
+// 🧹 Очищення підпису
+window.clearSignature = function (id) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (id === "freelancerSign") $("#freelancerDate").textContent = "";
+  if (id === "clientSign") $("#clientDate").textContent = "";
+};
 
 // 🔹 Load Business Info
 // 🔹 Load Business Info (smart fallback)
