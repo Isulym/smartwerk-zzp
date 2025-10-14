@@ -220,14 +220,23 @@ function initSignatures(){
       return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
     }
 
-    const start = (x,y)=>{
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(x,y);
-      // безпечні звернення — якщо елементів немає, помилок не буде
-      if(canvas.id === "freelancerSign") document.getElementById("freelancerDate")?.textContent = new Date().toLocaleDateString();
-      if(canvas.id === "clientSign")     document.getElementById("clientDate")?.textContent     = new Date().toLocaleDateString();
-    };
+    const start = (x, y) => {
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+
+  const today = new Date().toLocaleDateString();
+
+  if (canvas.id === "freelancerSign") {
+    const el = document.getElementById("freelancerDate");
+    if (el) el.textContent = today;
+  }
+
+  if (canvas.id === "clientSign") {
+    const el = document.getElementById("clientDate");
+    if (el) el.textContent = today;
+  }
+};
     const move = (x,y)=>{ if(!drawing) return; ctx.lineTo(x,y); ctx.stroke(); };
     const stop = ()=>{ drawing = false; };
 
