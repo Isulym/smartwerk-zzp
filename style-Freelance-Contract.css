@@ -162,3 +162,11 @@ footer {
     justify-content: center;
   }
 }
+/* підписи */
+.sign-canvas{
+  touch-action: none;          /* вимикає жест прокрутки/зуму на мобільних */
+  background: #fff;            /* контрастний білий фон */
+  border: 1px solid #cbd5e1;   /* тонка рамка */
+  border-radius: 8px;
+  display: block;
+}
