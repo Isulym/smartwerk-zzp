@@ -242,31 +242,20 @@ function initSignatures() {
 
 // 🔹 Load Business Info
 // 🔹 Load Business Info (smart fallback)
+// ✅ Load Business Info directly from users/{uid}
 async function loadBusinessInfo(uid) {
   try {
-    // 1️⃣ основне місце
-    const mainRef = doc(db, "users", uid, "profile", "main");
-    let snap = await getDoc(mainRef);
-
-    // 2️⃣ fallback: шукаємо будь-який документ, якщо main не існує
-    if (!snap.exists()) {
-      const profSnap = await getDocs(collection(db, "users", uid, "profile"));
-      if (!profSnap.empty) {
-        snap = profSnap.docs[0]; // беремо перший документ
-      }
-    }
-
-    // 3️⃣ якщо знайшли хоч щось
+    const snap = await getDoc(doc(db, "users", uid));
     if (snap.exists()) {
       const d = snap.data();
       $("businessName").value = d.businessName || "";
       $("kvk").value = d.kvk || "";
-      $("vat").value = d.vat || "";
+      $("vat").value = d.btw || ""; // у profile.html поле називається btw
       $("iban").value = d.iban || "";
-      $("businessAddress").value = d.address || "";
-      console.log("✅ Business Info loaded from Firestore");
+      $("businessAddress").value = d.businessAddress || "";
+      console.log("✅ Business Info loaded directly from users/{uid}");
     } else {
-      console.warn("⚠️ No business profile data found for user");
+      console.warn("⚠️ No business data found in users/{uid}");
     }
   } catch (e) {
     console.error("❌ Error loading business info:", e);
