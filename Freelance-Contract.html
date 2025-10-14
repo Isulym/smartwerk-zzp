@@ -349,7 +349,6 @@ onAuthStateChanged(auth, async user => {
   $("contractId").value = await generateContractId(user.uid);
   await loadBusinessInfo(user.uid);
   await loadClients(user.uid);
-  initSignatures();
   $("saveBtn").onclick = () => saveContract(user.uid);
 });
 </script>
