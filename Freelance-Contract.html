@@ -157,25 +157,21 @@
       <textarea id="legalTerms" rows="4">This contract is governed by the laws of the Netherlands. Intellectual property created during this project will remain with the freelancer until full payment is received. Both parties agree to confidentiality regarding shared business or technical information.</textarea>
     </section>
 
-    <!-- ✍️ Signatures -->
+   <!-- ✍️ Signatures -->
 <section class="block signatures">
   <h2>✍️ Signatures</h2>
   <div class="grid-2">
-    <div class="signature-box">
+    <div>
       <h3>Freelancer</h3>
-      <canvas id="freelancerSign" width="300" height="100"></canvas>
-      <div class="sign-footer">
-        <p>Date: <span id="freelancerDate"></span></p>
-        <button type="button" class="btn-clear" onclick="clearSignature('freelancerSign')">🧹 Clear</button>
-      </div>
+      <canvas id="signatureFreelancer" class="signature" width="300" height="100"></canvas>
+      <button type="button" class="btn-clear" onclick="clearSignature('signatureFreelancer')">🧹 Clear</button>
+      <p>Date: <span id="signatureFreelancerDate"></span></p>
     </div>
-    <div class="signature-box">
+    <div>
       <h3>Client</h3>
-      <canvas id="clientSign" width="300" height="100"></canvas>
-      <div class="sign-footer">
-        <p>Date: <span id="clientDate"></span></p>
-        <button type="button" class="btn-clear" onclick="clearSignature('clientSign')">🧹 Clear</button>
-      </div>
+      <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+      <button type="button" class="btn-clear" onclick="clearSignature('signatureClient')">🧹 Clear</button>
+      <p>Date: <span id="signatureClientDate"></span></p>
     </div>
   </div>
 </section>
@@ -204,81 +200,63 @@ const db = getFirestore(app);
 const $ = id => document.getElementById(id);
 
 // ✍️ Smart Signature Canvas — професійна реалізація
-function initSignatures() {
-  const canvases = [$("#freelancerSign"), $("#clientSign")];
+/* ========== SIGNATURES ========== */
+function setupSignature(canvasId, dateId) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  let drawing = false;
 
-  canvases.forEach((canvas) => {
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    // базові параметри
-    const bg = "#ffffff"; // білий фон
-    const pen = "#000000"; // чорна ручка
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = pen;
+  const start = () => {
+    drawing = true;
+    ctx.beginPath();
+  };
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    const now = new Date().toLocaleDateString("nl-NL");
+    document.getElementById(dateId).innerText = now;
+  };
+  const move = (e) => {
+    if (!drawing) return;
+    const r = c.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
 
-    let drawing = false;
-    let lastX = 0, lastY = 0;
+  // Mouse events
+  c.addEventListener("mousedown", start);
+  c.addEventListener("mouseup", end);
+  c.addEventListener("mouseleave", () => (drawing = false));
+  c.addEventListener("mousemove", move);
 
-    const getPos = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: (e.clientX || e.touches?.[0]?.clientX) - rect.left,
-        y: (e.clientY || e.touches?.[0]?.clientY) - rect.top,
-      };
-    };
-
-    const start = (x, y) => {
-      drawing = true;
-      lastX = x;
-      lastY = y;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-
-      // Авто-дата при початку підпису
-      if (canvas.id === "freelancerSign") $("#freelancerDate").textContent = new Date().toLocaleDateString();
-      if (canvas.id === "clientSign") $("#clientDate").textContent = new Date().toLocaleDateString();
-    };
-
-    const draw = (x, y) => {
-      if (!drawing) return;
-      ctx.lineTo(x, y);
-      ctx.stroke();
-      lastX = x;
-      lastY = y;
-    };
-
-    const stop = () => (drawing = false);
-
-    canvas.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      const { x, y } = getPos(e);
-      start(x, y);
-    });
-    canvas.addEventListener("pointermove", (e) => {
-      if (!drawing) return;
-      const { x, y } = getPos(e);
-      draw(x, y);
-    });
-    canvas.addEventListener("pointerup", stop);
-    canvas.addEventListener("pointerleave", stop);
-  });
+  // Touch events
+  c.addEventListener("touchstart", (e) => { e.preventDefault(); start(); });
+  c.addEventListener("touchend", (e) => { e.preventDefault(); end(); });
+  c.addEventListener("touchmove", (e) => { e.preventDefault(); move(e); });
 }
 
-// 🧹 Очищення підпису
-window.clearSignature = function (id) {
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  if (id === "freelancerSign") $("#freelancerDate").textContent = "";
-  if (id === "clientSign") $("#clientDate").textContent = "";
+/* Очистка підпису */
+window.clearSignature = (id) => {
+  const c = document.getElementById(id);
+  if (!c) return;
+  c.getContext("2d").clearRect(0, 0, c.width, c.height);
+  if (id === "signatureFreelancer") document.getElementById("signatureFreelancerDate").innerText = "";
+  if (id === "signatureClient") document.getElementById("signatureClientDate").innerText = "";
 };
+
+/* Ініціалізація підписів після завантаження сторінки */
+document.addEventListener("DOMContentLoaded", () => {
+  setupSignature("signatureFreelancer", "signatureFreelancerDate");
+  setupSignature("signatureClient", "signatureClientDate");
+});
 
 // 🔹 Load Business Info
 // 🔹 Load Business Info (smart fallback)
