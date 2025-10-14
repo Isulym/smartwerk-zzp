@@ -107,22 +107,41 @@ textarea {
   gap: 14px;
 }
 
-/* SIGNATURES */
-.signatures canvas {
-  width: 100%;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  margin-bottom: 5px;
-  cursor: crosshair;
+.signature-box {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
 }
-.signatures h3 {
-  color: #1e293b;
+
+canvas {
+  display: block;
+  background: #ffffff;
+  border-radius: 6px;
   margin-bottom: 6px;
+  cursor: crosshair;
+  box-shadow: 0 0 6px rgba(255,255,255,0.05);
 }
-.signatures p {
+
+.sign-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-clear {
+  background: #475569;
+  border: none;
+  color: #fff;
   font-size: 13px;
-  color: #475569;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-clear:hover {
+  background: #64748b;
 }
 
 /* ACTIONS */
