@@ -274,15 +274,26 @@ This contract is governed by the laws of the Netherlands. Intellectual property 
     }
 
     // Auth + Initialization
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { location.href = "login.html"; return; }
-      $("#date").value = new Date().toISOString().split("T")[0];
-      $("#contractId").value = await generateContractId(user.uid);
-      await loadBusinessInfo(user.uid);
-      await loadClients(user.uid);
-      initSignatures();
-      $("#saveBtn").onclick = () => saveContract(user.uid);
-    });
+ // Auth + Initialization
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  // ✅ Чекаємо, поки DOM повністю готовий
+  if (document.readyState === "loading") {
+    await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
+  }
+
+  // Тепер елементи гарантовано існують
+  $("#date").value = new Date().toISOString().split("T")[0];
+  $("#contractId").value = await generateContractId(user.uid);
+
+  await loadBusinessInfo(user.uid);
+  await loadClients(user.uid);
+
+  initSignatures();
+
+  $("#saveBtn").onclick = () => saveContract(user.uid);
+});
   </script>
 </body>
 </html>
