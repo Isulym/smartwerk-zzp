@@ -273,17 +273,23 @@ This contract is governed by the laws of the Netherlands. Intellectual property 
       location.href = "contracts-list.html";
     }
 
-    // Auth + Initialization
- // Auth + Initialization
-onAuthStateChanged(auth, async (user) => {
-  if (!user) { location.href = "login.html"; return; }
+   // ✅ Ініціалізація сторінки (тільки після готовності DOM + авторизації)
+async function initContractPage(user) {
+  const waitFor = (id) => new Promise((resolve) => {
+    const check = () => {
+      const el = document.getElementById(id);
+      if (el) resolve(el);
+      else setTimeout(check, 50);
+    };
+    check();
+  });
 
-  // ✅ Чекаємо, поки DOM повністю готовий
-  if (document.readyState === "loading") {
-    await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
-  }
+  // чекаємо появу ключових елементів
+  await waitFor("date");
+  await waitFor("contractId");
+  await waitFor("saveBtn");
 
-  // Тепер елементи гарантовано існують
+  // тепер можна працювати
   $("#date").value = new Date().toISOString().split("T")[0];
   $("#contractId").value = await generateContractId(user.uid);
 
@@ -293,6 +299,18 @@ onAuthStateChanged(auth, async (user) => {
   initSignatures();
 
   $("#saveBtn").onclick = () => saveContract(user.uid);
+}
+
+// 🔹 Авторизація
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+  if (document.readyState === "loading") {
+    await new Promise(res => document.addEventListener("DOMContentLoaded", res, { once: true }));
+  }
+  await initContractPage(user);
 });
   </script>
 </body>
