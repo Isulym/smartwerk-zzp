@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>📄 SmartWerk — Saved Contracts</title>
 
-<!-- Chart.js + jsPDF -->
+<!-- JS libraries -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-body {background:#0f172a;color:#e5e7eb;font-family:'Inter',sans-serif;padding:20px;}
+body{background:#0f172a;color:#e5e7eb;font-family:'Inter',sans-serif;padding:20px;}
 h1{color:#fff;margin-bottom:10px;}
 header,footer{text-align:center;margin-bottom:20px;}
 .btn{background:#475569;color:#fff;padding:6px 12px;border:none;border-radius:8px;cursor:pointer;transition:.2s;}
@@ -48,7 +48,7 @@ canvas{background:#1e293b;border-radius:12px;padding:10px;}
   <button id="refreshBtn" class="btn">🔄 Refresh</button>
 </div>
 
-<!-- 📊 KPI Summary -->
+<!-- KPI Summary -->
 <section class="kpi-container">
   <div class="kpi-card"><h3>📝 Draft</h3><p id="kpi-draft">0</p></div>
   <div class="kpi-card"><h3>📤 Sent</h3><p id="kpi-sent">0</p></div>
@@ -57,10 +57,10 @@ canvas{background:#1e293b;border-radius:12px;padding:10px;}
   <div class="kpi-card"><h3>📦 Total</h3><p id="kpi-total">0</p></div>
 </section>
 
-<!-- 📈 Chart -->
+<!-- Chart -->
 <canvas id="contractChart" height="100"></canvas>
 
-<!-- 🔍 Search -->
+<!-- Search -->
 <div class="search-bar">
   <input type="text" id="searchInput" placeholder="🔍 Search..." style="flex:1;">
   <select id="statusFilter">
@@ -72,7 +72,7 @@ canvas{background:#1e293b;border-radius:12px;padding:10px;}
   </select>
 </div>
 
-<!-- 🧾 Table -->
+<!-- Table -->
 <table>
   <thead>
     <tr>
@@ -106,7 +106,7 @@ const $=id=>document.getElementById(id);
 let chart=null;
 function showMsg(txt){const m=$("msg");m.textContent=txt;m.style.display="block";setTimeout(()=>m.style.display="none",2500);}
 
-// KPI
+// KPI + Chart
 function updateKPI(list){
   const total=list.length;
   const draft=list.filter(c=>c.status==="Draft").length;
@@ -121,30 +121,26 @@ function updateKPI(list){
 
   if(chart) chart.destroy();
   const ctx=$("contractChart");
-  chart=new Chart(ctx,{
-    type:"bar",
-    data:{
-      labels:["Draft","Sent","Signed","Completed"],
-      datasets:[{data:[draft,sent,signed,completed],backgroundColor:["#475569","#fbbf24","#10b981","#22c55e"]}]
-    },
-    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
-  });
+  chart=new Chart(ctx,{type:"bar",data:{
+    labels:["Draft","Sent","Signed","Completed"],
+    datasets:[{data:[draft,sent,signed,completed],backgroundColor:["#475569","#fbbf24","#10b981","#22c55e"]}]
+  },options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
 }
 
-// Load contracts
+// Load Contracts
 async function loadContracts(uid){
   const tbody=$("contractsBody");
   tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:#94a3b8;">Loading...</td></tr>`;
   const snap=await getDocs(collection(db,"users",uid,"contracts"));
   const arr=[];
   for(const d of snap.docs){
-    const data=d.data();
-    let clientName=data.clientName||"";
-    if(!clientName && data.clientId){
-      const clientSnap=await getDoc(doc(db,"users",uid,"clients",data.clientId));
+    const c=d.data();
+    let clientName=c.clientName||"";
+    if(!clientName && c.clientId){
+      const clientSnap=await getDoc(doc(db,"users",uid,"clients",c.clientId));
       if(clientSnap.exists()) clientName=clientSnap.data().clientName||"";
     }
-    arr.push({...data,id:d.id,clientName});
+    arr.push({...c,id:d.id,clientName});
   }
   window._contracts=arr;
   renderContracts(arr);
@@ -152,26 +148,26 @@ async function loadContracts(uid){
   showMsg("✅ Synced");
 }
 
-// Render table
+// Render Table
 function renderContracts(list){
   const tbody=$("contractsBody");
   const q=$("searchInput").value.toLowerCase();
   const f=$("statusFilter").value;
   const filtered=list.filter(c=>{
-    const match=(c.projectTitle||"").toLowerCase().includes(q)||(c.clientName||"").toLowerCase().includes(q);
-    const statusOk=!f||c.status===f;
-    return match&&statusOk;
+    const m=(c.projectTitle||"").toLowerCase().includes(q)||(c.clientName||"").toLowerCase().includes(q);
+    const s=!f||c.status===f;
+    return m&&s;
   });
-  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:#94a3b8;">No contracts</td></tr>`;updateKPI(filtered);return;}
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan='6' style='text-align:center;color:#94a3b8;'>No contracts</td></tr>`;updateKPI(filtered);return;}
   tbody.innerHTML="";
   filtered.forEach(c=>{
-    const statusClass=c.status?.toLowerCase()||"draft";
+    const st=c.status?.toLowerCase()||"draft";
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>${c.contractId||"-"}</td>
       <td>${c.projectTitle||"-"}</td>
       <td>${c.clientName||"-"}</td>
-      <td><span class="status ${statusClass}">${c.status||"-"}</span></td>
+      <td><span class="status ${st}">${c.status||"-"}</span></td>
       <td>${c.date||"-"}</td>
       <td class="actions">
         <button class="btn" onclick="editContract('${c.id}')">✏️</button>
@@ -184,7 +180,7 @@ function renderContracts(list){
   updateKPI(filtered);
 }
 
-// Actions
+// Edit / Delete
 window.editContract=(id)=>{localStorage.setItem("editContractId",id);location.href="Freelance-Contract.html";};
 window.deleteContract=async(id)=>{
   if(!confirm("Delete this contract?"))return;
@@ -194,40 +190,60 @@ window.deleteContract=async(id)=>{
   loadContracts(user.uid);
 };
 
-// Export PDF
-window.exportContractPDF=(id,withBranding=true)=>{
+// Export PDF (official format)
+window.exportContractPDF=async(id,withBranding=true)=>{
   const c=window._contracts.find(x=>x.id===id);
   if(!c)return alert("Contract not found");
   const { jsPDF }=window.jspdf;
   const doc=new jsPDF("p","mm","a4");
 
-  // Header
-  doc.setFontSize(18).setTextColor(0,0,0);
-  doc.text("Freelance Contract",14,18);
-  doc.setFontSize(11).setTextColor(100);
-  doc.text(`Contract ID: ${c.contractId||""}`,14,25);
-  doc.text(`Status: ${c.status||""}`,150,25);
+  const blue=[59,130,246];
+  doc.setFillColor(...blue);
+  if(withBranding){ doc.rect(0,0,210,18,"F"); doc.setTextColor(255,255,255); doc.setFontSize(16).text("SmartWerk — Freelance Contract",14,12); }
 
-  // Table
+  doc.setTextColor(0,0,0); doc.setFontSize(18).text("FREELANCE CONTRACT",14,32);
+  doc.setFontSize(11);
+  doc.text(`Contract ID: ${c.contractId||""}`,14,40);
+  doc.text(`Date: ${c.date||""}`,100,40);
+  doc.text(`Status: ${c.status||""}`,160,40);
+
+  // FROM / TO
+  doc.setFontSize(13).setTextColor(...blue).text("From (Freelancer)",14,52);
+  doc.setTextColor(0,0,0).setFontSize(11);
+  doc.text(`Business: ${c.businessName||""}`,14,58);
+  doc.text(`KvK: ${c.kvk||""}   VAT: ${c.vat||""}`,14,64);
+  doc.text(`IBAN: ${c.iban||""}`,14,70);
+  doc.text(`Address: ${c.businessAddress||""}`,14,76);
+
+  doc.setFontSize(13).setTextColor(...blue).text("To (Client)",14,88);
+  doc.setTextColor(0,0,0).setFontSize(11);
+  doc.text(`Client: ${c.clientName||""}`,14,94);
+  doc.text(`Email: ${c.clientEmail||""}`,14,100);
+  doc.text(`Address: ${c.clientAddress||""}`,14,106);
+
+  // PROJECT DETAILS
+  doc.setFontSize(13).setTextColor(...blue).text("Project Details",14,120);
   const rows=[
-    ["Project Title",c.projectTitle||""],
-    ["Client",c.clientName||""],
-    ["Date",c.date||""],
+    ["Title",c.projectTitle||""],
     ["Scope",c.projectScope||""],
     ["Timeline",c.timeline||""],
-    ["Payment Terms",c.paymentTerms||""],
-    ["Legal Terms",c.legalTerms||""]
+    ["Payment Terms",c.paymentTerms||""]
   ];
-  doc.autoTable({
-    startY:35,
-    head:[["Field","Details"]],
-    body:rows,
-    styles:{fontSize:10,cellPadding:4},
-    theme:"grid",
-    headStyles:{fillColor:[59,130,246],textColor:255}
-  });
+  doc.autoTable({startY:124,head:[["Field","Details"]],body:rows,theme:"grid",styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:withBranding?blue:[180,180,180],textColor:255}});
 
-  // Footer
+  // LEGAL TERMS
+  let y=doc.lastAutoTable.finalY+10;
+  doc.setFontSize(13).setTextColor(...blue).text("Legal Terms",14,y);
+  doc.setFontSize(10).setTextColor(50).text(doc.splitTextToSize(c.legalTerms||"",180),14,y+6);
+
+  // SIGNATURES
+  y+=40;
+  doc.setFontSize(13).setTextColor(...blue).text("Signatures",14,y);
+  doc.setFontSize(10).setTextColor(0,0,0);
+  doc.text("Freelancer Signature: _______________________",14,y+10);
+  doc.text("Client Signature: ____________________________",14,y+20);
+  doc.text(`Date: ${c.date||""}`,14,y+30);
+
   doc.setFontSize(9).setTextColor(120);
   doc.text("Generated by SmartWerk © 2025",14,290);
 
