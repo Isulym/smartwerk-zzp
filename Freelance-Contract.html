@@ -109,21 +109,19 @@
     <section class="block">
       <h2>🧩 Project Details</h2>
       <label>Scope of Work</label>
-      <textarea id="projectScope" rows="3"></textarea>
+      <textarea id="projectScope" rows="3" placeholder="Describe deliverables, features, and scope of the project"></textarea>
 
       <label>Timeline</label>
-      <textarea id="timeline" rows="2"></textarea>
+      <textarea id="timeline" rows="2" placeholder="Start date, milestones, and expected delivery"></textarea>
 
       <label>Payment Terms</label>
-      <textarea id="paymentTerms" rows="2"></textarea>
+      <textarea id="paymentTerms" rows="2" placeholder="Amount, payment method, schedule, and due dates"></textarea>
     </section>
 
     <!-- Legal Terms -->
     <section class="block">
       <h2>⚖️ Legal Terms</h2>
-      <textarea id="legalTerms" rows="4">
-This contract is governed by the laws of the Netherlands. Intellectual property created during this project will remain with the freelancer until full payment is received. Both parties agree to confidentiality regarding shared business or technical information.
-      </textarea>
+      <textarea id="legalTerms" rows="4">This contract is governed by the laws of the Netherlands. Intellectual property created during this project will remain with the freelancer until full payment is received. Both parties agree to confidentiality regarding shared business or technical information.</textarea>
     </section>
 
     <!-- Signatures -->
@@ -132,12 +130,12 @@ This contract is governed by the laws of the Netherlands. Intellectual property 
       <div class="grid-2">
         <div>
           <h3>Freelancer</h3>
-          <canvas id="freelancerSign" class="signCanvas" width="300" height="100"></canvas>
+          <canvas id="freelancerSign" class="sign-canvas" width="300" height="100"></canvas>
           <p>Date: <span id="freelancerDate"></span></p>
         </div>
         <div>
           <h3>Client</h3>
-          <canvas id="clientSign" class="signCanvas" width="300" height="100"></canvas>
+          <canvas id="clientSign" class="sign-canvas" width="300" height="100"></canvas>
           <p>Date: <span id="clientDate"></span></p>
         </div>
       </div>
@@ -150,11 +148,13 @@ This contract is governed by the laws of the Netherlands. Intellectual property 
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
+  <!-- SCRIPT -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc, addDoc, runTransaction } 
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getFirestore, collection, getDocs, doc, getDoc, addDoc, runTransaction, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -166,39 +166,107 @@ This contract is governed by the laws of the Netherlands. Intellectual property 
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const $ = id => document.getElementById(id);
+    const $id = (id) => document.getElementById(id);
 
-    // ✍️ Signatures
-    function initSignatures() {
-      document.querySelectorAll(".signCanvas").forEach(canvas => {
-        const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
-        let drawing = false;
-        canvas.addEventListener("mousedown", e => {
-          drawing = true;
-          ctx.beginPath();
-          ctx.moveTo(e.offsetX, e.offsetY);
-          if (canvas.id === "freelancerSign") $("#freelancerDate").textContent = new Date().toLocaleDateString();
-          if (canvas.id === "clientSign") $("#clientDate").textContent = new Date().toLocaleDateString();
-        });
-        canvas.addEventListener("mousemove", e => {
-          if (!drawing) return;
-          ctx.lineTo(e.offsetX, e.offsetY);
-          ctx.stroke();
-        });
-        ["mouseup", "mouseleave"].forEach(ev => canvas.addEventListener(ev, () => drawing = false));
+    // 🔹 Очікування елементів
+    function waitForEls(ids, timeoutMs = 8000) {
+      return new Promise((resolve, reject) => {
+        const start = performance.now();
+        (function check() {
+          const all = ids.map((id) => !!document.getElementById(id)).every(Boolean);
+          if (all) return resolve();
+          if (performance.now() - start > timeoutMs) return reject("Missing elements");
+          setTimeout(check, 50);
+        })();
       });
     }
 
-    // Auto Contract ID
+    // 🔹 Підписи
+    function initSignatures() {
+      document.querySelectorAll(".sign-canvas").forEach((canvas) => {
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        let drawing = false;
+
+        const start = (x, y) => {
+          drawing = true;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          if (canvas.id === "freelancerSign") $id("freelancerDate").textContent = new Date().toLocaleDateString();
+          if (canvas.id === "clientSign") $id("clientDate").textContent = new Date().toLocaleDateString();
+        };
+        const move = (x, y) => { if (!drawing) return; ctx.lineTo(x, y); ctx.stroke(); };
+        const stop = () => drawing = false;
+
+        canvas.addEventListener("mousedown", e => start(e.offsetX, e.offsetY));
+        canvas.addEventListener("mousemove", e => move(e.offsetX, e.offsetY));
+        ["mouseup", "mouseleave"].forEach(ev => canvas.addEventListener(ev, stop));
+
+        canvas.addEventListener("touchstart", e => {
+          e.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          start(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+        });
+        canvas.addEventListener("touchmove", e => {
+          e.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          move(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+        });
+        canvas.addEventListener("touchend", stop);
+      });
+    }
+
+    // 🔹 Завантаження бізнес-даних
+    async function loadBusinessInfo(uid) {
+      const ref = doc(db, "users", uid, "profile", "main");
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const d = snap.data();
+        $id("businessName").value = d.businessName || "";
+        $id("kvk").value = d.kvk || "";
+        $id("vat").value = d.vat || "";
+        $id("iban").value = d.iban || "";
+        $id("businessAddress").value = d.address || "";
+      }
+    }
+
+    // 🔹 Завантаження клієнтів
+    async function loadClients(uid) {
+      const snap = await getDocs(collection(db, "users", uid, "clients"));
+      const select = $id("clientSelect");
+      snap.forEach(d => {
+        const c = d.data();
+        const opt = document.createElement("option");
+        opt.value = d.id;
+        opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
+        select.appendChild(opt);
+      });
+
+      select.onchange = async () => {
+        const id = select.value;
+        if (!id) return;
+        const snap = await getDoc(doc(db, "users", uid, "clients", id));
+        if (snap.exists()) {
+          const c = snap.data();
+          $id("clientName").value = c.clientName || "";
+          $id("clientEmail").value = c.email || "";
+          $id("clientPhone").value = c.phone || "";
+          $id("clientAddress").value = c.address || "";
+        }
+      };
+    }
+
+    // 🔹 Генерація Contract ID
     async function generateContractId(uid) {
       const ref = doc(db, "users", uid);
       const year = new Date().getFullYear();
       let out = "";
       await runTransaction(db, async (tx) => {
         const snap = await tx.get(ref);
-        const last = snap.exists() ? (snap.data().lastContractNumber || 0) : 0;
+        const last = snap.exists() ? snap.data().lastContractNumber || 0 : 0;
         const next = last + 1;
         tx.set(ref, { lastContractNumber: next }, { merge: true });
         out = `CT-${year}-${String(next).padStart(3, "0")}`;
@@ -206,112 +274,52 @@ This contract is governed by the laws of the Netherlands. Intellectual property 
       return out;
     }
 
-    // Load Clients
-    async function loadClients(uid) {
-      const select = $("#clientSelect");
-      const snap = await getDocs(collection(db, "users", uid, "clients"));
-      select.innerHTML = `<option value="">Select a client...</option>`;
-      snap.forEach(docSnap => {
-        const c = docSnap.data();
-        const opt = document.createElement("option");
-        opt.value = docSnap.id;
-        opt.textContent = c.clientName || "Unnamed";
-        select.appendChild(opt);
-      });
-    }
-
-    // Load Business Info
-    async function loadBusinessInfo(uid) {
-      const snap = await getDoc(doc(db, "users", uid, "profile", "main"));
-      if (snap.exists()) {
-        const d = snap.data();
-        $("businessName").value = d.businessName || "";
-        $("kvk").value = d.kvk || "";
-        $("vat").value = d.vat || "";
-        $("iban").value = d.iban || "";
-        $("businessAddress").value = d.address || "";
-      }
-    }
-
-    // Wait until DOM ready before binding clientSelect
-    document.addEventListener("DOMContentLoaded", () => {
-      const clientSelect = document.getElementById("clientSelect");
-      if (clientSelect) {
-        clientSelect.addEventListener("change", async () => {
-          const user = auth.currentUser;
-          const id = clientSelect.value;
-          if (!id) return;
-          const snap = await getDoc(doc(db, "users", user.uid, "clients", id));
-          if (snap.exists()) {
-            const c = snap.data();
-            $("clientName").value = c.clientName || "";
-            $("clientEmail").value = c.email || "";
-            $("clientPhone").value = c.phone || "";
-            $("clientAddress").value = c.address || "";
-          }
-        });
-      }
-    });
-
-    // Save Contract
+    // 🔹 Збереження контракту
     async function saveContract(uid) {
       const data = {
-        contractId: $("#contractId").value,
-        status: $("#status").value,
-        date: $("#date").value,
-        projectTitle: $("#projectTitle").value,
-        businessName: $("#businessName").value,
-        clientName: $("#clientName").value,
-        projectScope: $("#projectScope").value,
-        timeline: $("#timeline").value,
-        paymentTerms: $("#paymentTerms").value,
-        legalTerms: $("#legalTerms").value,
-        createdAt: new Date()
+        contractId: $id("contractId").value,
+        status: $id("status").value,
+        date: $id("date").value,
+        projectTitle: $id("projectTitle").value,
+        businessName: $id("businessName").value,
+        kvk: $id("kvk").value,
+        vat: $id("vat").value,
+        iban: $id("iban").value,
+        businessAddress: $id("businessAddress").value,
+        clientName: $id("clientName").value,
+        clientEmail: $id("clientEmail").value,
+        clientPhone: $id("clientPhone").value,
+        clientAddress: $id("clientAddress").value,
+        projectScope: $id("projectScope").value,
+        timeline: $id("timeline").value,
+        paymentTerms: $id("paymentTerms").value,
+        legalTerms: $id("legalTerms").value,
+        freelancerSignature: $id("freelancerSign").toDataURL("image/png"),
+        clientSignature: $id("clientSign").toDataURL("image/png"),
+        freelancerDate: $id("freelancerDate").textContent,
+        clientDate: $id("clientDate").textContent,
+        createdAt: serverTimestamp()
       };
       await addDoc(collection(db, "users", uid, "contracts"), data);
       alert("✅ Contract saved successfully!");
       location.href = "contracts-list.html";
     }
 
-   // ✅ Ініціалізація сторінки (тільки після готовності DOM + авторизації)
-async function initContractPage(user) {
-  const waitFor = (id) => new Promise((resolve) => {
-    const check = () => {
-      const el = document.getElementById(id);
-      if (el) resolve(el);
-      else setTimeout(check, 50);
-    };
-    check();
-  });
+    // 🔹 Ініціалізація
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { location.href = "login.html"; return; }
 
-  // чекаємо появу ключових елементів
-  await waitFor("date");
-  await waitFor("contractId");
-  await waitFor("saveBtn");
+      await waitForEls(["date", "contractId", "saveBtn", "clientSelect"]);
 
-  // тепер можна працювати
-  $("#date").value = new Date().toISOString().split("T")[0];
-  $("#contractId").value = await generateContractId(user.uid);
+      $id("date").value = new Date().toISOString().split("T")[0];
+      $id("contractId").value = await generateContractId(user.uid);
 
-  await loadBusinessInfo(user.uid);
-  await loadClients(user.uid);
+      await loadBusinessInfo(user.uid);
+      await loadClients(user.uid);
+      initSignatures();
 
-  initSignatures();
-
-  $("#saveBtn").onclick = () => saveContract(user.uid);
-}
-
-// 🔹 Авторизація
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    location.href = "login.html";
-    return;
-  }
-  if (document.readyState === "loading") {
-    await new Promise(res => document.addEventListener("DOMContentLoaded", res, { once: true }));
-  }
-  await initContractPage(user);
-});
+      $id("saveBtn").onclick = () => saveContract(user.uid);
+    });
   </script>
 </body>
 </html>
