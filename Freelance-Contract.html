@@ -291,23 +291,45 @@ async function generateContractId(uid) {
 }
 
 // 🔹 Save Contract
-async function saveContract(uid) {
+async function saveContract(uid){
   const data = {
-    contractId: $("contractId").value,
-    status: $("status").value,
-    date: $("date").value,
-    projectTitle: $("projectTitle").value,
-    businessName: $("businessName").value,
-    clientName: $("clientName").value,
-    projectScope: $("projectScope").value,
-    timeline: $("timeline").value,
-    paymentTerms: $("paymentTerms").value,
-    legalTerms: $("legalTerms").value,
-    createdAt: serverTimestamp()
+    contractId: $("#contractId").value,
+    status: $("#status").value,
+    date: $("#date").value,
+    projectTitle: $("#projectTitle").value,
+
+    // ---- Business ----
+    businessName: $("#businessName").value,
+    businessEmail: $("#businessEmail")?.value || "",
+    businessPhone: $("#businessPhone")?.value || "",
+    kvk: $("#kvk").value,
+    vat: $("#vat").value,
+    iban: $("#iban").value,
+    businessAddress: $("#businessAddress").value,
+
+    // ---- Client ----
+    clientName: $("#clientName").value,
+    clientEmail: $("#clientEmail").value,
+    clientPhone: $("#clientPhone").value,
+    clientAddress: $("#clientAddress").value,
+
+    // ---- Project ----
+    projectScope: $("#projectScope").value,
+    timeline: $("#timeline").value,
+    paymentTerms: $("#paymentTerms").value,
+    legalTerms: $("#legalTerms").value,
+
+    // ---- Signatures ----
+    freelancerSignature: document.getElementById("freelancerSign").toDataURL(),
+    clientSignature: document.getElementById("clientSign").toDataURL(),
+    freelancerDate: document.getElementById("freelancerDate").textContent,
+    clientDate: document.getElementById("clientDate").textContent,
+
+    createdAt: new Date()
   };
   await addDoc(collection(db, "users", uid, "contracts"), data);
   alert("✅ Contract saved successfully!");
-  location.href = "Freelance-Contract-list.html";
+  location.href = "contracts-list.html";
 }
 
 // 🔹 Auth
