@@ -6,7 +6,6 @@
   <title>📄 SmartWerk — Freelance Contract</title>
   <link rel="stylesheet" href="style-Freelance-Contract.css" />
 </head>
-
 <body>
   <header>
     <h1>📄 Freelance Contract</h1>
@@ -17,7 +16,7 @@
   </header>
 
   <main>
-    <!-- Contract Overview -->
+    <!-- Updated to match 2025 standards -->
     <section class="block">
       <h2>📋 Contract Overview</h2>
       <div class="grid-3">
@@ -39,7 +38,6 @@
           <input id="date" type="date" />
         </div>
       </div>
-
       <div class="grid-2">
         <div>
           <label>Select Client</label>
@@ -54,7 +52,6 @@
       </div>
     </section>
 
-    <!-- Business Info -->
     <section class="block">
       <h2>🏢 Business Info</h2>
       <div class="grid-2">
@@ -81,7 +78,6 @@
       <input id="businessAddress" readonly />
     </section>
 
-    <!-- Client Info -->
     <section class="block">
       <h2>👤 Client Info</h2>
       <div class="grid-2">
@@ -106,43 +102,40 @@
       </div>
     </section>
 
-    <!-- Project Details -->
     <section class="block">
       <h2>🧩 Project Details</h2>
       <label>Scope of Work</label>
-      <textarea id="projectScope" rows="3"></textarea>
+      <textarea id="projectScope" rows="3" placeholder="Define what tasks are included and excluded..."></textarea>
 
       <label>Timeline</label>
-      <textarea id="timeline" rows="2"></textarea>
+      <textarea id="timeline" rows="2" placeholder="Provide deadlines, milestones..."></textarea>
 
       <label>Payment Terms</label>
-      <textarea id="paymentTerms" rows="2"></textarea>
+      <textarea id="paymentTerms" rows="2" placeholder="e.g. 50% upfront, 50% on completion within 14 days"></textarea>
     </section>
 
-    <!-- Legal Terms -->
     <section class="block">
       <h2>⚖️ Legal Terms</h2>
-      <textarea id="legalTerms" rows="4">This contract is governed by the laws of the Netherlands. Intellectual property created during this project will remain with the freelancer until full payment is received. Both parties agree to confidentiality regarding shared business or technical information.</textarea>
+      <textarea id="legalTerms" rows="4">This contract is governed by the laws of the Netherlands. Intellectual property created during this project remains with the freelancer until full payment. Confidentiality applies to shared business or technical info. Disputes will be resolved in Dutch jurisdiction.</textarea>
     </section>
 
-   <!-- ✍️ Signatures -->
-<section class="block signatures">
-  <h2>✍️ Signatures</h2>
-  <div class="grid-2">
-    <div>
-      <h3>Freelancer</h3>
-      <canvas id="signatureFreelancer" class="signature" width="300" height="100"></canvas>
-      <button type="button" class="btn-clear" onclick="clearSignature('signatureFreelancer')">🧹 Clear</button>
-      <p>Date: <span id="signatureFreelancerDate"></span></p>
-    </div>
-    <div>
-      <h3>Client</h3>
-      <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-      <button type="button" class="btn-clear" onclick="clearSignature('signatureClient')">🧹 Clear</button>
-      <p>Date: <span id="signatureClientDate"></span></p>
-    </div>
-  </div>
-</section>
+    <section class="block signatures">
+      <h2>✍️ Signatures</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Freelancer</h3>
+          <canvas id="signatureFreelancer" class="signature" width="300" height="100"></canvas>
+          <button type="button" class="btn-clear" onclick="clearSignature('signatureFreelancer')">🧹 Clear</button>
+          <p>Date: <span id="signatureFreelancerDate"></span></p>
+        </div>
+        <div>
+          <h3>Client</h3>
+          <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+          <button type="button" class="btn-clear" onclick="clearSignature('signatureClient')">🧹 Clear</button>
+          <p>Date: <span id="signatureClientDate"></span></p>
+        </div>
+      </div>
+    </section>
 
     <div style="text-align:center;">
       <button id="saveBtn" class="btn btn-primary">💾 Save Contract</button>
@@ -150,197 +143,6 @@
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
-
-<script type="module">
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, getDoc, addDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1"
-};
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const $ = id => document.getElementById(id);
-
-// ✍️ Smart Signature Canvas — професійна реалізація
-/* ========== SIGNATURES ========== */
-function setupSignature(canvasId, dateId) {
-  const c = document.getElementById(canvasId);
-  if (!c) return;
-  const ctx = c.getContext("2d");
-  let drawing = false;
-
-  const start = () => {
-    drawing = true;
-    ctx.beginPath();
-  };
-  const end = () => {
-    if (!drawing) return;
-    drawing = false;
-    const now = new Date().toLocaleDateString("nl-NL");
-    document.getElementById(dateId).innerText = now;
-  };
-  const move = (e) => {
-    if (!drawing) return;
-    const r = c.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#000";
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  // Mouse events
-  c.addEventListener("mousedown", start);
-  c.addEventListener("mouseup", end);
-  c.addEventListener("mouseleave", () => (drawing = false));
-  c.addEventListener("mousemove", move);
-
-  // Touch events
-  c.addEventListener("touchstart", (e) => { e.preventDefault(); start(); });
-  c.addEventListener("touchend", (e) => { e.preventDefault(); end(); });
-  c.addEventListener("touchmove", (e) => { e.preventDefault(); move(e); });
-}
-
-/* Очистка підпису */
-window.clearSignature = (id) => {
-  const c = document.getElementById(id);
-  if (!c) return;
-  c.getContext("2d").clearRect(0, 0, c.width, c.height);
-  if (id === "signatureFreelancer") document.getElementById("signatureFreelancerDate").innerText = "";
-  if (id === "signatureClient") document.getElementById("signatureClientDate").innerText = "";
-};
-
-/* Ініціалізація підписів після завантаження сторінки */
-document.addEventListener("DOMContentLoaded", () => {
-  setupSignature("signatureFreelancer", "signatureFreelancerDate");
-  setupSignature("signatureClient", "signatureClientDate");
-});
-
-// 🔹 Load Business Info
-// 🔹 Load Business Info (smart fallback)
-// ✅ Load Business Info directly from users/{uid}
-async function loadBusinessInfo(uid) {
-  try {
-    const snap = await getDoc(doc(db, "users", uid));
-    if (snap.exists()) {
-      const d = snap.data();
-      $("businessName").value = d.businessName || "";
-      $("kvk").value = d.kvk || "";
-      $("vat").value = d.btw || ""; // у profile.html поле називається btw
-      $("iban").value = d.iban || "";
-      $("businessAddress").value = d.businessAddress || "";
-      console.log("✅ Business Info loaded directly from users/{uid}");
-    } else {
-      console.warn("⚠️ No business data found in users/{uid}");
-    }
-  } catch (e) {
-    console.error("❌ Error loading business info:", e);
-  }
-}
-
-// 🔹 Load Clients
-async function loadClients(uid) {
-  const snap = await getDocs(collection(db, "users", uid, "clients"));
-  snap.forEach(docSnap => {
-    const c = docSnap.data();
-    const opt = document.createElement("option");
-    opt.value = docSnap.id;
-    opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
-    $("clientSelect").appendChild(opt);
-  });
-}
-
-// 🔹 Autofill client on select
-$("clientSelect").addEventListener("change", async () => {
-  const user = auth.currentUser;
-  const id = $("clientSelect").value;
-  if (!id) return;
-  const snap = await getDoc(doc(db, "users", user.uid, "clients", id));
-  if (snap.exists()) {
-    const c = snap.data();
-    $("clientName").value = c.clientName || "";
-    $("clientEmail").value = c.email || "";
-    $("clientPhone").value = c.phone || "";
-    $("clientAddress").value = c.address || "";
-  }
-});
-
-// 🔹 Generate Contract ID
-async function generateContractId(uid) {
-  const ref = doc(db, "users", uid);
-  const year = new Date().getFullYear();
-  let out = "";
-  await runTransaction(db, async tx => {
-    const snap = await tx.get(ref);
-    const last = snap.exists() ? (snap.data().lastContractNumber || 0) : 0;
-    const next = last + 1;
-    tx.set(ref, { lastContractNumber: next }, { merge: true });
-    out = `CT-${year}-${String(next).padStart(3, "0")}`;
-  });
-  return out;
-}
-
-// 🔹 Save Contract
-async function saveContract(uid){
-  const data = {
-    contractId: $("#contractId").value,
-    status: $("#status").value,
-    date: $("#date").value,
-    projectTitle: $("#projectTitle").value,
-
-    // ---- Business ----
-    businessName: $("#businessName").value,
-    businessEmail: $("#businessEmail")?.value || "",
-    businessPhone: $("#businessPhone")?.value || "",
-    kvk: $("#kvk").value,
-    vat: $("#vat").value,
-    iban: $("#iban").value,
-    businessAddress: $("#businessAddress").value,
-
-    // ---- Client ----
-    clientName: $("#clientName").value,
-    clientEmail: $("#clientEmail").value,
-    clientPhone: $("#clientPhone").value,
-    clientAddress: $("#clientAddress").value,
-
-    // ---- Project ----
-    projectScope: $("#projectScope").value,
-    timeline: $("#timeline").value,
-    paymentTerms: $("#paymentTerms").value,
-    legalTerms: $("#legalTerms").value,
-
-    // ---- Signatures ----
-    freelancerSignature: document.getElementById("freelancerSign").toDataURL(),
-    clientSignature: document.getElementById("clientSign").toDataURL(),
-    freelancerDate: document.getElementById("freelancerDate").textContent,
-    clientDate: document.getElementById("clientDate").textContent,
-
-    createdAt: new Date()
-  };
-  await addDoc(collection(db, "users", uid, "contracts"), data);
-  alert("✅ Contract saved successfully!");
-  location.href = "contracts-list.html";
-}
-
-// 🔹 Auth
-onAuthStateChanged(auth, async user => {
-  if (!user) return location.href = "login.html";
-  $("date").value = new Date().toISOString().split("T")[0];
-  $("contractId").value = await generateContractId(user.uid);
-  await loadBusinessInfo(user.uid);
-  await loadClients(user.uid);
-  $("saveBtn").onclick = () => saveContract(user.uid);
-});
-</script>
 </body>
 </html>
+
