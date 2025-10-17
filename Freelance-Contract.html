@@ -160,7 +160,7 @@
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-  <script type="module">
+<script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -247,9 +247,9 @@ async function loadBusinessInfo(uid) {
     $("kvk").value = d.kvk || "";
     $("vat").value = d.vat || d.btw || "";
     $("iban").value = d.iban || "";
-    $("businessAddress").value = d.businessAddress || "";
-    $("businessPhone").value = d.businessPhone || "";
-    $("businessEmail").value = d.email || "";
+    $("businessAddress").value = d.businessAddress || d.address || "";
+    $("businessPhone").value = d.businessPhone || d.phone || "";
+    $("businessEmail").value = d.businessEmail || d.email || "";
   }
 }
 
@@ -271,9 +271,9 @@ async function loadClients(uid) {
     const c = loadedClients[id];
     if (c) {
       $("clientName").value = c.clientName || "";
-      $("clientEmail").value = c.clientEmail || "";
-      $("clientPhone").value = c.clientPhone || "";
-      $("clientAddress").value = c.clientAddress || "";
+      $("clientEmail").value = c.clientEmail || c.email || "";
+      $("clientPhone").value = c.clientPhone || c.phone || "";
+      $("clientAddress").value = c.clientAddress || c.address || "";
     }
   });
 }
@@ -300,6 +300,20 @@ function fillForm(data) {
   $("legalTerms").value = data.legalTerms || "";
   $("signatureFreelancerDate").textContent = data.freelancerDate || "";
   $("signatureClientDate").textContent = data.clientDate || "";
+
+  // 🟢 Встановлюємо правильного клієнта в select (якщо знайдено)
+  const select = $("clientSelect");
+  for (const [id, c] of Object.entries(loadedClients)) {
+    if (
+      c.clientEmail === data.clientEmail ||
+      c.clientName === data.clientName
+    ) {
+      select.value = id;
+      select.dispatchEvent(new Event("change")); // <— ОБОВ'ЯЗКОВО
+      break;
+    }
+  }
+
   if (data.freelancerStamp) {
     freelancerStampBase64 = data.freelancerStamp;
     $("freelancerStampPreview").src = freelancerStampBase64;
@@ -365,11 +379,13 @@ onAuthStateChanged(auth, async user => {
   if (!user) return location.href = "login.html";
   const uid = user.uid;
   const editId = localStorage.getItem("editContractId");
+
   setupSignature("signatureFreelancer", "signatureFreelancerDate");
   setupSignature("signatureClient", "signatureClientDate");
   setupImageUpload();
   await loadBusinessInfo(uid);
   await loadClients(uid);
+
   if (editId) {
     const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
     if (snap.exists()) {
@@ -380,6 +396,7 @@ onAuthStateChanged(auth, async user => {
     $("contractId").value = await generateContractId(uid);
     $("date").value = new Date().toISOString().split("T")[0];
   }
+
   $("saveBtn").onclick = () => saveContract(uid, contractToEdit);
 });
 </script>
