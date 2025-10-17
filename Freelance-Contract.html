@@ -265,6 +265,17 @@ async function loadClients(uid) {
     select.appendChild(opt);
     loadedClients[docSnap.id] = c;
   });
+
+  select.addEventListener("change", () => {
+    const id = select.value;
+    const c = loadedClients[id];
+    if (c) {
+      $("clientName").value = c.clientName || "";
+      $("clientEmail").value = c.clientEmail || "";
+      $("clientPhone").value = c.clientPhone || "";
+      $("clientAddress").value = c.clientAddress || "";
+    }
+  });
 }
 
 function fillForm(data) {
@@ -313,6 +324,7 @@ async function generateContractId(uid) {
 async function saveContract(uid, id = null) {
   const selectedClientId = $("clientSelect").value;
   const clientData = loadedClients[selectedClientId] || {};
+
   const data = {
     contractId: $("contractId").value,
     status: $("status").value,
@@ -325,10 +337,10 @@ async function saveContract(uid, id = null) {
     businessAddress: $("businessAddress").value,
     businessPhone: $("businessPhone").value,
     businessEmail: $("businessEmail").value,
-    clientName: clientData.clientName || "",
-    clientEmail: clientData.clientEmail || "",
-    clientPhone: clientData.clientPhone || "",
-    clientAddress: clientData.clientAddress || "",
+    clientName: clientData.clientName || $("clientName").value,
+    clientEmail: clientData.clientEmail || $("clientEmail").value,
+    clientPhone: clientData.clientPhone || $("clientPhone").value,
+    clientAddress: clientData.clientAddress || $("clientAddress").value,
     projectScope: $("projectScope").value,
     timeline: $("timeline").value,
     paymentTerms: $("paymentTerms").value,
