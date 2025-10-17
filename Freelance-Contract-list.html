@@ -92,201 +92,102 @@ canvas{background:#1e293b;border-radius:12px;padding:10px;}
 <div id="msg">✅ Synced</div>
 <footer><p>© 2025 SmartWerk</p></footer>
 
+<!-- 🚀 Логіка list.js — ТІЛЬКИ для перегляду, редагування, PDF -->
 <script type="module">
-// freelance-contract-logic.js — ОНОВЛЕНО ДЛЯ РЕДАГУВАННЯ + ПЕРЕВІРКИ ELEMENTS
-if (document.getElementById("date")) {
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import {
-    getFirestore,
-    collection,
-    getDocs,
-    doc,
-    getDoc,
-    addDoc,
-    setDoc,
-    runTransaction
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-    authDomain: "smartwerk8520.firebaseapp.com",
-    projectId: "smartwerk8520",
-    appId: "1:607670981972:web:c07103c981c86860d724c1"
-  };
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const $ = id => document.getElementById(id);
-
-function setupSignature(canvasId, dateId) {
-  const c = $(canvasId);
-  if (!c) return;
-  const ctx = c.getContext("2d");
-  let drawing = false;
-  const start = () => { drawing = true; ctx.beginPath(); };
-  const end = () => {
-    if (!drawing) return;
-    drawing = false;
-    const now = new Date().toLocaleDateString("nl-NL");
-    $(dateId).innerText = now;
-  };
-  const move = e => {
-    if (!drawing) return;
-    const r = c.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
-    ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
-  };
-  c.addEventListener("mousedown", start);
-  c.addEventListener("mouseup", end);
-  c.addEventListener("mouseleave", () => (drawing = false));
-  c.addEventListener("mousemove", move);
-  c.addEventListener("touchstart", e => { e.preventDefault(); start(); });
-  c.addEventListener("touchend", e => { e.preventDefault(); end(); });
-  c.addEventListener("touchmove", e => { e.preventDefault(); move(e); });
-}
-
-window.clearSignature = id => {
-  const c = $(id);
-  if (!c) return;
-  c.getContext("2d").clearRect(0, 0, c.width, c.height);
-  if (id === "signatureFreelancer") $("signatureFreelancerDate").innerText = "";
-  if (id === "signatureClient") $("signatureClientDate").innerText = "";
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1"
 };
 
-async function loadBusinessInfo(uid) {
-  const snap = await getDoc(doc(db, "users", uid));
-  if (snap.exists()) {
-    const d = snap.data();
-    $("businessName").value = d.businessName || "";
-    $("kvk").value = d.kvk || "";
-    $("vat").value = d.btw || "";
-    $("iban").value = d.iban || "";
-    $("businessAddress").value = d.businessAddress || "";
-  }
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+
+function renderStatus(status) {
+  return `<span class="status ${status.toLowerCase()}">${status}</span>`;
 }
 
-async function loadClients(uid) {
-  const el = $("clientSelect");
-  if (!el) return;
-  const snap = await getDocs(collection(db, "users", uid, "clients"));
-  snap.forEach(docSnap => {
-    const c = docSnap.data();
-    const opt = document.createElement("option");
-    opt.value = docSnap.id;
-    opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
-    el.appendChild(opt);
-  });
+function renderRow(docSnap) {
+  const d = docSnap.data();
+  return `
+    <tr>
+      <td>${d.contractId || "-"}</td>
+      <td>${d.projectTitle || "-"}</td>
+      <td>${d.clientName || "-"}</td>
+      <td>${renderStatus(d.status || "Draft")}</td>
+      <td>${d.date || "-"}</td>
+      <td class="actions">
+        <button class="btn" onclick="editContract('${docSnap.id}')">✏️ Edit</button>
+        <button class="btn btn-danger" onclick="deleteContract('${docSnap.id}')">🗑 Delete</button>
+      </td>
+    </tr>
+  `;
 }
 
-const clientSelect = $("clientSelect");
-if (clientSelect) {
-  clientSelect.addEventListener("change", async () => {
-    const user = auth.currentUser;
-    const id = clientSelect.value;
-    if (!id) return;
-    const snap = await getDoc(doc(db, "users", user.uid, "clients", id));
-    if (snap.exists()) {
-      const c = snap.data();
-      $("clientName").value = c.clientName || "";
-      $("clientEmail").value = c.email || "";
-      $("clientPhone").value = c.phone || "";
-      $("clientAddress").value = c.address || "";
+window.editContract = id => {
+  localStorage.setItem("editContractId", id);
+  location.href = "Freelance-Contract.html";
+};
+
+window.deleteContract = async id => {
+  const user = auth.currentUser;
+  if (!confirm("Are you sure you want to delete this contract?")) return;
+  await deleteDoc(doc(db, "users", user.uid, "contracts", id));
+  loadContracts();
+};
+
+async function loadContracts() {
+  const user = auth.currentUser;
+  const body = $("contractsBody");
+  body.innerHTML = "";
+  const snap = await getDocs(collection(db, "users", user.uid, "contracts"));
+  let html = "";
+  const kpis = { draft: 0, sent: 0, signed: 0, completed: 0 };
+  snap.forEach(doc => {
+    const d = doc.data();
+    if (filterMatch(d)) {
+      html += renderRow(doc);
     }
+    kpis[d.status?.toLowerCase()]++;
   });
+  body.innerHTML = html || `<tr><td colspan='6' style='text-align:center;color:#94a3b8;'>No contracts found</td></tr>`;
+  $("kpi-draft").textContent = kpis.draft;
+  $("kpi-sent").textContent = kpis.sent;
+  $("kpi-signed").textContent = kpis.signed;
+  $("kpi-completed").textContent = kpis.completed;
+  $("kpi-total").textContent = snap.size;
 }
 
-async function generateContractId(uid) {
-  const ref = doc(db, "users", uid);
-  const year = new Date().getFullYear();
-  let out = "";
-  await runTransaction(db, async tx => {
-    const snap = await tx.get(ref);
-    const last = snap.exists() ? (snap.data().lastContractNumber || 0) : 0;
-    const next = last + 1;
-    tx.set(ref, { lastContractNumber: next }, { merge: true });
-    out = `CT-${year}-${String(next).padStart(3, "0")}`;
-  });
-  return out;
+function filterMatch(d) {
+  const term = $("searchInput").value.toLowerCase();
+  const status = $("statusFilter").value;
+  return (!status || d.status === status) && (
+    d.contractId?.toLowerCase().includes(term) ||
+    d.projectTitle?.toLowerCase().includes(term) ||
+    d.clientName?.toLowerCase().includes(term)
+  );
 }
 
-async function saveContract(uid, editingId = null) {
-  const data = {
-    contractId: $("contractId").value,
-    status: $("status").value,
-    date: $("date").value,
-    projectTitle: $("projectTitle").value,
-    businessName: $("businessName").value,
-    kvk: $("kvk").value,
-    vat: $("vat").value,
-    iban: $("iban").value,
-    businessAddress: $("businessAddress").value,
-    clientName: $("clientName").value,
-    clientEmail: $("clientEmail").value,
-    clientPhone: $("clientPhone").value,
-    clientAddress: $("clientAddress").value,
-    projectScope: $("projectScope").value,
-    timeline: $("timeline").value,
-    paymentTerms: $("paymentTerms").value,
-    legalTerms: $("legalTerms").value,
-    freelancerSignature: $("signatureFreelancer").toDataURL(),
-    clientSignature: $("signatureClient").toDataURL(),
-    freelancerDate: $("signatureFreelancerDate").textContent,
-    clientDate: $("signatureClientDate").textContent,
-    updatedAt: new Date().toISOString()
-  };
-  if (editingId) {
-    await setDoc(doc(db, "users", uid, "contracts", editingId), data, { merge: true });
-    localStorage.removeItem("editContractId");
-  } else {
-    data.createdAt = new Date().toISOString();
-    await addDoc(collection(db, "users", uid, "contracts"), data);
-  }
-  alert("✅ Contract saved successfully!");
-  location.href = "Freelance-Contract-list.html";
-}
+$("refreshBtn").onclick = loadContracts;
+$("searchInput").oninput = loadContracts;
+$("statusFilter").onchange = loadContracts;
 
-onAuthStateChanged(auth, async user => {
-    if (!user) return location.href = "login.html";
-    const uid = user.uid;
-    const editId = localStorage.getItem("editContractId");
-    if ($("date")) $("date").value = new Date().toISOString().split("T")[0];
-    setupSignature("signatureFreelancer", "signatureFreelancerDate");
-    setupSignature("signatureClient", "signatureClientDate");
-    await loadBusinessInfo(uid);
-    await loadClients(uid);
-  if (editId) {
-    const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
-    if (snap.exists()) {
-      const c = snap.data();
-      $("contractId").value = c.contractId || "";
-      $("status").value = c.status || "Draft";
-      $("date").value = c.date || "";
-      $("projectTitle").value = c.projectTitle || "";
-      $("businessName").value = c.businessName || "";
-      $("kvk").value = c.kvk || "";
-      $("vat").value = c.vat || "";
-      $("iban").value = c.iban || "";
-      $("businessAddress").value = c.businessAddress || "";
-      $("clientName").value = c.clientName || "";
-      $("clientEmail").value = c.clientEmail || "";
-      $("clientPhone").value = c.clientPhone || "";
-      $("clientAddress").value = c.clientAddress || "";
-      $("projectScope").value = c.projectScope || "";
-      $("timeline").value = c.timeline || "";
-      $("paymentTerms").value = c.paymentTerms || "";
-      $("legalTerms").value = c.legalTerms || "";
-      $("signatureFreelancerDate").textContent = c.freelancerDate || "";
-      $("signatureClientDate").textContent = c.clientDate || "";
-      const fImg = new Image(); fImg.onload = () => $("signatureFreelancer").getContext("2d").drawImage(fImg,0,0); fImg.src = c.freelancerSignature;
-      const cImg = new Image(); cImg.onload = () => $("signatureClient").getContext("2d").drawImage(cImg,0,0); cImg.src = c.clientSignature;
-    }
-  } else {
-    $("contractId").value = await generateContractId(uid);
-  }
-  $("saveBtn").onclick = () => saveContract(uid, editId);
+onAuthStateChanged(auth, user => {
+  if (!user) return location.href = "login.html";
+  loadContracts();
 });
 </script>
 </body>
