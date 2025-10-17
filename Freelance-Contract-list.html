@@ -94,29 +94,30 @@ canvas{background:#1e293b;border-radius:12px;padding:10px;}
 
 <script type="module">
 // freelance-contract-logic.js — ОНОВЛЕНО ДЛЯ РЕДАГУВАННЯ + ПЕРЕВІРКИ ELEMENTS
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-  addDoc,
-  setDoc,
-  runTransaction
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+if (document.getElementById("date")) {
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+    addDoc,
+    setDoc,
+    runTransaction
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1"
+  };
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const $ = id => document.getElementById(id);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const $ = id => document.getElementById(id);
 
 function setupSignature(canvasId, dateId) {
   const c = $(canvasId);
@@ -248,14 +249,14 @@ async function saveContract(uid, editingId = null) {
 }
 
 onAuthStateChanged(auth, async user => {
-  if (!user) return location.href = "login.html";
-  const uid = user.uid;
-  const editId = localStorage.getItem("editContractId");
-  $("date").value = new Date().toISOString().split("T")[0];
-  setupSignature("signatureFreelancer", "signatureFreelancerDate");
-  setupSignature("signatureClient", "signatureClientDate");
-  await loadBusinessInfo(uid);
-  await loadClients(uid);
+    if (!user) return location.href = "login.html";
+    const uid = user.uid;
+    const editId = localStorage.getItem("editContractId");
+    if ($("date")) $("date").value = new Date().toISOString().split("T")[0];
+    setupSignature("signatureFreelancer", "signatureFreelancerDate");
+    setupSignature("signatureClient", "signatureClientDate");
+    await loadBusinessInfo(uid);
+    await loadClients(uid);
   if (editId) {
     const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
     if (snap.exists()) {
