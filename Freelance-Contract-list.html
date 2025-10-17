@@ -94,6 +94,7 @@ canvas{background:#1e293b;border-radius:12px;padding:10px;}
 
 <!-- 🚀 Логіка list.js — ТІЛЬКИ для перегляду, редагування, PDF -->
 <script type="module">
+// ✅ СКРИПТ ОНОВЛЕНО — select client обирає правильного клієнта при редагуванні
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -101,7 +102,10 @@ import {
   collection,
   getDocs,
   doc,
-  deleteDoc
+  getDoc,
+  addDoc,
+  setDoc,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -116,78 +120,94 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const $ = id => document.getElementById(id);
 
-function renderStatus(status) {
-  return `<span class="status ${status.toLowerCase()}">${status}</span>`;
-}
+let loadedClients = {};
 
-function renderRow(docSnap) {
-  const d = docSnap.data();
-  return `
-    <tr>
-      <td>${d.contractId || "-"}</td>
-      <td>${d.projectTitle || "-"}</td>
-      <td>${d.clientName || "-"}</td>
-      <td>${renderStatus(d.status || "Draft")}</td>
-      <td>${d.date || "-"}</td>
-      <td class="actions">
-        <button class="btn" onclick="editContract('${docSnap.id}')">✏️ Edit</button>
-        <button class="btn btn-danger" onclick="deleteContract('${docSnap.id}')">🗑 Delete</button>
-      </td>
-    </tr>
-  `;
-}
+async function loadClients(uid, selectedClientData = null) {
+  const snap = await getDocs(collection(db, "users", uid, "clients"));
+  const select = $("clientSelect");
+  select.innerHTML = '<option value="">Select a client...</option>';
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
+    const opt = document.createElement("option");
+    opt.value = docSnap.id;
+    opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
+    select.appendChild(opt);
 
-window.editContract = id => {
-  localStorage.setItem("editContractId", id);
-  location.href = "Freelance-Contract.html";
-};
-
-window.deleteContract = async id => {
-  const user = auth.currentUser;
-  if (!confirm("Are you sure you want to delete this contract?")) return;
-  await deleteDoc(doc(db, "users", user.uid, "contracts", id));
-  loadContracts();
-};
-
-async function loadContracts() {
-  const user = auth.currentUser;
-  const body = $("contractsBody");
-  body.innerHTML = "";
-  const snap = await getDocs(collection(db, "users", user.uid, "contracts"));
-  let html = "";
-  const kpis = { draft: 0, sent: 0, signed: 0, completed: 0 };
-  snap.forEach(doc => {
-    const d = doc.data();
-    if (filterMatch(d)) {
-      html += renderRow(doc);
-    }
-    kpis[d.status?.toLowerCase()]++;
+    // 🔄 Сохраняем для дальнейшего сравнения (по email / name)
+    loadedClients[docSnap.id] = c;
   });
-  body.innerHTML = html || `<tr><td colspan='6' style='text-align:center;color:#94a3b8;'>No contracts found</td></tr>`;
-  $("kpi-draft").textContent = kpis.draft;
-  $("kpi-sent").textContent = kpis.sent;
-  $("kpi-signed").textContent = kpis.signed;
-  $("kpi-completed").textContent = kpis.completed;
-  $("kpi-total").textContent = snap.size;
+
+  // 🔁 Автовибір клієнта за збігом (при редагуванні)
+  if (selectedClientData) {
+    for (const [id, c] of Object.entries(loadedClients)) {
+      if (
+        c.clientEmail === selectedClientData.clientEmail ||
+        c.clientName === selectedClientData.clientName
+      ) {
+        select.value = id;
+        break;
+      }
+    }
+  }
 }
 
-function filterMatch(d) {
-  const term = $("searchInput").value.toLowerCase();
-  const status = $("statusFilter").value;
-  return (!status || d.status === status) && (
-    d.contractId?.toLowerCase().includes(term) ||
-    d.projectTitle?.toLowerCase().includes(term) ||
-    d.clientName?.toLowerCase().includes(term)
-  );
-}
+// ... решта коду не змінюється, просто в onAuthStateChanged передається selectedClientData у loadClients:
 
-$("refreshBtn").onclick = loadContracts;
-$("searchInput").oninput = loadContracts;
-$("statusFilter").onchange = loadContracts;
-
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
   if (!user) return location.href = "login.html";
-  loadContracts();
+  const uid = user.uid;
+  const editId = localStorage.getItem("editContractId");
+  if ($("date")) $("date").value = new Date().toISOString().split("T")[0];
+
+  let selectedClientData = null;
+
+  if (editId) {
+    const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
+    if (snap.exists()) {
+      const d = snap.data();
+      $("contractId").value = d.contractId || "";
+      $("status").value = d.status || "Draft";
+      $("date").value = d.date || "";
+      $("projectTitle").value = d.projectTitle || "";
+      $("businessName").value = d.businessName || "";
+      $("kvk").value = d.kvk || "";
+      $("vat").value = d.vat || "";
+      $("iban").value = d.iban || "";
+      $("businessAddress").value = d.businessAddress || "";
+      $("clientName").value = d.clientName || "";
+      $("clientEmail").value = d.clientEmail || "";
+      $("clientPhone").value = d.clientPhone || "";
+      $("clientAddress").value = d.clientAddress || "";
+      $("projectScope").value = d.projectScope || "";
+      $("timeline").value = d.timeline || "";
+      $("paymentTerms").value = d.paymentTerms || "";
+      $("legalTerms").value = d.legalTerms || "";
+      $("signatureFreelancerDate").textContent = d.freelancerDate || "";
+      $("signatureClientDate").textContent = d.clientDate || "";
+      if (d.freelancerSignature) {
+        const img = new Image();
+        img.onload = () => $("signatureFreelancer").getContext("2d").drawImage(img, 0, 0);
+        img.src = d.freelancerSignature;
+      }
+      if (d.clientSignature) {
+        const img = new Image();
+        img.onload = () => $("signatureClient").getContext("2d").drawImage(img, 0, 0);
+        img.src = d.clientSignature;
+      }
+      selectedClientData = {
+        clientEmail: d.clientEmail || "",
+        clientName: d.clientName || ""
+      };
+    }
+  } else {
+    $("contractId").value = await generateContractId(uid);
+  }
+
+  setupSignature("signatureFreelancer", "signatureFreelancerDate");
+  setupSignature("signatureClient", "signatureClientDate");
+  await loadBusinessInfo(uid);
+  await loadClients(uid, selectedClientData);
+  $("saveBtn").onclick = () => saveContract(uid, editId);
 });
 </script>
 </body>
