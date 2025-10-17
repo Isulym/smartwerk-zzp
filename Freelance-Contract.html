@@ -143,6 +143,188 @@
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
+
+  <!-- Firebase + Signature Logic Restored -->
+  <script>
+// freelance-contract-logic.js
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  addDoc,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+
+function setupSignature(canvasId, dateId) {
+  const c = $(canvasId);
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  let drawing = false;
+
+  const start = () => {
+    drawing = true;
+    ctx.beginPath();
+  };
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    const now = new Date().toLocaleDateString("nl-NL");
+    $(dateId).innerText = now;
+  };
+  const move = e => {
+    if (!drawing) return;
+    const r = c.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  c.addEventListener("mousedown", start);
+  c.addEventListener("mouseup", end);
+  c.addEventListener("mouseleave", () => (drawing = false));
+  c.addEventListener("mousemove", move);
+
+  c.addEventListener("touchstart", e => { e.preventDefault(); start(); });
+  c.addEventListener("touchend", e => { e.preventDefault(); end(); });
+  c.addEventListener("touchmove", e => { e.preventDefault(); move(e); });
+}
+
+window.clearSignature = id => {
+  const c = $(id);
+  if (!c) return;
+  c.getContext("2d").clearRect(0, 0, c.width, c.height);
+  if (id === "signatureFreelancer") $("signatureFreelancerDate").innerText = "";
+  if (id === "signatureClient") $("signatureClientDate").innerText = "";
+};
+
+async function loadBusinessInfo(uid) {
+  try {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      $("businessName").value = d.businessName || "";
+      $("kvk").value = d.kvk || "";
+      $("vat").value = d.btw || "";
+      $("iban").value = d.iban || "";
+      $("businessAddress").value = d.businessAddress || "";
+    }
+  } catch (e) {
+    console.error("❌ Error loading business info:", e);
+  }
+}
+
+async function loadClients(uid) {
+  const snap = await getDocs(collection(db, "users", uid, "clients"));
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
+    const opt = document.createElement("option");
+    opt.value = docSnap.id;
+    opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
+    $("clientSelect").appendChild(opt);
+  });
+}
+
+$("clientSelect").addEventListener("change", async () => {
+  const user = auth.currentUser;
+  const id = $("clientSelect").value;
+  if (!id) return;
+  const snap = await getDoc(doc(db, "users", user.uid, "clients", id));
+  if (snap.exists()) {
+    const c = snap.data();
+    $("clientName").value = c.clientName || "";
+    $("clientEmail").value = c.email || "";
+    $("clientPhone").value = c.phone || "";
+    $("clientAddress").value = c.address || "";
+  }
+});
+
+async function generateContractId(uid) {
+  const ref = doc(db, "users", uid);
+  const year = new Date().getFullYear();
+  let out = "";
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(ref);
+    const last = snap.exists() ? (snap.data().lastContractNumber || 0) : 0;
+    const next = last + 1;
+    tx.set(ref, { lastContractNumber: next }, { merge: true });
+    out = `CT-${year}-${String(next).padStart(3, "0")}`;
+  });
+  return out;
+}
+
+async function saveContract(uid) {
+  const data = {
+    contractId: $("contractId").value,
+    status: $("status").value,
+    date: $("date").value,
+    projectTitle: $("projectTitle").value,
+
+    businessName: $("businessName").value,
+    kvk: $("kvk").value,
+    vat: $("vat").value,
+    iban: $("iban").value,
+    businessAddress: $("businessAddress").value,
+
+    clientName: $("clientName").value,
+    clientEmail: $("clientEmail").value,
+    clientPhone: $("clientPhone").value,
+    clientAddress: $("clientAddress").value,
+
+    projectScope: $("projectScope").value,
+    timeline: $("timeline").value,
+    paymentTerms: $("paymentTerms").value,
+    legalTerms: $("legalTerms").value,
+
+    freelancerSignature: $("signatureFreelancer").toDataURL(),
+    clientSignature: $("signatureClient").toDataURL(),
+    freelancerDate: $("signatureFreelancerDate").textContent,
+    clientDate: $("signatureClientDate").textContent,
+
+    createdAt: new Date()
+  };
+
+  await addDoc(collection(db, "users", uid, "contracts"), data);
+  alert("✅ Contract saved successfully!");
+  location.href = "Freelance-Contract-list.html";
+}
+
+onAuthStateChanged(auth, async user => {
+  if (!user) return location.href = "login.html";
+  $("date").value = new Date().toISOString().split("T")[0];
+  $("contractId").value = await generateContractId(user.uid);
+  await loadBusinessInfo(user.uid);
+  await loadClients(user.uid);
+  setupSignature("signatureFreelancer", "signatureFreelancerDate");
+  setupSignature("signatureClient", "signatureClientDate");
+  $("saveBtn").onclick = () => saveContract(user.uid);
+});
+
+    
+  </script>
 </body>
 </html>
+
 
