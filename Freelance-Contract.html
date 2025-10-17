@@ -16,7 +16,6 @@
   </header>
 
   <main>
-    <!-- Updated to match 2025 standards -->
     <section class="block">
       <h2>📋 Contract Overview</h2>
       <div class="grid-3">
@@ -77,8 +76,7 @@
       <label>Address</label>
       <input id="businessAddress" readonly />
     </section>
-
-    <section class="block">
+        <section class="block">
       <h2>👤 Client Info</h2>
       <div class="grid-2">
         <div>
@@ -144,9 +142,9 @@
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
-  <!-- Firebase + Signature Logic Restored -->
-  <script type="module"> 
-// freelance-contract-logic.js
+ <!-- ⬆️ Весь HTML-код (з розміткою форми) залишається незмінним -->
+
+<script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -156,6 +154,7 @@ import {
   doc,
   getDoc,
   addDoc,
+  setDoc,
   runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -165,83 +164,13 @@ const firebaseConfig = {
   projectId: "smartwerk8520",
   appId: "1:607670981972:web:c07103c981c86860d724c1"
 };
-
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 const $ = id => document.getElementById(id);
 
-function setupSignature(canvasId, dateId) {
-  const c = $(canvasId);
-  if (!c) return;
-  const ctx = c.getContext("2d");
-  let drawing = false;
-  const start = () => { drawing = true; ctx.beginPath(); };
-  const end = () => {
-    if (!drawing) return;
-    drawing = false;
-    const now = new Date().toLocaleDateString("nl-NL");
-    $(dateId).innerText = now;
-  };
-  const move = e => {
-    if (!drawing) return;
-    const r = c.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
-    ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
-  };
-  c.addEventListener("mousedown", start);
-  c.addEventListener("mouseup", end);
-  c.addEventListener("mouseleave", () => (drawing = false));
-  c.addEventListener("mousemove", move);
-  c.addEventListener("touchstart", e => { e.preventDefault(); start(); });
-  c.addEventListener("touchend", e => { e.preventDefault(); end(); });
-  c.addEventListener("touchmove", e => { e.preventDefault(); move(e); });
-}
-
-async function loadBusinessInfo(uid) {
-  try {
-    const snap = await getDoc(doc(db, "users", uid));
-    if (snap.exists()) {
-      const d = snap.data();
-      $("businessName").value = d.businessName || "";
-      $("kvk").value = d.kvk || "";
-      $("vat").value = d.btw || "";
-      $("iban").value = d.iban || "";
-      $("businessAddress").value = d.businessAddress || "";
-    }
-  } catch (e) {
-    console.error("❌ Error loading business info:", e);
-  }
-}
-
-async function loadClients(uid) {
-  const snap = await getDocs(collection(db, "users", uid, "clients"));
-  snap.forEach(docSnap => {
-    const c = docSnap.data();
-    const opt = document.createElement("option");
-    opt.value = docSnap.id;
-    opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
-    $("clientSelect").appendChild(opt);
-  });
-}
-
-$("clientSelect").addEventListener("change", async () => {
-  const user = auth.currentUser;
-  const id = $("clientSelect").value;
-  if (!id) return;
-  const snap = await getDoc(doc(db, "users", user.uid, "clients", id));
-  if (snap.exists()) {
-    const c = snap.data();
-    $("clientName").value = c.clientName || "";
-    $("clientEmail").value = c.email || "";
-    $("clientPhone").value = c.phone || "";
-    $("clientAddress").value = c.address || "";
-  }
-});
-    let contractToEdit = null;
+let contractToEdit = null;
+let loadedClients = {};
 
 function fillForm(data) {
   $("contractId").value = data.contractId || "";
@@ -263,16 +192,29 @@ function fillForm(data) {
   $("legalTerms").value = data.legalTerms || "";
   $("signatureFreelancerDate").textContent = data.freelancerDate || "";
   $("signatureClientDate").textContent = data.clientDate || "";
-  if (data.freelancerSignature) {
-    const img = new Image();
-    img.onload = () => $("signatureFreelancer").getContext("2d").drawImage(img, 0, 0);
-    img.src = data.freelancerSignature;
+
+  // ⬇️ Автовибір клієнта у select (за email або name)
+  const select = $("clientSelect");
+  for (const [id, c] of Object.entries(loadedClients)) {
+    if (c.clientEmail === data.clientEmail || c.clientName === data.clientName) {
+      select.value = id;
+      break;
+    }
   }
-  if (data.clientSignature) {
-    const img = new Image();
-    img.onload = () => $("signatureClient").getContext("2d").drawImage(img, 0, 0);
-    img.src = data.clientSignature;
-  }
+}
+
+async function loadClients(uid) {
+  const snap = await getDocs(collection(db, "users", uid, "clients"));
+  const select = $("clientSelect");
+  select.innerHTML = '<option value="">Select a client...</option>';
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
+    const opt = document.createElement("option");
+    opt.value = docSnap.id;
+    opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
+    select.appendChild(opt);
+    loadedClients[docSnap.id] = c;
+  });
 }
 
 async function generateContractId(uid) {
@@ -290,6 +232,9 @@ async function generateContractId(uid) {
 }
 
 async function saveContract(uid, id = null) {
+  const selectedClientId = $("clientSelect").value;
+  const clientData = loadedClients[selectedClientId] || {};
+
   const data = {
     contractId: $("contractId").value,
     status: $("status").value,
@@ -300,16 +245,14 @@ async function saveContract(uid, id = null) {
     vat: $("vat").value,
     iban: $("iban").value,
     businessAddress: $("businessAddress").value,
-    clientName: $("clientName").value,
-    clientEmail: $("clientEmail").value,
-    clientPhone: $("clientPhone").value,
-    clientAddress: $("clientAddress").value,
+    clientName: clientData.clientName || "",
+    clientEmail: clientData.clientEmail || "",
+    clientPhone: clientData.clientPhone || "",
+    clientAddress: clientData.clientAddress || "",
     projectScope: $("projectScope").value,
     timeline: $("timeline").value,
     paymentTerms: $("paymentTerms").value,
     legalTerms: $("legalTerms").value,
-    freelancerSignature: $("signatureFreelancer").toDataURL(),
-    clientSignature: $("signatureClient").toDataURL(),
     freelancerDate: $("signatureFreelancerDate").textContent,
     clientDate: $("signatureClientDate").textContent,
     updatedAt: new Date().toISOString()
@@ -324,13 +267,13 @@ async function saveContract(uid, id = null) {
   alert("✅ Contract saved");
   location.href = "Freelance-Contract-list.html";
 }
-  
+
 onAuthStateChanged(auth, async user => {
   if (!user) return location.href = "login.html";
   const uid = user.uid;
   const editId = localStorage.getItem("editContractId");
-  setupSignature("signatureFreelancer", "signatureFreelancerDate");
-  setupSignature("signatureClient", "signatureClientDate");
+  await loadClients(uid);
+
   if (editId) {
     const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
     if (snap.exists()) {
@@ -343,9 +286,10 @@ onAuthStateChanged(auth, async user => {
   }
   $("saveBtn").onclick = () => saveContract(uid, contractToEdit);
 });
-    
-  </script>
+  
+</script>
 </body>
 </html>
+
 
 
