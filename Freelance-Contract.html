@@ -144,6 +144,11 @@
 
  <!-- ⬆️ Весь HTML-код (з розміткою форми) залишається незмінним -->
 
+<!-- ... (HTML розмітка зберігається незмінною вище) ... -->
+
+<input type="file" id="uploadStamp" accept="image/*" style="margin: 10px 0;" />
+<img id="freelancerStampPreview" style="max-height:100px; display:none;" />
+
 <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -171,6 +176,7 @@ const $ = id => document.getElementById(id);
 
 let contractToEdit = null;
 let loadedClients = {};
+let freelancerStampBase64 = "";
 
 function fillForm(data) {
   $("contractId").value = data.contractId || "";
@@ -179,7 +185,7 @@ function fillForm(data) {
   $("projectTitle").value = data.projectTitle || "";
   $("businessName").value = data.businessName || "";
   $("kvk").value = data.kvk || "";
-  $("vat").value = data.vat || "";
+  $("vat").value = data.vat || data.btw || "";
   $("iban").value = data.iban || "";
   $("businessAddress").value = data.businessAddress || "";
   $("clientName").value = data.clientName || "";
@@ -192,14 +198,37 @@ function fillForm(data) {
   $("legalTerms").value = data.legalTerms || "";
   $("signatureFreelancerDate").textContent = data.freelancerDate || "";
   $("signatureClientDate").textContent = data.clientDate || "";
+  if (data.freelancerStamp) {
+    freelancerStampBase64 = data.freelancerStamp;
+    $("freelancerStampPreview").src = freelancerStampBase64;
+    $("freelancerStampPreview").style.display = "block";
+  }
+}
 
-  // ⬇️ Автовибір клієнта у select (за email або name)
-  const select = $("clientSelect");
-  for (const [id, c] of Object.entries(loadedClients)) {
-    if (c.clientEmail === data.clientEmail || c.clientName === data.clientName) {
-      select.value = id;
-      break;
-    }
+function setupImageUpload() {
+  const input = $("uploadStamp");
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      freelancerStampBase64 = e.target.result;
+      $("freelancerStampPreview").src = freelancerStampBase64;
+      $("freelancerStampPreview").style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadBusinessInfo(uid) {
+  const snap = await getDoc(doc(db, "users", uid));
+  if (snap.exists()) {
+    const d = snap.data();
+    $("businessName").value = d.businessName || "";
+    $("kvk").value = d.kvk || "";
+    $("vat").value = d.vat || d.btw || "";
+    $("iban").value = d.iban || "";
+    $("businessAddress").value = d.businessAddress || "";
   }
 }
 
@@ -211,7 +240,7 @@ async function loadClients(uid) {
     const c = docSnap.data();
     const opt = document.createElement("option");
     opt.value = docSnap.id;
-    opt.textContent = `${c.clientName || "Unnamed"} (${c.country || ""})`;
+    opt.textContent = `${c.clientName || "Unnamed"}`;
     select.appendChild(opt);
     loadedClients[docSnap.id] = c;
   });
@@ -255,6 +284,7 @@ async function saveContract(uid, id = null) {
     legalTerms: $("legalTerms").value,
     freelancerDate: $("signatureFreelancerDate").textContent,
     clientDate: $("signatureClientDate").textContent,
+    freelancerStamp: freelancerStampBase64,
     updatedAt: new Date().toISOString()
   };
   if (id) {
@@ -273,7 +303,8 @@ onAuthStateChanged(auth, async user => {
   const uid = user.uid;
   const editId = localStorage.getItem("editContractId");
   await loadClients(uid);
-
+  await loadBusinessInfo(uid);
+  setupImageUpload();
   if (editId) {
     const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
     if (snap.exists()) {
@@ -286,10 +317,11 @@ onAuthStateChanged(auth, async user => {
   }
   $("saveBtn").onclick = () => saveContract(uid, contractToEdit);
 });
-  
 </script>
 </body>
 </html>
+  
+
 
 
 
