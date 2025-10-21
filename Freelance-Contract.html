@@ -406,16 +406,16 @@ onAuthStateChanged(auth, async user => {
   await loadClients(uid);
 
   if (editId) {
-    const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
-    if (snap.exists()) {
-      contractToEdit = editId;
-      fillForm(snap.data());
-    }
-  } else {
-    $("contractId").value = await generateContractId(uid);
-    $("date").value = new Date().toISOString().split("T")[0];
+  const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
+  if (snap.exists()) {
+    contractToEdit = editId;
+    fillForm(snap.data());
   }
-
+} else {
+  // 🆕 Створюємо новий контракт
+  $("contractId").value = await generateContractId(uid);
+  $("date").value = new Date().toISOString().split("T")[0];
+}
   $("saveBtn").onclick = () => saveContract(uid, contractToEdit);
 });
 </script>
