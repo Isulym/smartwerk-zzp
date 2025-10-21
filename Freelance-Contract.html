@@ -368,6 +368,38 @@ async function generateContractId(uid) {
   return out;
 }
 
+  function validateForm() {
+  const requiredFields = [
+    { id: "clientSelect", name: "Client" },
+    { id: "projectTitle", name: "Project Title" },
+    { id: "projectScope", name: "Scope of Work" },
+    { id: "timeline", name: "Timeline" },
+    { id: "paymentTerms", name: "Payment Terms" }
+  ];
+
+  for (const field of requiredFields) {
+    const el = $(field.id);
+    if (!el.value || el.value.trim() === "") {
+      alert(`❗️ Please fill in: ${field.name}`);
+      el.focus();
+      return false;
+    }
+  }
+
+  // перевірка підпису фрилансера
+  const canvas = $("signatureFreelancer");
+  const ctx = canvas.getContext("2d");
+  const blank = document.createElement("canvas");
+  blank.width = canvas.width;
+  blank.height = canvas.height;
+  if (ctx.getImageData(0, 0, canvas.width, canvas.height).data.every(v => v === 0)) {
+    alert("❗️ Please sign the contract as Freelancer.");
+    return false;
+  }
+
+  return true;
+}
+
 async function saveContract(uid, id = null) {
   const selectedClientId = $("clientSelect").value;
   const clientData = loadedClients[selectedClientId] || {};
@@ -438,7 +470,11 @@ onAuthStateChanged(auth, async user => {
   $("contractId").value = await generateContractId(uid);
   $("date").value = new Date().toISOString().split("T")[0];
 }
-  $("saveBtn").onclick = () => saveContract(uid, contractToEdit);
+ $("saveBtn").onclick = () => {
+  if (validateForm()) {
+    saveContract(uid, contractToEdit);
+  }
+};
 });
 </script>
 </body>
