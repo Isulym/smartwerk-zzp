@@ -282,6 +282,13 @@ async function loadClients(uid) {
     select.dataset.listener = "true";
   }
 }
+
+  function safeSet(id, value) {
+  if ($(id).value.trim() === "" && value) {
+    $(id).value = value;
+  }
+}
+  
 function fillForm(data) {
   $("contractId").value = data.contractId || "";
   $("status").value = data.status || "Draft";
