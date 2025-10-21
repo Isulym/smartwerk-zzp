@@ -233,7 +233,7 @@ function drawChart(data) {
   // ✍️ Підпис фрілансера
   if (contract.signatureFreelancer) {
     doc.addImage(contract.signatureFreelancer, "PNG", 14, y, 60, 20);
-    doc.text("Freelancer Signature", 14, y + 26);
+    doc.text("Signature", 14, y + 26);
     if (contract.freelancerDate) doc.text(`Date: ${contract.freelancerDate}`, 14, y + 32);
   }
 
