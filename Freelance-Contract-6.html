@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📄 SmartWerk — Freelance Contract</title>
+  <link rel="stylesheet" href="style-Freelance-Contract.css" />
+</head>
+<body>
+  <header>
+    <h1>📄 Freelance Contract</h1>
+    <nav>
+      <a href="dashboard.html" class="btn">← Dashboard</a>
+      <a href="Freelance-Contract-list.html" class="btn btn-primary">📂 View Saved Contracts</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="block">
+      <h2>📋 Contract Overview</h2>
+      <div class="grid-3">
+        <div>
+          <label>Contract ID</label>
+          <input id="contractId" readonly />
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="status">
+            <option>Draft</option>
+            <option>Sent</option>
+            <option>Signed</option>
+            <option>Completed</option>
+          </select>
+        </div>
+        <div>
+          <label>Date</label>
+          <input id="date" type="date" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Select Client</label>
+          <select id="clientSelect">
+            <option value="">Select a client...</option>
+          </select>
+        </div>
+        <div>
+          <label>Project Title</label>
+          <input id="projectTitle" placeholder="e.g. Website redesign project" />
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>🏢 Business Info</h2>
+      <div class="grid-2">
+        <div>
+          <label>Business Name</label>
+          <input id="businessName" readonly />
+        </div>
+        <div>
+          <label>KVK Number</label>
+          <input id="kvk" readonly />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>VAT Number</label>
+          <input id="vat" readonly />
+        </div>
+        <div>
+          <label>IBAN</label>
+          <input id="iban" readonly />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Phone</label>
+          <input id="businessPhone" readonly />
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="businessEmail" readonly />
+        </div>
+      </div>
+      <label>Address</label>
+      <input id="businessAddress" readonly />
+    </section>
+        <section class="block">
+      <h2>👤 Client Info</h2>
+      <div class="grid-2">
+        <div>
+          <label>Client Name</label>
+          <input id="clientName" readonly />
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="clientEmail" readonly />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Phone</label>
+          <input id="clientPhone" readonly />
+        </div>
+        <div>
+          <label>Address</label>
+          <input id="clientAddress" readonly />
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>🧩 Project Details</h2>
+      <label>Scope of Work</label>
+      <textarea id="projectScope" rows="3"></textarea>
+
+      <label>Timeline</label>
+      <textarea id="timeline" rows="2"></textarea>
+
+      <label>Payment Terms</label>
+      <textarea id="paymentTerms" rows="2"></textarea>
+    </section>
+
+    <section class="block">
+      <h2>⚖️ Legal Terms</h2>
+      <textarea id="legalTerms" rows="4">This contract is governed by the laws of the Netherlands...</textarea>
+    </section>
+
+    <section class="block signatures">
+      <h2>✍️ Signatures</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Freelancer</h3>
+          <canvas id="signatureFreelancer" class="signature" width="300" height="100"></canvas>
+          <button type="button" class="btn-clear" onclick="clearSignature('signatureFreelancer')">🧹 Clear</button>
+          <p>Date: <span id="signatureFreelancerDate"></span></p>
+        </div>
+        <div>
+          <h3>Client</h3>
+          <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+          <button type="button" class="btn-clear" onclick="clearSignature('signatureClient')">🧹 Clear</button>
+          <p>Date: <span id="signatureClientDate"></span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>📎 Stamp / Upload Logo</h2>
+      <input type="file" id="uploadStamp" accept="image/*" />
+      <div style="margin-top:10px;">
+        <img id="freelancerStampPreview" style="max-height:100px; display:none;" />
+      </div>
+    </section>
+
+    <div style="text-align:center; margin-top:20px;">
+      <button id="saveBtn" class="btn btn-primary">💾 Save Contract</button>
+    </div>
+  </main>
+
+  <footer><p>© 2025 SmartWerk</p></footer>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  addDoc,
+  setDoc,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1"
+};
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+
+let contractToEdit = null;
+let loadedClients = {};
+let freelancerStampBase64 = "";
+
+function clearSignature(id) {
+  const c = $(id);
+  c.getContext("2d").clearRect(0, 0, c.width, c.height);
+  if (id === "signatureFreelancer") $("signatureFreelancerDate").textContent = "";
+  if (id === "signatureClient") $("signatureClientDate").textContent = "";
+}
+
+function setupSignature(canvasId, dateId) {
+  const c = $(canvasId);
+  const ctx = c.getContext("2d");
+  let drawing = false;
+  const start = () => { drawing = true; ctx.beginPath(); };
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    const now = new Date().toLocaleDateString();
+    $(dateId).textContent = now;
+  };
+  const move = e => {
+    if (!drawing) return;
+    const r = c.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+    ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+  };
+  c.addEventListener("mousedown", start);
+  c.addEventListener("mouseup", end);
+  c.addEventListener("mouseleave", () => drawing = false);
+  c.addEventListener("mousemove", move);
+  c.addEventListener("touchstart", e => { e.preventDefault(); start(); });
+  c.addEventListener("touchend", e => { e.preventDefault(); end(); });
+  c.addEventListener("touchmove", e => { e.preventDefault(); move(e); });
+}
+
+function setupImageUpload() {
+  const input = $("uploadStamp");
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      freelancerStampBase64 = e.target.result;
+      $("freelancerStampPreview").src = freelancerStampBase64;
+      $("freelancerStampPreview").style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadBusinessInfo(uid) {
+  const snap = await getDocs(collection(db, "users", uid, "invoices"));
+  const docs = snap.docs;
+  if (!docs.length) return;
+
+  // беремо перший або останній документ
+  const d = docs[docs.length - 1].data();
+
+  $("businessName").value = d.businessName || "";
+  $("kvk").value = d.kvk || "";
+  $("vat").value = d.btw || "";
+  $("iban").value = d.iban || "";
+  $("businessAddress").value = d.businessAddress || "";
+  $("businessPhone").value = d.businessPhone || "";
+  $("businessEmail").value = d.email || "";
+}
+
+async function loadClients(uid) {
+  const snap = await getDocs(collection(db, "users", uid, "clients"));
+  const select = $("clientSelect");
+  select.innerHTML = '<option value="">Select a client...</option>';
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
+    const opt = document.createElement("option");
+    opt.value = docSnap.id;
+    opt.textContent = `${c.clientName || "Unnamed"}`;
+    select.appendChild(opt);
+    loadedClients[docSnap.id] = c;
+  });
+
+  // ✅ prevent duplicate listeners
+  if (!select.dataset.listener) {
+    select.addEventListener("change", () => {
+      const id = select.value;
+      const c = loadedClients[id];
+      if (c) {
+        $("clientName").value = c.clientName || "";
+        $("clientEmail").value = c.clientEmail || c.email || "";
+        $("clientPhone").value = c.clientPhone || c.phone || "";
+        $("clientAddress").value = c.clientAddress || c.address || "";
+      }
+    });
+    select.dataset.listener = "true";
+  }
+}
+function fillForm(data) {
+  $("contractId").value = data.contractId || "";
+  $("status").value = data.status || "Draft";
+  $("date").value = data.date || new Date().toISOString().split("T")[0];
+  $("projectTitle").value = data.projectTitle || "";
+  $("businessName").value = data.businessName || "";
+  $("kvk").value = data.kvk || "";
+  $("vat").value = data.vat || data.btw || "";
+  $("iban").value = data.iban || "";
+  $("businessAddress").value = data.businessAddress || "";
+  $("businessPhone").value = data.businessPhone || "";
+  $("businessEmail").value = data.businessEmail || "";
+  $("clientName").value = data.clientName || "";
+  $("clientEmail").value = data.clientEmail || "";
+  $("clientPhone").value = data.clientPhone || "";
+  $("clientAddress").value = data.clientAddress || "";
+  $("projectScope").value = data.projectScope || "";
+  $("timeline").value = data.timeline || "";
+  $("paymentTerms").value = data.paymentTerms || "";
+  $("legalTerms").value = data.legalTerms || "";
+  $("signatureFreelancerDate").textContent = data.freelancerDate || "";
+  $("signatureClientDate").textContent = data.clientDate || "";
+
+  // 🟢 Встановлюємо правильного клієнта в select (якщо знайдено)
+  const select = $("clientSelect");
+  for (const [id, c] of Object.entries(loadedClients)) {
+    if (
+      c.clientEmail === data.clientEmail ||
+      c.clientName === data.clientName
+    ) {
+      select.value = id;
+      select.dispatchEvent(new Event("change")); // <— ОБОВ'ЯЗКОВО
+      break;
+    }
+  }
+
+  if (data.freelancerStamp) {
+    freelancerStampBase64 = data.freelancerStamp;
+    $("freelancerStampPreview").src = freelancerStampBase64;
+    $("freelancerStampPreview").style.display = "block";
+  }
+}
+
+async function generateContractId(uid) {
+  const ref = doc(db, "users", uid);
+  const year = new Date().getFullYear();
+  let out = "";
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(ref);
+    const last = snap.exists() ? (snap.data().lastContractNumber || 0) : 0;
+    const next = last + 1;
+    tx.set(ref, { lastContractNumber: next }, { merge: true });
+    out = `CT-${year}-${String(next).padStart(3, "0")}`;
+  });
+  return out;
+}
+
+async function saveContract(uid, id = null) {
+  const selectedClientId = $("clientSelect").value;
+  const clientData = loadedClients[selectedClientId] || {};
+
+  const data = {
+    contractId: $("contractId").value,
+    status: $("status").value,
+    date: $("date").value,
+    projectTitle: $("projectTitle").value,
+    businessName: $("businessName").value,
+    kvk: $("kvk").value,
+    vat: $("vat").value,
+    iban: $("iban").value,
+    businessAddress: $("businessAddress").value,
+    businessPhone: $("businessPhone").value,
+    businessEmail: $("businessEmail").value,
+    clientName: clientData.clientName || $("clientName").value,
+    clientEmail: clientData.clientEmail || $("clientEmail").value,
+    clientPhone: clientData.clientPhone || $("clientPhone").value,
+    clientAddress: clientData.clientAddress || $("clientAddress").value,
+    projectScope: $("projectScope").value,
+    timeline: $("timeline").value,
+    paymentTerms: $("paymentTerms").value,
+    legalTerms: $("legalTerms").value,
+    freelancerStamp: freelancerStampBase64,
+    freelancerDate: $("signatureFreelancerDate").textContent,
+    clientDate: $("signatureClientDate").textContent,
+    updatedAt: new Date().toISOString()
+  };
+  if (id) {
+    await setDoc(doc(db, "users", uid, "contracts", id), data, { merge: true });
+    localStorage.removeItem("editContractId");
+  } else {
+    data.createdAt = new Date().toISOString();
+    await addDoc(collection(db, "users", uid, "contracts"), data);
+  }
+  alert("✅ Contract saved");
+  location.href = "Freelance-Contract-list.html";
+}
+
+onAuthStateChanged(auth, async user => {
+  if (!user) return location.href = "login.html";
+  const uid = user.uid;
+  const editId = localStorage.getItem("editContractId");
+
+  setupSignature("signatureFreelancer", "signatureFreelancerDate");
+  setupSignature("signatureClient", "signatureClientDate");
+  setupImageUpload();
+  await loadBusinessInfo(uid);
+  await loadClients(uid);
+
+  if (editId) {
+    const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
+    if (snap.exists()) {
+      contractToEdit = editId;
+      fillForm(snap.data());
+    }
+  } else {
+    $("contractId").value = await generateContractId(uid);
+    $("date").value = new Date().toISOString().split("T")[0];
+  }
+
+  $("saveBtn").onclick = () => saveContract(uid, contractToEdit);
+});
+</script>
+</body>
+</html>
+
