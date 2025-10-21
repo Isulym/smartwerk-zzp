@@ -314,6 +314,26 @@ function fillForm(data) {
   $("signatureFreelancerDate").textContent = data.freelancerDate || "";
   $("signatureClientDate").textContent = data.clientDate || "";
 
+  if (data.signatureFreelancer) {
+  const img = new Image();
+  img.onload = () => {
+    const ctx = $("signatureFreelancer").getContext("2d");
+    ctx.clearRect(0, 0, 300, 100);
+    ctx.drawImage(img, 0, 0);
+  };
+  img.src = data.signatureFreelancer;
+}
+
+if (data.signatureClient) {
+  const img = new Image();
+  img.onload = () => {
+    const ctx = $("signatureClient").getContext("2d");
+    ctx.clearRect(0, 0, 300, 100);
+    ctx.drawImage(img, 0, 0);
+  };
+  img.src = data.signatureClient;
+}
+
   // Встановити clientSelect, якщо знайдено
   const select = $("clientSelect");
   for (const [id, c] of Object.entries(loadedClients)) {
@@ -378,6 +398,8 @@ async function saveContract(uid, id = null) {
     updatedAt: new Date().toISOString()
   };
   if (id) {
+    data.signatureFreelancer = $("signatureFreelancer").toDataURL();
+    data.signatureClient = $("signatureClient").toDataURL();
     await setDoc(doc(db, "users", uid, "contracts", id), data, { merge: true });
     localStorage.removeItem("editContractId");
   } else {
