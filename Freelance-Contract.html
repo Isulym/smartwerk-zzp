@@ -240,9 +240,9 @@ function setupImageUpload() {
 }
 
 async function loadBusinessInfo(uid) {
-  const snap = await getDoc(doc(db, "users", uid));
+  const snap = await getDocs(collection(db, "users", uid, "profile"));
   if (snap.exists()) {
-    const d = snap.data();
+    const d = snap.docs[0]?.data() || {};
     $("businessName").value = d.businessName || "";
     $("kvk").value = d.kvk || "";
     $("vat").value = d.vat || d.btw || "";
