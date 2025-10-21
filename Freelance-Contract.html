@@ -391,6 +391,12 @@ async function saveContract(uid, id = null) {
 onAuthStateChanged(auth, async user => {
   if (!user) return location.href = "login.html";
   const uid = user.uid;
+
+  // 🧼 Автоматичне очищення "редагування" при новому запуску
+  const url = new URL(window.location.href);
+  const isNew = url.searchParams.get("new") === "true";
+  if (isNew) localStorage.removeItem("editContractId");
+
   const editId = localStorage.getItem("editContractId");
 
   setupSignature("signatureFreelancer", "signatureFreelancerDate");
