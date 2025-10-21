@@ -78,7 +78,7 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const $ = id => document.getElementById(id);
-
+let contracts = [];
 const renderStatus = s => `<span class="status ${s}">${s}</span>`;
 
 function renderRow(docSnap) {
@@ -127,9 +127,12 @@ async function loadContracts() {
   body.innerHTML = "";
   let counts = { Draft: 0, Sent: 0, Signed: 0, Completed: 0 };
   let rows = "";
+  contracts = [];
 
   snap.forEach(doc => {
     const d = doc.data();
+    d.id = doc.id;
+    contracts.push(d);
     if (matchesFilter(d)) rows += renderRow(doc);
     if (d.status) counts[d.status] = (counts[d.status] || 0) + 1;
   });
