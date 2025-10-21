@@ -93,7 +93,7 @@ function renderRow(docSnap) {
       <td>
         <button class="btn" onclick="editContract('${docSnap.id}')">✏️ Edit</button>
         <button class="btn btn-danger" onclick="deleteContract('${docSnap.id}')">🗑 Delete</button>
-       <button onclick="downloadContractPDF('ID_КОНТРАКТУ')">📄 PDF</button>
+       <button onclick="downloadContractPDF('${docSnap.id}')">📄 PDF</button>
       </td>
     </tr>`;
 }
