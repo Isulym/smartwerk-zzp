@@ -137,9 +137,18 @@ async function loadContracts() {
   drawChart(counts);
 }
 
+let contractChart = null;
+
 function drawChart(data) {
-  const ctx = $("chart");
-  new Chart(ctx, {
+  const ctx = $("chart").getContext("2d");
+
+  // 🔥 Знищити попередній графік, якщо існує
+  if (contractChart) {
+    contractChart.destroy();
+  }
+
+  // 🆕 Створити новий графік
+  contractChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: Object.keys(data),
@@ -149,13 +158,14 @@ function drawChart(data) {
         backgroundColor: ['#475569', '#facc15', '#22c55e', '#10b981']
       }]
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      }
+    }
   });
 }
-
-$("searchInput").oninput = loadContracts;
-$("statusFilter").onchange = loadContracts;
-$("refreshBtn").onclick = loadContracts;
 
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
