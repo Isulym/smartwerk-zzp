@@ -264,6 +264,10 @@ function drawChart(data) {
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
   loadContracts();
+  // Після авторизації — підключити події пошуку/фільтру
+$("refreshBtn").onclick = loadContracts;
+$("searchInput").oninput = loadContracts;
+$("statusFilter").onchange = loadContracts;
 });
  
 </script>
