@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>📄 Freelance Contract List</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    .sortable:hover { cursor: pointer; text-decoration: underline; }
+    .asc::after { content: " ▲"; }
+    .desc::after { content: " ▼"; }
+    .modal { position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    .modal-content { background:white; padding:20px; width:90%; max-width:800px; border-radius:8px; max-height:90vh; overflow-y:auto; position:relative; }
+    .hidden { display:none; }
+    .close-btn { position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📄 Freelance Contract List</h1>
+    <div>
+      <input id="searchInput" placeholder="🔍 Search..." />
+      <select id="statusFilter">
+        <option value="">All Statuses</option>
+        <option>Draft</option>
+        <option>Sent</option>
+        <option>Signed</option>
+        <option>Completed</option>
+      </select>
+      <button id="refreshBtn">🔄 Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <table border="1" width="100%" id="contractsTable">
+      <thead>
+        <tr>
+          <th class="sortable" data-key="contractId">ID</th>
+          <th class="sortable" data-key="clientName">Client</th>
+          <th class="sortable" data-key="projectTitle">Project</th>
+          <th class="sortable" data-key="status">Status</th>
+          <th class="sortable" data-key="date">Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="contractsBody"></tbody>
+    </table>
+    <canvas id="chart" height="100"></canvas>
+  </main>
+
+  <div id="viewModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">×</span>
+      <div id="contractPreview"></div>
+      <div style="text-align:center; margin-top:10px;">
+        <button class="btn" onclick="exportToPDF()">📄 Export to PDF</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+  authDomain: "smartwerk8520.firebaseapp.com",
+  projectId: "smartwerk8520",
+  appId: "1:607670981972:web:c07103c981c86860d724c1"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const $ = id => document.getElementById(id);
+
+let allContracts = {};
+let allSorted = [];
+let currentSortKey = "";
+let currentSortDir = "asc";
+
+function renderStatus(status) {
+  const color = {
+    Draft: "#ddd", Sent: "#facc15", Signed: "#22c55e", Completed: "#10b981"
+  }[status] || "#ccc";
+  return `<span style="color:${color}; font-weight:bold;">${status}</span>`;
+}
+
+function renderRow(docSnap) {
+  const d = docSnap.data();
+  const id = docSnap.id;
+  allContracts[id] = d;
+  return `
+    <tr>
+      <td>${d.contractId || "-"}</td>
+      <td>${d.clientName || "-"}</td>
+      <td>${d.projectTitle || "-"}</td>
+      <td>${renderStatus(d.status || "Draft")}</td>
+      <td>${d.date || "-"}</td>
+      <td>
+        <button class="btn" onclick="editContract('${id}')">✏️ Edit</button>
+        <button class="btn btn-danger" onclick="deleteContract('${id}')">🗑 Delete</button>
+        <button class="btn btn-outline" onclick="showPreview(allContracts['${id}'])">👁️ View</button>
+      </td>
+    </tr>`;
+}
+
+function drawChart(data) {
+  const ctx = $("chart").getContext("2d");
+  if (window.contractChart) window.contractChart.destroy();
+  window.contractChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(data),
+      datasets: [{
+        label: 'Contracts',
+        data: Object.values(data),
+        backgroundColor: ['#475569', '#facc15', '#22c55e', '#10b981']
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+}
+
+async function loadContracts() {
+  const snap = await db.collection("users").doc(auth.currentUser.uid).collection("contracts").get();
+  const term = $("searchInput").value.toLowerCase();
+  const filter = $("statusFilter").value;
+  allSorted = [];
+  let stats = {};
+
+  snap.forEach(doc => {
+    const d = doc.data();
+    const str = JSON.stringify(d).toLowerCase();
+    if ((filter && d.status !== filter) || (term && !str.includes(term))) return;
+    allSorted.push(doc);
+    stats[d.status] = (stats[d.status] || 0) + 1;
+  });
+
+  sortAndRender();
+  drawChart(stats);
+}
+
+function sortAndRender() {
+  if (currentSortKey) {
+    allSorted.sort((a, b) => {
+      const da = (a.data()[currentSortKey] || "").toString().toLowerCase();
+      const db = (b.data()[currentSortKey] || "").toString().toLowerCase();
+      return currentSortDir === "asc" ? da.localeCompare(db) : db.localeCompare(da);
+    });
+  }
+  $("contractsBody").innerHTML = allSorted.map(renderRow).join("");
+}
+
+function setupSorting() {
+  document.querySelectorAll(".sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.key;
+      if (currentSortKey === key) {
+        currentSortDir = currentSortDir === "asc" ? "desc" : "asc";
+      } else {
+        currentSortKey = key;
+        currentSortDir = "asc";
+      }
+      document.querySelectorAll(".sortable").forEach(el => el.classList.remove("asc", "desc"));
+      th.classList.add(currentSortDir);
+      sortAndRender();
+    });
+  });
+}
+
+function editContract(id) {
+  localStorage.setItem("editContractId", id);
+  location.href = "Freelance-Contract.html";
+}
+
+async function deleteContract(id) {
+  if (confirm("Delete this contract?")) {
+    await db.collection("users").doc(auth.currentUser.uid).collection("contracts").doc(id).delete();
+    loadContracts();
+  }
+}
+
+function showPreview(data) {
+  const html = `
+    <h2>📄 ${data.contractId}</h2>
+    <p><strong>Status:</strong> ${data.status}</p>
+    <p><strong>Date:</strong> ${data.date}</p>
+    <hr>
+    <h3>🏢 Business Info</h3>
+    <p><strong>${data.businessName}</strong></p>
+    <p>KVK: ${data.kvk}, VAT: ${data.vat}</p>
+    <p>IBAN: ${data.iban}</p>
+    <p>Address: ${data.businessAddress}</p>
+    <hr>
+    <h3>👤 Client Info</h3>
+    <p><strong>${data.clientName}</strong></p>
+    <p>Email: ${data.clientEmail}</p>
+    <p>Phone: ${data.clientPhone}</p>
+    <p>Address: ${data.clientAddress}</p>
+    <hr>
+    <h3>🧩 Project</h3>
+    <p><strong>Title:</strong> ${data.projectTitle}</p>
+    <p><strong>Scope:</strong><br>${(data.projectScope || "").replaceAll("
+","<br>")}</p>
+    <p><strong>Timeline:</strong><br>${(data.timeline || "").replaceAll("
+","<br>")}</p>
+    <p><strong>Payment:</strong><br>${(data.paymentTerms || "").replaceAll("
+","<br>")}</p>
+    <hr>
+    <h3>⚖️ Legal Terms</h3>
+    <p>${(data.legalTerms || "").replaceAll("
+","<br>")}</p>
+    <hr>
+    <h3>✍️ Signatures</h3>
+    <p>Freelancer signed: ${data.freelancerDate || "—"}</p>
+    <p>Client signed: ${data.clientDate || "—"}</p>
+    ${data.signatureFreelancer ? `<img src="${data.signatureFreelancer}" style="max-height:80px;">` : ""}
+    ${data.signatureClient ? `<img src="${data.signatureClient}" style="max-height:80px;">` : ""}
+    ${data.freelancerStamp ? `<hr><p><strong>Stamp:</strong><br><img src="${data.freelancerStamp}" style="max-height:80px;">` : ""}
+  `;
+  $("contractPreview").innerHTML = html;
+  $("viewModal").classList.remove("hidden");
+}
+
+function closeModal() {
+  $("viewModal").classList.add("hidden");
+}
+
+function exportToPDF() {
+  const element = document.getElementById("contractPreview");
+  html2pdf().set({
+    margin: 0.5,
+    filename: "contract.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+  }).from(element).save();
+}
+
+auth.onAuthStateChanged(user => {
+  if (!user) return location.href = "login.html";
+  setupSorting();
+  loadContracts();
+  $("searchInput").oninput = loadContracts;
+  $("statusFilter").onchange = loadContracts;
+  $("refreshBtn").onclick = loadContracts;
+});
+</script>
+</body>
+</html>
