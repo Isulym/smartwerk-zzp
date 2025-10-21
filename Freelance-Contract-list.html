@@ -126,7 +126,8 @@ function matchesFilter(d) {
 
 async function loadContracts() {
   const user = auth.currentUser;
-  const snap = await getDocs(collection(db, "users", user.uid, "contracts"));
+  const ref = collection(db, "users", user.uid, "contracts");
+  const snap = await getDocs(ref, { source: "server" });
   const body = $("contractsBody");
   body.innerHTML = "";
   let counts = { Draft: 0, Sent: 0, Signed: 0, Completed: 0 };
