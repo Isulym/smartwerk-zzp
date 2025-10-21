@@ -240,24 +240,26 @@ function setupImageUpload() {
 }
 
 async function loadBusinessInfo(uid) {
-  const profileSnap = await getDocs(collection(db, "users", uid, "profile"));
-  const firstDoc = profileSnap.docs[0];
-  if (!firstDoc) return;
+  const snap = await getDocs(collection(db, "users", uid, "invoices"));
+  const docs = snap.docs;
+  if (!docs.length) return;
 
-  const d = firstDoc.data();
+  // беремо перший або останній документ
+  const d = docs[docs.length - 1].data();
+
   $("businessName").value = d.businessName || "";
-  $("kvk").value = d.kvk || d.kvkNumber || "";
-  $("vat").value = d.vat || d.btw || "";
+  $("kvk").value = d.kvk || "";
+  $("vat").value = d.btw || "";
   $("iban").value = d.iban || "";
-  $("businessAddress").value = d.businessAddress || d.address || "";
-  $("businessPhone").value = d.businessPhone || d.phone || "";
-  $("businessEmail").value = d.businessEmail || d.email || "";
+  $("businessAddress").value = d.businessAddress || "";
+  $("businessPhone").value = d.businessPhone || "";
+  $("businessEmail").value = d.email || "";
 }
 
 async function loadClients(uid) {
   const snap = await getDocs(collection(db, "users", uid, "clients"));
   const select = $("clientSelect");
-  select.innerHTML = '<option value=\"\">Select a client...</option>';
+  select.innerHTML = '<option value="">Select a client...</option>';
   snap.forEach(docSnap => {
     const c = docSnap.data();
     const opt = document.createElement("option");
@@ -267,18 +269,21 @@ async function loadClients(uid) {
     loadedClients[docSnap.id] = c;
   });
 
-  select.addEventListener("change", () => {
-    const id = select.value;
-    const c = loadedClients[id];
-    if (c) {
-      $("clientName").value = c.clientName || "";
-      $("clientEmail").value = c.clientEmail || c.email || "";
-      $("clientPhone").value = c.clientPhone || c.phone || "";
-      $("clientAddress").value = c.clientAddress || c.address || "";
-    }
-  });
+  // ✅ prevent duplicate listeners
+  if (!select.dataset.listener) {
+    select.addEventListener("change", () => {
+      const id = select.value;
+      const c = loadedClients[id];
+      if (c) {
+        $("clientName").value = c.clientName || "";
+        $("clientEmail").value = c.clientEmail || c.email || "";
+        $("clientPhone").value = c.clientPhone || c.phone || "";
+        $("clientAddress").value = c.clientAddress || c.address || "";
+      }
+    });
+    select.dataset.listener = "true";
+  }
 }
-
 function fillForm(data) {
   $("contractId").value = data.contractId || "";
   $("status").value = data.status || "Draft";
