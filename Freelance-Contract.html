@@ -240,17 +240,18 @@ function setupImageUpload() {
 }
 
 async function loadBusinessInfo(uid) {
-  const snap = await getDocs(collection(db, "users", uid, "profile"));
-  if (snap.exists()) {
-    const d = snap.docs[0]?.data() || {};
-    $("businessName").value = d.businessName || "";
-    $("kvk").value = d.kvk || "";
-    $("vat").value = d.vat || d.btw || "";
-    $("iban").value = d.iban || "";
-    $("businessAddress").value = d.businessAddress || d.address || "";
-    $("businessPhone").value = d.businessPhone || d.phone || "";
-    $("businessEmail").value = d.businessEmail || d.email || "";
-  }
+  const profileSnap = await getDocs(collection(db, "users", uid, "profile"));
+  const firstDoc = profileSnap.docs[0];
+  if (!firstDoc) return;
+
+  const d = firstDoc.data();
+  $("businessName").value = d.businessName || "";
+  $("kvk").value = d.kvk || d.kvkNumber || "";
+  $("vat").value = d.vat || d.btw || "";
+  $("iban").value = d.iban || "";
+  $("businessAddress").value = d.businessAddress || d.address || "";
+  $("businessPhone").value = d.businessPhone || d.phone || "";
+  $("businessEmail").value = d.businessEmail || d.email || "";
 }
 
 async function loadClients(uid) {
