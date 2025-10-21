@@ -287,13 +287,15 @@ function fillForm(data) {
   $("status").value = data.status || "Draft";
   $("date").value = data.date || new Date().toISOString().split("T")[0];
   $("projectTitle").value = data.projectTitle || "";
-  $("businessName").value = data.businessName || "";
-  $("kvk").value = data.kvk || "";
-  $("vat").value = data.vat || data.btw || "";
-  $("iban").value = data.iban || "";
-  $("businessAddress").value = data.businessAddress || "";
-  $("businessPhone").value = data.businessPhone || "";
-  $("businessEmail").value = data.businessEmail || "";
+
+  safeSet("businessName", data.businessName);
+  safeSet("kvk", data.kvk);
+  safeSet("vat", data.vat || data.btw);
+  safeSet("iban", data.iban);
+  safeSet("businessAddress", data.businessAddress);
+  safeSet("businessPhone", data.businessPhone);
+  safeSet("businessEmail", data.businessEmail);
+
   $("clientName").value = data.clientName || "";
   $("clientEmail").value = data.clientEmail || "";
   $("clientPhone").value = data.clientPhone || "";
@@ -305,7 +307,7 @@ function fillForm(data) {
   $("signatureFreelancerDate").textContent = data.freelancerDate || "";
   $("signatureClientDate").textContent = data.clientDate || "";
 
-  // 🟢 Встановлюємо правильного клієнта в select (якщо знайдено)
+  // Встановити clientSelect, якщо знайдено
   const select = $("clientSelect");
   for (const [id, c] of Object.entries(loadedClients)) {
     if (
@@ -313,7 +315,7 @@ function fillForm(data) {
       c.clientName === data.clientName
     ) {
       select.value = id;
-      select.dispatchEvent(new Event("change")); // <— ОБОВ'ЯЗКОВО
+      select.dispatchEvent(new Event("change"));
       break;
     }
   }
