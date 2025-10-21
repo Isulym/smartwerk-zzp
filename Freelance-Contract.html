@@ -240,20 +240,18 @@ function setupImageUpload() {
 }
 
 async function loadBusinessInfo(uid) {
-  const snap = await getDocs(collection(db, "users", uid, "invoices"));
-  const docs = snap.docs;
-  if (!docs.length) return;
+  const snap = await getDoc(doc(db, "users", uid));
+  if (!snap.exists()) return;
 
-  // беремо перший або останній документ
-  const d = docs[docs.length - 1].data();
+  const d = snap.data();
 
   $("businessName").value = d.businessName || "";
   $("kvk").value = d.kvk || "";
-  $("vat").value = d.btw || "";
+  $("vat").value = d.btw || d.vat || "";
   $("iban").value = d.iban || "";
-  $("businessAddress").value = d.businessAddress || "";
-  $("businessPhone").value = d.businessPhone || "";
-  $("businessEmail").value = d.email || "";
+  $("businessAddress").value = d.businessAddress || d.address || "";
+  $("businessPhone").value = d.businessPhone || d.phone || "";
+  $("businessEmail").value = d.businessEmail || d.email || "";
 }
 
 async function loadClients(uid) {
