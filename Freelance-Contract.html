@@ -189,7 +189,7 @@ let contractToEdit = null;
 let loadedClients = {};
 let freelancerStampBase64 = "";
 
-function clearSignature(id) {
+window.clearSignature = function(id) {
   const c = $(id);
   c.getContext("2d").clearRect(0, 0, c.width, c.height);
   if (id === "signatureFreelancer") $("signatureFreelancerDate").textContent = "";
