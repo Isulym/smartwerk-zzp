@@ -206,10 +206,11 @@ window.exportPDF = () => {
   doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
 
   // Період (виправлено!)
-  const from = document.getElementById("customFrom").value;
-  const to = document.getElementById("customTo").value;
  const filterSelect = document.getElementById("filterBy");
+const from = document.getElementById("customFrom")?.value;
+const to = document.getElementById("customTo")?.value;
 const filter = filterSelect?.value;
+
 let periodText = "All Time";
 
 if (from && to) {
@@ -219,25 +220,20 @@ if (from && to) {
   const month = now.toLocaleString("default", { month: "long" });
   const year = now.getFullYear();
 
-  switch (filter) {
-    case "thisMonth":
-      periodText = `This Month (${month} ${year})`;
-      break;
-    case "lastMonth":
-      const prev = new Date();
-      prev.setMonth(prev.getMonth() - 1);
-      const prevMonth = prev.toLocaleString("default", { month: "long" });
-      const prevYear = prev.getFullYear();
-      periodText = `Last Month (${prevMonth} ${prevYear})`;
-      break;
-    case "thisYear":
-      periodText = `This Year (${year})`;
-      break;
+  if (filter === "thisMonth") {
+    periodText = `This Month (${month} ${year})`;
+  } else if (filter === "lastMonth") {
+    const prev = new Date();
+    prev.setMonth(prev.getMonth() - 1);
+    const prevMonth = prev.toLocaleString("default", { month: "long" });
+    const prevYear = prev.getFullYear();
+    periodText = `Last Month (${prevMonth} ${prevYear})`;
+  } else if (filter === "thisYear") {
+    periodText = `This Year (${year})`;
   }
 }
-
   doc.setFontSize(12);
-  doc.text(`Period: ${periodText}`, 14, 28, { maxWidth: 180 });
+  doc.text(`Period: ${periodText}`, 14, 20);
 
   // Таблиця
   doc.autoTable({
