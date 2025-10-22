@@ -25,7 +25,7 @@
   </style>
 </head>
 <body>
-  <h1>📊 Business Summary</h1>
+ <h1>📊 Business Summary</h1>
   <a href="dashboard.html" class="btn">← Back to Dashboard</a>
   <button onclick="exportCSV()" class="btn">📁 Export CSV</button>
   <button onclick="exportPDF()" class="btn btn-primary">📄 Export PDF</button>
@@ -70,12 +70,12 @@
     </ul>
   </div>
 
-  <footer>© 2025 SmartWerk • Last updated: <span id="lastUpdated">just now</span></footer>
+  <footer>© 2025 SmartWerk </footer>
 
-<script type="module">
+ <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -95,18 +95,32 @@
       return "€" + (eur || 0).toLocaleString("nl-NL", { minimumFractionDigits: 2 });
     }
 
-    async function loadSummary(uid) {
-      const invoicesSnap = await getDocs(collection(db, "users", uid, "invoices"));
-      const expensesSnap = await getDocs(collection(db, "users", uid, "expenses"));
+    function listenToSummary(uid) {
+      const invoicesRef = collection(db, "users", uid, "invoices");
+      const expensesRef = collection(db, "users", uid, "expenses");
 
+      let invoices = [];
+      let expenses = [];
+
+      onSnapshot(invoicesRef, snap => {
+        invoices = snap.docs.map(d => d.data());
+        updateSummary(invoices, expenses);
+      });
+
+      onSnapshot(expensesRef, snap => {
+        expenses = snap.docs.map(d => d.data());
+        updateSummary(invoices, expenses);
+      });
+    }
+
+    function updateSummary(invoices, expenses) {
       let totalIncome = 0;
       let totalVat = 0;
       let totalExpenses = 0;
       let incomeByMonth = {};
       let expenseByMonth = {};
 
-      invoicesSnap.forEach(doc => {
-        const i = doc.data();
+      invoices.forEach(i => {
         const date = i.invoiceDate || i.date;
         const m = (date || "").slice(0, 7);
         incomeByMonth[m] = (incomeByMonth[m] || 0) + (i.grandTotal || 0);
@@ -114,8 +128,7 @@
         totalVat += i.totalVat || 0;
       });
 
-      expensesSnap.forEach(doc => {
-        const e = doc.data();
+      expenses.forEach(e => {
         const date = e.date;
         const m = (date || "").slice(0, 7);
         expenseByMonth[m] = (expenseByMonth[m] || 0) + (e.amount || 0);
@@ -197,7 +210,7 @@
 
     onAuthStateChanged(auth, user => {
       if (!user) return location.href = "login.html";
-      loadSummary(user.uid);
+      listenToSummary(user.uid);
     });
   </script>
 </body>
