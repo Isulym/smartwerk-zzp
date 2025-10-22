@@ -196,50 +196,68 @@ function exportCSV() {
   link.download = "summary.csv";
   link.click();
 }
-  let selectedPeriodText = "All Time";
+  const filterSelect = document.getElementById("filterBy");
+const filterValue = filterSelect?.value || "all";
+let periodText = "All Time";
 
-// Автоматично оновлюємо текст при зміні select
-document.getElementById("filterBy").addEventListener("change", () => {
-  const val = document.getElementById("filterBy").value;
+const now = new Date();
+const month = now.toLocaleString("default", { month: "long" });
+const year = now.getFullYear();
+
+if (filterValue === "thisMonth") {
+  periodText = `This Month (${month} ${year})`;
+} else if (filterValue === "lastMonth") {
+  const prev = new Date();
+  prev.setMonth(prev.getMonth() - 1);
+  const prevMonth = prev.toLocaleString("default", { month: "long" });
+  const prevYear = prev.getFullYear();
+  periodText = `Last Month (${prevMonth} ${prevYear})`;
+} else if (filterValue === "thisYear") {
+  periodText = `This Year (${year})`;
+}
+
+const from = document.getElementById("customFrom")?.value;
+const to = document.getElementById("customTo")?.value;
+if (from && to) {
+  periodText = `Custom: ${from} → ${to}`;
+}
+
+window.exportPDF = () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  // 🔹 Заголовок
+  doc.setFontSize(18);
+  doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
+
+  // 🔹 Період
+  const filter = document.getElementById("filterBy").value;
+  const from = document.getElementById("customFrom").value;
+  const to = document.getElementById("customTo").value;
+
+  let periodText = "All Time";
   const now = new Date();
   const month = now.toLocaleString("default", { month: "long" });
   const year = now.getFullYear();
 
-  if (val === "thisMonth") {
-    selectedPeriodText = `This Month (${month} ${year})`;
-  } else if (val === "lastMonth") {
+  if (from && to) {
+    periodText = `Custom: ${from} → ${to}`;
+  } else if (filter === "thisMonth") {
+    periodText = `This Month (${month} ${year})`;
+  } else if (filter === "lastMonth") {
     const prev = new Date();
     prev.setMonth(prev.getMonth() - 1);
     const prevMonth = prev.toLocaleString("default", { month: "long" });
     const prevYear = prev.getFullYear();
-    selectedPeriodText = `Last Month (${prevMonth} ${prevYear})`;
-  } else if (val === "thisYear") {
-    selectedPeriodText = `This Year (${year})`;
-  } else {
-    selectedPeriodText = "All Time";
-  }
-});
-
-window.exportPDF = () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // Заголовок
-  doc.setFontSize(18);
-  doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
-
-  // Кастомний період
-  const from = document.getElementById("customFrom").value;
-  const to = document.getElementById("customTo").value;
-  let periodText = selectedPeriodText;
-  if (from && to) {
-    periodText = `Custom Range: ${from} to ${to}`;
+    periodText = `Last Month (${prevMonth} ${prevYear})`;
+  } else if (filter === "thisYear") {
+    periodText = `This Year (${year})`;
   }
 
   doc.setFontSize(12);
-  doc.text(`Period: ${periodText}`, 14, 20);
+  doc.text(`Period: ${periodText}`, 14, 25);
 
-  // Таблиця
+  // 🔹 Таблиця
   doc.autoTable({
     startY: 35,
     head: [["Metric", "Value"]],
@@ -249,29 +267,29 @@ window.exportPDF = () => {
       ["Net Profit", document.getElementById("netProfit").innerText],
       ["Total VAT", document.getElementById("totalVat").innerText]
     ],
-    styles: { fontSize: 11 },
-    headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+    styles: { fontSize: 12, cellPadding: 4 },
+    headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
     margin: { left: 14, right: 14 }
   });
 
   let finalY = doc.lastAutoTable.finalY;
 
-  // Графік
+  // 🔹 Графік
   const chartCanvas = document.getElementById("summaryChart");
   if (chartCanvas) {
     const chartImage = chartCanvas.toDataURL("image/png", 1.0);
-    doc.addImage(chartImage, "PNG", 14, finalY + 20, 180, 80);
+    doc.addImage(chartImage, "PNG", 14, finalY + 10, 180, 70);
     doc.setFontSize(10);
-    doc.text("Monthly overview of income and expenses", 105, finalY + 105, { align: "center" });
-    finalY += 110;
+    doc.text("Monthly Overview (Income vs Expenses)", 105, finalY + 85, { align: "center" });
+    finalY += 95;
   }
 
-  // Футер
+  // 🔹 Примітка
   doc.setFontSize(9);
-  doc.setTextColor(100);
-  doc.text("Generated with SmartWerk — https://smartwerk.nl", 105, 290, { align: "center" });
+  doc.setTextColor(120);
+  doc.text("This report is auto-generated and not a formal accounting document.", 105, 285, { align: "center" });
 
-  // Збереження
+  // 🔹 Збереження
   doc.save("SmartWerk-Summary.pdf");
 };
 
