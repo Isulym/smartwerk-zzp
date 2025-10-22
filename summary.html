@@ -419,7 +419,6 @@ window.exportPDF = () => {
   
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
-   listenToSummary(user.uid);
   loadSmartSuggestions(user.uid);
 
 
