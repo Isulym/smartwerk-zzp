@@ -16,11 +16,12 @@
     .card { background: #1e293b; padding: 16px; border-radius: 8px; box-shadow: 0 0 0 1px #334155; }
     .card h2 { font-size: 16px; color: #93c5fd; margin-bottom: 4px; }
     .card p { font-size: 20px; font-weight: bold; }
-    .filters { margin-top: 20px; display: flex; gap: 10px; }
-    select { background: #1e293b; border: none; color: #e5e7eb; padding: 6px 8px; border-radius: 6px; }
+    .filters { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+    select, input[type="date"] { background: #1e293b; border: none; color: #e5e7eb; padding: 6px 8px; border-radius: 6px; }
     canvas { background: #1e293b; border-radius: 8px; padding: 10px; margin-top: 30px; }
     .section { margin-top: 40px; }
     footer { margin-top: 40px; text-align: center; color: #64748b; font-size: 13px; }
+    .alerts ul { list-style-type: disc; padding-left: 20px; }
   </style>
 </head>
 <body>
@@ -31,13 +32,19 @@
 
   <div class="filters">
     <label>
-      Filter:
+      Period:
       <select id="filterBy">
         <option value="all">All time</option>
         <option value="thisYear">This Year</option>
         <option value="thisMonth">This Month</option>
         <option value="lastMonth">Last Month</option>
       </select>
+    </label>
+    <label>
+      From: <input type="date" id="customFrom">
+    </label>
+    <label>
+      To: <input type="date" id="customTo">
     </label>
   </div>
 
@@ -53,16 +60,18 @@
     <canvas id="summaryChart" height="100"></canvas>
   </div>
 
-  <div class="section">
+  <div class="section alerts">
     <h2>🧠 Smart Suggestions</h2>
     <ul>
-      <li>Review unpaid invoices this month</li>
-      <li>Consider registering for KOR if VAT < €1,800</li>
+      <li>📌 You have <strong>3 unpaid invoices</strong> older than 30 days</li>
+      <li>💡 Consider registering for KOR if your VAT is under €1,800 this year</li>
+      <li>📈 Income dropped -15% compared to last month</li>
+      <li>📆 Average payment time: <strong>18 days</strong></li>
     </ul>
   </div>
 
-  <footer>© 2025 SmartWerk</footer>
+  <footer>© 2025 SmartWerk • Last updated: <span id="lastUpdated">just now</span></footer>
 
-  <!-- JS MODULE: Пізніше вбудуємо Firebase, фільтри, графіки, PDF -->
+  <!-- Firebase, Chart.js, jsPDF scripting will go below -->
 </body>
 </html>
