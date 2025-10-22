@@ -276,48 +276,51 @@ window.exportPDF = () => {
   doc.save("SmartWerk-Summary.pdf");
 };
 
-  window.exportPDFPro = () => {
+ window.exportPDFPro = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   // Заголовок
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
   doc.text("Financial Summary", 105, 15, { align: "center" });
 
-  // Період
+  // === Період ===
   const filterSelect = document.getElementById("filterBy");
   const from = document.getElementById("customFrom")?.value;
   const to = document.getElementById("customTo")?.value;
   const filter = filterSelect?.value;
 
+  // ✅ Масив місяців лише з ASCII‑символами
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const monthName = months[now.getMonth()];
   let periodText = "All Time";
 
   if (from && to) {
     periodText = `Custom Range: ${from} to ${to}`;
-  } else {
-    const now = new Date();
-    const month = now.toLocaleString("default", { month: "long" });
-    const year = now.getFullYear();
-
-    if (filter === "thisMonth") {
-      periodText = `This Month (${month} ${year})`;
-    } else if (filter === "lastMonth") {
-      const prev = new Date();
-      prev.setMonth(prev.getMonth() - 1);
-      const prevMonth = prev.toLocaleString("default", { month: "long" });
-      const prevYear = prev.getFullYear();
-      periodText = `Last Month (${prevMonth} ${prevYear})`;
-    } else if (filter === "thisYear") {
-      periodText = `This Year (${year})`;
-    }
+  } else if (filter === "thisMonth") {
+    periodText = `This Month (${monthName} ${year})`;
+  } else if (filter === "lastMonth") {
+    const prev = new Date(now);
+    prev.setMonth(prev.getMonth() - 1);
+    periodText = `Last Month (${months[prev.getMonth()]} ${prev.getFullYear()})`;
+  } else if (filter === "thisYear") {
+    periodText = `This Year (${year})`;
   }
 
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
-  doc.text(`Period: ${periodText}`, 14, 22);
+  doc.text(`Period: ${periodText}`, 14, 25);
 
-  // Таблиця
+  // === Таблиця з метриками ===
   doc.autoTable({
-    startY: 30,
+    startY: 35,
     head: [["Metric", "Value"]],
     body: [
       ["Total Income", document.getElementById("totalIncome").innerText],
@@ -332,14 +335,17 @@ window.exportPDF = () => {
 
   let finalY = doc.lastAutoTable.finalY;
 
-  // Додавання графіку (з канвасу)
+  // === Графік ===
   const chartCanvas = document.getElementById("summaryChart");
   if (chartCanvas) {
     const chartImage = chartCanvas.toDataURL("image/png", 1.0);
     doc.addImage(chartImage, "PNG", 14, finalY + 20, 180, 80);
+    doc.setFontSize(10);
+    doc.text("Monthly overview of income and expenses", 105, finalY + 105, { align: "center" });
+    finalY += 110;
   }
 
-  // Збереження
+  // === Збереження ===
   doc.save("Financial-Summary.pdf");
 };
     
