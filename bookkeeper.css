@@ -1,0 +1,159 @@
+body {
+  background: #0f172a;
+  color: #e5e7eb;
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+  margin: 0;
+}
+
+h1 {
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.btn {
+  background: #334155;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-right: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: #3b82f6;
+}
+
+.stats,
+.upcoming {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #334155;
+}
+
+.card h2 {
+  font-size: 16px;
+  color: #93c5fd;
+  margin-bottom: 4px;
+}
+
+.card p {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.filters {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+select,
+input[type="date"],
+input[type="file"] {
+  background: #1e293b;
+  border: none;
+  color: #e5e7eb;
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+canvas {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 30px;
+}
+
+.section {
+  margin-top: 40px;
+}
+
+.progress-container {
+  background: #334155;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 20px;
+  margin-top: 4px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #3b82f6;
+  text-align: center;
+  line-height: 20px;
+  font-size: 12px;
+  color: white;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th,
+td {
+  border-bottom: 1px solid #334155;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  color: #93c5fd;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.alerts ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+footer {
+  margin-top: 40px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .btn {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .stats,
+  .upcoming {
+    grid-template-columns: 1fr;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
