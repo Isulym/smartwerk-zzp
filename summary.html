@@ -196,6 +196,29 @@ function exportCSV() {
   link.download = "summary.csv";
   link.click();
 }
+  let selectedPeriodText = "All Time";
+
+// Автоматично оновлюємо текст при зміні select
+document.getElementById("filterBy").addEventListener("change", () => {
+  const val = document.getElementById("filterBy").value;
+  const now = new Date();
+  const month = now.toLocaleString("default", { month: "long" });
+  const year = now.getFullYear();
+
+  if (val === "thisMonth") {
+    selectedPeriodText = `This Month (${month} ${year})`;
+  } else if (val === "lastMonth") {
+    const prev = new Date();
+    prev.setMonth(prev.getMonth() - 1);
+    const prevMonth = prev.toLocaleString("default", { month: "long" });
+    const prevYear = prev.getFullYear();
+    selectedPeriodText = `Last Month (${prevMonth} ${prevYear})`;
+  } else if (val === "thisYear") {
+    selectedPeriodText = `This Year (${year})`;
+  } else {
+    selectedPeriodText = "All Time";
+  }
+});
 
 window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
@@ -205,33 +228,14 @@ window.exportPDF = () => {
   doc.setFontSize(18);
   doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
 
-  // Період (виправлено!)
- const filterSelect = document.getElementById("filterBy");
-const from = document.getElementById("customFrom")?.value;
-const to = document.getElementById("customTo")?.value;
-const filter = filterSelect?.value;
-
-let periodText = "All Time";
-
-if (from && to) {
-  periodText = `Custom Range: ${from} to ${to}`;
-} else {
-  const now = new Date();
-  const month = now.toLocaleString("default", { month: "long" });
-  const year = now.getFullYear();
-
-  if (filter === "thisMonth") {
-    periodText = `This Month (${month} ${year})`;
-  } else if (filter === "lastMonth") {
-    const prev = new Date();
-    prev.setMonth(prev.getMonth() - 1);
-    const prevMonth = prev.toLocaleString("default", { month: "long" });
-    const prevYear = prev.getFullYear();
-    periodText = `Last Month (${prevMonth} ${prevYear})`;
-  } else if (filter === "thisYear") {
-    periodText = `This Year (${year})`;
+  // Кастомний період
+  const from = document.getElementById("customFrom").value;
+  const to = document.getElementById("customTo").value;
+  let periodText = selectedPeriodText;
+  if (from && to) {
+    periodText = `Custom Range: ${from} to ${to}`;
   }
-}
+
   doc.setFontSize(12);
   doc.text(`Period: ${periodText}`, 14, 20);
 
