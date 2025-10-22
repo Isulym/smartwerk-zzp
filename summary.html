@@ -196,6 +196,11 @@ function exportCSV() {
   link.download = "summary.csv";
   link.click();
 }
+
+  console.log("FILTER:", document.getElementById("filterBy")?.value);
+console.log("FROM:", document.getElementById("customFrom")?.value);
+console.log("TO:", document.getElementById("customTo")?.value);
+  
 window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
