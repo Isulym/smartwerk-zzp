@@ -1,240 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Summary | SmartWerk</title>
-  <link rel="stylesheet" href="style-summary.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 SmartWerk Summary</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body { background: #0f172a; color: #e5e7eb; font-family: 'Inter', sans-serif; padding: 20px; }
+    h1 { margin-bottom: 10px; }
+    .btn { background: #334155; color: #fff; padding: 6px 12px; border-radius: 6px; text-decoration: none; margin-right: 8px; }
+    .btn-primary { background: #3b82f6; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 20px; }
+    .card { background: #1e293b; padding: 16px; border-radius: 8px; box-shadow: 0 0 0 1px #334155; }
+    .card h2 { font-size: 16px; color: #93c5fd; margin-bottom: 4px; }
+    .card p { font-size: 20px; font-weight: bold; }
+    .filters { margin-top: 20px; display: flex; gap: 10px; }
+    select { background: #1e293b; border: none; color: #e5e7eb; padding: 6px 8px; border-radius: 6px; }
+    canvas { background: #1e293b; border-radius: 8px; padding: 10px; margin-top: 30px; }
+    .section { margin-top: 40px; }
+    footer { margin-top: 40px; text-align: center; color: #64748b; font-size: 13px; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>📊 Smart Summary</h1>
-    <div class="header-actions">
-      <button onclick="refreshSummary()">🔄 Refresh</button>
-      <button onclick="exportSummary()">📤 Export</button>
-      <a href="tax-calculator.html" class="btn-link">🧠 Tax Calculator</a>
-    </div>
-  </header>
+  <h1>📊 Business Summary</h1>
+  <a href="dashboard.html" class="btn">← Back to Dashboard</a>
+  <button id="exportCSV" class="btn">📁 Export CSV</button>
+  <button id="exportPDF" class="btn btn-primary">📄 Export PDF</button>
 
-  <section class="summary-cards">
-    <div class="card income">💰 Total Income<br><span id="totalIncome">€0</span></div>
-    <div class="card expenses">📉 Total Expenses<br><span id="totalExpenses">€0</span></div>
-    <div class="card profit">📈 Net Profit<br><span id="netProfit">€0</span></div>
-    <div class="card vat">🧾 VAT to Pay<br><span id="vatPayable">€0</span></div>
-    <div class="card pending">⏳ Outstanding Invoices<br><span id="pendingInvoices">€0</span></div>
-  </section>
+  <div class="filters">
+    <label>
+      Filter:
+      <select id="filterBy">
+        <option value="all">All time</option>
+        <option value="thisYear">This Year</option>
+        <option value="thisMonth">This Month</option>
+        <option value="lastMonth">Last Month</option>
+      </select>
+    </label>
+  </div>
 
-  <section class="filters">
-    <h3>📅 Filter by Period</h3>
-    <button onclick="filterBy('thisMonth')">This Month</button>
-    <button onclick="filterBy('lastMonth')">Last Month</button>
-    <button onclick="filterBy('thisYear')">This Year</button>
-    <input type="month" id="customMonth" onchange="filterByMonth(this.value)" />
-  </section>
+  <div class="stats">
+    <div class="card"><h2>Total Income</h2><p id="totalIncome">€0</p></div>
+    <div class="card"><h2>Total Expenses</h2><p id="totalExpenses">€0</p></div>
+    <div class="card"><h2>Profit</h2><p id="netProfit">€0</p></div>
+    <div class="card"><h2>Total VAT</h2><p id="totalVat">€0</p></div>
+  </div>
 
-  <section class="chart-section">
-    <h3>📊 Monthly Overview</h3>
-    <canvas id="monthlyChart" height="120"></canvas>
-  </section>
+  <div class="section">
+    <h2>📊 Income Trend</h2>
+    <canvas id="summaryChart" height="100"></canvas>
+  </div>
 
-  <section class="section breakdown">
-    <h3>📋 Summary Breakdown</h3>
-    <ul id="breakdownList">
-      <li>💸 Invoiced this month: €<span id="breakdownInvoiced">0</span></li>
-      <li>📤 Sent reminders: <span id="breakdownReminders">0</span></li>
-      <li>📥 Expenses added: €<span id="breakdownExpenses">0</span></li>
-      <li>🧾 VAT collected: €<span id="breakdownVAT">0</span></li>
-      <li>🧮 Estimated tax reserve: €<span id="breakdownTaxReserve">0</span></li>
+  <div class="section">
+    <h2>🧠 Smart Suggestions</h2>
+    <ul>
+      <li>Review unpaid invoices this month</li>
+      <li>Consider registering for KOR if VAT < €1,800</li>
     </ul>
-  </section>
+  </div>
 
-  <section class="section suggestions">
-    <h3>💡 Smart Suggestions</h3>
-    <ul id="suggestionsList">
-      <li>📌 You have unpaid invoices — consider sending reminders.</li>
-      <li>📌 Your expenses this month are above average.</li>
-      <li>📌 You're eligible for KOR — consider applying.</li>
-    </ul>
-  </section>
+  <footer>© 2025 SmartWerk</footer>
 
-  <footer>
-    <p>© 2025–2030 SmartWerk. All rights reserved.</p>
-  </footer>
-
-  <script>
-
-// summary.js (оновлена версія з фільтрацією, витратами та smart-порадами)
-
-// summary.js
-// Додаємо зчитування витрат з Firebase
-
-import {
-  initializeApp,
-  getApps,
-  getApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
-  authDomain: "smartwerk8520.firebaseapp.com",
-  projectId: "smartwerk8520",
-  appId: "1:607670981972:web:c07103c981c86860d724c1",
-};
-
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const $ = sel => document.querySelector(sel);
-
-let allInvoices = [];
-let allExpenses = [];
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return (window.location.href = "login.html");
-  const uid = user.uid;
-
-  const invoicesSnap = await getDocs(
-    query(collection(db, "invoices"), where("userId", "==", uid))
-  );
-  invoicesSnap.forEach(doc => allInvoices.push(doc.data()));
-
-  const expensesSnap = await getDocs(
-    query(collection(db, "expenses"), where("userId", "==", uid))
-  );
-  expensesSnap.forEach(doc => allExpenses.push(doc.data()));
-
-  renderSummary();
-});
-
-function renderSummary() {
-  const income = allInvoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-  const expenses = allExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  const netProfit = income - expenses;
-  const vat = income * 0.21; // умовно
-  const pending = allInvoices
-    .filter(i => i.status !== 'Paid')
-    .reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-
-  $("#totalIncome").textContent = `€${income.toFixed(2)}`;
-  $("#totalExpenses").textContent = `€${expenses.toFixed(2)}`;
-  $("#netProfit").textContent = `€${netProfit.toFixed(2)}`;
-  $("#vatPayable").textContent = `€${vat.toFixed(2)}`;
-  $("#pendingInvoices").textContent = `€${pending.toFixed(2)}`;
-
-  renderBreakdown();
-  renderChart();
-  renderSuggestions();
-}
-
-function renderBreakdown() {
-  const now = new Date();
-  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-  const invoicedMonth = allInvoices.filter(i => (i.date || '').startsWith(ym))
-    .reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-
-  const expensesMonth = allExpenses.filter(e => (e.paymentDate || '').startsWith(ym))
-    .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-
-  const taxReserve = (invoicedMonth - expensesMonth) * 0.25;
-
-  $("#breakdownInvoiced").textContent = invoicedMonth.toFixed(2);
-  $("#breakdownExpenses").textContent = expensesMonth.toFixed(2);
-  $("#breakdownVAT").textContent = (invoicedMonth * 0.21).toFixed(2);
-  $("#breakdownTaxReserve").textContent = taxReserve.toFixed(2);
-
-  // поки reminders = інвойси з тегом reminderSent = true (пізніше оновимо)
-  const remindersSent = allInvoices.filter(i => i.reminderSent).length;
-  $("#breakdownReminders").textContent = remindersSent;
-}
-
-function renderChart() {
-  const monthlyData = {};
-  allInvoices.forEach(inv => {
-    const month = (inv.date || '').substring(0, 7);
-    if (!monthlyData[month]) monthlyData[month] = 0;
-    monthlyData[month] += parseFloat(inv.total || 0);
-  });
-
-  const labels = Object.keys(monthlyData).sort();
-  const values = labels.map(m => monthlyData[m]);
-
-  const ctx = document.getElementById('monthlyChart')?.getContext('2d');
-  if (ctx) {
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{ label: 'Monthly Revenue (€)', data: values, borderWidth: 1 }]
-      },
-      options: { scales: { y: { beginAtZero: true } } }
-    });
-  }
-}
-
-function renderSuggestions() {
-  const suggestions = [];
-  const unpaid = allInvoices.filter(i => i.status !== 'Paid').length;
-  if (unpaid > 0) suggestions.push("📌 You have unpaid invoices — consider sending reminders.");
-
-  const thisMonth = new Date().toISOString().slice(0, 7);
-  const incomeMonth = allInvoices.filter(i => (i.date || '').startsWith(thisMonth)).reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-  const expensesMonth = allExpenses.filter(e => (e.paymentDate || '').startsWith(thisMonth)).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  if (expensesMonth > incomeMonth * 0.3) suggestions.push("📌 Your expenses this month are above average.");
-
-  const totalIncome = allInvoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-  if (totalIncome < 30000) suggestions.push("📌 You're eligible for KOR — consider applying.");
-
-  const list = $("#suggestionsList");
-  list.innerHTML = "";
-  suggestions.forEach(s => {
-    const li = document.createElement("li");
-    li.textContent = s;
-    list.appendChild(li);
-  });
-}
-
-window.refreshSummary = () => location.reload();
-window.filterBy = (period) => alert("Filtering by: " + period + " (Coming soon)");
-window.filterByMonth = (month) => alert("Filtering by: " + month + " (Coming soon)");
-
-window.exportSummary = async function () {
-  const user = auth.currentUser;
-  if (!user) return alert("Not logged in");
-
-  const q = query(collection(db, "invoices"), where("userId", "==", user.uid));
-  const snap = await getDocs(q);
-
-  const rows = [["Invoice #", "Client", "Date", "Total", "Status"]];
-  snap.forEach(doc => {
-    const i = doc.data();
-    rows.push([i.number, i.clientName, i.date, i.total, i.status]);
-  });
-
-  const csv = rows.map(r => r.join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "SmartWerk_Summary.csv";
-  a.click();
-};
-    
-  </script>
+  <!-- JS MODULE: Пізніше вбудуємо Firebase, фільтри, графіки, PDF -->
 </body>
 </html>
