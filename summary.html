@@ -29,7 +29,7 @@
   <a href="dashboard.html" class="btn">← Back to Dashboard</a>
   <button id="exportCSV" class="btn">📁 Export CSV</button>
   <button id="exportPDF" class="btn btn-primary">📄 Export PDF</button>
-
+  <button id="exportPDFPro" class="btn btn-primary">📄 Export PDF (Pro)</button>
   <div class="filters">
     <label>
       Period:
@@ -275,6 +275,73 @@ window.exportPDF = () => {
   // Збереження
   doc.save("SmartWerk-Summary.pdf");
 };
+
+  window.exportPDFPro = () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Заголовок
+  doc.setFontSize(18);
+  doc.text("Financial Summary", 105, 15, { align: "center" });
+
+  // Період
+  const filterSelect = document.getElementById("filterBy");
+  const from = document.getElementById("customFrom")?.value;
+  const to = document.getElementById("customTo")?.value;
+  const filter = filterSelect?.value;
+
+  let periodText = "All Time";
+
+  if (from && to) {
+    periodText = `Custom Range: ${from} to ${to}`;
+  } else {
+    const now = new Date();
+    const month = now.toLocaleString("default", { month: "long" });
+    const year = now.getFullYear();
+
+    if (filter === "thisMonth") {
+      periodText = `This Month (${month} ${year})`;
+    } else if (filter === "lastMonth") {
+      const prev = new Date();
+      prev.setMonth(prev.getMonth() - 1);
+      const prevMonth = prev.toLocaleString("default", { month: "long" });
+      const prevYear = prev.getFullYear();
+      periodText = `Last Month (${prevMonth} ${prevYear})`;
+    } else if (filter === "thisYear") {
+      periodText = `This Year (${year})`;
+    }
+  }
+
+  doc.setFontSize(12);
+  doc.text(`Period: ${periodText}`, 14, 22);
+
+  // Таблиця
+  doc.autoTable({
+    startY: 30,
+    head: [["Metric", "Value"]],
+    body: [
+      ["Total Income", document.getElementById("totalIncome").innerText],
+      ["Total Expenses", document.getElementById("totalExpenses").innerText],
+      ["Net Profit", document.getElementById("netProfit").innerText],
+      ["Total VAT", document.getElementById("totalVat").innerText]
+    ],
+    styles: { fontSize: 11 },
+    headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+    margin: { left: 14, right: 14 }
+  });
+
+  let finalY = doc.lastAutoTable.finalY;
+
+  // Додавання графіку (з канвасу)
+  const chartCanvas = document.getElementById("summaryChart");
+  if (chartCanvas) {
+    const chartImage = chartCanvas.toDataURL("image/png", 1.0);
+    doc.addImage(chartImage, "PNG", 14, finalY + 20, 180, 80);
+  }
+
+  // Збереження
+  doc.save("Financial-Summary.pdf");
+};
     
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
@@ -294,6 +361,7 @@ onAuthStateChanged(auth, user => {
   $("customTo").oninput = update;
   $("exportCSV").onclick = exportCSV;
   $("exportPDF").onclick = exportPDF;
+  $("exportPDFPro").onclick = exportPDFPro;
 });
 </script>
 </body>
