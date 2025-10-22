@@ -197,27 +197,70 @@ function exportCSV() {
   link.click();
 }
 
-function exportPDF() {
+window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+
+  // 1. Заголовок
   doc.setFontSize(18);
-  doc.text("SmartWerk Summary", 105, 15, { align: "center" });
+  doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
+
+  // 2. Період звіту
+  const from = document.getElementById("customFrom").value;
+  const to = document.getElementById("customTo").value;
+  const filter = document.getElementById("filterBy").value;
+  let periodText = "All time";
+
+  if (from && to) {
+    periodText = `From: ${from} To: ${to}`;
+  } else if (filter === "thisMonth") {
+    const now = new Date();
+    const month = now.toLocaleString("default", { month: "long" });
+    periodText = `This Month (${month} ${now.getFullYear()})`;
+  } else if (filter === "lastMonth") {
+    const now = new Date();
+    now.setMonth(now.getMonth() - 1);
+    const month = now.toLocaleString("default", { month: "long" });
+    periodText = `Last Month (${month} ${now.getFullYear()})`;
+  } else if (filter === "thisYear") {
+    periodText = `This Year (${new Date().getFullYear()})`;
+  }
+
   doc.setFontSize(12);
-  doc.text("Report Overview:", 14, 30);
+  doc.text(`Period: ${periodText}`, 14, 28);
+
+  // 3. Таблиця метрик
   doc.autoTable({
     startY: 35,
     head: [["Metric", "Value"]],
     body: [
-      ["Total Income", $("totalIncome").innerText],
-      ["Total Expenses", $("totalExpenses").innerText],
-      ["Net Profit", $("netProfit").innerText],
-      ["Total VAT", $("totalVat").innerText]
-    ]
+      ["Total Income", document.getElementById("totalIncome").innerText],
+      ["Total Expenses", document.getElementById("totalExpenses").innerText],
+      ["Net Profit", document.getElementById("netProfit").innerText],
+      ["Total VAT", document.getElementById("totalVat").innerText]
+    ],
+    styles: { fontSize: 11 },
+    headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+    margin: { left: 14, right: 14 }
   });
+
+  let finalY = doc.lastAutoTable.finalY;
+
+  // 4. Додавання графіку (canvas → image)
+  const chartCanvas = document.getElementById("summaryChart");
+  const chartImage = chartCanvas.toDataURL("image/png", 1.0);
+  doc.addImage(chartImage, "PNG", 14, finalY + 10, 180, 80);
+  finalY += 95;
+
+  // 5. Примітка та брендинг
   doc.setFontSize(10);
-  doc.text("Generated with SmartWerk", 105, 285, { align: "center" });
-  doc.save("summary.pdf");
-}
+  doc.text("This report is auto-generated. Not a formal accounting document.", 14, finalY + 10);
+  doc.setFontSize(9);
+  doc.text("Generated with SmartWerk", 105, 290, { align: "center" });
+
+  // 6. Збереження
+  doc.save("SmartWerk-Summary.pdf");
+};
 
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
