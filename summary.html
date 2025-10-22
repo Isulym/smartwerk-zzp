@@ -201,35 +201,37 @@ window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // 1. Заголовок
+  // 🔹 Заголовок
   doc.setFontSize(18);
   doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
 
-  // 2. Період звіту
+  // 🔹 Період
   const from = document.getElementById("customFrom").value;
   const to = document.getElementById("customTo").value;
   const filter = document.getElementById("filterBy").value;
-  let periodText = "All time";
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.toLocaleString("default", { month: "long" });
 
+  let periodText = "All Time";
   if (from && to) {
     periodText = `From: ${from} To: ${to}`;
   } else if (filter === "thisMonth") {
-    const now = new Date();
-    const month = now.toLocaleString("default", { month: "long" });
-    periodText = `This Month (${month} ${now.getFullYear()})`;
+    periodText = `This Month (${month} ${year})`;
   } else if (filter === "lastMonth") {
-    const now = new Date();
-    now.setMonth(now.getMonth() - 1);
-    const month = now.toLocaleString("default", { month: "long" });
-    periodText = `Last Month (${month} ${now.getFullYear()})`;
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    const m = lastMonth.toLocaleString("default", { month: "long" });
+    const y = lastMonth.getFullYear();
+    periodText = `Last Month (${m} ${y})`;
   } else if (filter === "thisYear") {
-    periodText = `This Year (${new Date().getFullYear()})`;
+    periodText = `This Year (${year})`;
   }
 
   doc.setFontSize(12);
-  doc.text(`Period: ${periodText}`, 14, 28);
+  doc.text(`Period: ${periodText}`, 14, 28, { maxWidth: 180 });
 
-  // 3. Таблиця метрик
+  // 🔹 Таблиця з метриками
   doc.autoTable({
     startY: 35,
     head: [["Metric", "Value"]],
@@ -246,19 +248,22 @@ window.exportPDF = () => {
 
   let finalY = doc.lastAutoTable.finalY;
 
-  // 4. Додавання графіку (canvas → image)
+  // 🔹 Додавання графіка
   const chartCanvas = document.getElementById("summaryChart");
-  const chartImage = chartCanvas.toDataURL("image/png", 1.0);
-  doc.addImage(chartImage, "PNG", 14, finalY + 10, 180, 80);
-  finalY += 95;
+  if (chartCanvas) {
+    const chartImage = chartCanvas.toDataURL("image/png", 1.0);
+    doc.addImage(chartImage, "PNG", 14, finalY + 20, 180, 80);
+    doc.setFontSize(10);
+    doc.text("Monthly overview of income and expenses", 105, finalY + 105, { align: "center" });
+    finalY += 110;
+  }
 
-  // 5. Примітка та брендинг
-  doc.setFontSize(10);
-  doc.text("This report is auto-generated. Not a formal accounting document.", 14, finalY + 10);
+  // 🔹 Футер
   doc.setFontSize(9);
-  doc.text("Generated with SmartWerk", 105, 290, { align: "center" });
+  doc.setTextColor(100);
+  doc.text("Generated with SmartWerk — https://smartwerk.nl", 105, 290, { align: "center" });
 
-  // 6. Збереження
+  // 🔹 Зберегти файл
   doc.save("SmartWerk-Summary.pdf");
 };
 
