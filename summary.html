@@ -424,7 +424,9 @@ window.exportPDF = () => {
   
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
+    listenToSummary(user.uid);        // Вже є
   loadSmartSuggestions(user.uid);
+  
 
 
   const uid = user.uid;
