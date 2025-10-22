@@ -196,47 +196,51 @@ function exportCSV() {
   link.download = "summary.csv";
   link.click();
 }
- window.exportPDF = () => {
+window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // Заголовок
   doc.setFontSize(18);
   doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
 
-  // Період (виправлено точно!)
+  // 🟨 Надійне визначення періоду
   let periodText = "All Time";
-  const filterElement = document.getElementById("filterBy");
-  const fromElement = document.getElementById("customFrom");
-  const toElement = document.getElementById("customTo");
+  try {
+    const filterElement = document.getElementById("filterBy");
+    const from = document.getElementById("customFrom")?.value;
+    const to = document.getElementById("customTo")?.value;
+    const filter = filterElement?.value;
 
-  if (fromElement?.value && toElement?.value) {
-    periodText = `Custom Range: ${fromElement.value} to ${toElement.value}`;
-  } else {
-    const now = new Date();
-    const filter = filterElement?.value || "all";
-    const month = now.toLocaleString("default", { month: "long" });
-    const year = now.getFullYear();
+    if (from && to) {
+      periodText = `Custom Range: ${from} to ${to}`;
+    } else {
+      const now = new Date();
+      const month = now.toLocaleString("default", { month: "long" });
+      const year = now.getFullYear();
 
-    if (filter === "thisMonth") {
-      periodText = `This Month (${month} ${year})`;
-    } else if (filter === "lastMonth") {
-      const prev = new Date();
-      prev.setMonth(prev.getMonth() - 1);
-      const prevMonth = prev.toLocaleString("default", { month: "long" });
-      const prevYear = prev.getFullYear();
-      periodText = `Last Month (${prevMonth} ${prevYear})`;
-    } else if (filter === "thisYear") {
-      periodText = `This Year (${year})`;
+      if (filter === "thisMonth") {
+        periodText = `This Month (${month} ${year})`;
+      } else if (filter === "lastMonth") {
+        const prev = new Date();
+        prev.setMonth(prev.getMonth() - 1);
+        const prevMonth = prev.toLocaleString("default", { month: "long" });
+        const prevYear = prev.getFullYear();
+        periodText = `Last Month (${prevMonth} ${prevYear})`;
+      } else if (filter === "thisYear") {
+        periodText = `This Year (${year})`;
+      }
     }
+  } catch (err) {
+    console.warn("Period detection failed:", err);
+    periodText = "Period not available";
   }
 
-  // Період — відображення в PDF
+  // 🟩 Період виводимо на сторінку
   doc.setFontSize(12);
   doc.setTextColor(30);
   doc.text(`Period: ${periodText}`, 14, 25);
 
-  // Таблиця
+  // 📊 Таблиця з підсумками
   doc.autoTable({
     startY: 35,
     head: [["Metric", "Value"]],
@@ -253,7 +257,7 @@ function exportCSV() {
 
   let finalY = doc.lastAutoTable.finalY;
 
-  // Графік
+  // 🧾 Графік
   const chartCanvas = document.getElementById("summaryChart");
   if (chartCanvas) {
     const chartImage = chartCanvas.toDataURL("image/png", 1.0);
@@ -263,12 +267,11 @@ function exportCSV() {
     finalY += 110;
   }
 
-  // Футер
+  // 📎 Брендинг
   doc.setFontSize(9);
   doc.setTextColor(100);
   doc.text("Generated with SmartWerk — https://smartwerk.nl", 105, 290, { align: "center" });
 
-  // Збереження
   doc.save("SmartWerk-Summary.pdf");
 };
 
