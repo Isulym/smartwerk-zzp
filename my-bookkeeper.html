@@ -2,228 +2,216 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Bookkeeper | SmartWerk</title>
-  <link rel="stylesheet" href="style-bookkeeper.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📚 My Bookkeeper</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body { background: #0f172a; color: #e2e8f0; font-family: 'Inter', sans-serif; padding: 20px; }
+    h1, h2 { color: #93c5fd; }
+    .btn { background: #3b82f6; color: white; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px; }
+    .filters { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+    select, input[type="date"] { background: #1e293b; color: #e2e8f0; border: none; padding: 6px 10px; border-radius: 6px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+    .card { background: #1e293b; padding: 14px; border-radius: 8px; }
+    canvas { margin-top: 30px; background: #1e293b; border-radius: 8px; padding: 10px; }
+    footer { margin-top: 40px; font-size: 12px; text-align: center; color: #64748b; }
+    ul { padding-left: 20px; }
+    .calendar { margin-top: 40px; }
+    .calendar ul { padding: 0; list-style: none; }
+    .calendar li { margin-bottom: 8px; color: #facc15; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>👨‍💼 My Bookkeeper</h1>
-    <div class="header-actions">
-      <button onclick="refreshBookkeeper()">🔄 Refresh</button>
-      <button onclick="exportAllData()">📤 Export All</button>
-      <a href="dashboard.html" class="btn-link">🏠 Back to Dashboard</a>
-    </div>
-  </header>
+  <h1>📚 My Bookkeeper</h1>
 
-  <section class="kpi-cards">
-    <div class="card income">💰 Total Income<br><span id="totalIncome">€0</span></div>
-    <div class="card expenses">📉 Total Expenses<br><span id="totalExpenses">€0</span></div>
-    <div class="card profit">📈 Net Profit<br><span id="netProfit">€0</span></div>
-    <div class="card vat">🧾 VAT Payable<br><span id="vatPayable">€0</span></div>
-  </section>
-
-  <section class="chart-filters">
-    <h3>📊 Invoices Chart Filters</h3>
-    <label>
-      Month:
-      <select id="monthSelect" onchange="updateFilters()">
-        <option value="all">All</option>
+  <div class="filters">
+    <label>Period:
+      <select id="filterBy">
+        <option value="all">All Time</option>
+        <option value="thisYear">This Year</option>
+        <option value="thisMonth">This Month</option>
+        <option value="lastMonth">Last Month</option>
       </select>
     </label>
-    <label>
-      Status:
-      <select id="statusSelect" onchange="updateFilters()">
-        <option value="all">All</option>
-        <option value="Paid">Paid</option>
-        <option value="Draft">Draft</option>
-        <option value="Sent">Sent</option>
-      </select>
-    </label>
-    <label>
-      Chart Type:
-      <select id="chartType" onchange="updateFilters()">
-        <option value="bar">Bar</option>
-        <option value="line">Line</option>
-      </select>
-    </label>
-  </section>
+    <label>From: <input type="date" id="customFrom"></label>
+    <label>To: <input type="date" id="customTo"></label>
+    <button class="btn" onclick="exportPDF()">📄 Export PDF</button>
+  </div>
 
-  <section class="filters">
-    <h3>📅 Filter by Period</h3>
-    <button onclick="filterBy('thisMonth')">This Month</button>
-    <button onclick="filterBy('lastMonth')">Last Month</button>
-    <button onclick="filterBy('thisYear')">This Year</button>
-    <input type="month" id="customMonth" onchange="filterByMonth(this.value)" />
-  </section>
+  <div class="grid">
+    <div class="card"><h2>Total Income</h2><p id="totalIncome">€0</p></div>
+    <div class="card"><h2>Total Expenses</h2><p id="totalExpenses">€0</p></div>
+    <div class="card"><h2>Profit</h2><p id="netProfit">€0</p></div>
+    <div class="card"><h2>Clients</h2><p id="totalClients">0</p></div>
+  </div>
 
-  <section class="charts">
-    <h3>📊 Financial Overview</h3>
-    <canvas id="bookkeeperChart" height="120"></canvas>
+  <h2>📈 Overview Chart</h2>
+  <canvas id="chart" height="100"></canvas>
 
-    <h3>📈 Invoices Chart</h3>
-    <canvas id="invoicesChart" height="120"></canvas>
-  </section>
+  <h2>🧠 Smart Suggestions</h2>
+  <ul id="suggestions"><li>Loading...</li></ul>
 
-  <section class="section invoices">
-    <h3>📄 Invoices Summary</h3>
-    <ul id="invoicesList"></ul>
-  </section>
+  <div class="calendar">
+    <h2>📆 Upcoming Invoice Due Dates</h2>
+    <ul id="calendarEvents"></ul>
+  </div>
 
-  <section class="section expenses">
-    <h3>💼 Expenses Summary</h3>
-    <ul id="expensesList"></ul>
-  </section>
+  <footer>© 2025 SmartWerk</footer>
 
-  <section class="section reminders">
-    <h3>📬 Reminders Sent</h3>
-    <ul id="remindersList"></ul>
-  </section>
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  <footer>
-    <p>© 2025–2030 SmartWerk. All rights reserved.</p>
-  </footer>
-
-  <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
       authDomain: "smartwerk8520.firebaseapp.com",
       projectId: "smartwerk8520",
-      appId: "1:607670981972:web:c07103c981c86860d724c1",
+      appId: "1:607670981972:web:c07103c981c86860d724c1"
     };
 
-    // Init
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const $ = id => document.getElementById(id);
 
-    const $ = sel => document.querySelector(sel);
-    let invoicesChartInstance = null;
+    let chart;
 
-    function refreshBookkeeper() {
-      location.reload();
+    function formatCurrency(num = 0) {
+      return "€" + num.toLocaleString("nl-NL", { minimumFractionDigits: 2 });
     }
 
-    function exportAllData() {
-      alert("Export in progress...");
+    function withinPeriod(dateStr, from, to) {
+      if (!dateStr) return false;
+      const date = new Date(dateStr);
+      return (!from || new Date(from) <= date) && (!to || date <= new Date(to));
     }
 
-    function filterBy(period) {
-      alert("Filtering by: " + period);
-    }
-
-    function filterByMonth(month) {
-      alert("Custom filter by month: " + month);
-    }
-
-    function updateChart(data, type) {
-      const monthly = {};
-      data.forEach(i => {
-        const date = (i.date || "").substring(0, 7);
-        if (!monthly[date]) monthly[date] = 0;
-        monthly[date] += parseFloat(i.total || 0);
-      });
-
-      const labels = Object.keys(monthly).sort();
-      const values = labels.map(l => monthly[l]);
-
-      if (invoicesChartInstance) invoicesChartInstance.destroy();
-      const ctx = document.getElementById("invoicesChart").getContext("2d");
-      invoicesChartInstance = new Chart(ctx, {
-        type: type,
-        data: {
-          labels: labels,
-          datasets: [{
-            label: `Invoices (${type})`,
-            data: values,
-            borderWidth: 1,
-            fill: type === "line"
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero: true } }
-        }
-      });
-    }
-
-    function updateFilters() {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const uid = user.uid;
-      const month = $("#monthSelect").value;
-      const status = $("#statusSelect").value;
-      const type = $("#chartType").value;
-
-      db.collection("invoices").where("userId", "==", uid).get().then(snap => {
-        const invoices = snap.docs.map(doc => doc.data());
-
-        const filtered = invoices.filter(i => {
-          const iMonth = (i.date || "").substring(0, 7);
-          const statusMatch = status === "all" || i.status === status;
-          const monthMatch = month === "all" || iMonth === month;
-          return statusMatch && monthMatch;
-        });
-
-        updateChart(filtered, type);
-      });
-    }
-
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) return (window.location.href = "login.html");
-      const uid = user.uid;
-
-      // Populate months
-      const monthSelect = $("#monthSelect");
-      if (monthSelect) {
-        monthSelect.innerHTML = "";
-        const optAll = document.createElement("option");
-        optAll.value = "all";
-        optAll.textContent = "All";
-        monthSelect.appendChild(optAll);
-        const now = new Date();
-        for (let i = 0; i < 12; i++) {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          const val = d.toISOString().slice(0, 7);
-          const label = d.toLocaleString("default", { month: "long", year: "numeric" });
-          const opt = document.createElement("option");
-          opt.value = val;
-          opt.textContent = label;
-          monthSelect.appendChild(opt);
-        }
-      }
-
-      const [invoicesSnap, expensesSnap, remindersSnap] = await Promise.all([
-        db.collection("invoices").where("userId", "==", uid).get(),
-        db.collection("expenses").where("userId", "==", uid).get(),
-        db.collection("reminders").where("userId", "==", uid).get()
+    async function loadData(uid) {
+      const [invoicesSnap, expensesSnap, clientsSnap] = await Promise.all([
+        getDocs(collection(db, "users", uid, "invoices")),
+        getDocs(collection(db, "users", uid, "expenses")),
+        getDocs(collection(db, "users", uid, "clients"))
       ]);
 
-      const invoices = invoicesSnap.docs.map(doc => doc.data());
-      const expenses = expensesSnap.docs.map(doc => doc.data());
-      const reminders = remindersSnap.docs.map(doc => doc.data());
+      const invoices = invoicesSnap.docs.map(d => d.data());
+      const expenses = expensesSnap.docs.map(d => d.data());
+      const clients = clientsSnap.docs.map(d => d.data());
 
-      const income = invoices.reduce((sum, i) => sum + parseFloat(i.total || 0), 0);
-      const expense = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-      const vat = invoices.reduce((sum, i) => sum + parseFloat(i.vat || 0), 0);
-      const profit = income - expense;
+      const filter = $("filterBy").value;
+      const from = $("customFrom").value;
+      const to = $("customTo").value;
 
-      $("#totalIncome").textContent = `€${income.toFixed(2)}`;
-      $("#totalExpenses").textContent = `€${expense.toFixed(2)}`;
-      $("#vatPayable").textContent = `€${vat.toFixed(2)}`;
-      $("#netProfit").textContent = `€${profit.toFixed(2)}`;
+      const now = new Date();
+      const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const lastMonth = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, '0')}`;
+      const thisYear = String(now.getFullYear());
 
-      $("#invoicesList").innerHTML = invoices.map(i => `<li>${i.invoiceNumber || "INV"} — €${i.total || 0} — ${i.status}</li>`).join("");
-      $("#expensesList").innerHTML = expenses.map(e => `<li>${e.category || "Expense"} — €${e.amount || 0}</li>`).join("");
-      $("#remindersList").innerHTML = reminders.map(r => `<li>${r.reminderId || "REM"} — ${r.clientName || "Unknown"}</li>`).join("");
+      const filteredInvoices = invoices.filter(i => {
+        const date = (i.invoiceDate || i.date || "").slice(0, 10);
+        if (from && to) return withinPeriod(date, from, to);
+        if (filter === "thisMonth") return date.startsWith(thisMonth);
+        if (filter === "lastMonth") return date.startsWith(lastMonth);
+        if (filter === "thisYear") return date.startsWith(thisYear);
+        return true;
+      });
 
-      updateChart(invoices, $("#chartType").value);
+      const filteredExpenses = expenses.filter(e => {
+        const date = (e.date || "").slice(0, 10);
+        if (from && to) return withinPeriod(date, from, to);
+        if (filter === "thisMonth") return date.startsWith(thisMonth);
+        if (filter === "lastMonth") return date.startsWith(lastMonth);
+        if (filter === "thisYear") return date.startsWith(thisYear);
+        return true;
+      });
+
+      const income = filteredInvoices.reduce((sum, i) => sum + (i.grandTotal || 0), 0);
+      const cost = filteredExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const profit = income - cost;
+
+      $("totalIncome").textContent = formatCurrency(income);
+      $("totalExpenses").textContent = formatCurrency(cost);
+      $("netProfit").textContent = formatCurrency(profit);
+      $("totalClients").textContent = clients.length;
+
+      if (chart) chart.destroy();
+      chart = new Chart($("chart").getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: ["Income", "Expenses"],
+          datasets: [{
+            label: "€",
+            data: [income, cost],
+            backgroundColor: ["#22c55e", "#ef4444"]
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      });
+
+      const unpaid = invoices.filter(i => i.status !== "Paid").length;
+      const suggestions = [];
+      if (unpaid > 0) suggestions.push(`📌 You have <strong>${unpaid}</strong> unpaid invoices.`);
+      if (profit < 0) suggestions.push("⚠️ Your business is running at a loss this period.");
+      if (income > 10000 && cost / income > 0.5) suggestions.push("💡 Consider reducing operational costs.");
+      if (!suggestions.length) suggestions.push("✅ Everything looks great this period.");
+      $("suggestions").innerHTML = suggestions.map(s => `<li>${s}</li>`).join("\n");
+
+      const dueList = invoices
+        .filter(i => i.dueDate)
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+        .slice(0, 5);
+
+      $("calendarEvents").innerHTML = dueList.map(i => `<li>📅 ${i.clientName}: Due ${i.dueDate}</li>`).join("\n");
+    }
+
+    window.exportPDF = () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text("My Bookkeeper Summary", 105, 15, { align: "center" });
+
+      const filter = $("filterBy").value;
+      const from = $("customFrom").value;
+      const to = $("customTo").value;
+      let periodText = "All Time";
+      if (from && to) periodText = `Custom: ${from} to ${to}`;
+      else if (filter === "thisMonth") periodText = "This Month";
+      else if (filter === "lastMonth") periodText = "Last Month";
+      else if (filter === "thisYear") periodText = "This Year";
+      doc.setFontSize(12);
+      doc.text(`Period: ${periodText}`, 14, 25);
+
+      doc.autoTable({
+        startY: 30,
+        head: [["Metric", "Value"]],
+        body: [
+          ["Total Income", $("totalIncome").innerText],
+          ["Total Expenses", $("totalExpenses").innerText],
+          ["Net Profit", $("netProfit").innerText],
+          ["Clients", $("totalClients").innerText]
+        ]
+      });
+
+      const chart = $("chart");
+      if (chart) {
+        const img = chart.toDataURL("image/png");
+        doc.addImage(img, "PNG", 14, doc.lastAutoTable.finalY + 10, 180, 80);
+      }
+
+      doc.setFontSize(10);
+      doc.text("Generated with SmartWerk", 105, 290, { align: "center" });
+      doc.save("bookkeeper-summary.pdf");
+    };
+
+    onAuthStateChanged(auth, user => {
+      if (!user) return location.href = "login.html";
+      $("filterBy").onchange = () => loadData(user.uid);
+      $("customFrom").onchange = () => loadData(user.uid);
+      $("customTo").onchange = () => loadData(user.uid);
+      loadData(user.uid);
     });
   </script>
 </body>
