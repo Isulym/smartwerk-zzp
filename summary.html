@@ -197,10 +197,6 @@ function exportCSV() {
   link.click();
 }
 
-  console.log("FILTER:", document.getElementById("filterBy")?.value);
-console.log("FROM:", document.getElementById("customFrom")?.value);
-console.log("TO:", document.getElementById("customTo")?.value);
-  
 window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -209,29 +205,33 @@ window.exportPDF = () => {
   doc.setFontSize(18);
   doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
 
-  // Період
+  // === Період ===
   const filterSelect = document.getElementById("filterBy");
   const from = document.getElementById("customFrom")?.value;
   const to = document.getElementById("customTo")?.value;
-  const filter = filterSelect?.options[filterSelect.selectedIndex]?.value;
+  const filter = filterSelect?.value;
 
   let periodText = "All Time";
   const now = new Date();
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   if (from && to) {
     periodText = `Custom Range: ${from} to ${to}`;
   } else {
-    const month = now.toLocaleString("default", { month: "long" });
     const year = now.getFullYear();
+    const monthName = months[now.getMonth()];
 
     if (filter === "thisMonth") {
-      periodText = `This Month (${month} ${year})`;
+      periodText = `This Month (${monthName} ${year})`;
     } else if (filter === "lastMonth") {
       const prev = new Date();
       prev.setMonth(prev.getMonth() - 1);
-      const prevMonth = prev.toLocaleString("default", { month: "long" });
       const prevYear = prev.getFullYear();
-      periodText = `Last Month (${prevMonth} ${prevYear})`;
+      const prevMonthName = months[prev.getMonth()];
+      periodText = `Last Month (${prevMonthName} ${prevYear})`;
     } else if (filter === "thisYear") {
       periodText = `This Year (${year})`;
     }
@@ -240,7 +240,7 @@ window.exportPDF = () => {
   doc.setFontSize(12);
   doc.text(`Period: ${periodText}`, 14, 25);
 
-  // Таблиця з метриками
+  // Таблиця
   doc.autoTable({
     startY: 35,
     head: [["Metric", "Value"]],
@@ -257,7 +257,7 @@ window.exportPDF = () => {
 
   let finalY = doc.lastAutoTable.finalY;
 
-  // Додавання графіка
+  // Графік
   const chartCanvas = document.getElementById("summaryChart");
   if (chartCanvas) {
     const chartImage = chartCanvas.toDataURL("image/png", 1.0);
@@ -267,11 +267,12 @@ window.exportPDF = () => {
     finalY += 110;
   }
 
-  // Примітка
+  // Футер
   doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text("This report is auto-generated. Not a formal accounting document.", 105, 285, { align: "center" });
+  doc.text("Generated with SmartWerk — https://smartwerk.nl", 105, 290, { align: "center" });
 
+  // Збереження
   doc.save("SmartWerk-Summary.pdf");
 };
     
