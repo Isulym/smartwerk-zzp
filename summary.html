@@ -206,27 +206,30 @@ window.exportPDF = () => {
   doc.text("SmartWerk Financial Summary", 105, 15, { align: "center" });
 
   // 🔹 Період
-  const from = document.getElementById("customFrom").value;
-  const to = document.getElementById("customTo").value;
-  const filter = document.getElementById("filterBy").value;
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.toLocaleString("default", { month: "long" });
+ const from = document.getElementById("customFrom").value;
+const to = document.getElementById("customTo").value;
+const filter = document.getElementById("filterBy").value;
+let periodText = "All Time";
 
-  let periodText = "All Time";
-  if (from && to) {
-    periodText = `From: ${from} To: ${to}`;
-  } else if (filter === "thisMonth") {
+if (from && to) {
+  periodText = `Custom Range: ${from} to ${to}`;
+} else {
+  const now = new Date();
+  const month = now.toLocaleString("default", { month: "long" });
+  const year = now.getFullYear();
+
+  if (filter === "thisMonth") {
     periodText = `This Month (${month} ${year})`;
   } else if (filter === "lastMonth") {
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-    const m = lastMonth.toLocaleString("default", { month: "long" });
-    const y = lastMonth.getFullYear();
-    periodText = `Last Month (${m} ${y})`;
+    const prev = new Date();
+    prev.setMonth(prev.getMonth() - 1);
+    const prevMonth = prev.toLocaleString("default", { month: "long" });
+    const prevYear = prev.getFullYear();
+    periodText = `Last Month (${prevMonth} ${prevYear})`;
   } else if (filter === "thisYear") {
     periodText = `This Year (${year})`;
   }
+}
 
   doc.setFontSize(12);
   doc.text(`Period: ${periodText}`, 14, 28, { maxWidth: 180 });
