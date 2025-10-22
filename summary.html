@@ -60,15 +60,12 @@
     <canvas id="summaryChart" height="100"></canvas>
   </div>
 
-  <div class="section alerts">
-    <h2>🧠 Smart Suggestions</h2>
-    <ul>
-      <li>📌 You have <strong>3 unpaid invoices</strong> older than 30 days</li>
-      <li>💡 Consider registering for KOR if your VAT is under €1,800 this year</li>
-      <li>📈 Income dropped -15% compared to last month</li>
-      <li>📆 Average payment time: <strong>18 days</strong></li>
-    </ul>
-  </div>
+ <div class="section alerts">
+  <h2>🧠 Smart Suggestions</h2>
+  <ul id="suggestionList">
+    <li>Loading smart suggestions...</li> <!-- ⬅️ цей рядок не обов’язковий -->
+  </ul>
+</div>
 
   <footer>© 2025 SmartWerk • Last updated: <span id="lastUpdated">just now</span></footer>
 
@@ -179,6 +176,75 @@ function drawChart(incomeMap, expenseMap) {
       responsive: true,
       plugins: { legend: { position: "top" } }
     }
+  });
+}
+
+  async function loadSmartSuggestions(uid) {
+  const suggestions = [];
+  const today = new Date();
+  const invoicesSnap = await getDocs(collection(db, "users", uid, "invoices"));
+
+  let unpaidOver30 = 0;
+  let totalVatThisYear = 0;
+  let thisYearIncome = 0;
+  let paidDelays = [];
+
+  invoicesSnap.forEach(doc => {
+    const i = doc.data();
+    const issueDate = new Date(i.invoiceDate);
+    const dueDate = new Date(i.dueDate);
+    const paidDate = i.paidDate ? new Date(i.paidDate) : null;
+    const status = i.status || "Draft";
+    const year = issueDate.getFullYear();
+
+    // 🧾 Прострочені інвойси > 30 днів
+    if (status !== "Paid" && dueDate < today) {
+      const diff = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+      if (diff > 30) unpaidOver30++;
+    }
+
+    // 📅 Середній час оплати
+    if (status === "Paid" && paidDate) {
+      const delay = Math.floor((paidDate - issueDate) / (1000 * 60 * 60 * 24));
+      paidDelays.push(delay);
+    }
+
+    // 📊 KOR та дохід
+    if (year === today.getFullYear()) {
+      totalVatThisYear += i.totalVat || 0;
+      thisYearIncome += i.grandTotal || 0;
+    }
+  });
+
+  // Додаємо підказки:
+  if (unpaidOver30 > 0) {
+    suggestions.push(`📌 You have <strong>${unpaidOver30} unpaid invoices</strong> older than 30 days`);
+  }
+
+  if (totalVatThisYear < 1800) {
+    suggestions.push(`💡 Consider registering for KOR – your VAT this year is only €${totalVatThisYear.toFixed(2)}`);
+  }
+
+  if (paidDelays.length > 0) {
+    const avgDelay = Math.round(paidDelays.reduce((a, b) => a + b, 0) / paidDelays.length);
+    suggestions.push(`📆 Average payment time: <strong>${avgDelay} days</strong>`);
+  }
+
+  if (thisYearIncome < 10000) {
+    suggestions.push(`📉 Your income this year is relatively low: €${thisYearIncome.toFixed(2)}`);
+  }
+
+  if (suggestions.length === 0) {
+    suggestions.push("✅ No alerts. Your business looks healthy!");
+  }
+
+  // Виводимо у HTML
+  const list = document.getElementById("suggestionList");
+  list.innerHTML = "";
+  suggestions.forEach(s => {
+    const li = document.createElement("li");
+    li.innerHTML = s;
+    list.appendChild(li);
   });
 }
 
@@ -348,9 +414,14 @@ window.exportPDF = () => {
   // === Збереження ===
   doc.save("Financial-Summary.pdf");
 };
-    
+
+
+  
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
+   listenToSummary(user.uid);
+  loadSmartSuggestions(user.uid);
+
 
   const uid = user.uid;
   onSnapshot(collection(db, "users", uid, "invoices"), snap => {
