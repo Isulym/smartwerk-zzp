@@ -154,7 +154,7 @@ async function loadBookkeeperData(uid) {
   const from = $("customFrom").value;
   const to = $("customTo").value;
 
-  const invoices = invoiceSnap.docs
+  let invoices = invoiceSnap.docs
     .map(doc => doc.data())
     .filter(i => filterByPeriod(i.invoiceDate || i.date, filter, from, to));
   const expenses = expenseSnap.docs
