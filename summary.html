@@ -208,28 +208,33 @@ window.exportPDF = () => {
   // Період (виправлено!)
   const from = document.getElementById("customFrom").value;
   const to = document.getElementById("customTo").value;
-  const filter = document.getElementById("filterBy").value;
-  let periodText = "All Time";
+ const filterSelect = document.getElementById("filterBy");
+const filter = filterSelect?.value;
+let periodText = "All Time";
 
-  if (from && to) {
-    periodText = `Custom Range: ${from} to ${to}`;
-  } else {
-    const now = new Date();
-    const month = now.toLocaleString("default", { month: "long" });
-    const year = now.getFullYear();
+if (from && to) {
+  periodText = `Custom Range: ${from} to ${to}`;
+} else {
+  const now = new Date();
+  const month = now.toLocaleString("default", { month: "long" });
+  const year = now.getFullYear();
 
-    if (filter === "thisMonth") {
+  switch (filter) {
+    case "thisMonth":
       periodText = `This Month (${month} ${year})`;
-    } else if (filter === "lastMonth") {
+      break;
+    case "lastMonth":
       const prev = new Date();
       prev.setMonth(prev.getMonth() - 1);
       const prevMonth = prev.toLocaleString("default", { month: "long" });
       const prevYear = prev.getFullYear();
       periodText = `Last Month (${prevMonth} ${prevYear})`;
-    } else if (filter === "thisYear") {
+      break;
+    case "thisYear":
       periodText = `This Year (${year})`;
-    }
+      break;
   }
+}
 
   doc.setFontSize(12);
   doc.text(`Period: ${periodText}`, 14, 28, { maxWidth: 180 });
