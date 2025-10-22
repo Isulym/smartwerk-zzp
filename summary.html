@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>📊 SmartWerk Summary</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -25,14 +25,13 @@
   </style>
 </head>
 <body>
- <h1>📊 Business Summary</h1>
+  <h1>📊 Business Summary</h1>
   <a href="dashboard.html" class="btn">← Back to Dashboard</a>
-  <button onclick="exportCSV()" class="btn">📁 Export CSV</button>
-  <button onclick="exportPDF()" class="btn btn-primary">📄 Export PDF</button>
+  <button id="exportCSV" class="btn">📁 Export CSV</button>
+  <button id="exportPDF" class="btn btn-primary">📄 Export PDF</button>
 
   <div class="filters">
-    <label>
-      Period:
+    <label>Period:
       <select id="filterBy">
         <option value="all">All time</option>
         <option value="thisYear">This Year</option>
@@ -40,12 +39,8 @@
         <option value="lastMonth">Last Month</option>
       </select>
     </label>
-    <label>
-      From: <input type="date" id="customFrom">
-    </label>
-    <label>
-      To: <input type="date" id="customTo">
-    </label>
+    <label>From: <input type="date" id="customFrom"></label>
+    <label>To: <input type="date" id="customTo"></label>
   </div>
 
   <div class="stats">
@@ -70,9 +65,9 @@
     </ul>
   </div>
 
-  <footer>© 2025 SmartWerk </footer>
+  <footer>© 2025 SmartWerk • Last updated: <span id="lastUpdated">just now</span></footer>
 
- <script type="module">
+  <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -87,7 +82,6 @@
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
     const $ = id => document.getElementById(id);
     let summaryChart = null;
 
@@ -146,8 +140,9 @@
     }
 
     function drawChart(incomeMap, expenseMap) {
-      const ctx = document.getElementById("summaryChart").getContext("2d");
+      const ctx = $("summaryChart").getContext("2d");
       if (summaryChart) summaryChart.destroy();
+
       const labels = Array.from(new Set([...Object.keys(incomeMap), ...Object.keys(expenseMap)])).sort();
       const incomeData = labels.map(m => incomeMap[m] || 0);
       const expenseData = labels.map(m => expenseMap[m] || 0);
@@ -168,7 +163,7 @@
       });
     }
 
-    window.exportCSV = () => {
+    function exportCSV() {
       const rows = [
         ["Metric", "Value"],
         ["Total Income", $("totalIncome").innerText],
@@ -184,9 +179,9 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    };
+    }
 
-    window.exportPDF = () => {
+    function exportPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       doc.setFontSize(18);
@@ -206,11 +201,13 @@
       doc.setFontSize(10);
       doc.text("Generated with SmartWerk", 105, 285, { align: "center" });
       doc.save("summary.pdf");
-    };
+    }
 
     onAuthStateChanged(auth, user => {
       if (!user) return location.href = "login.html";
       listenToSummary(user.uid);
+      $("exportCSV").onclick = exportCSV;
+      $("exportPDF").onclick = exportPDF;
     });
   </script>
 </body>
