@@ -153,60 +153,72 @@ async function loadBookkeeperData(uid) {
   const from = $("customFrom").value;
   const to = $("customTo").value;
 
+  // 🧾 Фільтрація інвойсів
   let invoices = invoiceSnap.docs
     .map(doc => doc.data())
     .filter(i => filterByPeriod(i.invoiceDate || i.date, filter, from, to));
+
+  // 💸 Фільтрація витрат
   let expenses = expenseSnap.docs
     .map(doc => doc.data())
-    .filter(e => filterByPeriod(e.date, filter, from, to));
+    .filter(e => filterByPeriod(e.date, filter, from, to))
+    // Фільтруємо тільки ті, що мають валідне число
+    .filter(e => !isNaN(parseFloat(e.amount)));
 
+  // 📊 Дохід по клієнтах
   const incomeByClient = {};
   invoices.forEach(inv => {
     if (!inv.clientName) return;
     incomeByClient[inv.clientName] = (incomeByClient[inv.clientName] || 0) + (inv.grandTotal || 0);
   });
 
+  // 🔍 Фільтр по вибраному клієнту
   const selectedClient = $("clientFilter").value;
   if (selectedClient) {
     invoices = invoices.filter(i => i.clientName === selectedClient);
   }
 
- let totalIncome = 0;
-let totalVat = 0;
-let totalExpenses = 0;
+  // 💰 Обчислення підсумків
+  let totalIncome = 0;
+  let totalVat = 0;
+  let totalExpenses = 0;
 
-invoices.forEach(i => {
-  totalIncome += i.grandTotal || 0;
-  totalVat += i.totalVat || 0;
-});
+  invoices.forEach(i => {
+    totalIncome += parseFloat(i.grandTotal) || 0;
+    totalVat += parseFloat(i.totalVat) || 0;
+  });
 
-expenses.forEach(e => {
-  totalExpenses += e.amount || 0;
-});
+  expenses.forEach(e => {
+    totalExpenses += parseFloat(e.amount) || 0;
+  });
 
-const netProfit = totalIncome - totalExpenses;
+  const netProfit = totalIncome - totalExpenses;
 
-$("totalIncome").innerText = formatCurrency(totalIncome);
-$("totalVat").innerText = formatCurrency(totalVat);
-$("totalExpenses").innerText = formatCurrency(totalExpenses);
-$("netProfit").innerText = formatCurrency(netProfit);
+  // 💶 Відображення у UI
+  $("totalIncome").innerText = formatCurrency(totalIncome);
+  $("totalVat").innerText = formatCurrency(totalVat);
+  $("totalExpenses").innerText = formatCurrency(totalExpenses);
+  $("netProfit").innerText = formatCurrency(netProfit);
 
+  // 🎯 Ціль по доходу
   const target = 50000;
   const percent = Math.min(100, Math.round((totalIncome / target) * 100));
   $("targetProgress").style.width = percent + "%";
   $("targetProgress").innerText = percent + "%";
 
-   // Збереження income by client для CSV
-window.__incomeByClient = incomeByClient;
+  // 💾 Збереження для експорту
+  window.__incomeByClient = incomeByClient;
 
-// Витрати по категоріях (опціонально)
-const expensesByCategory = {};
-expenses.forEach(e => {
-  const cat = e.category || "Other";
-  expensesByCategory[cat] = (expensesByCategory[cat] || 0) + (e.amount || 0);
-});
-window.__expensesByCategory = expensesByCategory;   
+  // 📂 Витрати по категоріях
+  const expensesByCategory = {};
+  expenses.forEach(e => {
+    const cat = e.category || "Other";
+    const amt = parseFloat(e.amount) || 0;
+    expensesByCategory[cat] = (expensesByCategory[cat] || 0) + amt;
+  });
+  window.__expensesByCategory = expensesByCategory;
 
+  // 📈 Побудова графіків і відображення
   drawChart(invoices, expenses);
   drawIncomeByClientChart(incomeByClient);
   loadUpcomingInvoices(invoices);
@@ -214,7 +226,8 @@ window.__expensesByCategory = expensesByCategory;
   populateClientDropdown(clientSnap.docs.map(d => d.data()));
   loadSmartSuggestions(invoices, expenses, target);
 
-  console.log("Loaded expenses:", expenses);
+  console.log("✅ Loaded expenses:", expenses);
+  console.log("💶 Total Expenses Calculated:", totalExpenses);
 }
 
  function loadSmartSuggestions(invoices, expenses, targetIncome = 50000) {
