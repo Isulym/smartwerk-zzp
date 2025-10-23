@@ -270,7 +270,16 @@ async function loadBookkeeperData(uid) {
     container.appendChild(li);
   });
 }   
-    
+ // Збереження income by client для CSV
+window.__incomeByClient = incomeByClient;
+
+// Витрати по категоріях (опціонально)
+const expensesByCategory = {};
+expenses.forEach(e => {
+  const cat = e.category || "Other";
+  expensesByCategory[cat] = (expensesByCategory[cat] || 0) + (e.amount || 0);
+});
+window.__expensesByCategory = expensesByCategory;   
 
 function drawChart(invoices, expenses) {
   const incomeMap = {}, expenseMap = {};
