@@ -492,7 +492,7 @@ window.exportPDF = () => {
   doc.setTextColor(33, 37, 41);
   doc.text("SmartWerk Bookkeeping Report", 105, 15, { align: "center" });
 
-  // Період (виправлено!)
+  // Період (виправлено тут)
   const periodText = getSelectedPeriodText();
   doc.setFontSize(12);
   doc.setTextColor(100);
@@ -523,7 +523,7 @@ window.exportPDF = () => {
     finalY += 95;
   }
 
-  // Футер
+  // 📍 Брендинг-футер
   doc.setFontSize(10);
   doc.setTextColor(150);
   doc.text("Generated with SmartWerk", 105, 290, { align: "center" });
