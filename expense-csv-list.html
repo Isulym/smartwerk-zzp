@@ -126,7 +126,7 @@ function loadExpenses(uid){
   });
 }
 
-  function renderExpenses(list) {
+ function renderExpenses(list) {
   const body = $("expensesBody");
   body.innerHTML = "";
 
@@ -136,10 +136,15 @@ function loadExpenses(uid){
   }
 
   let sub = 0, vat = 0, total = 0;
+
   list.forEach((exp) => {
-    sub += exp.amount || 0;
-    vat += exp.vatAmount || 0;
-    total += exp.total || 0;
+    const amt = parseFloat(exp.amount) || 0;
+    const vatAmt = parseFloat(exp.vatAmount) || 0;
+    const totalAmt = parseFloat(exp.total) || (amt + vatAmt);
+
+    sub += amt;
+    vat += vatAmt;
+    total += totalAmt;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -151,9 +156,9 @@ function loadExpenses(uid){
       <td>${exp.type || ""}</td>
       <td>${exp.paymentMethod || ""}</td>
       <td>${exp.status || ""}</td>
-      <td>€${(exp.amount || 0).toFixed(2)}</td>
-      <td>€${(exp.vatAmount || 0).toFixed(2)}</td>
-      <td><strong>€${(exp.total || 0).toFixed(2)}</strong></td>
+      <td>€${amt.toFixed(2)}</td>
+      <td>€${vatAmt.toFixed(2)}</td>
+      <td><strong>€${totalAmt.toFixed(2)}</strong></td>
       <td>
         <button class="btn small" onclick="editExpense('${exp.id}')">✏️ Edit</button>
         <button class="btn small" onclick="showDetails('${exp.id}')">🔍 Review</button>
