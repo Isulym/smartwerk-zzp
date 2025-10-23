@@ -440,10 +440,35 @@ window.exportCSV = () => {
 window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+
+  // Заголовок
   doc.setFontSize(18);
-  doc.text("SmartWerk Bookkeeper Report", 105, 15, { align: "center" });
+  doc.setTextColor(33, 37, 41);
+  doc.text("SmartWerk Bookkeeping Report", 105, 15, { align: "center" });
+
+  // Період
+  const filter = $("filterBy").value;
+  const from = $("customFrom").value;
+  const to = $("customTo").value;
+  let periodText = "All Time";
+  const now = new Date();
+
+  if (from && to) {
+    periodText = `From ${from} to ${to}`;
+  } else if (filter === "thisMonth") {
+    periodText = `This Month (${now.toLocaleString("default", { month: "long" })} ${now.getFullYear()})`;
+  } else if (filter === "lastMonth") {
+    const last = new Date(); last.setMonth(now.getMonth() - 1);
+    periodText = `Last Month (${last.toLocaleString("default", { month: "long" })} ${last.getFullYear()})`;
+  } else if (filter === "thisYear") {
+    periodText = `This Year (${now.getFullYear()})`;
+  }
+
   doc.setFontSize(12);
-  doc.text("Overview:", 14, 30);
+  doc.setTextColor(100);
+  doc.text(`Period: ${periodText}`, 14, 25);
+
+  // Фінансова таблиця
   doc.autoTable({
     startY: 35,
     head: [["Metric", "Value"]],
@@ -451,13 +476,30 @@ window.exportPDF = () => {
       ["Total Income", $("totalIncome").innerText],
       ["Total Expenses", $("totalExpenses").innerText],
       ["Net Profit", $("netProfit").innerText],
-      ["Total VAT", $("totalVat").innerText]
-    ]
+      ["Total VAT", $("totalVat").innerText],
+    ],
+    headStyles: { fillColor: [37, 99, 235], textColor: 255 },
+    styles: { fontSize: 11 },
+    margin: { left: 14, right: 14 }
   });
 
+  let finalY = doc.lastAutoTable.finalY;
+
+  // Додавання графіку
+  const chartCanvas = document.getElementById("summaryChart");
+  if (chartCanvas) {
+    const chartImage = chartCanvas.toDataURL("image/png", 1.0);
+    doc.addImage(chartImage, "PNG", 14, finalY + 10, 180, 80);
+    finalY += 95;
+  }
+
+  // Футер
   doc.setFontSize(10);
-  doc.text("Generated with SmartWerk", 105, 285, { align: "center" });
-  doc.save("bookkeeper-summary.pdf");
+  doc.setTextColor(150);
+  doc.text("Generated with SmartWerk", 105, 290, { align: "center" });
+
+  // Завантаження
+  doc.save("smartwerk-bookkeeper-report.pdf");
 };
 
 onAuthStateChanged(auth, user => {
