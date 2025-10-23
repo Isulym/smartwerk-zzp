@@ -63,15 +63,10 @@
     </div>
   </div>
 
-  <div class="section alerts">
-    <h2>🧠 Smart Suggestions</h2>
-    <ul id="smartSuggestions">
-      <li>📌 You have <strong>3 unpaid invoices</strong> older than 30 days</li>
-      <li>💡 Consider registering for KOR if your VAT is under €1,800 this year</li>
-      <li>📈 Income dropped -15% compared to last month</li>
-      <li>📆 Average payment time: <strong>18 days</strong></li>
-    </ul>
-  </div>
+  <section class="section alerts">
+  <h2>🧠 Smart Suggestions</h2>
+  <ul id="smartSuggestions"></ul>
+</section>
 
   <div class="section">
     <h2>📥 Import CSV (Clients / Expenses)</h2>
@@ -176,6 +171,7 @@ async function loadBookkeeperData(uid) {
   const totalVat = invoices.reduce((sum, i) => sum + (i.totalVat || 0), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
   const netProfit = totalIncome - totalExpenses;
+  loadSmartSuggestions(invoices, expenses, target);
 
   $("totalIncome").innerText = formatCurrency(totalIncome);
   $("totalVat").innerText = formatCurrency(totalVat);
@@ -192,6 +188,81 @@ async function loadBookkeeperData(uid) {
   loadUpcomingExpenses(expenses);
   populateClientDropdown(clientSnap.docs.map(d => d.data()));
 }
+
+ function loadSmartSuggestions(invoices, expenses, targetIncome = 50000) {
+  const suggestions = [];
+  const now = new Date();
+  const lastMonth = new Date(now);
+  lastMonth.setMonth(now.getMonth() - 1);
+  const currentMonthStr = now.toISOString().slice(0, 7);
+  const prevMonthStr = lastMonth.toISOString().slice(0, 7);
+
+  const formatDate = d => new Date(d);
+
+  // Unpaid invoices > 30 days
+  const unpaidOld = invoices.filter(i => {
+    const due = formatDate(i.dueDate);
+    return i.status !== "Paid" && due && (now - due) > 30 * 24 * 60 * 60 * 1000;
+  });
+  if (unpaidOld.length > 0) {
+    suggestions.push(`📌 You have <strong>${unpaidOld.length}</strong> unpaid invoice(s) older than 30 days.`);
+  }
+
+  // Income this month vs last month
+  const grouped = {};
+  invoices.forEach(i => {
+    const m = (i.invoiceDate || i.date || "").slice(0, 7);
+    grouped[m] = (grouped[m] || 0) + (i.grandTotal || 0);
+  });
+
+  const current = grouped[currentMonthStr] || 0;
+  const previous = grouped[prevMonthStr] || 0;
+  if (previous > 0) {
+    const diff = ((current - previous) / previous) * 100;
+    if (diff < -10) {
+      suggestions.push(`📉 Income dropped <strong>${Math.abs(diff).toFixed(1)}%</strong> compared to last month.`);
+    }
+  }
+
+  // Avg. payment time
+  const paid = invoices.filter(i => i.status === "Paid" && i.paidDate && i.invoiceDate);
+  if (paid.length > 0) {
+    const avgDays = Math.round(paid.reduce((sum, i) => {
+      return sum + Math.max(0, (new Date(i.paidDate) - new Date(i.invoiceDate)) / (1000 * 60 * 60 * 24));
+    }, 0) / paid.length);
+    suggestions.push(`📆 Average payment time: <strong>${avgDays} days</strong>`);
+  }
+
+  // Target income progress
+  const totalIncome = invoices.reduce((sum, i) => sum + (i.grandTotal || 0), 0);
+  const percent = Math.min(100, Math.round((totalIncome / targetIncome) * 100));
+  suggestions.push(`🎯 You have reached <strong>${percent}%</strong> of your annual income goal.`);
+
+  // Expense change
+  const groupedExp = {};
+  expenses.forEach(e => {
+    const m = (e.date || "").slice(0, 7);
+    groupedExp[m] = (groupedExp[m] || 0) + (e.amount || 0);
+  });
+
+  const currExp = groupedExp[currentMonthStr] || 0;
+  const prevExp = groupedExp[prevMonthStr] || 0;
+  if (prevExp > 0) {
+    const expDiff = ((currExp - prevExp) / prevExp) * 100;
+    const direction = expDiff > 0 ? "increased" : "decreased";
+    suggestions.push(`💸 Expenses have <strong>${direction}</strong> by ${Math.abs(expDiff).toFixed(1)}% this month.`);
+  }
+
+  // Render to UI
+  const container = document.getElementById("smartSuggestions");
+  container.innerHTML = "";
+  suggestions.forEach(s => {
+    const li = document.createElement("li");
+    li.innerHTML = s;
+    container.appendChild(li);
+  });
+}   
+    
 
 function drawChart(invoices, expenses) {
   const incomeMap = {}, expenseMap = {};
