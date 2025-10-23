@@ -463,7 +463,7 @@ window.exportCSV = () => {
 
   const now = new Date();
   const year = now.getFullYear();
-  const monthName = now.toLocaleString("default", { month: "long" });
+  const monthName = now.toLocaleDateString("en-US", { month: "long" });
 
   if (from && to) {
     return `Custom Range: ${from} to ${to}`;
@@ -474,7 +474,7 @@ window.exportCSV = () => {
   } else if (filter === "lastMonth") {
     const last = new Date();
     last.setMonth(last.getMonth() - 1);
-    const lastMonth = last.toLocaleString("default", { month: "long" });
+    const lastMonth = last.toLocaleDateString("en-US", { month: "long" });
     return `Last Month (${lastMonth} ${last.getFullYear()})`;
   } else if (filter === "thisYear") {
     return `This Year (${year})`;
