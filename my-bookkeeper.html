@@ -225,9 +225,6 @@ async function loadBookkeeperData(uid) {
   loadUpcomingExpenses(expenses);
   populateClientDropdown(clientSnap.docs.map(d => d.data()));
   loadSmartSuggestions(invoices, expenses, target);
-
-  console.log("✅ Loaded expenses:", expenses);
-  console.log("💶 Total Expenses Calculated:", totalExpenses);
 }
 
 function loadSmartSuggestions(invoices, expenses, targetIncome = 50000) {
