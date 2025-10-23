@@ -214,6 +214,7 @@ window.__expensesByCategory = expensesByCategory;
   populateClientDropdown(clientSnap.docs.map(d => d.data()));
   loadSmartSuggestions(invoices, expenses, target);
 
+  console.log("Loaded expenses:", expenses);
 }
 
  function loadSmartSuggestions(invoices, expenses, targetIncome = 50000) {
