@@ -420,18 +420,38 @@ function populateClientDropdown(clients) {
 }
 
 window.exportCSV = () => {
+  const filter = $("filterBy").value;
+  const from = $("customFrom").value;
+  const to = $("customTo").value;
+  let period = "All Time";
+  const now = new Date();
+
+  if (from && to) {
+    period = `From ${from} to ${to}`;
+  } else if (filter === "thisMonth") {
+    period = `This Month (${now.toLocaleString("default", { month: "long" })} ${now.getFullYear()})`;
+  } else if (filter === "lastMonth") {
+    const last = new Date(); last.setMonth(now.getMonth() - 1);
+    period = `Last Month (${last.toLocaleString("default", { month: "long" })} ${last.getFullYear()})`;
+  } else if (filter === "thisYear") {
+    period = `This Year (${now.getFullYear()})`;
+  }
+
   const rows = [
+    [`# SmartWerk Financial Export`],
+    [`# Period: ${period}`],
+    [],
     ["Metric", "Value"],
     ["Total Income", $("totalIncome").innerText],
     ["Total Expenses", $("totalExpenses").innerText],
     ["Net Profit", $("netProfit").innerText],
-    ["Total VAT", $("totalVat").innerText]
+    ["Total VAT", $("totalVat").innerText],
   ];
-  let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
-  const encodedUri = encodeURI(csvContent);
+
+  const csvContent = "data:text/csv;charset=utf-8," + rows.map(r => r.join(",")).join("\n");
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "bookkeeper-summary.csv");
+  link.setAttribute("href", encodeURI(csvContent));
+  link.setAttribute("download", "smartwerk-financial-export.csv");
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
