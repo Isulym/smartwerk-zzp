@@ -317,7 +317,7 @@ function drawIncomeByClientChart(data) {
   const values = Object.values(data);
 
   incomeClientChart = new Chart(ctx, {
-    type: "bar", // або "pie" для кругової
+    type: "pie", // або "bar" для кругової 
     data: {
       labels,
       datasets: [{
@@ -327,7 +327,7 @@ function drawIncomeByClientChart(data) {
       }]
     },
     options: {
-      indexAxis: "y",
+      //indexAxis: "y",
       responsive: true,
       plugins: {
         legend: { display: false },
