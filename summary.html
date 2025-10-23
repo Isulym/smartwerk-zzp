@@ -145,11 +145,12 @@ function update() {
     totalVat += i.totalVat || 0;
   });
 
-  filteredExpenses.forEach(e => {
-    const d = (e.date || "").slice(0, 7);
-    expenseByMonth[d] = (expenseByMonth[d] || 0) + (e.amount || 0);
-    totalExpenses += e.amount || 0;
-  });
+filteredExpenses.forEach(e => {
+  const amount = parseFloat(e.amount) || 0;
+  const d = (e.date || "").slice(0, 7);
+  expenseByMonth[d] = (expenseByMonth[d] || 0) + amount;
+  totalExpenses += amount;
+});
 
   $("totalIncome").innerText = formatCurrency(totalIncome);
   $("totalExpenses").innerText = formatCurrency(totalExpenses);
