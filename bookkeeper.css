@@ -157,3 +157,13 @@ footer {
     height: auto !important;
   }
 }
+.chart-wrapper {
+  max-width: 400px; /* або будь-яке інше значення */
+  margin: 0 auto;
+}
+
+#incomeByClientChart {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 300px;
+}
