@@ -456,6 +456,32 @@ window.exportCSV = () => {
   link.click();
   document.body.removeChild(link);
 };
+    function getSelectedPeriodText() {
+  const filter = document.getElementById("filterBy")?.value;
+  const from = document.getElementById("customFrom")?.value;
+  const to = document.getElementById("customTo")?.value;
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const monthName = now.toLocaleString("default", { month: "long" });
+
+  if (from && to) {
+    return `Custom Range: ${from} to ${to}`;
+  }
+
+  if (filter === "thisMonth") {
+    return `This Month (${monthName} ${year})`;
+  } else if (filter === "lastMonth") {
+    const last = new Date();
+    last.setMonth(last.getMonth() - 1);
+    const lastMonth = last.toLocaleString("default", { month: "long" });
+    return `Last Month (${lastMonth} ${last.getFullYear()})`;
+  } else if (filter === "thisYear") {
+    return `This Year (${year})`;
+  }
+
+  return "All Time";
+}
 
 window.exportPDF = () => {
   const { jsPDF } = window.jspdf;
@@ -470,7 +496,6 @@ window.exportPDF = () => {
   const filter = $("filterBy").value;
   const from = $("customFrom").value;
   const to = $("customTo").value;
-  let periodText = "All Time";
   const now = new Date();
 
   if (from && to) {
@@ -486,7 +511,7 @@ window.exportPDF = () => {
 
   doc.setFontSize(12);
   doc.setTextColor(100);
-  doc.text(`Period: ${periodText}`, 14, 25);
+  doc.text(`Period: ${getSelectedPeriodText()}`, 14, 25);
 
   // Фінансова таблиця
   doc.autoTable({
