@@ -171,15 +171,25 @@ async function loadBookkeeperData(uid) {
     invoices = invoices.filter(i => i.clientName === selectedClient);
   }
 
-  const totalIncome = invoices.reduce((sum, i) => sum + (i.grandTotal || 0), 0);
-  const totalVat = invoices.reduce((sum, i) => sum + (i.totalVat || 0), 0);
-  const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-  const netProfit = totalIncome - totalExpenses;
+ let totalIncome = 0;
+let totalVat = 0;
+let totalExpenses = 0;
 
-  $("totalIncome").innerText = formatCurrency(totalIncome);
-  $("totalVat").innerText = formatCurrency(totalVat);
-  $("totalExpenses").innerText = formatCurrency(totalExpenses);
-  $("netProfit").innerText = formatCurrency(netProfit);
+invoices.forEach(i => {
+  totalIncome += i.grandTotal || 0;
+  totalVat += i.totalVat || 0;
+});
+
+expenses.forEach(e => {
+  totalExpenses += e.amount || 0;
+});
+
+const netProfit = totalIncome - totalExpenses;
+
+$("totalIncome").innerText = formatCurrency(totalIncome);
+$("totalVat").innerText = formatCurrency(totalVat);
+$("totalExpenses").innerText = formatCurrency(totalExpenses);
+$("netProfit").innerText = formatCurrency(netProfit);
 
   const target = 50000;
   const percent = Math.min(100, Math.round((totalIncome / target) * 100));
