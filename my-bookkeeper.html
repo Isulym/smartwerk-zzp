@@ -75,11 +75,10 @@
   <ul id="smartSuggestions"></ul>
 </section>
 
-  <div class="section">
-    <h2>📥 Import CSV (Clients / Expenses)</h2>
-    <input type="file" id="expenseCSVInput" accept=".csv" style="display:none" />
-    <button class="btn" onclick="document.getElementById('expenseCSVInput').click()">📥 Import Expenses CSV</button>
-  </div>
+<div class="section">
+  <h2>📥 Import CSV (Clients / Expenses)</h2>
+  <button class="btn" onclick="importCSV()">📂 Import CSV File</button>
+</div>
 
   <footer>© 2025 SmartWerk</footer>
 
@@ -551,44 +550,50 @@ window.exportPDF = () => {
   doc.save("smartwerk-bookkeeper-report.pdf");
 };
 
-    $("expenseCSVInput").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+   window.importCSV = () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".csv";
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return alert("No file selected.");
 
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: async function (results) {
-      const user = auth.currentUser;
-      if (!user) return alert("You must be logged in");
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const user = auth.currentUser;
+        const data = results.data;
 
-      const validExpenses = results.data.filter(e => e.date && e.amount && !isNaN(parseFloat(e.amount)));
-      const batchSize = 10;
+        if (data.length === 0) return alert("⚠️ CSV is empty.");
+        const sample = data[0];
 
-      let success = 0;
-      for (let i = 0; i < validExpenses.length; i++) {
-        const e = validExpenses[i];
-        try {
-          const docRef = collection(db, "users", user.uid, "expenses");
-          await addDoc(docRef, {
-            date: e.date,
-            amount: parseFloat(e.amount),
-            category: e.category || "Imported",
-            note: e.note || ""
-          });
-          success++;
-        } catch (err) {
-          console.error("Import error", err);
+        let type;
+        if ("amount" in sample && "category" in sample && "date" in sample) {
+          type = "expenses";
+        } else if ("clientName" in sample && "clientEmail" in sample) {
+          type = "clients";
+        } else {
+          return alert("❌ Unknown CSV structure. Make sure headers are correct.");
         }
 
-        if (i % batchSize === 0) await new Promise(r => setTimeout(r, 300)); // throttle
-      }
+        let added = 0;
+        for (const row of data) {
+          try {
+            const col = collection(db, "users", user.uid, type);
+            await addDoc(col, row);
+            added++;
+          } catch (e) {
+            console.error("Import error:", e);
+          }
+        }
 
-      alert(`✅ Imported ${success} expenses successfully`);
-      loadBookkeeperData(user.uid);
-    }
-  });
-});
+        alert(`✅ ${added} ${type} imported successfully.`);
+      }
+    });
+  };
+  input.click();
+};
 
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
