@@ -378,14 +378,28 @@ function loadUpcomingInvoices(invoices) {
 function loadUpcomingExpenses(expenses) {
   const list = $("upcomingExpenses");
   list.innerHTML = "";
-  expenses.filter(e => e.date && new Date(e.date) > new Date())
+
+  const upcoming = expenses
+    .filter(e => e.date && new Date(e.date) > new Date())
     .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(0, 5)
-    .forEach(e => {
-      const li = document.createElement("li");
-      li.textContent = `${e.category || "Expense"} – due ${e.date}`;
-      list.appendChild(li);
+    .slice(0, 5);
+
+  if (upcoming.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "📭 No upcoming expenses";
+    li.style.color = "#94a3b8";
+    list.appendChild(li);
+    return;
+  }
+
+  upcoming.forEach(e => {
+    const li = document.createElement("li");
+    const due = new Date(e.date).toLocaleDateString("en-GB", {
+      day: "numeric", month: "short", year: "numeric"
     });
+    li.textContent = `${e.category || "Expense"} – due ${due}`;
+    list.appendChild(li);
+  });
 }
 
 function populateClientDropdown(clients) {
