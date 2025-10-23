@@ -171,7 +171,6 @@ async function loadBookkeeperData(uid) {
   const totalVat = invoices.reduce((sum, i) => sum + (i.totalVat || 0), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
   const netProfit = totalIncome - totalExpenses;
-  loadSmartSuggestions(invoices, expenses, target);
 
   $("totalIncome").innerText = formatCurrency(totalIncome);
   $("totalVat").innerText = formatCurrency(totalVat);
@@ -187,6 +186,8 @@ async function loadBookkeeperData(uid) {
   loadUpcomingInvoices(invoices);
   loadUpcomingExpenses(expenses);
   populateClientDropdown(clientSnap.docs.map(d => d.data()));
+  loadSmartSuggestions(invoices, expenses, target);
+
 }
 
  function loadSmartSuggestions(invoices, expenses, targetIncome = 50000) {
