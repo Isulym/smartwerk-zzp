@@ -51,6 +51,12 @@
     <h2>📊 Income vs Expenses</h2>
     <canvas id="summaryChart" height="100"></canvas>
   </div>
+  
+<div class="section">
+  <h2>📊 Income by Client</h2>
+  <canvas id="incomeByClientChart" height="200"></canvas>
+</div>
+  
 
   <div class="section upcoming">
     <div class="card">
@@ -183,6 +189,7 @@ async function loadBookkeeperData(uid) {
   $("targetProgress").innerText = percent + "%";
 
   drawChart(invoices, expenses);
+  drawIncomeByClientChart(incomeByClient);
   loadUpcomingInvoices(invoices);
   loadUpcomingExpenses(expenses);
   populateClientDropdown(clientSnap.docs.map(d => d.data()));
@@ -300,6 +307,46 @@ function drawChart(invoices, expenses) {
     }
   });
 }
+   let incomeClientChart = null;
+
+function drawIncomeByClientChart(data) {
+  const ctx = document.getElementById("incomeByClientChart").getContext("2d");
+  if (incomeClientChart) incomeClientChart.destroy();
+
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+
+  incomeClientChart = new Chart(ctx, {
+    type: "bar", // або "pie" для кругової
+    data: {
+      labels,
+      datasets: [{
+        label: "Income (€)",
+        data: values,
+        backgroundColor: labels.map((_, i) => `hsl(${i * 40}, 70%, 60%)`)
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => "€" + context.raw.toFixed(2)
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            callback: (val) => "€" + val
+          }
+        }
+      }
+    }
+  });
+} 
 
 function loadUpcomingInvoices(invoices) {
   const list = $("upcomingInvoices");
