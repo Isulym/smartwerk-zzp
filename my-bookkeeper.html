@@ -76,8 +76,13 @@
 </section>
 
 <div class="section">
-  <h2>📥 Import CSV (Clients / Expenses)</h2>
-  <button class="btn" onclick="importCSV()">📂 Import CSV File</button>
+  <h2>📥 Import Expenses CSV</h2>
+  <p style="color:#94a3b8;font-size:13px;">
+    Upload a CSV file with expenses.<br>
+    Required columns: <strong>date, amount, category, description</strong>.
+  </p>
+  <input type="file" id="expenseCSVInput" accept=".csv" style="display:none" />
+  <button class="btn" onclick="document.getElementById('expenseCSVInput').click()">📥 Import Expenses CSV</button>
 </div>
 
   <footer>© 2025 SmartWerk</footer>
@@ -551,51 +556,43 @@ window.exportPDF = () => {
   doc.save("smartwerk-bookkeeper-report.pdf");
 };
 
-   window.importCSV = () => {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".csv";
-  input.onchange = async e => {
-    const file = e.target.files[0];
-    if (!file) return alert("No file selected.");
+   document.getElementById("expenseCSVInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        const user = auth.currentUser;
-        const data = results.data;
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: async results => {
+      const user = auth.currentUser;
+      if (!user) return alert("❌ Not signed in");
 
-        if (data.length === 0) return alert("⚠️ CSV is empty.");
-        const sample = data[0];
+      const col = collection(db, "users", user.uid, "expenses");
+      let added = 0;
 
-        let type;
-        if ("amount" in sample && "category" in sample && "date" in sample) {
-          type = "expenses";
-        } else if ("clientName" in sample && "clientEmail" in sample) {
-          type = "clients";
-        } else {
-          return alert("❌ Unknown CSV structure. Make sure headers are correct.");
+      for (const row of results.data) {
+        if (row.date && row.amount) {
+          await addDoc(col, {
+            date: row.date,
+            amount: parseFloat(row.amount),
+            category: row.category || "General",
+            description: row.description || ""
+          });
+          added++;
         }
-
-        let added = 0;
-        for (const row of data) {
-          try {
-            const col = collection(db, "users", user.uid, type);
-            await addDoc(col, row);
-            added++;
-          } catch (e) {
-            console.error("Import error:", e);
-          }
-        }
-
-        alert(`✅ ${added} ${type} imported successfully.`);
       }
-    });
-  };
-  input.click();
-};
 
+      alert(`✅ ${added} expenses imported successfully!\n\n📄 Go to Expenses to review or edit.`);
+      e.target.value = ""; // reset input
+    },
+    error: err => {
+      console.error("Import error:", err);
+      alert("❌ Failed to import CSV. Please check the file format.");
+    }
+  });
+});
+
+    
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
   loadBookkeeperData(user.uid);
