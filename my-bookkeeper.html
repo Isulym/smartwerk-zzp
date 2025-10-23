@@ -438,7 +438,7 @@ window.exportCSV = () => {
   }
 
   const rows = [
-    [`# SmartWerk Financial Export`],
+    [`# Financial Export`],
     [`# Period: ${period}`],
     [],
     ["Metric", "Value"],
@@ -490,7 +490,7 @@ window.exportPDF = () => {
   // Заголовок
   doc.setFontSize(18);
   doc.setTextColor(33, 37, 41);
-  doc.text("SmartWerk Bookkeeping Report", 105, 15, { align: "center" });
+  doc.text("Bookkeeping Report", 105, 15, { align: "center" });
 
   // Період (виправлено тут)
   const periodText = getSelectedPeriodText();
@@ -526,7 +526,7 @@ window.exportPDF = () => {
   // 📍 Брендинг-футер
   doc.setFontSize(10);
   doc.setTextColor(150);
-  doc.text("Generated with SmartWerk", 105, 290, { align: "center" });
+  //  doc.text("Generated with SmartWerk", 105, 290, { align: "center" });
 
   // Завантаження
   doc.save("smartwerk-bookkeeper-report.pdf");
