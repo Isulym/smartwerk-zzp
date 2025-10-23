@@ -7,6 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <link rel="stylesheet" href="bookkeeper.css" />
 </head>
 <body>
@@ -76,8 +77,8 @@
 
   <div class="section">
     <h2>📥 Import CSV (Clients / Expenses)</h2>
-    <input type="file" id="csvUpload" accept=".csv" />
-    <button class="btn" onclick="importCSV()">📂 Import</button>
+    <input type="file" id="expenseCSVInput" accept=".csv" style="display:none" />
+    <button onclick="document.getElementById('expenseCSVInput').click()" class="btn">📥 Import Expenses CSV</button>
   </div>
 
   <footer>© 2025 SmartWerk</footer>
@@ -549,6 +550,45 @@ window.exportPDF = () => {
   // Завантаження
   doc.save("smartwerk-bookkeeper-report.pdf");
 };
+
+    $("expenseCSVInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: async function (results) {
+      const user = auth.currentUser;
+      if (!user) return alert("You must be logged in");
+
+      const validExpenses = results.data.filter(e => e.date && e.amount && !isNaN(parseFloat(e.amount)));
+      const batchSize = 10;
+
+      let success = 0;
+      for (let i = 0; i < validExpenses.length; i++) {
+        const e = validExpenses[i];
+        try {
+          const docRef = collection(db, "users", user.uid, "expenses");
+          await addDoc(docRef, {
+            date: e.date,
+            amount: parseFloat(e.amount),
+            category: e.category || "Imported",
+            note: e.note || ""
+          });
+          success++;
+        } catch (err) {
+          console.error("Import error", err);
+        }
+
+        if (i % batchSize === 0) await new Promise(r => setTimeout(r, 300)); // throttle
+      }
+
+      alert(`✅ Imported ${success} expenses successfully`);
+      loadBookkeeperData(user.uid);
+    }
+  });
+});
 
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
