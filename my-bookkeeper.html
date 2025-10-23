@@ -230,7 +230,7 @@ async function loadBookkeeperData(uid) {
   console.log("💶 Total Expenses Calculated:", totalExpenses);
 }
 
- function loadSmartSuggestions(invoices, expenses, targetIncome = 50000) {
+function loadSmartSuggestions(invoices, expenses, targetIncome = 50000) {
   const suggestions = [];
   const now = new Date();
   const lastMonth = new Date(now);
@@ -240,7 +240,7 @@ async function loadBookkeeperData(uid) {
 
   const formatDate = d => new Date(d);
 
-  // Unpaid invoices > 30 days
+  // 1. 📌 Unpaid invoices > 30 days
   const unpaidOld = invoices.filter(i => {
     const due = formatDate(i.dueDate);
     return i.status !== "Paid" && due && (now - due) > 30 * 24 * 60 * 60 * 1000;
@@ -249,60 +249,84 @@ async function loadBookkeeperData(uid) {
     suggestions.push(`📌 You have <strong>${unpaidOld.length}</strong> unpaid invoice(s) older than 30 days.`);
   }
 
-  // Income this month vs last month
-  const grouped = {};
+  // 2. 📉 Income drop % vs previous month
+  const groupedIncome = {};
   invoices.forEach(i => {
     const m = (i.invoiceDate || i.date || "").slice(0, 7);
-    grouped[m] = (grouped[m] || 0) + (i.grandTotal || 0);
+    groupedIncome[m] = (groupedIncome[m] || 0) + (i.grandTotal || 0);
   });
 
-  const current = grouped[currentMonthStr] || 0;
-  const previous = grouped[prevMonthStr] || 0;
-  if (previous > 0) {
-    const diff = ((current - previous) / previous) * 100;
+  const currentIncome = groupedIncome[currentMonthStr] || 0;
+  const previousIncome = groupedIncome[prevMonthStr] || 0;
+
+  if (previousIncome > 0) {
+    const diff = ((currentIncome - previousIncome) / previousIncome) * 100;
     if (diff < -10) {
       suggestions.push(`📉 Income dropped <strong>${Math.abs(diff).toFixed(1)}%</strong> compared to last month.`);
+    } else if (diff > 10) {
+      suggestions.push(`📈 Income increased by <strong>${diff.toFixed(1)}%</strong> compared to last month.`);
     }
   }
 
-  // Avg. payment time
+  // 3. 📆 Average payment time
   const paid = invoices.filter(i => i.status === "Paid" && i.paidDate && i.invoiceDate);
   if (paid.length > 0) {
-    const avgDays = Math.round(paid.reduce((sum, i) => {
-      return sum + Math.max(0, (new Date(i.paidDate) - new Date(i.invoiceDate)) / (1000 * 60 * 60 * 24));
-    }, 0) / paid.length);
+    const avgDays = Math.round(
+      paid.reduce((sum, i) => {
+        return sum + Math.max(0, (new Date(i.paidDate) - new Date(i.invoiceDate)) / (1000 * 60 * 60 * 24));
+      }, 0) / paid.length
+    );
     suggestions.push(`📆 Average payment time: <strong>${avgDays} days</strong>`);
   }
 
-  // Target income progress
+  // 4. 🎯 Target income progress
   const totalIncome = invoices.reduce((sum, i) => sum + (i.grandTotal || 0), 0);
   const percent = Math.min(100, Math.round((totalIncome / targetIncome) * 100));
   suggestions.push(`🎯 You have reached <strong>${percent}%</strong> of your annual income goal.`);
 
-  // Expense change
+  // 5. 💸 Expense change
   const groupedExp = {};
   expenses.forEach(e => {
     const m = (e.date || "").slice(0, 7);
-    groupedExp[m] = (groupedExp[m] || 0) + (e.amount || 0);
+    const amt = parseFloat(e.amount);
+    if (!isNaN(amt)) {
+      groupedExp[m] = (groupedExp[m] || 0) + amt;
+    }
   });
 
-  const currExp = groupedExp[currentMonthStr] || 0;
-  const prevExp = groupedExp[prevMonthStr] || 0;
-  if (prevExp > 0) {
-    const expDiff = ((currExp - prevExp) / prevExp) * 100;
-    const direction = expDiff > 0 ? "increased" : "decreased";
-    suggestions.push(`💸 Expenses have <strong>${direction}</strong> by ${Math.abs(expDiff).toFixed(1)}% this month.`);
+  const thisMonthExp = groupedExp[currentMonthStr] || 0;
+  const lastMonthExp = groupedExp[prevMonthStr] || 0;
+
+  let expTrend = "";
+
+  if (lastMonthExp > 0) {
+    const change = ((thisMonthExp - lastMonthExp) / lastMonthExp) * 100;
+    expTrend = change > 0
+      ? `📈 Expenses have increased by <strong>${Math.round(change)}%</strong> this month.`
+      : `💸 Expenses have decreased by <strong>${Math.abs(Math.round(change))}%</strong> this month.`;
+  } else if (thisMonthExp > 0) {
+    expTrend = `💸 You have recorded <strong>new expenses</strong> this month.`;
   }
 
-  // Render to UI
+  if (expTrend) suggestions.push(expTrend);
+
+  // 📋 Render suggestions
   const container = document.getElementById("smartSuggestions");
   container.innerHTML = "";
-  suggestions.forEach(s => {
+
+  if (suggestions.length === 0) {
     const li = document.createElement("li");
-    li.innerHTML = s;
+    li.innerHTML = "✅ All looks good for now.";
+    container.appendChild(li);
+    return;
+  }
+
+  suggestions.forEach(text => {
+    const li = document.createElement("li");
+    li.innerHTML = text;
     container.appendChild(li);
   });
-}   
+}
 
 
 function drawChart(invoices, expenses) {
