@@ -25,34 +25,30 @@
 
 /* 🔝 Верхня панель */
 .topbar {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 30px;
-  color: white;
 }
 
 .topbar .brand {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  color: #fff;
-  text-decoration: none;
-}
-
-.topbar .right .btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid white;
   color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
   text-decoration: none;
-  font-size: 14px;
-  transition: background 0.3s;
 }
 
-.topbar .right .btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+.topbar .btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  background-color: #1d4ed8;
+  color: white;
+  text-decoration: none;
+}
+
+.topbar .btn:hover {
+  background-color: #2563eb;
 }
 
 /* 📋 Карта реєстрації */
