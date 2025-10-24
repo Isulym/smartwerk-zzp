@@ -118,3 +118,49 @@ button:hover {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  position: relative;
+}
+
+.checkbox-group input[type="checkbox"] {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.checkbox-group .checkmark {
+  height: 18px;
+  width: 18px;
+  background-color: #ccc;
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: 8px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.checkbox-group input[type="checkbox"]:checked + .checkmark {
+  background-color: #3b82f6;
+}
+
+.checkbox-group .checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-group input[type="checkbox"]:checked + .checkmark::after {
+  display: block;
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
