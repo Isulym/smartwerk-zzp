@@ -235,3 +235,30 @@ a:hover {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff;
+  color: #444;
+  border: 1px solid #ddd;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 320px;
+  margin: 10px auto 0;
+}
+
+.btn-google img {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-google:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
