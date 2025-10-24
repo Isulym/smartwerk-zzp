@@ -1,164 +1,174 @@
-/* style-login.css */
+/* Базовий фон */
 body {
   margin: 0;
-  padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   background: url('amsterdam-night.jpg') no-repeat center center fixed;
   background-size: cover;
-  color: #e5e7eb;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.wrap {
-  padding: 16px;
-  background: rgba(15, 23, 42, 0.7);
+/* Верхній бар */
+.topbar {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
 }
 
 .brand {
-  font-size: 24px;
-  font-weight: bold;
-  color: #93c5fd;
-  text-decoration: none;
-}
-
-.right .btn {
-  padding: 8px 14px;
-  background-color: #2563eb;
+  font-size: 20px;
   color: #fff;
+  font-weight: bold;
   text-decoration: none;
-  border-radius: 6px;
-  transition: background 0.3s ease;
 }
 
-.right .btn:hover {
-  background-color: #1d4ed8;
+.btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  text-decoration: none;
 }
 
+.btn:hover {
+  background: #1e40af;
+}
+
+/* Центрування форми */
 .center {
-  min-height: 90vh;
+  flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
 }
 
+/* Картка входу */
 .card {
-  background: rgba(30, 41, 59, 0.85);
-  padding: 32px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 400px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 32px 28px;
+  border-radius: 16px;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  max-width: 400px;
+  width: 100%;
   backdrop-filter: blur(8px);
-  animation: fadeIn 1s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .card h2 {
-  margin: 0 0 8px;
-  color: #93c5fd;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 26px;
 }
 
-.muted {
-  color: #94a3b8;
-  margin-bottom: 24px;
+.card .muted {
+  font-size: 14px;
+  color: #cbd5e1;
+  margin-bottom: 20px;
 }
 
+/* Поля форми */
 .field {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 label {
   display: block;
+  margin-bottom: 4px;
   font-size: 14px;
-  margin-bottom: 6px;
-  color: #cbd5e1;
+  color: #e2e8f0;
 }
 
 input[type="email"],
 input[type="password"] {
   width: 100%;
-  padding: 10px;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: background 0.3s;
 }
 
+input:focus {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Кнопка "показати пароль" */
 .password-wrap {
   position: relative;
 }
 
 .toggle-btn {
   position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
+  top: 6px;
+  right: 8px;
+  background: transparent;
   border: none;
-  color: #93c5fd;
+  font-size: 16px;
   cursor: pointer;
-}
-
-.btn {
-  padding: 10px 16px;
-  background-color: #3b82f6;
-  border: none;
   color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background 0.3s ease;
 }
 
-.btn:hover {
-  background-color: #2563eb;
+/* Ряд кнопок */
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-.btn.ghost {
-  background-color: transparent;
-  color: #cbd5e1;
-  border: 1px solid #475569;
-}
-
-.btn.ghost:hover {
-  background-color: #1e293b;
-}
-
-.btn.small {
-  padding: 6px 10px;
-  font-size: 13px;
-}
-
-.foot {
-  margin-top: 24px;
-  font-size: 13px;
-  color: #94a3b8;
-}
-
-#okBox,
-#errorBox {
-  margin-bottom: 12px;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 14px;
+/* Повідомлення */
+#errorBox, #okBox {
   display: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+#errorBox {
+  background-color: rgba(239, 68, 68, 0.8);
+  color: #fff;
 }
 
 #okBox {
-  background-color: #16a34a;
+  background-color: rgba(34, 197, 94, 0.8);
   color: #fff;
 }
 
-#errorBox {
-  background-color: #dc2626;
-  color: #fff;
+/* Футер */
+.foot {
+  margin-top: 18px;
+  font-size: 13px;
+  color: #cbd5e1;
 }
 
-.row {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
+.foot input[type="email"] {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+/* Адаптивність */
+@media (max-width: 480px) {
+  .card {
+    padding: 24px 20px;
+    max-width: 90%;
+  }
+
+  .row {
+    flex-direction: column;
+  }
 }
