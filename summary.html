@@ -108,15 +108,23 @@ function filterData(data, getDateFn) {
   const from = parseDate($("customFrom").value);
   const to = parseDate($("customTo").value);
   const now = new Date();
+
   return data.filter(item => {
-    const d = parseDate(getDateFn(item));
+    const rawDate = getDateFn(item);
+    const d = parseDate(rawDate);
+    
+    // 🔸 Якщо вибрано "All time" — повертаємо всі (навіть якщо дати немає)
+    if (f === "all") return true;
+
+    // 🔸 Якщо дати немає — не враховуємо
     if (!d) return false;
 
+    // 🔸 Фільтрація за кастомним діапазоном
     if (from && d < from) return false;
     if (to && d > to) return false;
-
     if (from || to) return true;
 
+    // 🔸 Попередньо визначені фільтри
     const y = d.getFullYear();
     const m = d.getMonth();
 
