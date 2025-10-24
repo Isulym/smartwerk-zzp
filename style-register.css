@@ -12,11 +12,15 @@
 }
 
 /* 🔲 Обгортка */
-.wrap {
-  padding: 10px;
+..wrap {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 20px;
+  height: 60px; /* можна змінити на 51px, якщо хочеш точну відповідність */
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
 /* 🔝 Верхня панель */
