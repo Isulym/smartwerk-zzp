@@ -155,3 +155,13 @@ button:hover {
     align-items: flex-start;
   }
 }
+#bg-animation {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: url('amsterdam-day.jpg') no-repeat center center fixed;
+  background-size: cover;
+  filter: brightness(0.6);
+}
