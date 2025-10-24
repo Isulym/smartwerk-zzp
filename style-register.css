@@ -1,167 +1,221 @@
-/* 📷 Задній фон */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: url('amsterdam-day.jpg') no-repeat center center fixed;
+/* 🌆 Фонове зображення */
+#bg-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url("amsterdam-day.jpg") no-repeat center center fixed;
   background-size: cover;
-  min-height: 100vh;
+  filter: brightness(0.6) blur(1px);
+  z-index: -1;
+}
+
+/* 🔲 Обгортка */
+.wrap {
+  padding: 20px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
 }
 
-/* 🌫️ Карта реєстрації */
-.register-card {
-  background-color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(6px);
-  padding: 32px;
-  max-width: 400px;
-  width: 90%;
-  border-radius: 16px;
-  box-shadow: 0 6px 30px rgba(0,0,0,0.2);
-}
-
-.register-card h2 {
-  margin-top: 0;
-  color: #111827;
-  text-align: center;
-}
-
-input[type="email"],
-input[type="password"] {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 14px;
-  border: none;
-  border-radius: 8px;
-  background-color: #3b82f6;
+/* 🔝 Верхня панель */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
   color: white;
-  font-weight: 600;
+}
+
+.topbar .brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+}
+
+.topbar .right .btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid white;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background-color: #2563eb;
-}
-
-.btn-google {
-  background-color: white;
-  border: 1px solid #ccc;
-  color: #333;
-}
-
-.error-box,
-.ok-box {
-  padding: 10px;
-  border-radius: 8px;
+  text-decoration: none;
   font-size: 14px;
+  transition: background 0.3s;
+}
+
+.topbar .right .btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 📋 Карта реєстрації */
+.register-card {
+  max-width: 400px;
+  margin: 50px auto;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  color: white;
+}
+
+/* Заголовок */
+.register-card h2 {
+  font-size: 24px;
   margin-bottom: 10px;
 }
 
+/* 🔴 Поля */
+.register-card input[type="email"],
+.register-card input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  outline: none;
+}
+
+.register-card input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ⚠️ / ✅ Повідомлення */
+.error-box,
+.ok-box {
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
 .error-box {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: rgba(255, 0, 0, 0.15);
+  color: #ffaaaa;
 }
 
 .ok-box {
-  background: #dcfce7;
-  color: #15803d;
+  background: rgba(0, 255, 0, 0.1);
+  color: #aaffaa;
 }
 
-.text-small {
-  font-size: 14px;
-  text-align: center;
-  margin-top: 20px;
+/* 🔘 Кнопки */
+#registerBtn,
+.btn-google {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-/* ✅ Toggle */
+#registerBtn {
+  background: #2563eb;
+  color: white;
+}
+
+#registerBtn:hover {
+  background: #1e40af;
+}
+
+.btn-google {
+  background: white;
+  color: #111;
+  font-weight: bold;
+}
+
+.btn-google:hover {
+  background: #e5e5e5;
+}
+
+/* 🔘 Сучасний перемикач */
 .toggle-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  margin-top: 12px;
+  margin: 15px 0;
 }
 
 .switch {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 40px;
+  height: 22px;
+  margin-right: 12px;
 }
+
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
+
 .slider {
   position: absolute;
   cursor: pointer;
-  background-color: #cbd5e1;
-  border-radius: 24px;
-  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 22px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   transition: 0.4s;
-}
-.slider::before {
-  content: "";
-  position: absolute;
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-.switch input:checked + .slider {
-  background-color: #3b82f6;
-}
-.switch input:checked + .slider::before {
-  transform: translateX(20px);
 }
 
-.terms-text {
-  color: #334155;
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background-color: white;
+  left: 2px;
+  bottom: 2px;
+  transition: 0.4s;
 }
-.terms-text a {
-  color: #2563eb;
+
+input:checked + .slider {
+  background-color: #22c55e;
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+/* 🌐 Terms текст */
+.terms-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 🔗 Посилання */
+a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+a:hover {
   text-decoration: underline;
 }
 
-/* 📱 Мобільна адаптація */
-@media (max-width: 500px) {
+/* 📱 Адаптивність */
+@media (max-width: 480px) {
   .register-card {
+    margin: 20px;
     padding: 20px;
-    border-radius: 12px;
   }
 
-  input, button {
-    font-size: 14px;
-  }
-
-  .toggle-group {
+  .topbar {
     flex-direction: column;
     align-items: flex-start;
   }
-}
-#bg-animation {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  background: url('amsterdam-day.jpg') no-repeat center center fixed;
-  background-size: cover;
-  filter: brightness(0.6);
 }
