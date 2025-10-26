@@ -26,11 +26,11 @@
     <h3>Step 1: Your Data</h3>
 
     <label>Full Name / Business Name:<input type="text" id="businessName"/></label>
-    <label>Email / Phone:<input type="text" id="email"/></label>
+    <label>Email:<input type="text" id="email"/></label>
      <label>KvK Number:<input type="text" id="kvk"/></label>
     <label>BTW Number:<input type="text" id="btw"/></label>
     <label>IBAN:<input type="text" id="iban"/></label>
-    <label>Contact Person:<input type="text" id="contactPerson"/></label>
+    <label>Business Phone:<input type="text" id="businessPhone"/></label>
 
     <label for="period">Period</label>
     <select id="period">
@@ -222,7 +222,7 @@ let lastSaveTime = 0;
     // ---------- Anti-null expected IDs ----------
     const REQUIRED_IDS = [
       "businessName","email","period","hoursWorked","hourlyRate","income",
-      "kvk","btw","iban","contactPerson","reportingNotes",
+      "kvk","btw","iban","businessPhone","reportingNotes",
       "vehicle","office","internet","marketing","other","extraBenefits",
       "kvk","zzpHours","btwRate","kor",
       "grossIncome","totalExpenses","taxableProfit","zzpDeductions",
@@ -268,7 +268,7 @@ let lastSaveTime = 0;
     kvk: data.kvk,
     btw: data.btw,
     iban: data.iban,
-    contactPerson: data.contactPerson
+    businessPhone: data.businessPhone
   };
 
   for (const [id, val] of Object.entries(fields)) {
@@ -496,7 +496,7 @@ await saveToFirestoreSummary(summary, true);
         `KvK Number: ${V("kvk")}`,
         `VAT Number: ${V("btw")}`,
         `IBAN: ${V("iban")}`,
-        `Contact Person: ${V("contactPerson")}`
+        `Contact Person: ${V("businessPhone")}`
       ].forEach(line => { doc.text(line, 15, y); y += 6; });
       y += 6;
 
@@ -563,7 +563,7 @@ if (capNote){
       kvk:          v('kvk'),
       btw:          v('btw'),
       iban:         v('iban'),
-      contactPerson:v('contactPerson'),
+      businessPhone:v('businessPhone'),
       reportingNotes: v('reportingNotes'),
       totals: {
         grossIncome:    euro(t('grossIncome')),
@@ -621,7 +621,7 @@ function exportExcel() {
     ["KvK Number", v("kvk")],
     ["VAT Number", v("btw")],
     ["IBAN", v("iban")],
-    ["Contact Person", v("contactPerson")],
+    ["Contact Person", v("businessPhone")],
     [],
     ["Gross Income (€)", t("grossIncome")],
     ["Total Expenses (€)", t("totalExpenses")],
