@@ -258,7 +258,7 @@ let lastSaveTime = 0;
     }
 
 
-async function saveToLocalSummary(summary) {
+async function saveToFirestoreSummary(summary) {
   const db = window.smartwerkDb;
   const user = window.smartwerkUser && window.smartwerkUser();
   if (!db || !user) return;
@@ -424,7 +424,7 @@ if (last && Math.abs(last.netIncome - netIncomeAfterTax) < 0.01) {
 
   // ⏱ Після збереження — оновити історію
   await loadHistory();
-  await saveToLocalSummary(summary);
+  await saveToFirestoreSummary(summary);
 
 } catch (e) {
   console.warn("⚠️ Firebase error", e);
