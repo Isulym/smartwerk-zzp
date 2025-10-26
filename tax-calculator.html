@@ -167,6 +167,7 @@
       <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
       <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
       <button id="btn-xlsx" type="button">📊 Export as Excel</button>
+      <button id="btn-load-history" class="history-refresh">🔄 Update History</button>      
       <button id="btn-clear-history" class="btn ghost small">🧹 Clear History</button>
       <button type="button" id="btn-ai">💬 Open AI Assistant</button>
     </div>
@@ -266,9 +267,9 @@ async function saveToFirestoreSummary(summary) {
   // 🧠 Уникаємо дублювання
   const now = Date.now();
   if (summary.netIncome === lastSavedNetIncome && (now - lastSaveTime) < 5000) {
-    console.log("⛔ Duplicate or too soon. Skipping save.");
-    return;
-  }
+  console.log("⛔ Duplicate or too soon. Skipping save.");
+  return;
+}
 
   // ✅ Зберігаємо
   await addDoc(collection(db, "users", user.uid, "tax_calculations"), {
@@ -395,7 +396,6 @@ try {
   };
 
   await saveToFirestoreSummary(summary);
-  await loadHistory();
 
 } catch (e) {
   console.warn("⚠️ Firebase error", e);
@@ -843,6 +843,13 @@ document.getElementById("btn-clear-history")?.addEventListener("click", () => {
     clearHistory();
   }
 });
+
+// ✅ НОВИЙ БЛОК — ручне оновлення історії
+document.getElementById("btn-load-history")?.addEventListener("click", () => {
+  loadHistory();
+});
+
+
     
 })();
 </script>
