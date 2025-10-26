@@ -167,6 +167,7 @@
       <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
       <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
       <button id="btn-xlsx" type="button">📊 Export as Excel</button>
+      <button id="btn-clear-history" class="btn ghost small">🧹 Clear History</button>
       <button type="button" id="btn-ai">💬 Open AI Assistant</button>
     </div>
   </div>
@@ -174,6 +175,7 @@
   <h3>📁 Calculation History</h3>
   <ul id="historyList" class="mono"></ul>
 </div>
+  
 
   <!-- ===== Utilities & Logic ===== -->
   <script type="module">
@@ -773,6 +775,9 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
+// === Firebase Tax Calculation Enhancements ===
+let lastSavedNetIncome = null;
+
 function saveToLocalSummary() {
   const grossIncome = parseFloat(document.getElementById("grossIncome")?.innerText) || 0;
   const expenses = parseFloat(document.getElementById("totalExpenses")?.innerText) || 0;
@@ -780,6 +785,12 @@ function saveToLocalSummary() {
   const netIncome = parseFloat(document.getElementById("netIncome")?.innerText) || 0;
   const kvk = document.getElementById("kvkNumber")?.value || "--";
   const iban = document.getElementById("iban")?.value || "--";
+
+  // Перевірка, чи потрібно зберігати
+  if (netIncome <= 0 || netIncome === lastSavedNetIncome) {
+    console.warn("⛔ Skipped saving: Net income is empty, zero, or unchanged");
+    return;
+  }
 
   const summaryData = {
     grossIncome: grossIncome.toFixed(2),
@@ -792,24 +803,53 @@ function saveToLocalSummary() {
 
   localStorage.setItem("smartwerk_summary_data", JSON.stringify(summaryData));
   console.log("✅ Summary saved:", summaryData);
+
+  // Оновити останній збережений net income
+  lastSavedNetIncome = netIncome;
 }
 
 async function loadHistory() {
   const db = window.smartwerkDb;
   const user = window.smartwerkUser && window.smartwerkUser();
   if (!db || !user) return;
-
   const q = query(collection(db, "users", user.uid, "tax_calculations"), orderBy("date", "desc"));
   const snap = await getDocs(q);
   const list = document.getElementById("historyList");
-  if (!list) return;
-
   list.innerHTML = "";
   snap.forEach(doc => {
     const d = doc.data();
     const li = document.createElement("li");
     li.textContent = `${new Date(d.date).toLocaleDateString()}: Net €${d.netIncome?.toFixed(2) || "—"}`;
     list.appendChild(li);
+  });
+}
+
+async function clearHistory() {
+  const db = window.smartwerkDb;
+  const user = window.smartwerkUser && window.smartwerkUser();
+  if (!db || !user) return;
+  const snap = await getDocs(collection(db, "users", user.uid, "tax_calculations"));
+  const deletions = snap.docs.map(doc => deleteDoc(doc.ref));
+  await Promise.all(deletions);
+  console.log("🧹 History cleared");
+  await loadHistory();
+}
+
+// Прив’язуємо до кнопки
+const calcBtn = document.getElementById("btn-calc");
+if (calcBtn) {
+  calcBtn.addEventListener("click", () => {
+    saveToLocalSummary();
+    loadHistory();
+  });
+}
+
+const clearBtn = document.getElementById("btn-clear-history");
+if (clearBtn) {
+  clearBtn.addEventListener("click", () => {
+    if (confirm("Are you sure you want to delete all history?")) {
+      clearHistory();
+    }
   });
 }
 
