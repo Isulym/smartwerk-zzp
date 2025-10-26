@@ -12,18 +12,21 @@
 }
 
 /* 🔲 Обгортка */
-..wrap {
-  background: rgba(0, 0, 0, 0.6);
+.wrap {
+  background: rgba(0, 0, 0, 0.6); /* напівпрозорий чорний */
+  height: 51px; /* як у login */
   padding: 10px 20px;
-  height: 60px; /* можна змінити на 51px, якщо хочеш точну відповідність */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px); /* ефект розмиття */
+  -webkit-backdrop-filter: blur(10px); /* підтримка Safari */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  position: relative;
 }
 
-/* 🔝 Верхня панель */
 .topbar {
   width: 100%;
   display: flex;
@@ -34,7 +37,7 @@
 .topbar .brand {
   font-size: 18px;
   font-weight: bold;
-  color: white;
+  color: #ffffff;
   text-decoration: none;
 }
 
@@ -42,13 +45,13 @@
   padding: 6px 12px;
   font-size: 14px;
   border-radius: 6px;
-  background-color: #1d4ed8;
-  color: white;
+  background-color: #2563eb;
+  color: #fff;
   text-decoration: none;
 }
 
 .topbar .btn:hover {
-  background-color: #2563eb;
+  background-color: #3b82f6;
 }
 
 /* 📋 Карта реєстрації */
