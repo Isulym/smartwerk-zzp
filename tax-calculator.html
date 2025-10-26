@@ -211,6 +211,10 @@
 
   window.smartwerkDb = db;
   window.smartwerkUser = () => currentUser;
+
+    let lastSavedNetIncome = null;
+let lastSaveTime = 0;
+    
     // ---------- Anti-null expected IDs ----------
     const REQUIRED_IDS = [
       "companyName","email","period","hoursWorked","hourlyRate","income",
@@ -385,10 +389,10 @@ try {
   const snap = await getDocs(q);
   const last = snap.docs[0]?.data();
 
-  if (last && Math.abs(last.netIncome - netIncomeAfterTax) < 0.01) {
-    console.warn("⛔ Duplicate net income — skipping save");
-    return;
-  }
+  if (!Number.isFinite(netIncomeAfterTax) || netIncomeAfterTax <= 0) {
+  console.warn("⛔ Skipped: net income is NaN or 0");
+  return;
+}
 
   // ✅ Зберігаємо
   await addDoc(collection(db, "users", user.uid, "tax_calculations"), {
@@ -884,9 +888,8 @@ async function clearHistory() {
 
 
 // ✅ Прив’язуємо до кнопки обидві дії
-document.getElementById("btn-calc")?.addEventListener("click", async () => {
-  saveToLocalSummary();
-  await loadHistory(); // Тільки після збереження в calculateTax()
+document.getElementById("btn-calc")?.addEventListener("click", () => {
+  if (typeof calculateTax === "function") calculateTax();
 });
 
 document.getElementById("btn-clear-history")?.addEventListener("click", () => {
