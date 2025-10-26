@@ -167,7 +167,7 @@
       <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
       <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
       <button id="btn-xlsx" type="button">📊 Export as Excel</button>
-      <button id="btn-load-history" class="history-refresh">🔄 Update History</button>      
+      <div id="calcStatus" style="margin-top:10px;color:green;display:none;"></div>   
       <button id="btn-clear-history" class="btn ghost small">🧹 Clear History</button>
       <button type="button" id="btn-ai">💬 Open AI Assistant</button>
     </div>
@@ -259,7 +259,7 @@ let lastSaveTime = 0;
     }
 
 
-async function saveToFirestoreSummary(summary) {
+async function saveToFirestoreSummary(summary, doNotLog = false) {
   const db = window.smartwerkDb;
   const user = window.smartwerkUser && window.smartwerkUser();
   if (!db || !user) return;
@@ -278,7 +278,7 @@ async function saveToFirestoreSummary(summary) {
     date: new Date().toISOString()
   });
 
-  console.log("✅ Saved to Firestore");
+  if (!doNotLog) console.log("✅ Saved to Firestore");
   lastSavedNetIncome = summary.netIncome;
   lastSaveTime = now;
 }
@@ -395,8 +395,7 @@ try {
     zzpEligible: zzp
   };
 
-  await saveToFirestoreSummary(summary);
-
+await saveToFirestoreSummary(summary, true);
 } catch (e) {
   console.warn("⚠️ Firebase error", e);
 }
@@ -845,8 +844,17 @@ document.getElementById("btn-clear-history")?.addEventListener("click", () => {
 });
 
 // ✅ НОВИЙ БЛОК — ручне оновлення історії
-document.getElementById("btn-load-history")?.addEventListener("click", () => {
-  loadHistory();
+document.getElementById("btn-calc")?.addEventListener("click", async () => {
+  if (typeof window.calculateTax === "function") await window.calculateTax();
+  runValidationUI();
+
+  // Показати повідомлення
+  const el = document.getElementById("calcStatus");
+  if (el) {
+    el.textContent = "✅ Calculated. Click 🔄 to refresh history.";
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 5000);
+  }
 });
 
 
