@@ -766,7 +766,7 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
- function saveToLocalSummary() {
+function saveToLocalSummary() {
   const grossIncome = parseFloat(document.getElementById("grossIncome")?.innerText) || 0;
   const expenses = parseFloat(document.getElementById("totalExpenses")?.innerText) || 0;
   const taxEstimation = parseFloat(document.getElementById("totalTax")?.innerText) || 0;
@@ -779,22 +779,24 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     expenses: expenses.toFixed(2),
     taxEstimation: taxEstimation.toFixed(2),
     netIncome: netIncome.toFixed(2),
-    kvk: kvk,          // ✅ передаємо змінну
-    iban: iban         // ✅ передаємо змінну
+    kvk: kvk,
+    iban: iban
   };
 
   localStorage.setItem("smartwerk_summary_data", JSON.stringify(summaryData));
   console.log("✅ Summary saved:", summaryData);
 }
- 
-  
-  async function loadHistory() {
+
+async function loadHistory() {
   const db = window.smartwerkDb;
   const user = window.smartwerkUser && window.smartwerkUser();
   if (!db || !user) return;
+
   const q = query(collection(db, "users", user.uid, "tax_calculations"), orderBy("date", "desc"));
   const snap = await getDocs(q);
   const list = document.getElementById("historyList");
+  if (!list) return;
+
   list.innerHTML = "";
   snap.forEach(doc => {
     const d = doc.data();
@@ -804,11 +806,11 @@ document.getElementById('btn-ai').addEventListener('click', function(){
   });
 }
 
-  // Прив’язуємо до кнопки
-  document.getElementById("btn-calc")?.addEventListener("click", () => {
-    saveToLocalSummary();
-     await loadHistory();
-  });
+// ✅ Прив’язуємо до кнопки обидві дії
+document.getElementById("btn-calc")?.addEventListener("click", async () => {
+  saveToLocalSummary();
+  await loadHistory(); // тепер await тут дозволений
+});
     
 })();
 </script>
