@@ -771,7 +771,7 @@ document.getElementById('btn-ai').addEventListener('click', function(){
   const expenses = parseFloat(document.getElementById("totalExpenses")?.innerText) || 0;
   const taxEstimation = parseFloat(document.getElementById("totalTax")?.innerText) || 0;
   const netIncome = parseFloat(document.getElementById("netIncome")?.innerText) || 0;
-   const kvk = document.getElementById("kvkNumber")?.value || "--";
+  const kvk = document.getElementById("kvkNumber")?.value || "--";
   const iban = document.getElementById("iban")?.value || "--";
 
   const summaryData = {
@@ -779,13 +779,15 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     expenses: expenses.toFixed(2),
     taxEstimation: taxEstimation.toFixed(2),
     netIncome: netIncome.toFixed(2),
-    kvk: kvk-number,
-    iban: iban-number,
+    kvk: kvk,          // ✅ передаємо змінну
+    iban: iban         // ✅ передаємо змінну
   };
 
   localStorage.setItem("smartwerk_summary_data", JSON.stringify(summaryData));
   console.log("✅ Summary saved:", summaryData);
 }
+  await loadHistory();
+  
   async function loadHistory() {
   const db = window.smartwerkDb;
   const user = window.smartwerkUser && window.smartwerkUser();
