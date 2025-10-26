@@ -394,32 +394,8 @@ try {
     zzpEligible: zzp
   };
 
-  // ⛔ Перевірка на дублікат (останній запис)
-  const q = query(
-    collection(db, "users", user.uid, "tax_calculations"),
-    orderBy("date", "desc"),
-    limit(1)
-  );
-  const snap = await getDocs(q);
-const last = snap.docs[0]?.data();
-
-if (!Number.isFinite(netIncomeAfterTax) || netIncomeAfterTax <= 0) {
-  console.warn("⛔ Skipped: net income is NaN or 0");
-  return;
-}
-
-if (last && Math.abs(last.netIncome - netIncomeAfterTax) < 0.01) {
-  console.warn("⛔ Skipped: duplicate net income already saved");
-  return;
-}
-
- 
-
-  console.log("✅ Tax saved");
-
-  // ⏱ Після збереження — оновити історію
-  await loadHistory();
   await saveToFirestoreSummary(summary);
+  await loadHistory();
 
 } catch (e) {
   console.warn("⚠️ Firebase error", e);
