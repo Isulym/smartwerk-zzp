@@ -747,13 +747,18 @@ window.validateState = validateState; // залишаємо це
   function attachHandlers(){
     // 1) Autocalc + перерахунок на будь-яке введення
   
-    el.addEventListener("input", function(){
-  if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-  runValidationUI();
-});
-      el.addEventListener("change", function(){
-  if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-  runValidationUI();
+   document.querySelectorAll("input, select, textarea").forEach(function(el){
+  el.addEventListener("input", function(){
+    if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+    if (typeof window.calculateTax === "function") window.calculateTax();
+    runValidationUI();
+  });
+
+  el.addEventListener("change", function(){
+    if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+    if (typeof window.calculateTax === "function") window.calculateTax();
+    runValidationUI();
+  });
 });
     
 
