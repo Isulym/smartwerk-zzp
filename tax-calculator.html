@@ -345,6 +345,10 @@ function calculateTax(){
         kvkEligible: kvk,
         zzpEligible: zzp
       };
+      if (!netIncomeAfterTax || netIncomeAfterTax <= 0) {
+  console.warn("⛔ Skipped saving: Net income is empty or zero");
+  return;
+}
       addDoc(collection(db, "users", user.uid, "tax_calculations"), summary)
         .then(() => console.log("✅ Tax data saved to Firestore"))
         .catch(err => console.warn("⚠️ Firebase error:", err));
