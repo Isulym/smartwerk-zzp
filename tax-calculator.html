@@ -786,7 +786,7 @@ document.getElementById('btn-ai').addEventListener('click', function(){
   localStorage.setItem("smartwerk_summary_data", JSON.stringify(summaryData));
   console.log("✅ Summary saved:", summaryData);
 }
-  await loadHistory();
+ 
   
   async function loadHistory() {
   const db = window.smartwerkDb;
@@ -807,6 +807,7 @@ document.getElementById('btn-ai').addEventListener('click', function(){
   // Прив’язуємо до кнопки
   document.getElementById("btn-calc")?.addEventListener("click", () => {
     saveToLocalSummary();
+     await loadHistory();
   });
     
 })();
