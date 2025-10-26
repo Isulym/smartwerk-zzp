@@ -826,8 +826,7 @@ document.getElementById('btn-ai').addEventListener('click', function(){
     if (tries > 20) clearInterval(t); // ~10 секунд максимум
   }, 500);
 
-// === Firebase Tax Calculation Enhancements ===
-let lastSavedNetIncome = null;
+
 
 function saveToLocalSummary() {
   const grossIncome = parseFloat(document.getElementById("grossIncome")?.innerText) || 0;
