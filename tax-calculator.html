@@ -401,10 +401,15 @@ try {
     limit(1)
   );
   const snap = await getDocs(q);
-  const last = snap.docs[0]?.data();
+const last = snap.docs[0]?.data();
 
-  if (!Number.isFinite(netIncomeAfterTax) || netIncomeAfterTax <= 0) {
+if (!Number.isFinite(netIncomeAfterTax) || netIncomeAfterTax <= 0) {
   console.warn("⛔ Skipped: net income is NaN or 0");
+  return;
+}
+
+if (last && Math.abs(last.netIncome - netIncomeAfterTax) < 0.01) {
+  console.warn("⛔ Skipped: duplicate net income already saved");
   return;
 }
 
@@ -419,6 +424,7 @@ try {
 
   // ⏱ Після збереження — оновити історію
   await loadHistory();
+  await saveToLocalSummary(summary);
 
 } catch (e) {
   console.warn("⚠️ Firebase error", e);
@@ -841,35 +847,6 @@ document.getElementById('btn-ai').addEventListener('click', function(){
   }, 500);
 
 
-
-function saveToLocalSummary() {
-  const grossIncome = parseFloat(document.getElementById("grossIncome")?.innerText) || 0;
-  const expenses = parseFloat(document.getElementById("totalExpenses")?.innerText) || 0;
-  const taxEstimation = parseFloat(document.getElementById("totalTax")?.innerText) || 0;
-  const netIncome = parseFloat(document.getElementById("netIncome")?.innerText) || 0;
-  const kvk = document.getElementById("kvkNumber")?.value || "--";
-  const iban = document.getElementById("iban")?.value || "--";
-
-  if (netIncome <= 0 || netIncome === lastSavedNetIncome) {
-    console.warn("⛔ Skipped saving: Net income is empty, zero, or unchanged");
-    return;
-  }
-
-  const summaryData = {
-    grossIncome: grossIncome.toFixed(2),
-    expenses: expenses.toFixed(2),
-    taxEstimation: taxEstimation.toFixed(2),
-    netIncome: netIncome.toFixed(2),
-    kvk: kvk,
-    iban: iban
-  };
-
-  localStorage.setItem("smartwerk_summary_data", JSON.stringify(summaryData));
-  console.log("✅ Local summary saved:", summaryData);
-  lastSavedNetIncome = netIncome;
-}
-
-
 async function clearHistory() {
   const db = window.smartwerkDb;
   const user = window.smartwerkUser && window.smartwerkUser();
@@ -885,8 +862,9 @@ async function clearHistory() {
 
 
 // ✅ Прив’язуємо до кнопки обидві дії
+// ✅ Вже не викликаємо calculateTax() тут повторно!
 document.getElementById("btn-calc")?.addEventListener("click", () => {
-  if (typeof calculateTax === "function") calculateTax();
+  runValidationUI(); // лише перевірка, якщо хочеш
 });
 
 document.getElementById("btn-clear-history")?.addEventListener("click", () => {
