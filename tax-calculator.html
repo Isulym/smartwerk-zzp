@@ -746,25 +746,17 @@ window.validateState = validateState; // залишаємо це
 
   function attachHandlers(){
     // 1) Autocalc + перерахунок на будь-яке введення
-    document.querySelectorAll("input, select, textarea").forEach(function(el){
-      el.addEventListener("input",  function(){
-        if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-        if (typeof window.calculateTax   === "function") window.calculateTax();
-        runValidationUI();
-      });
+  
+    el.addEventListener("input", function(){
+  if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+  runValidationUI();
+});
       el.addEventListener("change", function(){
-        if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-        if (typeof window.calculateTax   === "function") window.calculateTax();
-        runValidationUI();
-      });
+  if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+  runValidationUI();
+});
     });
 
-    // 2) Кнопка Calculate
-    var btnCalc = document.getElementById("btn-calc");
-    if (btnCalc) btnCalc.addEventListener("click", function(){
-      if (typeof window.calculateTax === "function") window.calculateTax();
-      runValidationUI();
-    });
 
     // 3) Кнопка Export PDF
     var btnPdf = document.getElementById("btn-pdf");
@@ -790,14 +782,13 @@ window.validateState = validateState; // залишаємо це
   }
 
   // Чекаємо DOM, тоді експонуємо функції та прив’язуємо події
-  document.addEventListener("DOMContentLoaded", function(){
-    exposeGlobals();
-    attachHandlers();
-    // первинний прогін
-    if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-    if (typeof window.calculateTax   === "function") window.calculateTax();
-    runValidationUI();
-  });
+  // DOM готовий
+document.addEventListener("DOMContentLoaded", function(){
+  exposeGlobals();
+  attachHandlers();
+  if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
+  runValidationUI(); // без auto-submit!
+});
 document.getElementById('btn-ai').addEventListener('click', function(){
     // формуємо payload (у тебе вже є функція openAIChat – можна її викликати)
     // Або просто відкриваємо сторінку, якщо payload вже збережений:
@@ -834,9 +825,6 @@ async function clearHistory() {
 
 // ✅ Прив’язуємо до кнопки обидві дії
 // ✅ Вже не викликаємо calculateTax() тут повторно!
-document.getElementById("btn-calc")?.addEventListener("click", () => {
-  runValidationUI(); // лише перевірка, якщо хочеш
-});
 
 document.getElementById("btn-clear-history")?.addEventListener("click", () => {
   if (confirm("Are you sure you want to delete all history?")) {
@@ -849,15 +837,20 @@ document.getElementById("btn-load-history")?.addEventListener("click", () => {
   loadHistory();
 });
 
-})();
-  // Показати повідомлення
+
+    // Показати повідомлення
+// ✅ Прив’язуємо до кнопки обидві дії
+document.getElementById("btn-calc")?.addEventListener("click", async () => {
+  if (typeof window.calculateTax === "function") await window.calculateTax();
+  runValidationUI();
+
   const el = document.getElementById("calcStatus");
   if (el) {
     el.textContent = "✅ Calculated. Click 🔄 to refresh history.";
     el.style.display = "block";
     setTimeout(() => { el.style.display = "none"; }, 5000);
   }
-
+});
 
 
     
