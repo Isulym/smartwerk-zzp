@@ -253,6 +253,33 @@
       if (incomeEl) incomeEl.value = val.toFixed(2);
     }
 
+    let lastSavedNetIncome = null;
+let lastSaveTime = 0;
+
+async function saveToLocalSummary(summary) {
+  const db = window.smartwerkDb;
+  const user = window.smartwerkUser && window.smartwerkUser();
+  if (!db || !user) return;
+
+  // 🧠 Уникаємо дублювання
+  const now = Date.now();
+  if (summary.netIncome === lastSavedNetIncome && (now - lastSaveTime) < 5000) {
+    console.log("⛔ Duplicate or too soon. Skipping save.");
+    return;
+  }
+
+  // ✅ Зберігаємо
+  await addDoc(collection(db, "users", user.uid, "tax_calculations"), {
+    ...summary,
+    uid: user.uid,
+    date: new Date().toISOString()
+  });
+
+  console.log("✅ Saved to Firestore");
+  lastSavedNetIncome = summary.netIncome;
+  lastSaveTime = now;
+}
+
     // ---------- Main calculation ----------
 async function calculateTax() {
   // 0) авто-підстановка доходу (години × ставка)
@@ -327,48 +354,53 @@ async function calculateTax() {
   Safe.text("netIncome", netIncomeAfterTax.toFixed(2));
 
   // === Firebase: зберегти в Firestore (опційно) ===
-  try {
-    const db = window.smartwerkDb;
-    const user = window.smartwerkUser && window.smartwerkUser();
-    if (db && user) {
-      const summary = {
-        uid: user.uid,
-        date: new Date().toISOString(),
-        income,
-        totalExpenses,
-        profit,
-        zzpDeductions: cappedZZP,
-        mkbVrijstelling: cappedMKB,
-        finalTaxable,
-        incomeTax,
-        zvwAmount,
-        btwAmount,
-        totalTax,
-        netIncome: netIncomeAfterTax,
-        korApplied: kor,
-        kvkEligible: kvk,
-        zzpEligible: zzp
-      };
-     // ... після формування const summary = { ... }
-const q = query(
-  collection(db, "users", user.uid, "tax_calculations"),
-  orderBy("date", "desc"),
-  limit(1)
-);
+ try {
+  const db = window.smartwerkDb;
+  const user = window.smartwerkUser && window.smartwerkUser();
+  if (!db || !user) return;
 
-const snap = await getDocs(q);
-const lastDoc = snap.docs[0]?.data();
-if (lastDoc && Math.abs(lastDoc.netIncome - netIncomeAfterTax) < 0.01) {
-  console.warn("⛔ Skipped saving: Duplicate net income already saved");
-  return;
-}
-      addDoc(collection(db, "users", user.uid, "tax_calculations"), summary)
-        .then(() => console.log("✅ Tax data saved to Firestore"))
-        .catch(err => console.warn("⚠️ Firebase error:", err));
-    }
-  } catch (e) {
-    console.warn("⚠️ Firebase not initialized or unavailable", e);
+  const summary = {
+    income,
+    totalExpenses,
+    profit,
+    zzpDeductions: cappedZZP,
+    mkbVrijstelling: cappedMKB,
+    finalTaxable,
+    incomeTax,
+    zvwAmount,
+    btwAmount,
+    totalTax,
+    netIncome: netIncomeAfterTax,
+    korApplied: kor,
+    kvkEligible: kvk,
+    zzpEligible: zzp
+  };
+
+  // 🧠 Перевірка на дублікат
+  const q = query(
+    collection(db, "users", user.uid, "tax_calculations"),
+    orderBy("date", "desc"),
+    limit(1)
+  );
+  const snap = await getDocs(q);
+  const last = snap.docs[0]?.data();
+
+  if (last && Math.abs(last.netIncome - netIncomeAfterTax) < 0.01) {
+    console.warn("⛔ Skipped saving: Same net income as previous entry");
+    return;
   }
+
+  // ✅ Зберігаємо
+  await addDoc(collection(db, "users", user.uid, "tax_calculations"), {
+    ...summary,
+    uid: user.uid,
+    date: new Date().toISOString()
+  });
+
+  console.log("✅ Tax data saved to Firestore");
+} catch (e) {
+  console.warn("⚠️ Firebase not initialized or unavailable", e);
+}
   
   // ----- Жовте попередження, якщо теоретично перевищили ліміт -----
   let capEl = $("capWarning");
