@@ -264,15 +264,18 @@ async function saveToFirestoreSummary(summary, doNotLog = false) {
   const db = window.smartwerkDb;
   const user = window.smartwerkUser && window.smartwerkUser();
   if (!db || !user) return;
+  
 
-  // 🧠 Уникаємо дублювання
   const now = Date.now();
   if (summary.netIncome === lastSavedNetIncome && (now - lastSaveTime) < 5000) {
-  console.log("⛔ Duplicate or too soon. Skipping save.");
+    if (!doNotLog) console.log("⛔ Duplicate or too soon. Skipping save.");
+    return;
+  }
+  if (!Number.isFinite(summary.netIncome) || summary.netIncome <= 0) {
+  console.warn("⛔ Skipped saving: net income is zero or invalid");
   return;
 }
 
-  // ✅ Зберігаємо
   await addDoc(collection(db, "users", user.uid, "tax_calculations"), {
     ...summary,
     uid: user.uid,
@@ -282,6 +285,9 @@ async function saveToFirestoreSummary(summary, doNotLog = false) {
   if (!doNotLog) console.log("✅ Saved to Firestore");
   lastSavedNetIncome = summary.netIncome;
   lastSaveTime = now;
+
+  // 🟢 Завантажуємо оновлену історію після збереження
+  await loadHistory();
 }
     async function loadHistory() {
   const db = window.smartwerkDb;
