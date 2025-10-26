@@ -413,12 +413,7 @@ if (last && Math.abs(last.netIncome - netIncomeAfterTax) < 0.01) {
   return;
 }
 
-  // ✅ Зберігаємо
-  await addDoc(collection(db, "users", user.uid, "tax_calculations"), {
-    ...summary,
-    uid: user.uid,
-    date: new Date().toISOString()
-  });
+ 
 
   console.log("✅ Tax saved");
 
