@@ -172,7 +172,34 @@
   </div>
 
   <!-- ===== Utilities & Logic ===== -->
-  <script>
+  <script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1"
+  };
+
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  onAuthStateChanged(auth, user => {
+    if (!user) return location.href = "login.html";
+    currentUser = user;
+  });
+
+  window.smartwerkDb = db;
+  window.smartwerkUser = () => currentUser;
     // ---------- Anti-null expected IDs ----------
     const REQUIRED_IDS = [
       "companyName","email","period","hoursWorked","hourlyRate","income",
@@ -288,6 +315,37 @@ function calculateTax(){
     : round2(income - totalExpenses - incomeTax - zvwAmount - btwAmount);
   Safe.text("netIncome", netIncomeAfterTax.toFixed(2));
 
+  // === Firebase: зберегти в Firestore (опційно) ===
+  try {
+    const db = window.smartwerkDb;
+    const user = window.smartwerkUser && window.smartwerkUser();
+    if (db && user) {
+      const summary = {
+        uid: user.uid,
+        date: new Date().toISOString(),
+        income,
+        totalExpenses,
+        profit,
+        zzpDeductions: cappedZZP,
+        mkbVrijstelling: cappedMKB,
+        finalTaxable,
+        incomeTax,
+        zvwAmount,
+        btwAmount,
+        totalTax,
+        netIncome: netIncomeAfterTax,
+        korApplied: kor,
+        kvkEligible: kvk,
+        zzpEligible: zzp
+      };
+      addDoc(collection(db, "users", user.uid, "tax_calculations"), summary)
+        .then(() => console.log("✅ Tax data saved to Firestore"))
+        .catch(err => console.warn("⚠️ Firebase error:", err));
+    }
+  } catch (e) {
+    console.warn("⚠️ Firebase not initialized or unavailable", e);
+  }
+  
   // ----- Жовте попередження, якщо теоретично перевищили ліміт -----
   let capEl = $("capWarning");
   if (!capEl){
