@@ -22,7 +22,6 @@
   <h2>SmartWerk Tax Calculator</h2>
   
   <!-- Step 1 -->
-  <div class="section">
      <section>
       <h2>🏢 Business Info</h2>
       <input id="businessName" placeholder="Full Name / Business Name"/>
@@ -32,8 +31,8 @@
       <input id="email" placeholder="Business Email"/>
       <input id="businessPhone" placeholder="Business Phone"/>
        </section>
-      </div>
 
+    <section>
     <label for="period">Period</label>
     <select id="period">
       <option value="Q1">January – March (Q1)</option>
@@ -41,18 +40,18 @@
       <option value="Q3">July – September (Q3)</option>
       <option value="Q4">October – December (Q4)</option>
     </select>
+       </section>
 
          
-    <div class="section">
+   
      <section>
     <label>Hours Worked:<input type="number" id="hoursWorked"/></label>
     <label>Hourly Rate (EUR):<input type="number" id="hourlyRate"/></label>
     <label>Total Income (auto):<input type="number" id="income" readonly/></label>
-      </section>
 
     <label for="reportingNotes">Reporting Notes (optional):</label>
     <textarea id="reportingNotes" rows="2" placeholder="E.g. one-time setup costs, pending invoices…"></textarea>
-  </div>
+       </section>
 
   <!-- Step 2 -->
   <div class="section">
