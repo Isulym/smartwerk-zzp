@@ -281,6 +281,22 @@ async function saveToLocalSummary(summary) {
   lastSavedNetIncome = summary.netIncome;
   lastSaveTime = now;
 }
+    async function loadHistory() {
+  const db = window.smartwerkDb;
+  const user = window.smartwerkUser && window.smartwerkUser();
+  if (!db || !user) return;
+
+  const q = query(collection(db, "users", user.uid, "tax_calculations"), orderBy("date", "desc"));
+  const snap = await getDocs(q);
+  const list = document.getElementById("historyList");
+  list.innerHTML = "";
+  snap.forEach(doc => {
+    const d = doc.data();
+    const li = document.createElement("li");
+    li.textContent = `${new Date(d.date).toLocaleDateString()}: Net €${d.netIncome?.toFixed(2) || "—"}`;
+    list.appendChild(li);
+  });
+}
 
     // ---------- Main calculation ----------
 async function calculateTax() {
@@ -853,22 +869,6 @@ function saveToLocalSummary() {
   lastSavedNetIncome = netIncome;
 }
 
-async function loadHistory() {
-  const db = window.smartwerkDb;
-  const user = window.smartwerkUser && window.smartwerkUser();
-  if (!db || !user) return;
-
-  const q = query(collection(db, "users", user.uid, "tax_calculations"), orderBy("date", "desc"));
-  const snap = await getDocs(q);
-  const list = document.getElementById("historyList");
-  list.innerHTML = "";
-  snap.forEach(doc => {
-    const d = doc.data();
-    const li = document.createElement("li");
-    li.textContent = `${new Date(d.date).toLocaleDateString()}: Net €${d.netIncome?.toFixed(2) || "—"}`;
-    list.appendChild(li);
-  });
-}
 
 async function clearHistory() {
   const db = window.smartwerkDb;
