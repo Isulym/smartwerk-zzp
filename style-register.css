@@ -19,30 +19,17 @@
 }
 
 .topbar {
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 14px 30px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
 }
-
 .topbar .brand {
   font-size: 18px;
-  font-weight: bold;
-  color: #ffffff;
+  color: white;
   text-decoration: none;
-}
-
-.topbar .btn {
-  padding: 6px 12px;
-  font-size: 14px;
-  border-radius: 6px;
-  background-color: #2563eb;
-  color: #fff;
-  text-decoration: none;
-}
-
-.topbar .btn:hover {
-  background-color: #3b82f6;
 }
 
 /* 📋 Карта реєстрації */
