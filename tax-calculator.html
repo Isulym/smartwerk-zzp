@@ -25,8 +25,12 @@
   <div class="section">
     <h3>Step 1: Your Data</h3>
 
-    <label>Company Name:<input type="text" id="companyName"/></label>
+    <label>Full Name / Business Name:<input type="text" id="businessName"/></label>
     <label>Email / Phone:<input type="text" id="email"/></label>
+     <label>KvK Number:<input type="text" id="kvk"/></label>
+    <label>BTW Number:<input type="text" id="btw"/></label>
+    <label>IBAN:<input type="text" id="iban"/></label>
+    <label>Contact Person:<input type="text" id="contactPerson"/></label>
 
     <label for="period">Period</label>
     <select id="period">
@@ -40,10 +44,6 @@
     <label>Hourly Rate (EUR):<input type="number" id="hourlyRate"/></label>
     <label>Total Income (auto):<input type="number" id="income" readonly/></label>
 
-    <label>KvK Number:<input type="text" id="kvkNumber"/></label>
-    <label>VAT Number:<input type="text" id="vatNumber"/></label>
-    <label>IBAN:<input type="text" id="iban"/></label>
-    <label>Contact Person:<input type="text" id="contactPerson"/></label>
 
     <label for="reportingNotes">Reporting Notes (optional):</label>
     <textarea id="reportingNotes" rows="2" placeholder="E.g. one-time setup costs, pending invoices…"></textarea>
@@ -221,8 +221,8 @@ let lastSaveTime = 0;
     
     // ---------- Anti-null expected IDs ----------
     const REQUIRED_IDS = [
-      "companyName","email","period","hoursWorked","hourlyRate","income",
-      "kvkNumber","vatNumber","iban","contactPerson","reportingNotes",
+      "businessName","email","period","hoursWorked","hourlyRate","income",
+      "kvk","btw","iban","contactPerson","reportingNotes",
       "vehicle","office","internet","marketing","other","extraBenefits",
       "kvk","zzpHours","btwRate","kor",
       "grossIncome","totalExpenses","taxableProfit","zzpDeductions",
@@ -263,10 +263,10 @@ let lastSaveTime = 0;
 
   // Заповнюємо поля
   const fields = {
-    companyName: data.companyName,
+    businessName: data.businessName,
     email: data.email,
-    kvkNumber: data.kvkNumber,
-    vatNumber: data.vatNumber,
+    kvk: data.kvk,
+    btw: data.btw,
     iban: data.iban,
     contactPerson: data.contactPerson
   };
@@ -487,14 +487,14 @@ await saveToFirestoreSummary(summary, true);
       // Contact block
       doc.setFontSize(11);
       [
-        `Company: ${V("companyName")}`,
+        `Company: ${V("businessName")}`,
         `Email / Phone: ${V("email")}`,
         `Period: ${V("period")}`,
         `Hours worked: ${V("hoursWorked")}`,
         `Hourly Rate: €${V("hourlyRate")}`,
         `Input 'Income': €${V("income")}`,
-        `KvK Number: ${V("kvkNumber")}`,
-        `VAT Number: ${V("vatNumber")}`,
+        `KvK Number: ${V("kvk")}`,
+        `VAT Number: ${V("btw")}`,
         `IBAN: ${V("iban")}`,
         `Contact Person: ${V("contactPerson")}`
       ].forEach(line => { doc.text(line, 15, y); y += 6; });
@@ -554,14 +554,14 @@ if (capNote){
 
     // 3) формуємо payload
     const payload = {
-      companyName:  v('companyName'),
+      businessName:  v('businessName'),
       emailPhone:   v('email'),
       period:       v('period'),
       hoursWorked:  v('hoursWorked'),
       hourlyRate:   v('hourlyRate'),
       income:       v('income'),
-      kvkNumber:    v('kvkNumber'),
-      vatNumber:    v('vatNumber'),
+      kvk:          v('kvk'),
+      btw:          v('btw'),
       iban:         v('iban'),
       contactPerson:v('contactPerson'),
       reportingNotes: v('reportingNotes'),
@@ -584,7 +584,7 @@ if (capNote){
     // 4) короткий текст для першого повідомлення
     payload.textSummary =
 `SmartWerk Tax Calculation
-Company: ${payload.companyName}
+Company: ${payload.businessName}
 Period: ${payload.period}
 Gross: €${payload.totals.grossIncome}, Expenses: €${payload.totals.totalExpenses}, Taxable: €${payload.totals.taxableProfit}, ZZP: €${payload.totals.zzpDeductions}, MKB: €${payload.totals.mkbVrijstelling}, Final Taxable: €${payload.totals.finalTaxable}, Income Tax: €${payload.totals.incomeTax}, ZVW: €${payload.totals.zvwAmount}, BTW: €${payload.totals.btwAmount}, Total Tax: €${payload.totals.totalTax}
 Saved (ZZP+MKB): €${payload.totals.totalSavings}, Net After Tax: €${payload.totals.netIncome}
@@ -612,14 +612,14 @@ function exportExcel() {
   // 1) Формуємо дані ДЛЯ ЕКСПОРТУ (ЦЕЙ масив і є "data")
   const data = [
     ["SmartWerk Tax Report"], [],
-    ["Company", v("companyName")],
+    ["Company", v("businessName")],
     ["Email / Phone", v("email")],
     ["Period", v("period")],
     ["Hours Worked", v("hoursWorked")],
     ["Hourly Rate (€)", v("hourlyRate")],
     ["Total Income (€)", v("income")],
-    ["KvK Number", v("kvkNumber")],
-    ["VAT Number", v("vatNumber")],
+    ["KvK Number", v("kvk")],
+    ["VAT Number", v("btw")],
     ["IBAN", v("iban")],
     ["Contact Person", v("contactPerson")],
     [],
