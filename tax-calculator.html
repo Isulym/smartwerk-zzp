@@ -753,16 +753,13 @@ window.validateState = validateState; // залишаємо це
   function attachHandlers(){
     // 1) Autocalc + перерахунок на будь-яке введення
   
-   document.querySelectorAll("input, select, textarea").forEach(function(el){
-  el.addEventListener("input", function(){
+  document.querySelectorAll("input, select, textarea").forEach(function(el){
+  el.addEventListener("input",  function(){
     if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-    if (typeof window.calculateTax === "function") window.calculateTax();
-    runValidationUI();
+    runValidationUI(); // ✅ тільки валідація
   });
-
   el.addEventListener("change", function(){
     if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-    if (typeof window.calculateTax === "function") window.calculateTax();
     runValidationUI();
   });
 });
@@ -853,14 +850,20 @@ document.getElementById("btn-load-history")?.addEventListener("click", () => {
 // ✅ Прив’язуємо до кнопки обидві дії
 document.getElementById("btn-calc")?.addEventListener("click", async () => {
   if (typeof window.calculateTax === "function") await window.calculateTax();
+
+  // ✅ Валідація — окремо
   runValidationUI();
 
+  // ✅ Показати повідомлення
   const el = document.getElementById("calcStatus");
   if (el) {
-    el.textContent = "✅ Calculated. Click 🔄 to refresh history.";
+    el.textContent = "✅ Calculated & saved. History updated.";
     el.style.display = "block";
     setTimeout(() => { el.style.display = "none"; }, 5000);
   }
+
+  // ✅ Оновити історію тільки зараз
+  await loadHistory();
 });
 
 
