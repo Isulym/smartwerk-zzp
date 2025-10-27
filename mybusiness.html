@@ -62,13 +62,13 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-  onAuthStateChanged(auth, user => {
-  if (!user) return location.href = "login.html";
-  currentUser = user;
-  document.addEventListener("DOMContentLoaded", () => {
-    loadSummary(); // ✅ DOM точно є
+    onAuthStateChanged(auth, user => {
+    if (!user) return location.href = "login.html";
+    currentUser = user;
+
+    // DOM вже точно готовий — викликаємо одразу
+    loadSummary();
   });
-});
 
   async function loadSummary() {
    const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
