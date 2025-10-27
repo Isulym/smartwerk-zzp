@@ -95,6 +95,13 @@
     document.getElementById("kpi-net").textContent = "€" + netAfterTax.toFixed(2);
     document.getElementById("kpi-count").textContent = count;
 
+    if (count === 0) {
+  const msg = document.createElement("p");
+  msg.className = "no-data";
+  msg.textContent = "No reports found yet. Use the Tax Calculator to generate your first report.";
+  document.querySelector("main").appendChild(msg);
+}
+
     ["q1", "q2", "q3", "q4"].forEach(q => {
       const height = Math.min(quarterly[q.toUpperCase()] / 50, 200);
       const el = document.getElementById(q);
