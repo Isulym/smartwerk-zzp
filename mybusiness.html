@@ -13,26 +13,30 @@
   <button onclick="location.href='dashboard.html'">← Back to Dashboard</button>
 </nav>
 
-<main>
-  <h1>📊 My Business Dashboard</h1>
 
+  <h1>📊 My Business Dashboard</h1>
+<p class="intro">
+  This dashboard shows a summary of all your tax reports generated using SmartWerk.
+  You can see your gross income, expenses, taxes, savings, and net profit — plus a quarterly breakdown.
+</p>
+  
   <section class="kpis">
     <div class="kpi"><h3>Total Income</h3><p id="kpi-income">€0.00</p><small>All gross income entries</small></div>
     <div class="kpi"><h3>Total Expenses</h3><p id="kpi-expenses">€0.00</p><small>Vehicle, Office, Internet, etc.</small></div>
     <div class="kpi"><h3>Total Tax</h3><p id="kpi-tax">€0.00</p><small>Income Tax + ZVW + BTW</small></div>
     <div class="kpi"><h3>Tax Savings</h3><p id="kpi-saved">€0.00</p><small>ZZP + MKB deductions</small></div>
-    <div><h3>Net Income After Tax</h3><p id="kpi-net">€0.00</p></div>
+    <div class="kpi"><h3>Net Income After Tax</h3><p id="kpi-net">€0.00</p><small>Final income after all tax deductions</small></div>
     <div class="kpi"><h3>Reports</h3><p id="kpi-count">0</p><small>Total saved calculations</small></div>
   </section>
 
+   <section class="bar-chart">
   <h2>📅 Quarterly Net Income</h2>
-  <div class="bar-chart">
     <div class="bar-wrapper"><div class="bar" id="q1"></div><span>Q1</span></div>
     <div class="bar-wrapper"><div class="bar" id="q2"></div><span>Q2</span></div>
     <div class="bar-wrapper"><div class="bar" id="q3"></div><span>Q3</span></div>
     <div class="bar-wrapper"><div class="bar" id="q4"></div><span>Q4</span></div>
-  </div>
-</main>
+   </section>
+
 
 <script type="module">
   import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
