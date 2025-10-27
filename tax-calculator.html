@@ -185,7 +185,7 @@
 
     <div class="button-group">
       <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
-      <button id="btn-pdf" class="button-secondary">🧾 Export as PDF</button>
+      <button id="exportPDF" class="button-secondary">🧾 Export as PDF</button>
       <button id="btn-xlsx" type="button">📊 Export as Excel</button>
       <button id="btn-load-history">🔄 Update History</button>
       <div id="calcStatus" style="margin-top:10px;color:green;display:none;"></div>   
@@ -838,7 +838,7 @@ function exportPDF(){
 }
 
     // 3) Кнопка Export PDF
-    var btnPdf = document.getElementById("btn-pdf");
+    var btnPdf = document.getElementById("exportPDF");
     if (btnPdf) btnPdf.addEventListener("click", function(){
       if (typeof window.exportPDF === "function") window.exportPDF();
     });
