@@ -1,51 +1,84 @@
-Title:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk Tax Report Guide</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    h2 {
+      margin-top: 2rem;
+      color: #34495e;
+    }
+    p {
+      margin: 0.5rem 0;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    .disclaimer {
+      background: #fff3cd;
+      color: #856404;
+      padding: 1rem;
+      border-left: 5px solid #ffeeba;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+    .footer {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 3rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>SmartWerk Tax Report Guide</h1>
 
-SmartWerk – Tax Report Submission Guide (Netherlands)
+  <div class="disclaimer">
+    <strong>Note:</strong> This report is not an official tax ruling from Belastingdienst. It serves as a <strong>helper summary</strong> to assist freelancers and small businesses in the Netherlands with submitting their tax declaration manually.
+  </div>
 
-1. ⚠️ Disclaimer
+  <h2>How to use</h2>
+  <ul>
+    <li>Use the calculator to estimate your taxes for a given period (month or full calendar year).</li>
+    <li>Click <strong>“Download for Belastingdienst”</strong> to get a PDF report.</li>
+    <li>This PDF can be shared with your accountant or used as a support document when submitting your declaration.</li>
+  </ul>
 
-This report is not an official tax ruling. It is a supporting document to help you complete your tax return manually.
+  <h2>What's included in the report</h2>
+  <ul>
+    <li><strong>Gross Income</strong> — Total earnings before tax (hours × hourly rate).</li>
+    <li><strong>Total Expenses</strong> — Business-related deductions that reduce your taxable profit.</li>
+    <li><strong>ZZP Deductions</strong> — Special tax deductions for self-employed (zelfstandigenaftrek & startersaftrek).</li>
+    <li><strong>MKB Vrijstelling</strong> — Small business exemption (12.7% of remaining profit after ZZP deductions).</li>
+    <li><strong>Final Taxable Income</strong> — The amount you are taxed on.</li>
+    <li><strong>Income Tax</strong> — Based on progressive Dutch income tax brackets.</li>
+    <li><strong>ZVW</strong> — Healthcare contribution (5.32%).</li>
+    <li><strong>BTW</strong> — VAT to be paid unless KOR exemption is used.</li>
+    <li><strong>Net Income</strong> — Your final income after all taxes are subtracted.</li>
+  </ul>
 
-2. 📅 Reporting Period
+  <h2>Important notes</h2>
+  <ul>
+    <li>If KOR (kleineondernemersregeling) is applied, your BTW (VAT) is set to €0.00 in the report.</li>
+    <li>Make sure the period (e.g., January–December 2025) is filled out clearly in the form before exporting the PDF.</li>
+    <li>All values are shown in euros (€) and rounded to two decimal places.</li>
+  </ul>
 
-Make sure the reporting period selected in the calculator is accurate. Usually, this means calendar year (e.g. 01/01/2025 – 31/12/2025), but you can set a custom period.
-
-3. 📊 What is included in the SmartWerk Tax Report?
-
-Field
-Explanation
-Gross Income
-Total income before expenses (typically hours × hourly rate).
-Total Expenses
-Costs that reduce taxable profit (e.g. vehicle, office, marketing).
-ZZP Deductions
-Special tax reductions for self-employed (Zelfstandigenaftrek + Startersaftrek).
-MKB Vrijstelling
-Small business deduction (12.7% of adjusted profit, if applicable).
-Final Taxable Income
-Income that is taxed after applying deductions.
-Income Tax
-Tax based on Dutch tax brackets.
-ZVW
-Healthcare contribution (5.32%).
-BTW
-VAT unless KOR exemption is applied.
-Net Income
-Your final income after all taxes.
-
-4. 💡 Notes
-	•	If KOR (kleineondernemersregeling) is selected, BTW will be 0.
-	•	If ZZP eligibility is marked, deductions will be included.
-	•	This is not an official tax decision. Always confirm with your accountant or the Belastingdienst.
-
-5. 📤 How to Submit
-
-Visit mijn.belastingdienst.nl to file your return manually. Use the report to fill in income, deductions, and tax amounts.
-
-6. 💾 Suggested File Name:
-
-Belasting_Aangifte_SmartWerk_2025.pdf
-
-7. 📌 Generated:
-
-Report generated with SmartWerk Tax Calculator v1.0 on {{today’s date}}.
+  <div class="footer">
+    SmartWerk Tax Calculator — version 2.0<br/>
+    Generated on 2025-10-26
+  </div>
+</body>
+</html>
