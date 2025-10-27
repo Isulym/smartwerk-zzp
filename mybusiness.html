@@ -98,7 +98,7 @@
     document.getElementById("kpi-net").textContent = "€" + netAfterTax.toFixed(2);
     document.getElementById("kpi-count").textContent = count;
 
-    if (count === 0) {
+   if (snap.empty) {
   const msg = document.createElement("p");
   msg.className = "no-data";
   msg.textContent = "No reports found yet. Use the Tax Calculator to generate your first report.";
