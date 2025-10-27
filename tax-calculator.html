@@ -494,72 +494,6 @@ await saveToFirestoreSummary(summary, true);
 
   
 
-    // ---------- PDF export ----------
-    function exportPDF(){
-      const doc = new jsPDF();
-      doc.setFontSize(14);
-      doc.text("SmartWerk Tax Report", 15, 15);
-      let y = 25;
-
-      const T = id => ($(id)?.textContent ?? "");
-      const V = id => Safe.val(id);
-
-      // Contact block
-      doc.setFontSize(11);
-      [
-        `Company: ${V("businessName")}`,
-        `Email / Phone: ${V("email")}`,
-        `Period: ${V("period")}`,
-        `Hours worked: ${V("hoursWorked")}`,
-        `Hourly Rate: €${V("hourlyRate")}`,
-        `Input 'Income': €${V("income")}`,
-        `KvK Number: ${V("kvk")}`,
-        `VAT Number: ${V("btw")}`,
-        `IBAN: ${V("iban")}`,
-        `Contact Person: ${V("businessPhone")}`
-      ].forEach(line => { doc.text(line, 15, y); y += 6; });
-      y += 6;
-
-      // Summary
-      doc.setFontSize(12);
-      doc.text("Calculation Summary:", 15, y); y += 8;
-      doc.setFontSize(11);
-      doc.text(`You saved (ZZP + MKB): €${T("totalSavings")}`, 15, y); y += 6;
-      doc.text(`Net Income after Tax: €${T("netIncome")}`, 15, y); y += 6;
-      [
-        `Gross Income: €${T("grossIncome")}`,
-        `Total Expenses: €${T("totalExpenses")}`,
-        `Taxable Profit: €${T("taxableProfit")}`,
-        `ZZP Deductions: €${T("zzpDeductions")}`,
-        `MKB Exemption (12.7%): €${T("mkbVrijstelling")}`,
-        `Final Taxable Income: €${T("finalTaxable")}`,
-        `Income Tax: €${T("incomeTax")}`,
-        `ZVW (5.32%): €${T("zvwAmount")}`,
-        `BTW: €${T("btwAmount")}`,
-        `Total Estimated Tax: €${T("totalTax")}`
-      ].forEach(line => { doc.text(line, 15, y); y += 6; });
-
-      // Notes
-      const notes = V("reportingNotes");
-      if ((notes||"").trim()){
-        y += 8;
-        doc.setFontSize(12);
-        doc.text("Reporting Notes:", 15, y); y += 7;
-        doc.setFontSize(11);
-        doc.splitTextToSize(notes, 180).forEach(row => { doc.text(row, 15, y); y += 6; });
-      }
-// Cap warning у PDF (якщо є)
-const capNote = (document.getElementById("capWarning")?.textContent || "").trim();
-if (capNote){
-  y += 8;
-  doc.setFontSize(12);
-  doc.text("Notes:", 15, y); y += 7;
-  doc.setFontSize(11);
-  doc.splitTextToSize(capNote, 180).forEach(row => { doc.text(row, 15, y); y += 6; });
-}
-      
-      doc.save("smartwerk-tax-report.pdf");
-    }
 
 // ---------- AI: зібрати контекст і відкрити чат ----------
 // ensure latest numbers are saved, then open new tab
@@ -811,7 +745,97 @@ window.validateState = validateState; // залишаємо це
   });
 });
     
+function exportPDF(){
+  const doc = new jsPDF();
+  const today = new Date().toLocaleDateString("en-GB");
+  let y = 20;
 
+  const T = id => ($(id)?.textContent ?? "").trim();
+  const V = id => Safe.val(id).trim();
+
+  doc.setFontSize(16);
+  doc.text("Belasting Aangifte Summary", 15, y);
+  doc.setFontSize(10);
+  doc.text(`Generated on: ${today}`, 160, y, { align: "right" }); 
+  y += 10;
+
+  // 📌 Contact block
+  doc.setFontSize(12);
+  doc.text("Business Info", 15, y); y += 7;
+  doc.setFontSize(10);
+  [
+    `Company Name: ${V("businessName")}`,
+    `Period: ${V("period")}`,
+    `KvK Number: ${V("kvk")}`,
+    `VAT Number: ${V("btw")}`,
+    `IBAN: ${V("iban")}`,
+    `Email / Phone: ${V("email")}`,
+    `Contact Person: ${V("businessPhone")}`,
+    `Hours Worked: ${V("hoursWorked")}`,
+    `Hourly Rate: €${V("hourlyRate")}`,
+    `Declared Income: €${V("income")}`
+  ].forEach(line => { doc.text(line, 15, y); y += 5; });
+
+  y += 8;
+
+  // 📊 Calculation summary
+  doc.setFontSize(12);
+  doc.text("Calculation Breakdown", 15, y); y += 7;
+  doc.setFontSize(10);
+  const summaryItems = [
+    [`Gross Income`, T("grossIncome"), "Total business income"],
+    [`Total Expenses`, T("totalExpenses"), "Deductible costs (vehicle, office, etc.)"],
+    [`Taxable Profit`, T("taxableProfit"), "Income minus expenses"],
+    [`ZZP Deductions`, T("zzpDeductions"), "Self-employed tax benefits"],
+    [`MKB Exemption (12.7%)`, T("mkbVrijstelling"), "Small business exemption"],
+    [`Final Taxable Income`, T("finalTaxable"), "Profit after ZZP and MKB discounts"],
+    [`Income Tax`, T("incomeTax"), "Based on Dutch income brackets"],
+    [`ZVW (5.32%)`, T("zvwAmount"), "Health insurance contribution"],
+    [`BTW (VAT)`, T("btwAmount"), "Only if KOR not applied"],
+    [`Total Estimated Tax`, T("totalTax"), "Combined tax amount"],
+    [`Net Income After Tax`, T("netIncome"), "Final profit after taxes"],
+    [`You Saved (ZZP + MKB)`, T("totalSavings"), "Total tax savings applied"]
+  ];
+
+  summaryItems.forEach(([label, value, explanation]) => {
+    doc.text(`${label}: €${value}`, 15, y);
+    doc.text(`(${explanation})`, 90, y);
+    y += 6;
+  });
+
+  // 📝 Reporting notes
+  const notes = V("reportingNotes");
+  if (notes) {
+    y += 8;
+    doc.setFontSize(12);
+    doc.text("Reporting Notes", 15, y); y += 7;
+    doc.setFontSize(10);
+    const lines = doc.splitTextToSize(notes, 180);
+    lines.forEach(line => { doc.text(line, 15, y); y += 5; });
+  }
+
+  // ⚠️ Cap warning
+  const capNote = (document.getElementById("capWarning")?.textContent || "").trim();
+  if (capNote){
+    y += 8;
+    doc.setFontSize(12);
+    doc.text("System Note", 15, y); y += 7;
+    doc.setFontSize(10);
+    doc.splitTextToSize(capNote, 180).forEach(row => { doc.text(row, 15, y); y += 5; });
+  }
+
+  // ⚠️ Disclaimer
+  y += 10;
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text("⚠️ This document is a supportive summary for Belastingdienst submission.", 15, y); y += 5;
+  doc.text("It does not represent an official tax decision. Double-check with your accountant.", 15, y); y += 5;
+  doc.text("SmartWerk Tax Calculator v2.0", 15, y);
+
+  // Save with naming suggestion
+  const period = V("period").replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+  doc.save(`Belasting_Aangifte_SmartWerk_${period || today}.pdf`);
+}
 
     // 3) Кнопка Export PDF
     var btnPdf = document.getElementById("btn-pdf");
