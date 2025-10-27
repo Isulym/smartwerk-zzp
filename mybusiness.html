@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Business</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📊 My Business</title>
   <link rel="stylesheet" href="style-mybusiness.css"/>
 </head>
 <body>
@@ -12,88 +12,89 @@
   <nav>
     <a href="tax-calculator.html" class="btn">← Tax Calculator</a>
     <a href="dashboard.html" class="btn">← Back to Dashboard</a>
- </nav>
+  </nav>
 </div>
 
-    <h1>📊 My Business Dashboard</h1>
-    <section class="kpis">
-      <div><h3>Total Income</h3><p id="kpi-income">€0.00</p></div>
-      <div><h3>Total Expenses</h3><p id="kpi-expenses">€0.00</p></div>
-      <div><h3>Total Tax</h3><p id="kpi-tax">€0.00</p></div>
-      <div><h3>Tax Savings</h3><p id="kpi-saved">€0.00</p></div>
-      <div><h3>Reports</h3><p id="kpi-count">0</p></div>
-    </section>
+<main>
+  <h1>📊 My Business Dashboard</h1>
 
-    <h2>📅 Quarterly Net Income</h2>
-    <div class="bar-chart">
-      <div class="bar" id="q1" title="Q1"></div>
-      <div class="bar" id="q2" title="Q2"></div>
-      <div class="bar" id="q3" title="Q3"></div>
-      <div class="bar" id="q4" title="Q4"></div>
-    </div>
+  <section class="kpis">
+    <div><h3>Total Income</h3><p id="kpi-income">€0.00</p></div>
+    <div><h3>Total Expenses</h3><p id="kpi-expenses">€0.00</p></div>
+    <div><h3>Total Tax</h3><p id="kpi-tax">€0.00</p></div>
+    <div><h3>Tax Savings</h3><p id="kpi-saved">€0.00</p></div>
+    <div><h3>Reports</h3><p id="kpi-count">0</p></div>
+  </section>
 
-  <script type="module">
-    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      query,
-      orderBy,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <h2>📅 Quarterly Net Income</h2>
+  <div class="bar-chart">
+    <div class="bar-wrapper"><div class="bar" id="q1"></div><span>Q1</span></div>
+    <div class="bar-wrapper"><div class="bar" id="q2"></div><span>Q2</span></div>
+    <div class="bar-wrapper"><div class="bar" id="q3"></div><span>Q3</span></div>
+    <div class="bar-wrapper"><div class="bar" id="q4"></div><span>Q4</span></div>
+  </div>
+</main>
 
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      appId: "YOUR_APP_ID"
-    };
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    appId: "YOUR_APP_ID"
+  };
 
-    let currentUser = null;
-    onAuthStateChanged(auth, user => {
-      if (!user) return location.href = "login.html";
-      currentUser = user;
-      loadSummary();
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  onAuthStateChanged(auth, user => {
+    if (!user) return location.href = "login.html";
+    currentUser = user;
+    loadSummary();
+  });
+
+  async function loadSummary() {
+    const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
+    const snap = await getDocs(q);
+
+    let totalIncome = 0, totalExpenses = 0, totalTax = 0, totalSaved = 0, count = 0;
+    const quarterly = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+
+    snap.forEach(doc => {
+      const d = doc.data();
+      totalIncome += d.income || 0;
+      totalExpenses += d.totalExpenses || 0;
+      totalTax += d.totalTax || 0;
+      totalSaved += (d.zzpDeductions || 0) + (d.mkbVrijstelling || 0);
+      count++;
+
+      const month = new Date(d.date).getMonth() + 1;
+      const quarter = month <= 3 ? 'Q1' : month <= 6 ? 'Q2' : month <= 9 ? 'Q3' : 'Q4';
+      quarterly[quarter] += d.netIncome || 0;
     });
 
-    async function loadSummary() {
-      const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
-      const snap = await getDocs(q);
+    document.getElementById("kpi-income").textContent = "€" + totalIncome.toFixed(2);
+    document.getElementById("kpi-expenses").textContent = "€" + totalExpenses.toFixed(2);
+    document.getElementById("kpi-tax").textContent = "€" + totalTax.toFixed(2);
+    document.getElementById("kpi-saved").textContent = "€" + totalSaved.toFixed(2);
+    document.getElementById("kpi-count").textContent = count;
 
-      let totalIncome = 0, totalExpenses = 0, totalTax = 0, totalSaved = 0, count = 0;
-      const quarterly = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
-
-      snap.forEach(doc => {
-        const d = doc.data();
-        totalIncome += d.income || 0;
-        totalExpenses += d.totalExpenses || 0;
-        totalTax += d.totalTax || 0;
-        totalSaved += (d.zzpDeductions || 0) + (d.mkbVrijstelling || 0);
-        count++;
-
-        const month = new Date(d.date).getMonth() + 1;
-        const q = month <= 3 ? 'Q1' : month <= 6 ? 'Q2' : month <= 9 ? 'Q3' : 'Q4';
-        quarterly[q] += d.netIncome || 0;
-      });
-
-      document.getElementById("kpi-income").textContent = € + totalIncome.toFixed(2);
-      document.getElementById("kpi-expenses").textContent = € + totalExpenses.toFixed(2);
-      document.getElementById("kpi-tax").textContent = € + totalTax.toFixed(2);
-      document.getElementById("kpi-saved").textContent = € + totalSaved.toFixed(2);
-      document.getElementById("kpi-count").textContent = count + " reports";
-
-      document.getElementById("q1").style.height = quarterly.Q1 / 50 + "px";
-      document.getElementById("q2").style.height = quarterly.Q2 / 50 + "px";
-      document.getElementById("q3").style.height = quarterly.Q3 / 50 + "px";
-      document.getElementById("q4").style.height = quarterly.Q4 / 50 + "px";
-    }
-
-
-  </script>
+    ["q1", "q2", "q3", "q4"].forEach(q => {
+      const height = Math.min(quarterly[q.toUpperCase()] / 50, 200); // max height cap
+      document.getElementById(q).style.height = height + "px";
+    });
+  }
+</script>
 </body>
 </html>
