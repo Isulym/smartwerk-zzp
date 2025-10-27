@@ -71,11 +71,13 @@
 });
 
   async function loadSummary() {
-  const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
+   const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
   const snap = await getDocs(q);
+     console.log("📦 Snap size:", snap.size);
+  console.log("📦 Snap empty?", snap.empty);
 
   // ✅ Якщо взагалі немає документів — одразу показуємо повідомлення
-  if (snap.empty) {
+ if (snap.size === 0) {
     const msg = document.createElement("p");
     msg.className = "no-data";
     msg.textContent = "No reports found yet. Use the Tax Calculator to generate your first report.";
