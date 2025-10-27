@@ -57,11 +57,16 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-  onAuthStateChanged(auth, user => {
-    if (!user) return location.href = "login.html";
-    currentUser = user;
-    loadSummary();
-  });
+ onAuthStateChanged(auth, user => {
+  console.log("Auth state:", user);
+  if (!user) {
+    console.warn("Redirect to login");
+    return location.href = "login.html";
+  }
+  currentUser = user;
+  console.log("Logged in as:", user.email);
+  loadSummary();
+});
 
   async function loadSummary() {
     const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
