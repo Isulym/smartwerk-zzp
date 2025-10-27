@@ -71,47 +71,50 @@
 });
 
   async function loadSummary() {
-    const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
-    const snap = await getDocs(q);
+  const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
+  const snap = await getDocs(q);
 
-    let totalIncome = 0, totalExpenses = 0, totalTax = 0, totalSaved = 0, netAfterTax = 0, count = 0;
-    const quarterly = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
-
-    snap.forEach(doc => {
-      const d = doc.data();
-      totalIncome += d.income || 0;
-      totalExpenses += d.totalExpenses || 0;
-      totalTax += d.totalTax || 0;
-      netAfterTax += d.netIncome || 0;
-      totalSaved += (d.zzpDeductions || 0) + (d.mkbVrijstelling || 0);
-      count++;
-
-      const month = new Date(d.date).getMonth() + 1;
-      const quarter = month <= 3 ? 'Q1' : month <= 6 ? 'Q2' : month <= 9 ? 'Q3' : 'Q4';
-      quarterly[quarter] += d.netIncome || 0;
-    });
-
-    document.getElementById("kpi-income").textContent = "€" + totalIncome.toFixed(2);
-    document.getElementById("kpi-expenses").textContent = "€" + totalExpenses.toFixed(2);
-    document.getElementById("kpi-tax").textContent = "€" + totalTax.toFixed(2);
-    document.getElementById("kpi-saved").textContent = "€" + totalSaved.toFixed(2);
-    document.getElementById("kpi-net").textContent = "€" + netAfterTax.toFixed(2);
-    document.getElementById("kpi-count").textContent = count;
-
-   if (snap.empty) {
-  const msg = document.createElement("p");
-  msg.className = "no-data";
-  msg.textContent = "No reports found yet. Use the Tax Calculator to generate your first report.";
-  document.querySelector("main").appendChild(msg);
-}
-
-    ["q1", "q2", "q3", "q4"].forEach(q => {
-      const height = Math.min(quarterly[q.toUpperCase()] / 50, 200);
-      const el = document.getElementById(q);
-      el.style.height = height + "px";
-      el.title = "€" + quarterly[q.toUpperCase()].toFixed(2);
-    });
+  // ✅ Якщо взагалі немає документів — одразу показуємо повідомлення
+  if (snap.empty) {
+    const msg = document.createElement("p");
+    msg.className = "no-data";
+    msg.textContent = "No reports found yet. Use the Tax Calculator to generate your first report.";
+    document.querySelector("main").appendChild(msg);
+    return; // ⛔ ВИХІД! Далі нічого не рахуємо
   }
+
+  // 🔽 Далі логіка тільки якщо документи Є:
+  let totalIncome = 0, totalExpenses = 0, totalTax = 0, totalSaved = 0, netAfterTax = 0, count = 0;
+  const quarterly = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+
+  snap.forEach(doc => {
+    const d = doc.data();
+    totalIncome += d.income || 0;
+    totalExpenses += d.totalExpenses || 0;
+    totalTax += d.totalTax || 0;
+    netAfterTax += d.netIncome || 0;
+    totalSaved += (d.zzpDeductions || 0) + (d.mkbVrijstelling || 0);
+    count++;
+
+    const month = new Date(d.date).getMonth() + 1;
+    const quarter = month <= 3 ? 'Q1' : month <= 6 ? 'Q2' : month <= 9 ? 'Q3' : 'Q4';
+    quarterly[quarter] += d.netIncome || 0;
+  });
+
+  document.getElementById("kpi-income").textContent = "€" + totalIncome.toFixed(2);
+  document.getElementById("kpi-expenses").textContent = "€" + totalExpenses.toFixed(2);
+  document.getElementById("kpi-tax").textContent = "€" + totalTax.toFixed(2);
+  document.getElementById("kpi-saved").textContent = "€" + totalSaved.toFixed(2);
+  document.getElementById("kpi-net").textContent = "€" + netAfterTax.toFixed(2);
+  document.getElementById("kpi-count").textContent = count;
+
+  ["q1", "q2", "q3", "q4"].forEach(q => {
+    const height = Math.min(quarterly[q.toUpperCase()] / 50, 200);
+    const el = document.getElementById(q);
+    el.style.height = height + "px";
+    el.title = "€" + quarterly[q.toUpperCase()].toFixed(2);
+  });
+}
 </script>
 </body>
 </html>
