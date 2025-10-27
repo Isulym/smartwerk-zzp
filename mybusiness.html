@@ -13,7 +13,6 @@
   <button onclick="location.href='dashboard.html'">← Back to Dashboard</button>
 </nav>
 
-
 <main>
   <h1>📊 My Business Dashboard</h1>
 
@@ -46,27 +45,28 @@
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    appId: "YOUR_APP_ID"
-  };
+      apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+      authDomain: "smartwerk8520.firebaseapp.com",
+      projectId: "smartwerk8520",
+      appId: "1:607670981972:web:c07103c981c86860d724c1",
+    };
 
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, user => {
-  console.log("Auth state:", user);
-  if (!user) {
-    console.warn("Redirect to login");
-    return location.href = "login.html";
-  }
-  currentUser = user;
-  console.log("Logged in as:", user.email);
-  loadSummary();
-});
+
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      console.warn("Not logged in. Redirecting...");
+      location.href = "login.html";
+      return;
+    }
+
+    currentUser = user;
+    loadSummary();
+  });
 
   async function loadSummary() {
     const q = query(collection(db, "users", currentUser.uid, "tax_calculations"), orderBy("date", "desc"));
@@ -84,21 +84,23 @@
       count++;
 
       const month = new Date(d.date).getMonth() + 1;
-      const quarter = month <= 3 ? 'Q1' : month <= 6 ? 'Q2' : month <= 9 ? 'Q3' : 'Q4';
-      quarterly[quarter] += d.netIncome || 0;
+      const q = month <= 3 ? "Q1" : month <= 6 ? "Q2" : month <= 9 ? "Q3" : "Q4";
+      quarterly[q] += d.netIncome || 0;
     });
 
     document.getElementById("kpi-income").textContent = "€" + totalIncome.toFixed(2);
     document.getElementById("kpi-expenses").textContent = "€" + totalExpenses.toFixed(2);
     document.getElementById("kpi-tax").textContent = "€" + totalTax.toFixed(2);
     document.getElementById("kpi-saved").textContent = "€" + totalSaved.toFixed(2);
-    document.getElementById("kpi-count").textContent = count;
+    document.getElementById("kpi-count").textContent = count + " reports";
 
     ["q1", "q2", "q3", "q4"].forEach(q => {
-      const height = Math.min(quarterly[q.toUpperCase()] / 50, 200); // max height cap
+      const value = quarterly[q.toUpperCase()];
+      const height = Math.min(value / 50, 200); // max height = 200px
       document.getElementById(q).style.height = height + "px";
     });
   }
 </script>
+
 </body>
 </html>
