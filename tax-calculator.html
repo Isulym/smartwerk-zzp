@@ -19,6 +19,19 @@
     <p class="info">
   📌 After the calculation, you can export the report or submit the declaration manually via
   <a href="https://mijn.belastingdienst.nl" target="_blank">Belastingdienst</a>.
+      <!-- 📖 Button to open the Tax Submission Guide -->
+<button id="btn-tax-guide" style="
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-top: 10px;
+">
+  📖 Open Tax Submission Guide
+</button>
 </p>
   </nav>
 </div>
@@ -878,7 +891,9 @@ document.getElementById("btn-clear-history")?.addEventListener("click", () => {
 document.getElementById("btn-load-history")?.addEventListener("click", () => {
   loadHistory();
 });
-
+document.getElementById("btn-tax-guide")?.addEventListener("click", () => {
+    window.open("tax-guide.html", "_blank");
+  });
 
     // Показати повідомлення
 // ✅ Прив’язуємо до кнопки обидві дії
