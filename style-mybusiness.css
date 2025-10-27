@@ -1,140 +1,165 @@
-/* Reset & base */
-body {
+/* ===== Base Reset ===== */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f7f9fb;
-  color: #1a1a1a;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
   line-height: 1.6;
+  padding: 0 1rem;
 }
 
-main {
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
-}
-
-/* Navigation bar */
+/* ===== Navigation ===== */
 .nav-bar {
-  background-color: #ffffff;
-  border-bottom: 1px solid #ddd;
-  padding: 12px 20px;
   display: flex;
-  justify-content: flex-start;
   gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+  background-color: #1e1e1e;
 }
 
 .nav-bar button {
-  background-color: #eef2f6;
-  border: none;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
   padding: 8px 14px;
   border-radius: 6px;
-  cursor: pointer;
   font-size: 14px;
+  cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .nav-bar button:hover {
-  background-color: #d9e2ec;
+  background-color: #333;
 }
 
-/* Heading */
+/* ===== Main Layout ===== */
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-bottom: 3rem;
+}
+
 h1 {
-  font-size: 26px;
-  margin-bottom: 10px;
+  font-size: 1.8rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
 .intro {
-  font-size: 15px;
-  color: #444;
-  margin-bottom: 20px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #bbb;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* KPI cards */
+/* ===== KPIs Grid ===== */
 .kpis {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .kpi {
-  background-color: #fff;
-  border: 1px solid #e1e4e8;
+  background-color: #1f1f1f;
+  padding: 1rem;
   border-radius: 10px;
-  padding: 15px 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  border: 1px solid #2d2d2d;
   text-align: center;
-  transition: 0.3s;
+  transition: 0.3s ease-in-out;
 }
 
 .kpi:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border-color: #444;
 }
 
 .kpi h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #333;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  color: #fafafa;
 }
 
 .kpi p {
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: bold;
-  margin: 8px 0;
-  color: #2c3e50;
+  margin-bottom: 0.2rem;
+  color: #64ffda;
 }
 
 .kpi small {
-  font-size: 13px;
-  color: #777;
+  font-size: 0.8rem;
+  color: #888;
 }
 
-/* Bar chart */
+/* ===== Bar Chart ===== */
 .bar-chart {
-  background-color: #fff;
-  border: 1px solid #e1e4e8;
+  background-color: #1f1f1f;
+  padding: 1.2rem;
   border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  border: 1px solid #2d2d2d;
 }
 
 .bar-chart h2 {
-  font-size: 20px;
-  margin-bottom: 20px;
-  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .bar-wrapper {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 15px;
+  margin: 0 10px;
 }
 
 .bar {
-  width: 40px;
-  background: linear-gradient(to top, #50c9c3, #96deda);
+  width: 36px;
+  background: linear-gradient(to top, #00bcd4, #64ffda);
   border-radius: 6px 6px 0 0;
-  margin-bottom: 8px;
-  transition: height 0.6s ease;
+  transition: height 0.5s ease;
+  margin-bottom: 0.4rem;
 }
 
 .bar-wrapper span {
-  font-size: 14px;
-  color: #555;
+  font-size: 0.85rem;
+  color: #ccc;
 }
 
-/* No data message */
+/* ===== No Reports Message ===== */
 .no-data {
-  text-align: center;
-  color: #888;
-  background: #fffbe6;
-  padding: 14px;
-  border: 1px dashed #ffc107;
-  margin-top: 30px;
+  background: #2b2b2b;
+  color: #ffcc00;
+  padding: 1rem;
   border-radius: 8px;
-  font-size: 15px;
+  margin-top: 2rem;
+  border: 1px dashed #ffcc00;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+/* ===== Responsive ===== */
+@media (min-width: 600px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bar-chart {
+    text-align: center;
+  }
 }
