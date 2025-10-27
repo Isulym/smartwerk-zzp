@@ -1,84 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk Tax Report Guide</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartWerk Tax Declaration Guide</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f9f9f9;
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      line-height: 1.6;
       color: #333;
-      padding: 2rem;
-      max-width: 800px;
-      margin: auto;
     }
-    h1 {
-      color: #2c3e50;
+    h1, h2, h3 {
+      color: #005ea5;
     }
-    h2 {
-      margin-top: 2rem;
-      color: #34495e;
-    }
-    p {
-      margin: 0.5rem 0;
-    }
-    ul {
-      padding-left: 1.2rem;
-    }
-    .disclaimer {
+    .note {
       background: #fff3cd;
-      color: #856404;
+      border-left: 6px solid #ffeeba;
       padding: 1rem;
-      border-left: 5px solid #ffeeba;
-      margin-top: 2rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
-    .footer {
-      font-size: 0.9rem;
-      color: #666;
-      margin-top: 3rem;
-      text-align: center;
+    code {
+      background: #f4f4f4;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.75rem;
+    }
+    th {
+      background-color: #f2f2f2;
     }
   </style>
 </head>
 <body>
-  <h1>SmartWerk Tax Report Guide</h1>
+  <h1>SmartWerk Tax Declaration Guide</h1>
 
-  <div class="disclaimer">
-    <strong>Note:</strong> This report is not an official tax ruling from Belastingdienst. It serves as a <strong>helper summary</strong> to assist freelancers and small businesses in the Netherlands with submitting their tax declaration manually.
+  <div class="note">
+    <strong>⚠️ This is not an official tax ruling.</strong><br>
+    This document serves as a support tool for preparing and submitting your declaration to the Belastingdienst (Dutch Tax Authority).
   </div>
 
-  <h2>How to use</h2>
+  <h2>📅 Period Covered</h2>
+  <p>This report is based on the data you entered for the selected period. Please ensure the <strong>Period</strong> field in the calculator is correct:</p>
   <ul>
-    <li>Use the calculator to estimate your taxes for a given period (month or full calendar year).</li>
-    <li>Click <strong>“Download for Belastingdienst”</strong> to get a PDF report.</li>
-    <li>This PDF can be shared with your accountant or used as a support document when submitting your declaration.</li>
+    <li><code>01-01-2025 to 31-12-2025</code> (Full Calendar Year)</li>
+    <li>or quarterly period: Q1, Q2, Q3, Q4</li>
   </ul>
 
-  <h2>What's included in the report</h2>
+  <h2>💶 What This Report Includes</h2>
   <ul>
-    <li><strong>Gross Income</strong> — Total earnings before tax (hours × hourly rate).</li>
-    <li><strong>Total Expenses</strong> — Business-related deductions that reduce your taxable profit.</li>
-    <li><strong>ZZP Deductions</strong> — Special tax deductions for self-employed (zelfstandigenaftrek & startersaftrek).</li>
-    <li><strong>MKB Vrijstelling</strong> — Small business exemption (12.7% of remaining profit after ZZP deductions).</li>
-    <li><strong>Final Taxable Income</strong> — The amount you are taxed on.</li>
-    <li><strong>Income Tax</strong> — Based on progressive Dutch income tax brackets.</li>
-    <li><strong>ZVW</strong> — Healthcare contribution (5.32%).</li>
-    <li><strong>BTW</strong> — VAT to be paid unless KOR exemption is used.</li>
-    <li><strong>Net Income</strong> — Your final income after all taxes are subtracted.</li>
+    <li><strong>Gross Income</strong> – Total income based on hours × rate</li>
+    <li><strong>Business Expenses</strong> – Deductible costs: Vehicle, Office, Internet, Marketing, Other</li>
+    <li><strong>Taxable Profit</strong> – Income minus expenses</li>
+    <li><strong>ZZP Deductions</strong> – Self-employed tax relief (Zelfstandigenaftrek, Startersaftrek)</li>
+    <li><strong>MKB Exemption</strong> – 12.7% discount for small businesses</li>
+    <li><strong>Final Taxable Income</strong> – The amount used to calculate income tax</li>
+    <li><strong>Income Tax</strong> – Based on Dutch rates (19% up to €200,000; 25.8% above)</li>
+    <li><strong>ZVW</strong> – Health insurance contribution (5.32%)</li>
+    <li><strong>BTW (VAT)</strong> – Added unless KOR is applied</li>
+    <li><strong>Total Estimated Tax</strong></li>
+    <li><strong>Net Income After Tax</strong></li>
+    <li><strong>KvK Number / IBAN / Contact Info</strong></li>
+  </ul>
+  <p><em>All values are shown in EUR (€) with two decimal places.</em></p>
+
+  <h2>📊 Additional Notes</h2>
+  <ul>
+    <li><strong>KOR (kleineondernemersregeling):</strong> If applied, VAT = €0.00</li>
+    <li><strong>ZZP Deduction:</strong> Applied if KvK is valid and minimum 1225 hours confirmed</li>
+    <li><strong>MKB Exemption:</strong> Automatically calculated if ZZP eligible</li>
   </ul>
 
-  <h2>Important notes</h2>
+  <h2>🚤 How to Use This Report</h2>
+  <ol>
+    <li>📧 Share the PDF with your tax advisor or accountant</li>
+    <li>📤 Upload it while completing your declaration at:
+      <ul>
+        <li><a href="https://mijn.belastingdienst.nl" target="_blank">Mijn Belastingdienst Zakelijk</a></li>
+      </ul>
+    </li>
+    <li>📋 Use values in:
+      <ul>
+        <li>Income Tax Declaration (Inkomstenbelasting)</li>
+        <li>VAT Declaration (BTW-aangifte), if applicable</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2>⏰ Declaration Deadlines</h2>
+  <table>
+    <tr><th>Period</th><th>Suggested Deadline</th></tr>
+    <tr><td>Q1 (Jan–Mar)</td><td>April 30</td></tr>
+    <tr><td>Q2 (Apr–Jun)</td><td>July 31</td></tr>
+    <tr><td>Q3 (Jul–Sep)</td><td>October 31</td></tr>
+    <tr><td>Q4 (Oct–Dec)</td><td>January 31 (next year)</td></tr>
+    <tr><td>Full Year</td><td>Before May 1</td></tr>
+  </table>
+
+  <h2>🔖 File Naming Recommendation</h2>
+  <p><code>Belasting_Aangifte_SmartWerk_2025.pdf</code></p>
+
+  <h2>📆 Report Metadata</h2>
   <ul>
-    <li>If KOR (kleineondernemersregeling) is applied, your BTW (VAT) is set to €0.00 in the report.</li>
-    <li>Make sure the period (e.g., January–December 2025) is filled out clearly in the form before exporting the PDF.</li>
-    <li>All values are shown in euros (€) and rounded to two decimal places.</li>
+    <li><strong>Date:</strong> Automatically generated inside the PDF</li>
+    <li><strong>Version:</strong> SmartWerk Tax Calculator v2.0</li>
   </ul>
 
-  <div class="footer">
-    SmartWerk Tax Calculator — version 2.0<br/>
-    Generated on 2025-10-26
-  </div>
+  <h2>❌ Disclaimer</h2>
+  <p>This document is a supportive estimate, not an official ruling. Always consult your advisor before submission.</p>
+
+  <hr>
+  <p><strong>SmartWerk — Empowering Self-Employed in the Netherlands</strong></p>
 </body>
 </html>
