@@ -17,11 +17,11 @@
   <h1>📊 My Business Dashboard</h1>
 
   <section class="kpis">
-    <div><h3>Total Income</h3><p id="kpi-income">€0.00</p></div>
-    <div><h3>Total Expenses</h3><p id="kpi-expenses">€0.00</p></div>
-    <div><h3>Total Tax</h3><p id="kpi-tax">€0.00</p></div>
-    <div><h3>Tax Savings</h3><p id="kpi-saved">€0.00</p></div>
-    <div><h3>Reports</h3><p id="kpi-count">0</p></div>
+    <div class="kpi"><h3>Total Income</h3><p id="kpi-income">€0.00</p><small>All gross income entries</small></div>
+    <div class="kpi"><h3>Total Expenses</h3><p id="kpi-expenses">€0.00</p><small>Vehicle, Office, Internet, etc.</small></div>
+    <div class="kpi"><h3>Total Tax</h3><p id="kpi-tax">€0.00</p><small>Income Tax + ZVW + BTW</small></div>
+    <div class="kpi"><h3>Tax Savings</h3><p id="kpi-saved">€0.00</p><small>ZZP + MKB deductions</small></div>
+    <div class="kpi"><h3>Reports</h3><p id="kpi-count">0</p><small>Total saved calculations</small></div>
   </section>
 
   <h2>📅 Quarterly Net Income</h2>
@@ -56,14 +56,8 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-
   onAuthStateChanged(auth, user => {
-    if (!user) {
-      console.warn("Not logged in. Redirecting...");
-      location.href = "login.html";
-      return;
-    }
-
+    if (!user) return location.href = "login.html";
     currentUser = user;
     loadSummary();
   });
@@ -84,23 +78,23 @@
       count++;
 
       const month = new Date(d.date).getMonth() + 1;
-      const q = month <= 3 ? "Q1" : month <= 6 ? "Q2" : month <= 9 ? "Q3" : "Q4";
-      quarterly[q] += d.netIncome || 0;
+      const quarter = month <= 3 ? 'Q1' : month <= 6 ? 'Q2' : month <= 9 ? 'Q3' : 'Q4';
+      quarterly[quarter] += d.netIncome || 0;
     });
 
     document.getElementById("kpi-income").textContent = "€" + totalIncome.toFixed(2);
     document.getElementById("kpi-expenses").textContent = "€" + totalExpenses.toFixed(2);
     document.getElementById("kpi-tax").textContent = "€" + totalTax.toFixed(2);
     document.getElementById("kpi-saved").textContent = "€" + totalSaved.toFixed(2);
-    document.getElementById("kpi-count").textContent = count + " reports";
+    document.getElementById("kpi-count").textContent = count;
 
     ["q1", "q2", "q3", "q4"].forEach(q => {
-      const value = quarterly[q.toUpperCase()];
-      const height = Math.min(value / 50, 200); // max height = 200px
-      document.getElementById(q).style.height = height + "px";
+      const height = Math.min(quarterly[q.toUpperCase()] / 50, 200);
+      const el = document.getElementById(q);
+      el.style.height = height + "px";
+      el.title = "€" + quarterly[q.toUpperCase()].toFixed(2);
     });
   }
 </script>
-
 </body>
 </html>
