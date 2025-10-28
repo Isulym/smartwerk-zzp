@@ -21,28 +21,30 @@
     <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
-      <input id="businessName" placeholder="Business Name"/>
-      <input id="kvk" placeholder="KvK Number"/>
-      <input id="iban" placeholder="IBAN"/>
-      <input id="btw" placeholder="BTW"/>
-      <input id="email" placeholder="Business Email"/>
-      <input id="businessAddress" placeholder="Business Address"/>
-      <input id="businessPhone" placeholder="Business Phone"/>
+      <input id="businessName" name="businessName" placeholder="Business Name" autocomplete="organization"/>
+      <input id="kvk" name="kvk" placeholder="KvK Number" autocomplete="off"/>
+      <input id="iban" name="iban" placeholder="IBAN" autocomplete="iban"/>
+      <input id="btw" name="btw" placeholder="BTW" autocomplete="off"/>
+      <input id="email" name="email" placeholder="Business Email" autocomplete="email"/>
+      <input id="businessAddress" name="businessAddress" placeholder="Business Address" autocomplete="street-address"/>
+      <input id="businessPhone" name="businessPhone" placeholder="Business Phone" autocomplete="tel"/>
+
     </section>
 
     <!-- Client Info -->
     <section>
       <h2>👤 Client Info</h2>
-      <input id="clientName" placeholder="Client Name"/>
-      <input id="clientEmail" placeholder="Client Email"/>
-      <input id="clientPhone" placeholder="Client Phone"/>
-      <input id="clientAddress" placeholder="Client Address"/>
+      <input id="clientName" name="clientName" placeholder="Client Name" autocomplete="name"/>
+      <input id="clientEmail" name="clientEmail" placeholder="Client Email" autocomplete="email"/>
+      <input id="clientPhone" name="clientPhone" placeholder="Client Phone" autocomplete="tel"/>
+      <input id="clientAddress" name="clientAddress" placeholder="Client Address" autocomplete="street-address"/>
 
-      <input id="quoteDate" class="js-date" placeholder="YYYY-MM-DD">
-      <input id="validUntil" class="js-date" placeholder="Valid Until">
+      <input id="quoteDate" name="quoteDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off"/>
+      <input id="validUntil" name="validUntil" class="js-date" placeholder="Valid Until" autocomplete="off"/>
 
-      <input id="quoteNumber" readonly placeholder="Quote Number"/>
-      <select id="status">
+
+      <input id="quoteNumber" name="quoteNumber" readonly placeholder="Quote Number" autocomplete="off"/>
+        <select id="status" name="status" autocomplete="off">
         <option value="Draft">Draft</option>
         <option value="Sent">Sent</option>
         <option value="Accepted">Accepted</option>
@@ -68,7 +70,7 @@
       <p>Subtotal: <span id="subtotal">€0.00</span></p>
       <p>Total VAT: <span id="totalVat">€0.00</span></p>
       <p>Total: <span id="grandTotal">€0.00</span></p>
-      <textarea id="note" placeholder="Notes..."></textarea>
+      <textarea id="note" name="note" placeholder="Notes..." autocomplete="off"></textarea>
     </section>
 
     <!-- Signatures -->
@@ -122,27 +124,30 @@
     const $ = (id) => document.getElementById(id);
 
     /* ITEMS */
-    function addItem(desc="", qty=1, price=0, vat=21){
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
-        <td><input class="desc" value="${desc}"/></td>
-        <td><input class="qty" type="number" value="${qty}"/></td>
-        <td><input class="price" type="number" value="${price}"/></td>
-        <td>
-          <select class="vat">
-            <option value="0">0</option>
-            <option value="9"${vat==9?" selected":""}>9</option>
-            <option value="21"${vat==21?" selected":""}>21</option>
-          </select>
-        </td>
-        <td class="item-total">€0.00</td>
-        <td><button type="button" class="btn-del">❌</button></td>
-      `;
-      tr.querySelectorAll("input,select").forEach(el=>el.addEventListener("input",updateTotals));
-      tr.querySelector(".btn-del").addEventListener("click",()=>{tr.remove();updateTotals();});
-      $("itemsBody").appendChild(tr);
-      updateTotals();
-    }
+   function addItem(desc = "", qty = 1, price = 0, vat = 21) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input class="desc" name="itemDesc[]" value="${desc}" autocomplete="off" /></td>
+    <td><input class="qty" name="itemQty[]" type="number" value="${qty}" autocomplete="off" /></td>
+    <td><input class="price" name="itemPrice[]" type="number" value="${price}" autocomplete="off" /></td>
+    <td>
+      <select class="vat" name="itemVat[]" autocomplete="off">
+        <option value="0"${vat == 0 ? " selected" : ""}>0</option>
+        <option value="9"${vat == 9 ? " selected" : ""}>9</option>
+        <option value="21"${vat == 21 ? " selected" : ""}>21</option>
+      </select>
+    </td>
+    <td class="item-total">€0.00</td>
+    <td><button type="button" class="btn-del">❌</button></td>
+  `;
+  tr.querySelectorAll("input,select").forEach(el => el.addEventListener("input", updateTotals));
+  tr.querySelector(".btn-del").addEventListener("click", () => {
+    tr.remove();
+    updateTotals();
+  });
+  $("itemsBody").appendChild(tr);
+  updateTotals();
+}
     window.addItem=addItem;
 
     function updateTotals(){
