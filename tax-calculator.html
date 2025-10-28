@@ -557,7 +557,7 @@ ${payload.reportingNotes ? `Notes: ${payload.reportingNotes}` : ''}`;
   // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
 
 // ---------- XLSX export ----------
-function exportToExcel() {
+window.exportToExcel = function exportToExcel() {
   const T = id => (document.getElementById(id)?.textContent || "").trim();
   const V = id => (document.getElementById(id)?.value || "").trim();
 
