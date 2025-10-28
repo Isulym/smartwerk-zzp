@@ -603,7 +603,7 @@ function exportExcel() {
 }
   
 
-function exportPDF(){
+function exportPDF() {
   const doc = new jsPDF();
   const today = new Date().toLocaleDateString("en-GB");
   let y = 20;
@@ -612,61 +612,66 @@ function exportPDF(){
   const V = id => Safe.val(id).trim();
 
   doc.setFontSize(16);
-  doc.text("Belasting Aangifte Summary", 15, y);
+  doc.text("SmartWerk – Belasting Aangifte Summary", 15, y);
   doc.setFontSize(10);
-  doc.text(`Generated on: ${today}`, 160, y, { align: "right" }); 
+  doc.text(`Generated on: ${today}`, 200, y, { align: "right" }); 
   y += 10;
 
-  // 📌 Contact block
+  // 📌 Business Info
   doc.setFontSize(12);
-  doc.text("Business Info", 15, y); y += 7;
+  doc.text("🧾 Business Information", 15, y); y += 7;
   doc.setFontSize(10);
-  [
-    `Business Name: ${V("businessName")}`,
-    `Period: ${V("period")}`,
-    `KvK Number: ${V("kvk")}`,
-    `BTW Number: ${V("btw")}`,
-    `IBAN: ${V("iban")}`,
-    `Business Email: ${V("email")}`,
-    `Business Phone: ${V("businessPhone")}`,
-    `Hours Worked: ${V("hoursWorked")}`,
-    `Hourly Rate: €${V("hourlyRate")}`,
-    `Declared Income: €${V("income")}`
-  ].forEach(line => { doc.text(line, 15, y); y += 5; });
-
-  y += 8;
-
-  // 📊 Calculation summary
-  doc.setFontSize(12);
-  doc.text("Calculation Breakdown", 15, y); y += 7;
-  doc.setFontSize(10);
-  const summaryItems = [
-    [`Gross Income`, T("grossIncome"), "Total business income"],
-    [`Total Expenses`, T("totalExpenses"), "Deductible costs (vehicle, office, etc.)"],
-    [`Taxable Profit`, T("taxableProfit"), "Income minus expenses"],
-    [`ZZP Deductions`, T("zzpDeductions"), "Self-employed tax benefits"],
-    [`MKB Exemption (12.7%)`, T("mkbVrijstelling"), "Small business exemption"],
-    [`Final Taxable Income`, T("finalTaxable"), "Profit after ZZP and MKB discounts"],
-    [`Income Tax`, T("incomeTax"), "Based on Dutch income brackets"],
-    [`ZVW (5.32%)`, T("zvwAmount"), "Health insurance contribution"],
-    [`BTW (VAT)`, T("btwAmount"), "Only if KOR not applied"],
-    [`Total Estimated Tax`, T("totalTax"), "Combined tax amount"],
-    [`Net Income After Tax`, T("netIncome"), "Final profit after taxes"],
-    [`You Saved (ZZP + MKB)`, T("totalSavings"), "Total tax savings applied"]
+  const businessInfo = [
+    [`Business Name`, V("businessName")],
+    [`Period`, V("period")],
+    [`KvK Number`, V("kvk")],
+    [`BTW Number`, V("btw")],
+    [`IBAN`, V("iban")],
+    [`Business Email`, V("email")],
+    [`Business Phone`, V("businessPhone")],
+    [`Hours Worked`, V("hoursWorked")],
+    [`Hourly Rate`, `€${V("hourlyRate")}`],
+    [`Declared Income`, `€${V("income")}`]
   ];
-
-  summaryItems.forEach(([label, value, explanation]) => {
-    doc.text(`${label}: €${value}`, 15, y);
-    doc.text(`(${explanation})`, 90, y);
+  businessInfo.forEach(([label, value]) => {
+    doc.text(`${label}:`, 15, y);
+    doc.text(value, 80, y);
     y += 6;
   });
 
-  // 📝 Reporting notes
+  y += 6;
+
+  // 📊 Calculation Summary
+  doc.setFontSize(12);
+  doc.text("📊 Calculation Breakdown", 15, y); y += 7;
+  doc.setFontSize(10);
+  const calc = [
+    [`Gross Income`, T("grossIncome"), "All business income"],
+    [`Total Expenses`, T("totalExpenses"), "Deductible costs"],
+    [`Taxable Profit`, T("taxableProfit"), "Income minus expenses"],
+    [`ZZP Deductions`, T("zzpDeductions"), "Self-employed benefit"],
+    [`MKB Exemption`, T("mkbVrijstelling"), "Small business discount"],
+    [`Final Taxable Income`, T("finalTaxable"), "Taxable after deductions"],
+    [`Income Tax`, T("incomeTax"), "Based on Dutch rates"],
+    [`ZVW (5.32%)`, T("zvwAmount"), "Health insurance contribution"],
+    [`BTW (VAT)`, T("btwAmount"), "If not using KOR"],
+    [`Total Estimated Tax`, T("totalTax"), "Combined tax amount"],
+    [`Net Income After Tax`, T("netIncome"), "Final after all tax"],
+    [`You Saved (ZZP + MKB)`, T("totalSavings"), "Total tax savings"]
+  ];
+  calc.forEach(([label, val, comment]) => {
+    doc.text(`${label}:`, 15, y);
+    doc.text(`€${val}`, 80, y);
+    doc.text(`(${comment})`, 120, y);
+    y += 6;
+  });
+
+  // 📝 Notes
   const notes = V("reportingNotes");
   if (notes) {
     y += 8;
     doc.setFontSize(12);
-    doc.text("Reporting Notes", 15, y); y += 7;
+    doc.text("📝 Reporting Notes", 15, y); y += 6;
     doc.setFontSize(10);
     const lines = doc.splitTextToSize(notes, 180);
     lines.forEach(line => { doc.text(line, 15, y); y += 5; });
@@ -677,22 +682,26 @@ function exportPDF(){
   if (capNote){
     y += 8;
     doc.setFontSize(12);
-    doc.text("System Note", 15, y); y += 7;
+    doc.text("⚠️ System Notes", 15, y); y += 6;
     doc.setFontSize(10);
     doc.splitTextToSize(capNote, 180).forEach(row => { doc.text(row, 15, y); y += 5; });
   }
 
-  // ⚠️ Disclaimer
+  // 📎 Signature
   y += 10;
   doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text("⚠️ This document is a supportive summary for Belastingdienst submission.", 15, y); y += 5;
-  doc.text("It does not represent an official tax decision. Double-check with your accountant.", 15, y); y += 5;
+  doc.text("Signature: __________________________", 15, y); y += 8;
+
+  // Footer
+  doc.setTextColor(120);
+  doc.setFontSize(9);
+  doc.text("This document is a supportive summary for Belastingdienst submission.", 15, y); y += 4;
+  doc.text("It does not represent an official tax decision. Always verify with your accountant.", 15, y); y += 4;
   doc.text("SmartWerk Tax Calculator v2.0", 15, y);
 
-  // Save with naming suggestion
-  const period = V("period").replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
-  doc.save(`Belasting_Aangifte_SmartWerk_${period || today}.pdf`);
+  // Save
+  const fileName = `Belasting_Aangifte_SmartWerk_${V("period").replace(/\s+/g, "_")}.pdf`;
+  doc.save(fileName);
 }
 
   
