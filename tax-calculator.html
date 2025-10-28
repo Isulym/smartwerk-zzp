@@ -619,7 +619,7 @@ function exportPDF() {
 
   // 📌 Business Info
   doc.setFontSize(12);
-  doc.text("🧾 Business Information", 15, y); y += 7;
+  doc.text("Business Information", 15, y); y += 7;
   doc.setFontSize(10);
   const businessInfo = [
     [`Business Name`, V("businessName")],
@@ -643,7 +643,7 @@ function exportPDF() {
 
   // 📊 Calculation Summary
   doc.setFontSize(12);
-  doc.text("📊 Calculation Breakdown", 15, y); y += 7;
+  doc.text("Calculation Breakdown", 15, y); y += 7;
   doc.setFontSize(10);
   const calc = [
     [`Gross Income`, T("grossIncome"), "All business income"],
