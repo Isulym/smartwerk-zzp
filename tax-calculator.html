@@ -186,7 +186,7 @@
     <div class="button-group">
       <button id="btn-calc" class="button-primary">🔁 Calculate Tax</button>
       <button id="exportPDF" class="button-secondary">🧾 Export as PDF</button>
-      <button id="btn-xlsx" type="button">📊 Export as Excel</button>
+      <button id="exportToExcel" type="button">📊 Export as Excel</button>
       <button id="btn-load-history">🔄 Update History</button>
       <div id="calcStatus" style="margin-top:10px;color:green;display:none;"></div>   
       <button id="btn-clear-history" class="btn ghost small">🧹 Clear History</button>
@@ -556,49 +556,45 @@ ${payload.reportingNotes ? `Notes: ${payload.reportingNotes}` : ''}`;
   // ... твої інші функції: autoCalcIncome(), calculateTax(), exportPDF() ...
 
 // ---------- XLSX export ----------
-function exportExcel() {
-  // на всякий випадок — порахувати підсумки перед експортом
-  try { if (typeof calculateTax === 'function') calculateTax(); } catch(e){}
+function exportToExcel() {
+  const T = id => (document.getElementById(id)?.textContent || "").trim();
+  const V = id => (document.getElementById(id)?.value || "").trim();
 
-  const v = id => (document.getElementById(id)?.value ?? "").toString().trim();
-  const t = id => (document.getElementById(id)?.textContent ?? "").toString().trim();
-
-  // 1) Формуємо дані ДЛЯ ЕКСПОРТУ (ЦЕЙ масив і є "data")
   const data = [
-    ["SmartWerk Tax Report"], [],
-    ["Company", v("businessName")],
-    ["Email / Phone", v("email")],
-    ["Period", v("period")],
-    ["Hours Worked", v("hoursWorked")],
-    ["Hourly Rate (€)", v("hourlyRate")],
-    ["Total Income (€)", v("income")],
-    ["KvK Number", v("kvk")],
-    ["VAT Number", v("btw")],
-    ["IBAN", v("iban")],
-    ["Contact Person", v("businessPhone")],
-    [],
-    ["Gross Income (€)", t("grossIncome")],
-    ["Total Expenses (€)", t("totalExpenses")],
-    ["Taxable Profit (€)", t("taxableProfit")],
-    ["ZZP Deductions (€)", t("zzpDeductions")],
-    ["MKB Exemption (€)", t("mkbVrijstelling")],
-    ["Final Taxable Income (€)", t("finalTaxable")],
-    ["Income Tax (€)", t("incomeTax")],
-    ["ZVW (5.32%) (€)", t("zvwAmount")],
-    ["BTW Amount (€)", t("btwAmount")],
-    ["Total Estimated Tax (€)", t("totalTax")],
-    [],
-    ["Reporting Notes", v("reportingNotes")]
+    ["SmartWerk – Belasting Aangifte Summary"], [],
+    ["Generated on", new Date().toLocaleDateString("en-GB")], [],
+    ["Business Info"],
+    ["Business Name", V("businessName")],
+    ["Period", V("period")],
+    ["KvK Number", V("kvk")],
+    ["BTW Number", V("btw")],
+    ["IBAN", V("iban")],
+    ["Business Email", V("email")],
+    ["Business Phone", V("businessPhone")],
+    ["Hours Worked", V("hoursWorked")],
+    ["Hourly Rate (€)", V("hourlyRate")],
+    ["Declared Income (€)", V("income")], [],
+    ["Calculation Breakdown"],
+    ["Gross Income",         `€${T("grossIncome")}`],
+    ["Total Expenses",       `€${T("totalExpenses")}`],
+    ["Taxable Profit",       `€${T("taxableProfit")}`],
+    ["ZZP Deductions",       `€${T("zzpDeductions")}`],
+    ["MKB Exemption",        `€${T("mkbVrijstelling")}`],
+    ["Final Taxable Income", `€${T("finalTaxable")}`],
+    ["Income Tax",           `€${T("incomeTax")}`],
+    ["ZVW (5.32%)",          `€${T("zvwAmount")}`],
+    ["BTW (VAT)",            `€${T("btwAmount")}`],
+    ["Total Estimated Tax",  `€${T("totalTax")}`],
+    ["Net Income After Tax", `€${T("netIncome")}`],
+    ["You Saved (ZZP + MKB)",`€${T("totalSavings")}`], [],
+    ["Reporting Notes", V("reportingNotes")],
+    ["System Note", (document.getElementById("capWarning")?.textContent || "").trim()]
   ];
 
-  // 2) Аркуш і книга
   const ws = XLSX.utils.aoa_to_sheet(data);
-  ws["!cols"] = [{wch:26},{wch:28}];
-
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Tax Report");
+  XLSX.utils.book_append_sheet(wb, ws, "Tax_Report");
 
-  // 3) Зберегти файл
   XLSX.writeFile(wb, "SmartWerk_Tax_Report.xlsx");
 }
   
