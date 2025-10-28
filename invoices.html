@@ -160,17 +160,17 @@
     const $ = (id) => document.getElementById(id);
 
     /* ========== ITEMS & TOTALS ========== */
-   function addItem(desc="", qty=1, price=0, vat=21){
+   function addItem(desc = "", qty = 1, price = 0, vat = 21) {
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td><input class="desc" name="itemDesc[]" value="${desc}"/></td>
-    <td><input class="qty" name="itemQty[]" type="number" value="${qty}" min="1"/></td>
-    <td><input class="price" name="itemPrice[]" type="number" value="${price}" step="0.01"/></td>
+    <td><input class="desc" name="itemDesc[]" value="${desc}" /></td>
+    <td><input class="qty" name="itemQty[]" type="number" value="${qty}" min="1" /></td>
+    <td><input class="price" name="itemPrice[]" type="number" value="${price}" step="0.01" /></td>
     <td>
       <select class="vat" name="itemVat[]">
-        <option value="0"${vat==0?" selected":""}>0</option>
-        <option value="9"${vat==9?" selected":""}>9</option>
-        <option value="21"${vat==21?" selected":""}>21</option>
+        <option value="0"${vat == 0 ? " selected" : ""}>0</option>
+        <option value="9"${vat == 9 ? " selected" : ""}>9</option>
+        <option value="21"${vat == 21 ? " selected" : ""}>21</option>
       </select>
     </td>
     <td class="item-total">€0.00</td>
@@ -178,7 +178,7 @@
   `;
   tr.querySelectorAll("input,select").forEach(el => el.addEventListener("input", updateTotals));
   tr.querySelector(".btn-del").addEventListener("click", () => { tr.remove(); updateTotals(); });
-  $("itemsBody").appendChild(tr);
+  document.getElementById("itemsBody").appendChild(tr);
   updateTotals();
 }
     window.addItem = addItem;
