@@ -21,34 +21,62 @@
   <main>
     <!-- Business Info -->
     <section>
-      <h2>🏢 Business Info</h2>
-      <input id="businessName" placeholder="Full Name / Business Name"/>
-      <input id="kvk" placeholder="KvK Number"/>
-      <input id="iban" placeholder="IBAN"/>
-      <input id="btw" placeholder="BTW Number"/>
-      <input id="email" placeholder="Business Email"/>
-      <input id="businessAddress" placeholder="Business Address"/>
-      <input id="businessPhone" placeholder="Business Phone"/>
-    </section>
+  <h2>🏢 Business Info</h2>
+
+  <label for="businessName">Business Name</label>
+  <input id="businessName" name="businessName" placeholder="Full Name / Business Name" autocomplete="organization" />
+
+  <label for="kvk">KvK Number</label>
+  <input id="kvk" name="kvk" placeholder="KvK Number" autocomplete="off" />
+
+  <label for="iban">IBAN</label>
+  <input id="iban" name="iban" placeholder="IBAN" autocomplete="iban" />
+
+  <label for="btw">BTW Number</label>
+  <input id="btw" name="btw" placeholder="BTW Number" autocomplete="off" />
+
+  <label for="email">Business Email</label>
+  <input id="email" name="email" type="email" placeholder="Business Email" autocomplete="email" />
+
+  <label for="businessAddress">Business Address</label>
+  <input id="businessAddress" name="businessAddress" placeholder="Business Address" autocomplete="street-address" />
+
+  <label for="businessPhone">Business Phone</label>
+  <input id="businessPhone" name="businessPhone" placeholder="Business Phone" type="tel" autocomplete="tel" />
+</section>
 
     <!-- Client Info -->
     <section>
-      <h2>👤 Client Info</h2>
-      <input id="clientName" placeholder="Client Name"/>
-      <input id="clientEmail" placeholder="Client Email"/>
-      <input id="clientPhone" placeholder="Client Phone"/>
-      <input id="clientAddress" placeholder="Client Address"/>
+  <h2>👤 Client Info</h2>
 
-      <input id="invoiceDate" class="js-date" placeholder="YYYY-MM-DD">
-      <input id="dueDate"     class="js-date" placeholder="YYYY-MM-DD">
+  <label for="clientName">Client Name</label>
+  <input id="clientName" name="clientName" placeholder="Client Name" autocomplete="organization" />
 
-      <input id="invoiceNumber" readonly placeholder="Invoice Number"/>
-      <select id="status">
-        <option value="Draft">Draft</option>
-        <option value="Sent">Sent</option>
-        <option value="Paid">Paid</option>
-      </select>
-    </section>
+  <label for="clientEmail">Client Email</label>
+  <input id="clientEmail" name="clientEmail" type="email" placeholder="Client Email" autocomplete="email" />
+
+  <label for="clientPhone">Client Phone</label>
+  <input id="clientPhone" name="clientPhone" type="tel" placeholder="+31 6 12345678" autocomplete="tel" />
+
+  <label for="clientAddress">Client Address</label>
+  <input id="clientAddress" name="clientAddress" placeholder="Client Address" autocomplete="street-address" />
+
+  <label for="invoiceDate">Invoice Date</label>
+  <input id="invoiceDate" name="invoiceDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off" />
+
+  <label for="dueDate">Due Date</label>
+  <input id="dueDate" name="dueDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off" />
+
+  <label for="invoiceNumber">Invoice Number</label>
+  <input id="invoiceNumber" name="invoiceNumber" readonly placeholder="Invoice Number" />
+
+  <label for="status">Status</label>
+  <select id="status" name="status" autocomplete="off">
+    <option value="Draft">Draft</option>
+    <option value="Sent">Sent</option>
+    <option value="Paid">Paid</option>
+  </select>
+</section>
 
     <!-- Items -->
     <section>
