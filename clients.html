@@ -34,109 +34,123 @@
       <h2>🏢 Client Information</h2>
 
       <div class="grid-2">
-        <div>
-          <label>Client ID</label>
-          <input id="clientId" placeholder="CL-2025-001" readonly />
-        </div>
-        <div>
-          <label>Status</label>
-          <select id="status">
-            <option>Active</option>
-            <option>Prospect</option>
-            <option>Inactive</option>
-          </select>
-        </div>
-      </div>
+    <div>
+      <label for="clientId">Client ID</label>
+      <input id="clientId" placeholder="CL-2025-001" readonly autocomplete="off" />
+    </div>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" autocomplete="off">
+        <option>Active</option>
+        <option>Prospect</option>
+        <option>Inactive</option>
+      </select>
+    </div>
+  </div>
 
+       <div class="grid-2">
+    <div>
+      <label for="clientName">Company / Full Name</label>
+      <input id="clientName" placeholder="Company or Full Name" autocomplete="organization" />
+    </div>
+    <div>
+      <label for="contactPerson">Contact Person</label>
+      <input id="contactPerson" placeholder="e.g. John de Vries" autocomplete="name" />
+    </div>
+  </div>
+
+      div class="grid-2">
+    <div>
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="client@example.com" autocomplete="email" />
+    </div>
+    <div>
+      <label for="phone">Phone</label>
+      <input id="phone" type="tel" placeholder="+31 6 12345678" autocomplete="tel" />
+    </div>
+  </div>
+  <div>
+    <label for="address">Address</label>
+    <input id="address" placeholder="Street, City, ZIP" autocomplete="street-address" />
+  </div>
       <div class="grid-2">
+    <div>
+      <label for="country">Country</label>
+      <select id="country" autocomplete="country-name">
+        <option value="">Select Country</option>
+        <option>Netherlands</option>
+        <option>Belgium</option>
+        <option>Germany</option>
+        <option>France</option>
+        <option>Spain</option>
+        <option>Poland</option>
+        <option>United Kingdom</option>
+      </select>
+    </div>
         <div>
-          <label>Company / Full Name</label>
-          <input id="clientName" placeholder="Company or Full Name" />
-        </div>
-        <div>
-          <label>Contact Person</label>
-          <input id="contactPerson" placeholder="e.g. John de Vries" />
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Email</label>
-          <input id="email" type="email" placeholder="client@example.com" />
-        </div>
-        <div>
-          <label>Phone</label>
-          <input id="phone" placeholder="+31 6 12345678" />
-        </div>
-      </div>
-
-      <label>Address</label>
-      <input id="address" placeholder="Street, City, ZIP" />
-
-      <div class="grid-2">
-        <div>
-          <label>Country</label>
-          <select id="country">
-            <option value="">Select Country</option>
-            <option>Netherlands</option>
-            <option>Belgium</option>
-            <option>Germany</option>
-            <option>France</option>
-            <option>Spain</option>
-            <option>Poland</option>
-            <option>United Kingdom</option>
-          </select>
-        </div>
-        <div>
-          <label>Payment Term</label>
-          <select id="paymentTerm">
-            <option>14 days</option>
-            <option selected>30 days</option>
-            <option>60 days</option>
-            <option>On Receipt</option>
-          </select>
-        </div>
-      </div>
+      <label for="paymentTerm">Payment Term</label>
+      <select id="paymentTerm" autocomplete="off">
+        <option>14 days</option>
+        <option selected>30 days</option>
+        <option>60 days</option>
+        <option>On Receipt</option>
+      </select>
+    </div>
+  </div>
     </section>
 
     <!-- COMPANY DATA -->
-    <section>
-      <h2>💼 Company Data</h2>
-      <div class="grid-2">
-        <div>
-          <label>KvK Number</label>
-          <input id="kvk" placeholder="e.g. 12345678" />
-        </div>
-        <div>
-          <label>VAT Number</label>
-          <input id="vatNumber" placeholder="e.g. NL001234567B01" />
-        </div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label>Tags</label>
-          <input id="tags" placeholder="VIP, Long-term, etc." />
-        </div>
-        <div>
-          <label>Default Currency</label>
-          <select id="currency">
-            <option selected>EUR</option>
-            <option>USD</option>
-            <option>GBP</option>
-            <option>PLN</option>
-          </select>
-        </div>
-      </div>
-      <label>Notes</label>
-      <textarea id="notes" rows="3" placeholder="Additional comments or notes"></textarea>
-    </section>
+   <section>
+  <h2>💼 Company Data</h2>
 
-    <div class="actions">
-      <button id="saveBtn" class="btn-primary" type="button">💾 Save Client</button>
-      <button id="viewBtn" class="btn" type="button">📂 View Saved Clients</button>
-      <button id="smartSuggestBtn" class="btn" type="button">🤖 Smart Suggest</button>
+  <div class="grid-2">
+    <div>
+      <label for="kvk">KvK Number</label>
+      <input id="kvk" placeholder="e.g. 12345678" autocomplete="off" />
     </div>
-    <div id="smartHint" class="hint"></div>
+    <div>
+      <label for="vatNumber">VAT Number</label>
+      <input id="vatNumber" placeholder="e.g. NL001234567B01" autocomplete="off" />
+    </div>
+  </div>
+
+     <div class="grid-2">
+    <div>
+      <label for="tags">Tags</label>
+      <input id="tags" placeholder="VIP, Long-term, etc." autocomplete="off" />
+    </div>
+    <div>
+      <label for="currency">Default Currency</label>
+      <select id="currency" autocomplete="off">
+        <option selected>EUR</option>
+        <option>USD</option>
+        <option>GBP</option>
+        <option>PLN</option>
+      </select>
+    </div>
+  </div>
+      
+  <div>
+    <label for="notes">Notes</label>
+    <textarea id="notes" rows="3" placeholder="Additional comments or notes" autocomplete="off"></textarea>
+  </div>
+</section>
+
+    <div class="actions" role="group" aria-label="Client Actions">
+  <button id="saveBtn" class="btn btn-primary" type="button" aria-label="Save client information">
+    💾 Save Client
+  </button>
+
+  <button id="viewBtn" class="btn" type="button" aria-label="View saved clients">
+    📂 View Saved Clients
+  </button>
+
+  <button id="smartSuggestBtn" class="btn" type="button" aria-label="Get smart suggestions">
+    🤖 Smart Suggest
+  </button>
+</div>
+
+<div id="smartHint" class="hint" role="status" aria-live="polite"></div>
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
