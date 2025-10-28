@@ -109,10 +109,10 @@
  <section>
     <h3>Tax Options</h3>
 
-    <label for="kvk">KvK Registered?
+    <label for="kvkStatus">KvK Registered?
       <span class="muted">(required for most deductions)</span>
     </label>
-    <select id="kvk">
+    <select id="kvkStatus">
       <option value="yes">Yes</option>
       <option value="no">No</option>
     </select>
@@ -245,7 +245,7 @@ let lastSaveTime = 0;
       "businessName","email","period","hoursWorked","hourlyRate","income",
       "kvkNumber","btw","iban","businessPhone","reportingNotes",
       "vehicle","office","internet","marketing","other","extraBenefits",
-      "kvk","zzpHours","btwRate","kor",
+      "kvkStatus","zzpHours","btwRate","kor",
       "grossIncome","totalExpenses","taxableProfit","zzpDeductions",
       "mkbVrijstelling","finalTaxable","incomeTax","zvwAmount","btwAmount","totalTax",
       "reportingNotesWrapper","reportingNotesOutput","totalSavings","netIncome",
@@ -368,7 +368,7 @@ async function calculateTax() {
   const other         = num("other");
   const extraBenefits = num("extraBenefits");
 
-  const kvk     = Safe.val("kvk") === "yes";
+  const kvk     = Safe.val("kvkStatus") === "yes";
   const zzp     = Safe.val("zzpHours") === "yes";
   const kor     = Safe.val("kor") === "yes";
   const btwRate = parseFloat((Safe.val("btwRate")||"0").replace(",", ".")) || 0;
