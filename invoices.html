@@ -96,13 +96,13 @@
       <p>Subtotal: <span id="subtotal">€0.00</span></p>
       <p>Total VAT: <span id="totalVat">€0.00</span></p>
       <p>Total: <span id="grandTotal">€0.00</span></p>
-      <textarea id="note" name="note" placeholder="Note..."></textarea>
+      <textarea id="note" name="note" placeholder="Note..." autocomplete="off"></textarea>
     </section>
 
     <!-- OCR -->
     <section>
       <h2>📷 OCR</h2>
-     <input type="file" id="receiptInput" name="receiptInput" accept="image/*" />
+     <input type="file" id="receiptInput" accept="image/*"/>
       <button type="button" onclick="processReceipt()">Scan</button>
       <pre id="receiptText"></pre>
     </section>
@@ -160,27 +160,27 @@
     const $ = (id) => document.getElementById(id);
 
     /* ========== ITEMS & TOTALS ========== */
-    function addItem(desc="", qty=1, price=0, vat=21){
-      const tr = document.createElement("tr");
-     tr.innerHTML = `
-  <td><input class="desc" name="itemDesc[]" value="${desc}" placeholder="Description" /></td>
-  <td><input class="qty" name="itemQty[]" type="number" value="${qty}" min="1" /></td>
-  <td><input class="price" name="itemPrice[]" type="number" value="${price}" step="0.01" /></td>
-  <td>
-    <select class="vat" name="itemVat[]">
-      <option value="0"${vat==0?" selected":""}>0</option>
-      <option value="9"${vat==9?" selected":""}>9</option>
-      <option value="21"${vat==21?" selected":""}>21</option>
-    </select>
-  </td>
-  <td class="item-total">€0.00</td>
-  <td><button type="button" class="btn-del">❌</button></td>
-`;
-      tr.querySelectorAll("input,select").forEach(el => el.addEventListener("input", updateTotals));
-      tr.querySelector(".btn-del").addEventListener("click", () => { tr.remove(); updateTotals(); });
-      $("itemsBody").appendChild(tr);
-      updateTotals();
-    }
+   function addItem(desc="", qty=1, price=0, vat=21){
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input class="desc" name="itemDesc[]" value="${desc}"/></td>
+    <td><input class="qty" name="itemQty[]" type="number" value="${qty}" min="1"/></td>
+    <td><input class="price" name="itemPrice[]" type="number" value="${price}" step="0.01"/></td>
+    <td>
+      <select class="vat" name="itemVat[]">
+        <option value="0">0</option>
+        <option value="9"${vat==9?" selected":""}>9</option>
+        <option value="21"${vat==21?" selected":""}>21</option>
+      </select>
+    </td>
+    <td class="item-total">€0.00</td>
+    <td><button type="button" class="btn-del">❌</button></td>
+  `;
+  tr.querySelectorAll("input,select").forEach(el => el.addEventListener("input", updateTotals));
+  tr.querySelector(".btn-del").addEventListener("click", () => { tr.remove(); updateTotals(); });
+  $("itemsBody").appendChild(tr);
+  updateTotals();
+}
     window.addItem = addItem;
 
     function updateTotals(){
