@@ -42,7 +42,7 @@
      <section>
       <h2>🏢 Business Info</h2>
       <input id="businessName" placeholder="Full Name / Business Name"/>
-      <input id="kvk" placeholder="KvK Number"/>
+      <input id="kvkNumber" placeholder="KvK Number"/>
       <input id="iban" placeholder="IBAN"/>
       <input id="btw" placeholder="BTW Number"/>
       <input id="email" placeholder="Business Email"/>
@@ -243,7 +243,7 @@ let lastSaveTime = 0;
     // ---------- Anti-null expected IDs ----------
     const REQUIRED_IDS = [
       "businessName","email","period","hoursWorked","hourlyRate","income",
-      "kvk","btw","iban","businessPhone","reportingNotes",
+      "kvkNumber","btw","iban","businessPhone","reportingNotes",
       "vehicle","office","internet","marketing","other","extraBenefits",
       "kvk","zzpHours","btwRate","kor",
       "grossIncome","totalExpenses","taxableProfit","zzpDeductions",
@@ -286,7 +286,7 @@ let lastSaveTime = 0;
   const fields = {
     businessName: data.businessName,
     email: data.email,
-    kvk: data.kvk,
+    kvkNumber: data.kvk,
     btw: data.btw,
     iban: data.iban,
     businessPhone: data.businessPhone
@@ -515,7 +515,7 @@ await saveToFirestoreSummary(summary, true);
       hoursWorked:  v('hoursWorked'),
       hourlyRate:   v('hourlyRate'),
       income:       v('income'),
-      kvk:          v('kvk'),
+      kvkNumber:          v('kvkNumber'),
       btw:          v('btw'),
       iban:         v('iban'),
       businessPhone:v('businessPhone'),
@@ -567,7 +567,7 @@ window.exportToExcel = function exportToExcel() {
     ["Business Info"],
     ["Business Name", V("businessName")],
     ["Period", V("period")],
-    ["KvK Number", V("kvk")],
+    ["KvK Number", V("kvkNumber")],
     ["BTW Number", V("btw")],
     ["IBAN", V("iban")],
     ["Business Email", V("email")],
@@ -623,7 +623,7 @@ function exportPDF(){
   const businessFields = [
     ["Business Name", V("businessName")],
     ["Period", V("period")],
-    ["KvK Number", V("kvk")],
+    ["KvK Number", V("kvkNumber")],
     ["BTW Number", V("btw")],
     ["IBAN", V("iban")],
     ["Business Email", V("email")],
