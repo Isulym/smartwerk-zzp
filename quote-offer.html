@@ -18,6 +18,7 @@
   </header>
 
   <main>
+      <form id="quoteForm" onsubmit="return false;">
     <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
@@ -95,6 +96,8 @@
       <button id="saveBtn" class="btn-primary">💾 Save Quote</button>
       <a href="quote-offer-list.html" class="btn">📋 Saved Quotes</a>
     </section>
+        
+          </form>
   </main>
 
   <footer>
@@ -125,13 +128,14 @@
 
     /* ITEMS */
    function addItem(desc = "", qty = 1, price = 0, vat = 21) {
+  const uid = Date.now(); // або використовуй random string
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td><input class="desc" name="itemDesc[]" value="${desc}" autocomplete="off" /></td>
-    <td><input class="qty" name="itemQty[]" type="number" value="${qty}" autocomplete="off" /></td>
-    <td><input class="price" name="itemPrice[]" type="number" value="${price}" autocomplete="off" /></td>
+    <td><input id="desc-${uid}" class="desc" name="itemDesc[]" value="${desc}" autocomplete="off" /></td>
+    <td><input id="qty-${uid}" class="qty" name="itemQty[]" type="number" value="${qty}" autocomplete="off" /></td>
+    <td><input id="price-${uid}" class="price" name="itemPrice[]" type="number" value="${price}" autocomplete="off" /></td>
     <td>
-      <select class="vat" name="itemVat[]" autocomplete="off">
+      <select id="vat-${uid}" class="vat" name="itemVat[]" autocomplete="off">
         <option value="0"${vat == 0 ? " selected" : ""}>0</option>
         <option value="9"${vat == 9 ? " selected" : ""}>9</option>
         <option value="21"${vat == 21 ? " selected" : ""}>21</option>
