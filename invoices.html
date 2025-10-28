@@ -168,13 +168,14 @@
 
     /* ========== ITEMS & TOTALS ========== */
    function addItem(desc = "", qty = 1, price = 0, vat = 21) {
+  const itemId = Date.now(); // або згенеруй унікальний id
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td><input class="desc" name="itemDesc[]" value="${desc}" /></td>
-    <td><input class="qty" name="itemQty[]" type="number" value="${qty}" min="1" /></td>
-    <td><input class="price" name="itemPrice[]" type="number" value="${price}" step="0.01" /></td>
+    <td><input class="desc" name="itemDesc[]" id="desc-${itemId}" value="${desc}" /></td>
+    <td><input class="qty" name="itemQty[]" id="qty-${itemId}" type="number" value="${qty}" min="1" /></td>
+    <td><input class="price" name="itemPrice[]" id="price-${itemId}" type="number" value="${price}" step="0.01" /></td>
     <td>
-      <select class="vat" name="itemVat[]">
+      <select class="vat" name="itemVat[]" id="vat-${itemId}">
         <option value="0"${vat == 0 ? " selected" : ""}>0</option>
         <option value="9"${vat == 9 ? " selected" : ""}>9</option>
         <option value="21"${vat == 21 ? " selected" : ""}>21</option>
