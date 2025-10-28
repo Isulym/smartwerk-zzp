@@ -622,13 +622,13 @@ function exportPDF(){
   doc.text("Business Info", 15, y); y += 7;
   doc.setFontSize(10);
   [
-    `Company Name: ${V("businessName")}`,
+    `Business Name: ${V("businessName")}`,
     `Period: ${V("period")}`,
     `KvK Number: ${V("kvk")}`,
-    `VAT Number: ${V("btw")}`,
+    `BTW Number: ${V("btw")}`,
     `IBAN: ${V("iban")}`,
-    `Email / Phone: ${V("email")}`,
-    `Contact Person: ${V("businessPhone")}`,
+    `Business Email: ${V("email")}`,
+    `Business Phone: ${V("businessPhone")}`,
     `Hours Worked: ${V("hoursWorked")}`,
     `Hourly Rate: €${V("hourlyRate")}`,
     `Declared Income: €${V("income")}`
