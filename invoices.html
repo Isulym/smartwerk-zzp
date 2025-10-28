@@ -102,7 +102,7 @@
     <!-- OCR -->
     <section>
       <h2>📷 OCR</h2>
-     <input type="file" id="receiptInput" accept="image/*"/>
+     <input type="file" id="receiptInput" accept="image/*" />
       <button type="button" onclick="processReceipt()">Scan</button>
       <pre id="receiptText"></pre>
     </section>
@@ -168,7 +168,7 @@
     <td><input class="price" name="itemPrice[]" type="number" value="${price}" step="0.01"/></td>
     <td>
       <select class="vat" name="itemVat[]">
-        <option value="0">0</option>
+        <option value="0"${vat==0?" selected":""}>0</option>
         <option value="9"${vat==9?" selected":""}>9</option>
         <option value="21"${vat==21?" selected":""}>21</option>
       </select>
