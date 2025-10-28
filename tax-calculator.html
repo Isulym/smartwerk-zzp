@@ -603,108 +603,117 @@ function exportExcel() {
 }
   
 
-function exportPDF() {
+function exportPDF(){
   const doc = new jsPDF();
   const today = new Date().toLocaleDateString("en-GB");
   let y = 20;
 
-  const T = id => ($(id)?.textContent ?? "").trim();
-  const V = id => Safe.val(id).trim();
+  const T = id => (document.getElementById(id)?.textContent || "").trim();
+  const V = id => (document.getElementById(id)?.value || "").trim();
 
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
   doc.text("SmartWerk – Belasting Aangifte Summary", 15, y);
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Generated on: ${today}`, 160, y, { align: "right" });
+  doc.text(`Generated on: ${today}`, 200, y, { align: "right" });
   y += 10;
 
-  // BUSINESS INFO
+  // ————— Business Info
   doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Business Information", 15, y); y += 6;
+  doc.text("Business Information", 15, y); y += 7;
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
 
-  [
-    `Business Name: ${V("businessName")}`,
-    `Period: ${V("period")}`,
-    `KvK Number: ${V("kvk")}`,
-    `BTW Number: ${V("btw")}`,
-    `IBAN: ${V("iban")}`,
-    `Business Email: ${V("email")}`,
-    `Business Phone: ${V("businessPhone")}`,
-    `Hours Worked: ${V("hoursWorked")}`,
-    `Hourly Rate: €${V("hourlyRate")}`,
-    `Declared Income: €${V("income")}`
-  ].forEach(line => { doc.text(line, 15, y); y += 5; });
-
-  y += 7;
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Calculation Breakdown", 15, y); y += 6;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-
-  const rows = [
-    ["Gross Income", T("grossIncome"), "All business income"],
-    ["Total Expenses", T("totalExpenses"), "Deductible costs (vehicle, office, etc.)"],
-    ["Taxable Profit", T("taxableProfit"), "Income minus expenses"],
-    ["ZZP Deductions", T("zzpDeductions"), "Self-employed benefit"],
-    ["MKB Exemption", T("mkbVrijstelling"), "Small business exemption"],
-    ["Final Taxable Income", T("finalTaxable"), "Taxable after deductions"],
-    ["Income Tax", T("incomeTax"), "Based on Dutch income brackets"],
-    ["ZVW (5.32%)", T("zvwAmount"), "Health insurance contribution"],
-    ["BTW (VAT)", T("btwAmount"), "Only if KOR not applied"],
-    ["Total Estimated Tax", T("totalTax"), "Combined tax amount"],
-    ["Net Income After Tax", T("netIncome"), "Final income after taxes"],
-    ["You Saved (ZZP + MKB)", T("totalSavings"), "Total tax savings"],
+  const businessFields = [
+    ["Business Name", V("businessName")],
+    ["Period", V("period")],
+    ["KvK Number", V("kvk")],
+    ["BTW Number", V("btw")],
+    ["IBAN", V("iban")],
+    ["Business Email", V("email")],
+    ["Business Phone", V("businessPhone")],
+    ["Hours Worked", V("hoursWorked")],
+    ["Hourly Rate", `€${V("hourlyRate")}`],
+    ["Declared Income", `€${V("income")}`],
   ];
-
-  rows.forEach(([label, value, comment]) => {
-    doc.text(`${label}: €${value}`, 15, y);
-    doc.text(`(${comment})`, 90, y);
+  businessFields.forEach(([label, value]) => {
+    doc.text(`${label}:`, 15, y);
+    doc.text(value || "—", 70, y);
     y += 6;
   });
 
-  // NOTES
+  y += 6;
+  doc.setFontSize(12);
+  doc.text("Calculation Breakdown", 15, y); y += 7;
+  doc.setFontSize(10);
+
+  const calcFields = [
+    ["Gross Income",         T("grossIncome"),     "(All business income)"],
+    ["Total Expenses",       T("totalExpenses"),   "(Deductible costs (vehicle, office, etc.))"],
+    ["Taxable Profit",       T("taxableProfit"),   "(Income minus expenses)"],
+    ["ZZP Deductions",       T("zzpDeductions"),   "(Self-employed benefit)"],
+    ["MKB Exemption",        T("mkbVrijstelling"), "(Small business exemption)"],
+    ["Final Taxable Income", T("finalTaxable"),    "(Taxable after deductions)"],
+    ["Income Tax",           T("incomeTax"),       "(Based on Dutch income brackets)"],
+    ["ZVW (5.32%)",          T("zvwAmount"),       "(Health insurance contribution)"],
+    ["BTW (VAT)",            T("btwAmount"),       "(Only if KOR not applied)"],
+    ["Total Estimated Tax",  T("totalTax"),        "(Combined tax amount)"],
+    ["Net Income After Tax", T("netIncome"),       "(Final income after taxes)"],
+    ["You Saved (ZZP + MKB)",T("totalSavings"),    "(Total tax savings applied)"],
+  ];
+
+  calcFields.forEach(([label, value, note]) => {
+    doc.text(`${label}:`, 15, y);
+    doc.text(`€${value}`, 70, y);
+    doc.setTextColor(120);
+    doc.setFontSize(9);
+    doc.text(note, 120, y);
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    y += 6;
+  });
+
+  // ————— Reporting Notes
   const notes = V("reportingNotes");
   if (notes) {
-    y += 7;
+    y += 8;
     doc.setFontSize(11);
-    doc.text("Reporting Notes:", 15, y); y += 5;
+    doc.text("Reporting Notes", 15, y); y += 6;
     doc.setFontSize(10);
+    doc.setTextColor(50);
     doc.splitTextToSize(notes, 180).forEach(line => {
       doc.text(line, 15, y);
       y += 5;
     });
+    doc.setTextColor(0);
   }
 
-  // WARNING (if present)
+  // ————— Cap Warning
   const capNote = (document.getElementById("capWarning")?.textContent || "").trim();
   if (capNote) {
     y += 8;
     doc.setFontSize(11);
-    doc.text("⚠️ Notes:", 15, y); y += 5;
+    doc.text("System Note", 15, y); y += 6;
     doc.setFontSize(10);
+    doc.setTextColor(100);
     doc.splitTextToSize(capNote, 180).forEach(line => {
       doc.text(line, 15, y);
       y += 5;
     });
+    doc.setTextColor(0);
   }
 
-  // Disclaimer
+  // ————— Footer disclaimer
   y += 10;
   doc.setFontSize(9);
-  doc.setTextColor(100);
-  doc.text("This document is a supportive summary for Belastingdienst submission.", 15, y); y += 4;
-  doc.text("It does not represent an official tax decision. Always verify with your accountant.", 15, y); y += 4;
+  doc.setTextColor(120);
+  doc.text("This document is a supportive summary for Belastingdienst submission.", 15, y); y += 5;
+  doc.text("It does not represent an official tax decision. Always verify with your accountant.", 15, y); y += 5;
   doc.text("SmartWerk Tax Calculator v2.0", 15, y);
 
-  const period = V("period").replace(/\s+/g, "_");
+  // ————— Save
+  const period = V("period").replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
   doc.save(`Belasting_Aangifte_SmartWerk_${period || today}.pdf`);
 }
-
   
 /* === FINAL WIRING (safe) ===
    Підключаємо події тільки після готовності DOM.
