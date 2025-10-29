@@ -418,7 +418,7 @@ async function generateContractId(uid) {
   return true;
 }
 
-aasync function saveContract(uid, id = null) {
+async function saveContract(uid, id = null) {
   const selectedClientId = $("clientSelect").value;
   const clientData = loadedClients[selectedClientId] || {};
 
