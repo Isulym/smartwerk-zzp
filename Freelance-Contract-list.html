@@ -191,9 +191,11 @@ window.downloadContractPDF = async (id, withBranding = true) => {
   doc.text([
     contract.businessName || "",
     `KvK: ${contract.kvk || ""}`,
-    `VAT: ${contract.vat || ""}`,
+    `BTW: ${contract.btw || ""}`,
     `IBAN: ${contract.iban || ""}`,
+    `Email: ${contract.businessEmail || ""}`,
     `Address: ${contract.businessAddress || ""}`
+    `Phone: ${contract.businessPhone || ""}`
   ], 14, 36);
   doc.text("Client Info:", 120, 30);
   doc.text([
