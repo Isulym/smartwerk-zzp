@@ -21,7 +21,7 @@
     <section>
       <h2>🔎 Filters & Search</h2>
       <label>Status:
-        <select id="statusFilter">
+        <select id="statusFilter" name="statusFilter">
           <option value="all">All</option>
           <option value="Draft">Draft</option>
           <option value="Sent">Sent</option>
@@ -29,11 +29,11 @@
           <option value="Rejected">Rejected</option>
         </select>
       </label>
-      <label>From: <input id="fromDate" class="js-date" placeholder="YYYY-MM-DD"></label>
-      <label>To: <input id="toDate" class="js-date" placeholder="YYYY-MM-DD"></label>
-      <label>Search: <input id="searchBox" placeholder="Client / Quote # / Amount"></label>
+     <label>From: <input id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD"></label>
+     <label>To: <input id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD"></label>
+     <label>Search: <input id="searchBox" name="searchQuery" placeholder="Client / Quote # / Amount"></label>
       <label>Sort by:
-        <select id="sortBy">
+        <select id="sortBy" name="sortBy">
           <option value="date_desc">Date ↓</option>
           <option value="date_asc">Date ↑</option>
           <option value="quoteNumber_desc">Quote # ↓</option>
@@ -152,7 +152,8 @@ import {
           <td>${q.quoteNumber||"—"}</td>
           <td>${q.clientName||"—"}</td>
           <td>
-         <select onchange="updateQuoteStatus('${q.id}', this.value)">
+         <td>
+          <select id="status-${q.id}" name="status-${q.id}" onchange="updateQuoteStatus('${q.id}', this.value)">
          <option value="Draft" ${q.status==="Draft"?"selected":""}>Draft</option>
          <option value="Sent" ${q.status==="Sent"?"selected":""}>Sent</option>
          <option value="Accepted" ${q.status==="Accepted"?"selected":""}>Accepted</option>
