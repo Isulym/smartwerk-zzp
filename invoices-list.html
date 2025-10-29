@@ -66,8 +66,16 @@
 
 <script type="module">
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  
+  import {
+    getFirestore, collection, doc, setDoc, deleteDoc,
+    onSnapshot, query, orderBy, setLogLevel
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // 🔇 Вимикаємо зайві debug-повідомлення Firestore
+  setLogLevel("error");
+
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
