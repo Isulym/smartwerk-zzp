@@ -262,7 +262,7 @@ async function loadBusinessInfo(uid) {
 
   $("businessName").value = d.businessName || "";
   $("kvk").value = d.kvk || "";
-  $("vat").value = d.btw || d.vat || "";
+  $("btw").value = d.btw || "";
   $("iban").value = d.iban || "";
   $("businessAddress").value = d.businessAddress || d.address || "";
   $("businessPhone").value = d.businessPhone || d.phone || "";
@@ -315,7 +315,7 @@ function fillForm(data) {
 
   safeSet("businessName", data.businessName);
   safeSet("kvk", data.kvk);
-  safeSet("vat", data.vat || data.btw);
+  safeSet("btw", data.btw);
   safeSet("iban", data.iban);
   safeSet("businessAddress", data.businessAddress);
   safeSet("businessPhone", data.businessPhone);
@@ -429,7 +429,7 @@ async function saveContract(uid, id = null) {
     projectTitle: $("projectTitle").value,
     businessName: $("businessName").value,
     kvk: $("kvk").value,
-    vat: $("vat").value,
+    btw: $("btw").value,
     iban: $("iban").value,
     businessAddress: $("businessAddress").value,
     businessPhone: $("businessPhone").value,
