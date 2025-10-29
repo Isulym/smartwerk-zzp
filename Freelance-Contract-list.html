@@ -116,47 +116,67 @@ window.deleteContract = async id => {
 function matchesFilter(d) {
   const term = $("searchInput").value.toLowerCase();
   const status = $("statusFilter").value;
+
   return (!status || d.status === status) && (
-    d.contractId?.toLowerCase().includes(term) ||
-    d.clientName?.toLowerCase().includes(term) ||
-    d.projectTitle?.toLowerCase().includes(term)
+    (d.contractId || "").toLowerCase().includes(term) ||
+    (d.clientName || "").toLowerCase().includes(term) ||
+    (d.projectTitle || "").toLowerCase().includes(term)
   );
 }
 
-function renderContracts(snap) {
-  const body = $("contractsBody");
-  body.innerHTML = "";
-  let counts = { Draft: 0, Sent: 0, Signed: 0, Completed: 0 };
-  let rows = "";
-  contracts = [];
+// ✅ Глобальний масив контрактів
+let contracts = [];
 
+// Викликається при оновленні з Firestore
+function renderContracts(snap) {
+  contracts = [];
   snap.forEach(doc => {
     const d = doc.data();
     d.id = doc.id;
     contracts.push(d);
-    if (matchesFilter(d)) rows += renderRow(d);
+  });
+  renderContractsFromMemory();
+}
+
+// Викликається при зміні фільтрів або пошуку
+function renderContractsFromMemory() {
+  const body = $("contractsBody");
+  body.innerHTML = "";
+  let rows = "";
+  let counts = { Draft: 0, Sent: 0, Signed: 0, Completed: 0 };
+
+  contracts.forEach(d => {
+    if (matchesFilter(d)) {
+      rows += renderRow(d);
+    }
     if (d.status) counts[d.status] = (counts[d.status] || 0) + 1;
   });
 
-  body.innerHTML = rows || `<tr><td colspan='6' style='text-align:center;color:#94a3b8;'>No contracts found</td></tr>`;
+  body.innerHTML =
+    rows ||
+    `<tr><td colspan='6' style='text-align:center;color:#94a3b8;'>No contracts found</td></tr>`;
+
   drawChart(counts);
 }
 
+// ✅ Графік залишається таким, як був
 let contractChart = null;
 function drawChart(data) {
   const ctx = $("chart").getContext("2d");
   if (contractChart) contractChart.destroy();
   contractChart = new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
     data: {
       labels: Object.keys(data),
-      datasets: [{
-        label: 'Contracts',
-        data: Object.values(data),
-        backgroundColor: ['#475569', '#facc15', '#22c55e', '#10b981']
-      }]
+      datasets: [
+        {
+          label: "Contracts",
+          data: Object.values(data),
+          backgroundColor: ["#475569", "#facc15", "#22c55e", "#10b981"],
+        },
+      ],
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: { responsive: true, plugins: { legend: { display: false } } },
   });
 }
 
@@ -231,10 +251,17 @@ window.downloadContractPDF = async (id, withBranding = true) => {
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
   const ref = collection(db, "users", user.uid, "contracts");
-  onSnapshot(ref, snap => renderContracts(snap));
-  $("searchInput").oninput = () => renderContracts(snap);
-  $("statusFilter").onchange = () => renderContracts(snap);
+
+  // Отримуємо всі контракти в реальному часі
+  onSnapshot(ref, snap => {
+    renderContracts(snap);
+  });
+
+  // Фільтрація та пошук працюють із уже завантаженими контрактами
+  $("searchInput").oninput = renderContractsFromMemory;
+  $("statusFilter").onchange = renderContractsFromMemory;
 });
+  
 </script>
 </body>
 </html>
