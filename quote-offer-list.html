@@ -42,6 +42,8 @@
           <option value="amount_asc">Amount ↑</option>
         </select>
       </label>
+        <button type="button" onclick="resetFilters()">♻️ Reset</button>
+
     </section>
 
     <!-- Table -->
@@ -151,7 +153,6 @@ import {
         tr.innerHTML = `
           <td>${q.quoteNumber||"—"}</td>
           <td>${q.clientName||"—"}</td>
-          <td>
          <td>
           <select id="status-${q.id}" name="status-${q.id}" onchange="updateQuoteStatus('${q.id}', this.value)">
          <option value="Draft" ${q.status==="Draft"?"selected":""}>Draft</option>
@@ -299,6 +300,15 @@ pdf.save(`${q.quoteNumber||"Quote"}.pdf`);
       return out;
     }
 
+window.resetFilters = () => {
+  $("statusFilter").value = "all";
+  $("fromDate").value = "";
+  $("toDate").value = "";
+  $("searchBox").value = "";
+  $("sortBy").value = "date_desc";
+  render();
+};
+   
     // Convert to Invoice
     window.convertToInvoice = async (id)=>{
       try{
