@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate and manage freelance contracts with SmartWerk" />
+  <meta name="author" content="SmartWerk Team" />
+  <link rel="icon" href="/favicon.ico" />
   <title>📄 SmartWerk — Freelance Contract</title>
   <link rel="stylesheet" href="style-Freelance-Contract.css" />
 </head>
@@ -14,8 +17,12 @@
       <a href="Freelance-Contract-list.html" class="btn btn-primary">📂 View Saved Contracts</a>
     </nav>
   </header>
+  <div id="errorBox" style="display:none;color:red;text-align:center;margin-top:1rem;"></div>
+<div id="loadingBox" style="display:none;text-align:center;margin-top:1rem;">Saving...</div>
 
   <main>
+    <form id="contractForm" onsubmit="return false">
+
     <section class="block">
       <h2>📋 Contract Overview</h2>
       <div class="grid-3">
@@ -160,6 +167,7 @@
     <div style="text-align:center; margin-top:20px;">
       <button id="saveBtn" class="btn btn-primary">💾 Save Contract</button>
     </div>
+      </form>
   </main>
 
   <footer><p>© 2025 SmartWerk</p></footer>
@@ -212,7 +220,7 @@ function setupSignature(canvasId, dateId) {
     if (!drawing) return;
     drawing = false;
     const now = new Date().toLocaleDateString();
-    $(dateId).textContent = now;
+$(dateId).textContent = new Date().toLocaleDateString("nl-NL");
   };
   const move = e => {
     if (!drawing) return;
@@ -410,7 +418,7 @@ async function generateContractId(uid) {
   return true;
 }
 
-async function saveContract(uid, id = null) {
+aasync function saveContract(uid, id = null) {
   const selectedClientId = $("clientSelect").value;
   const clientData = loadedClients[selectedClientId] || {};
 
@@ -439,17 +447,28 @@ async function saveContract(uid, id = null) {
     clientDate: $("signatureClientDate").textContent,
     updatedAt: new Date().toISOString()
   };
-  if (id) {
-    data.signatureFreelancer = $("signatureFreelancer").toDataURL();
-    data.signatureClient = $("signatureClient").toDataURL();
-    await setDoc(doc(db, "users", uid, "contracts", id), data, { merge: true });
-    localStorage.removeItem("editContractId");
-  } else {
-    data.createdAt = new Date().toISOString();
-    await addDoc(collection(db, "users", uid, "contracts"), data);
+
+  try {
+    if (id) {
+      data.signatureFreelancer = $("signatureFreelancer").toDataURL();
+      data.signatureClient = $("signatureClient").toDataURL();
+      await setDoc(doc(db, "users", uid, "contracts", id), data, { merge: true });
+      localStorage.removeItem("editContractId");
+    } else {
+      data.createdAt = new Date().toISOString();
+      await addDoc(collection(db, "users", uid, "contracts"), data);
+    }
+
+    alert("✅ Contract saved");
+    location.href = "Freelance-Contract-list.html";
+
+  } catch (error) {
+    console.error("❌ Firebase Error:", error);
+    $("errorBox").textContent = "Something went wrong. Please try again.";
+    $("errorBox").style.display = "block";
+    $("saveBtn").disabled = false;
+    $("loadingBox").style.display = "none";
   }
-  alert("✅ Contract saved");
-  location.href = "Freelance-Contract-list.html";
 }
 
 onAuthStateChanged(auth, async user => {
@@ -482,9 +501,13 @@ onAuthStateChanged(auth, async user => {
 }
  $("saveBtn").onclick = () => {
   if (validateForm()) {
+    $("saveBtn").disabled = true;
+    $("errorBox").style.display = "none";
+    $("loadingBox").style.display = "block";
     saveContract(uid, contractToEdit);
   }
 };
+  
 });
 </script>
 </body>
