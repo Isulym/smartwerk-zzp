@@ -151,7 +151,7 @@
 
     <section class="block">
       <h2>📎 Stamp / Upload Logo</h2>
-     <input type="file" id="uploadStamp" name="uploadStamp" accept="image/*" autocomplete="off" />
+     <input type="file" id="uploadStamp" name="uploadStamp" accept="image/*" />
       <div style="margin-top:10px;">
         <img id="freelancerStampPreview" style="max-height:100px; display:none;" />
       </div>
@@ -175,8 +175,11 @@ import {
   getDoc,
   addDoc,
   setDoc,
-  runTransaction
+  runTransaction,
+  setLogLevel
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  setLogLevel("error");
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
@@ -273,18 +276,20 @@ async function loadClients(uid) {
 
   // ✅ prevent duplicate listeners
   if (!select.dataset.listener) {
-    select.addEventListener("change", () => {
-      const id = select.value;
-      const c = loadedClients[id];
-      if (c) {
-        $("clientName").value = c.clientName || "";
-        $("clientEmail").value = c.clientEmail || c.email || "";
-        $("clientPhone").value = c.clientPhone || c.phone || "";
-        $("clientAddress").value = c.clientAddress || c.address || "";
-      }
-    });
-    select.dataset.listener = "true";
-  }
+  select.addEventListener("change", () => {
+    const id = select.value;
+    const c = loadedClients[id];
+    if (c) {
+      $("clientName").value = c.clientName || "";
+      $("clientEmail").value = c.clientEmail || c.email || "";
+      $("clientPhone").value = c.clientPhone || c.phone || "";
+      $("clientAddress").value = c.clientAddress || c.address || "";
+
+      // 🧹 Очистити підпис клієнта при зміні клієнта
+      clearSignature('signatureClient');
+    }
+  });
+  select.dataset.listener = "true";
 }
 
   function safeSet(id, value) {
