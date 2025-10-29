@@ -20,12 +20,12 @@
       <h2>📋 Contract Overview</h2>
       <div class="grid-3">
         <div>
-          <label>Contract ID</label>
-          <input id="contractId" readonly />
+          <label for="contractId">Contract ID</label>
+          <input id="contractId" name="contractId" readonly />
         </div>
         <div>
-          <label>Status</label>
-          <select id="status">
+          <label for="status">Status</label>
+          <select id="status" name="status" autocomplete="off">
             <option>Draft</option>
             <option>Sent</option>
             <option>Signed</option>
@@ -34,97 +34,101 @@
         </div>
         <div>
           <label>Date</label>
-          <input id="date" type="date" />
+         <input id="date" name="date" autocomplete="off" />
         </div>
       </div>
       <div class="grid-2">
         <div>
           <label>Select Client</label>
-          <select id="clientSelect">
+          <select id="clientSelect" name="clientSelect" autocomplete="off">
             <option value="">Select a client...</option>
           </select>
         </div>
         <div>
-          <label>Project Title</label>
-          <input id="projectTitle" placeholder="e.g. Website redesign project" />
+          <label for="projectTitle">Project Title</label>
+          <input id="projectTitle" name="projectTitle" placeholder="e.g. Website redesign project" autocomplete="off" />
         </div>
       </div>
     </section>
 
     <section class="block">
-      <h2>🏢 Business Info</h2>
-      <div class="grid-2">
-        <div>
-          <label>Business Name</label>
-          <input id="businessName" readonly />
-        </div>
-        <div>
-          <label>KVK Number</label>
-          <input id="kvk" readonly />
-        </div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label>VAT Number</label>
-          <input id="vat" readonly />
-        </div>
-        <div>
-          <label>IBAN</label>
-          <input id="iban" readonly />
-        </div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label>Phone</label>
-          <input id="businessPhone" readonly />
-        </div>
-        <div>
-          <label>Email</label>
-          <input id="businessEmail" readonly />
-        </div>
-      </div>
-      <label>Address</label>
-      <input id="businessAddress" readonly />
-    </section>
-        <section class="block">
-      <h2>👤 Client Info</h2>
-      <div class="grid-2">
-        <div>
-          <label>Client Name</label>
-          <input id="clientName" readonly />
-        </div>
-        <div>
-          <label>Email</label>
-          <input id="clientEmail" readonly />
-        </div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label>Phone</label>
-          <input id="clientPhone" readonly />
-        </div>
-        <div>
-          <label>Address</label>
-          <input id="clientAddress" readonly />
-        </div>
-      </div>
-    </section>
+  <h2>🏢 Business Info</h2>
+
+  <div class="grid-2">
+    <div>
+      <label for="businessName">Business Name</label>
+      <input id="businessName" name="businessName" readonly />
+    </div>
+    <div>
+      <label for="kvk">KVK Number</label>
+      <input id="kvk" name="kvk" readonly />
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <label for="vat">VAT Number</label>
+      <input id="vat" name="vat" readonly />
+    </div>
+    <div>
+      <label for="iban">IBAN</label>
+      <input id="iban" name="iban" readonly />
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <label for="businessPhone">Phone</label>
+      <input id="businessPhone" name="businessPhone" readonly />
+    </div>
+    <div>
+      <label for="businessEmail">Email</label>
+      <input id="businessEmail" name="businessEmail" readonly />
+    </div>
+  </div>
+
+  <label for="businessAddress">Address</label>
+  <input id="businessAddress" name="businessAddress" readonly />
+</section>
+       <section class="block">
+  <h2>👤 Client Info</h2>
+  <div class="grid-2">
+    <div>
+      <label for="clientName">Client Name</label>
+      <input id="clientName" name="clientName" readonly />
+    </div>
+    <div>
+      <label for="clientEmail">Email</label>
+      <input id="clientEmail" name="clientEmail" readonly />
+    </div>
+  </div>
+  <div class="grid-2">
+    <div>
+      <label for="clientPhone">Phone</label>
+      <input id="clientPhone" name="clientPhone" readonly />
+    </div>
+    <div>
+      <label for="clientAddress">Address</label>
+      <input id="clientAddress" name="clientAddress" readonly />
+    </div>
+  </div>
+</section>
 
     <section class="block">
       <h2>🧩 Project Details</h2>
-      <label>Scope of Work</label>
-      <textarea id="projectScope" rows="3"></textarea>
+      <label for="projectScope">Scope of Work</label>
+      <textarea id="projectScope" name="projectScope" rows="3" autocomplete="off"></textarea>
 
-      <label>Timeline</label>
-      <textarea id="timeline" rows="2"></textarea>
+      <label for="timeline">Timeline</label>
+      <textarea id="timeline" name="timeline" rows="2" autocomplete="off"></textarea>
 
-      <label>Payment Terms</label>
-      <textarea id="paymentTerms" rows="2"></textarea>
+       <label for="paymentTerms">Payment Terms</label>
+      <textarea id="paymentTerms" name="paymentTerms" rows="2" autocomplete="off"></textarea>
     </section>
 
     <section class="block">
       <h2>⚖️ Legal Terms</h2>
-      <textarea id="legalTerms" rows="4">This contract is governed by the laws of the Netherlands...</textarea>
+      <textarea id="legalTerms" name="legalTerms" rows="4">This contract is governed by the laws of the Netherlands...</textarea>
     </section>
 
     <section class="block signatures">
@@ -147,7 +151,7 @@
 
     <section class="block">
       <h2>📎 Stamp / Upload Logo</h2>
-      <input type="file" id="uploadStamp" accept="image/*" />
+      <input type="file" id="uploadStamp" name="uploadStamp" accept="image/*" />
       <div style="margin-top:10px;">
         <img id="freelancerStampPreview" style="max-height:100px; display:none;" />
       </div>
