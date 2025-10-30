@@ -349,9 +349,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-    /* INIT */
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href="login.html"; return; }
 
   // === 🔄 AUTO-FILL BUSINESS INFO from profile.html ===
 async function loadProfileData(uid) {
@@ -405,9 +402,16 @@ async function loadProfileData(uid) {
         if(!val("amount")) setVal("amount", opt.dataset.amount||"");
       });
 
-       await loadProfileData(user.uid);
-      $("saveBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); saveReminder(); });
-    });
+       /* INIT */
+    onAuthStateChanged(auth, async (user)=>{
+  if(!user){ location.href="login.html"; return; }
+
+  await loadProfileData(user.uid);        // ✅ вже є
+  await loadReminderForEdit(user.uid);    // ⛔️ МОЖЕ бракувати цього!
+
+  $("saveBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); saveReminder(); });
+});
+    
   </script>
 </body>
 </html>
