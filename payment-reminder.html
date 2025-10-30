@@ -404,13 +404,15 @@ async function loadProfileData(uid) {
   });
 
   $("linkedInvoice")?.addEventListener("change", (e) => {
-    const opt = e.target.selectedOptions?.[0];
-    if (!opt) return;
-    setText("invoiceDate", opt.dataset.date || "");
-    setText("dueDate", opt.dataset.due || "");
-    setText("invoiceAmount", opt.dataset.amount || "");
-    if (!val("amount")) setVal("amount", opt.dataset.amount || "");
-  });
+  const opt = e.target.selectedOptions?.[0];
+  if (!opt) return;
+  setText("invoiceDate", opt.dataset.date || "");
+  setText("dueDate", opt.dataset.due || "");
+  setText("invoiceAmount", opt.dataset.amount || "");
+
+  // ✅ завжди оновлюємо amount при виборі інвойсу
+  setVal("amount", opt.dataset.amount || "");
+});
 
   $("saveBtn")?.addEventListener("click", (e) => {
     e.preventDefault();
