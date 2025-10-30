@@ -19,41 +19,40 @@
   <main>
     <section>
       <h2>🔎 Filters & Search</h2>
-      label>Status:
-  <select id="statusFilter" name="statusFilter">
-    <option value="all">All</option>
-    <option value="Draft">Draft</option>
-    <option value="Sent">Sent</option>
-    <option value="Paid">Paid</option>
-  </select>
-</label>
-      <label>Type:
-  <select id="typeFilter" name="typeFilter">
-    <option value="all">All</option>
-    <option value="First Reminder">First Reminder</option>
-    <option value="Second Reminder">Second Reminder</option>
-    <option value="Final Reminder">Final Reminder</option>
-  </select>
-</label>
-      <label for="fromDate">From:</label>
-<input id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD" />
+    <label for="statusFilter">Status:</label>
+<select id="statusFilter" name="statusFilter">
+  <option value="all">All</option>
+  <option value="Draft">Draft</option>
+  <option value="Sent">Sent</option>
+  <option value="Paid">Paid</option>
+</select>
+
+<label for="typeFilter">Type:</label>
+<select id="typeFilter" name="typeFilter">
+  <option value="all">All</option>
+  <option value="First Reminder">First Reminder</option>
+  <option value="Second Reminder">Second Reminder</option>
+  <option value="Final Reminder">Final Reminder</option>
+</select>
+
+<label for="fromDate">From:</label>
+<input id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD">
 
 <label for="toDate">To:</label>
-<input id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD" />
+<input id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD">
 
 <label for="searchBox">Search:</label>
-<input id="searchBox" name="searchBox" placeholder="Client / Reminder # / Amount" />
-      
-      <label>Sort by:
-  <select id="sortBy" name="sortBy">
-    <option value="date_desc">Date ↓</option>
-    <option value="date_asc">Date ↑</option>
-    <option value="reminderNumber_desc">Reminder # ↓</option>
-    <option value="reminderNumber_asc">Reminder # ↑</option>
-    <option value="amount_desc">Amount ↓</option>
-    <option value="amount_asc">Amount ↑</option>
-  </select>
-</label>
+<input id="searchBox" name="searchBox" placeholder="Client / Reminder # / Amount">
+
+<label for="sortBy">Sort by:</label>
+<select id="sortBy" name="sortBy">
+  <option value="date_desc">Date ↓</option>
+  <option value="date_asc">Date ↑</option>
+  <option value="reminderNumber_desc">Reminder # ↓</option>
+  <option value="reminderNumber_asc">Reminder # ↑</option>
+  <option value="amount_desc">Amount ↓</option>
+  <option value="amount_asc">Amount ↑</option>
+</select>
     </section>
 
     <section>
