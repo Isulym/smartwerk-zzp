@@ -47,8 +47,8 @@
     <!-- Reminder Details -->
     <section>
       <h2>⏰ Reminder Details</h2>
-      <input id="reminderId" placeholder="Reminder ID (auto)" readonly/>
-      <input id="reminderDate" class="js-date" placeholder="Reminder Date"/>
+      <input id="reminderId" name="reminderId" readonly autocomplete="off" />
+      <input id="reminderDate" name="reminderDate" class="js-date" autocomplete="date" />
       <select id="status">
         <option value="Draft">Draft</option>
         <option value="Sent">Sent</option>
@@ -59,13 +59,13 @@
         <option value="Second Reminder">Second Reminder</option>
         <option value="Final Reminder">Final Reminder</option>
       </select>
-      <input id="amount" placeholder="Amount (e.g. €500)"/>
+      <input id="amount" name="amount" autocomplete="off" />
     </section>
 
     <!-- Message -->
     <section>
       <h2>💬 Message</h2>
-      <textarea id="message" placeholder="Message body..."></textarea>
+      <textarea id="message" name="message" placeholder="Message body..."></textarea>
       <div class="actions">
         <button id="aiFillBtn" type="button" onclick="aiFill()">🤖 AI Fill</button>
         <button id="aiDraftBtn" type="button" onclick="aiDraft()">✍️ AI Draft</button>
