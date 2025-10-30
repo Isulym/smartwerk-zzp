@@ -41,30 +41,6 @@
       <input id="kvk" placeholder="KvK (8 digits)" maxlength="8"/>
       <input id="iban" placeholder="IBAN"/>
       <input id="btw" placeholder="BTW Number"/>
-      <label>Business Logo:</label>
-      <input type="file" id="logoUpload" accept="image/*"/>
-      <img id="logoPreview"/>
-    </section>
-
-    <!-- Preferences -->
-    <section>
-      <h2>⚙️ Preferences</h2>
-      <label>Currency:
-        <select id="currency">
-          <option value="EUR">EUR €</option>
-          <option value="USD">USD $</option>
-          <option value="GBP">GBP £</option>
-        </select>
-      </label>
-      <label>Default VAT %:
-        <input id="vatRate" type="number" placeholder="21"/>
-      </label>
-      <label>Language:
-        <select id="language">
-          <option value="en">English</option>
-          <option value="nl">Nederlands</option>
-        </select>
-      </label>
     </section>
 
     <!-- Actions -->
@@ -101,13 +77,13 @@
     /* Save Profile */
     async function saveProfile(uid){
       try{
-        let logoUrl="";
-        const file=$("logoUpload").files[0];
-        if(file){
-          const storageRef=ref(storage,`users/${uid}/logo.png`);
-          await uploadBytes(storageRef,file);
-          logoUrl=await getDownloadURL(storageRef);
-        }
+       // let logoUrl="";
+        // const file=$("logoUpload").files[0];
+       //  if(file){
+      // const storageRef=ref(storage,`users/${uid}/logo.png`);
+      //   await uploadBytes(storageRef,file);
+      //  logoUrl=await getDownloadURL(storageRef);
+         // }
 
         const data={
           businessName:$("businessName").value,
@@ -117,10 +93,6 @@
           kvk:$("kvk").value,
           iban:$("iban").value,
           btw:$("btw").value,
-          currency:$("currency").value,
-          vatRate:$("vatRate").value,
-          language:$("language").value,
-          logo:logoUrl,
           updatedAt:new Date().toISOString()
         };
         await setDoc(doc(db,"users",uid),data,{merge:true});
@@ -145,13 +117,7 @@
         if($("kvk")) $("kvk").value=p.kvk||"";
         if($("iban")) $("iban").value=p.iban||"";
         if($("btw")) $("btw").value=p.btw||"";
-        if($("currency")) $("currency").value=p.currency||"EUR";
-        if($("vatRate")) $("vatRate").value=p.vatRate||"21";
-        if($("language")) $("language").value=p.language||"en";
-        if(p.logo){
-          $("logoPreview").src=p.logo;
-          $("logoPreview").style.display="block";
-        }
+        
       }catch(e){
         console.error("❌ Load error", e);
       }
