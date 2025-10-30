@@ -373,43 +373,49 @@ async function loadProfileData(uid) {
       setupSignature("signatureClient","signatureClientDate");
 
       // Інвойси в селекті
-      onSnapshot(collection(db,"users",user.uid,"invoices"),(snap)=>{
-        const sel = $("linkedInvoice");
-        if(!sel) return;
-        const saved = sel.value;
-        sel.innerHTML = "<option value=''>— Select Invoice —</option>";
+   onAuthStateChanged(auth, async (user)=>{
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
 
-        snap.docs.forEach(d=>{
-          const inv=d.data();
-          const val = inv.invoiceNumber || d.id;
-          const opt=document.createElement("option");
-          opt.value = val;
-          opt.textContent = val;
-          opt.dataset.date   = inv.invoiceDate || "";
-          opt.dataset.due    = inv.dueDate || "";
-          opt.dataset.amount = inv.grandTotalFormatted || String(inv.grandTotal||"");
-          if(val===saved) opt.selected = true;
-          sel.appendChild(opt);
-        });
-      });
+  await loadProfileData(user.uid);
+  await loadReminderForEdit(user.uid);
 
-      $("linkedInvoice")?.addEventListener("change",(e)=>{
-        const opt = e.target.selectedOptions?.[0];
-        if(!opt) return;
-        setText("invoiceDate",  opt.dataset.date  || "");
-        setText("dueDate",      opt.dataset.due   || "");
-        setText("invoiceAmount",opt.dataset.amount|| "");
-        if(!val("amount")) setVal("amount", opt.dataset.amount||"");
-      });
+  // 🔄 Інвойси в селекті — ПЕРЕНЕСЕНО СЮДИ
+  onSnapshot(collection(db, "users", user.uid, "invoices"), (snap) => {
+    const sel = $("linkedInvoice");
+    if (!sel) return;
+    const saved = sel.value;
+    sel.innerHTML = "<option value=''>— Select Invoice —</option>";
 
-       /* INIT */
-    onAuthStateChanged(auth, async (user)=>{
-  if(!user){ location.href="login.html"; return; }
+    snap.docs.forEach((d) => {
+      const inv = d.data();
+      const val = inv.invoiceNumber || d.id;
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      opt.dataset.date = inv.invoiceDate || "";
+      opt.dataset.due = inv.dueDate || "";
+      opt.dataset.amount = inv.grandTotalFormatted || String(inv.grandTotal || "");
+      if (val === saved) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
 
-  await loadProfileData(user.uid);        // ✅ вже є
-  await loadReminderForEdit(user.uid);    // ⛔️ МОЖЕ бракувати цього!
+  $("linkedInvoice")?.addEventListener("change", (e) => {
+    const opt = e.target.selectedOptions?.[0];
+    if (!opt) return;
+    setText("invoiceDate", opt.dataset.date || "");
+    setText("dueDate", opt.dataset.due || "");
+    setText("invoiceAmount", opt.dataset.amount || "");
+    if (!val("amount")) setVal("amount", opt.dataset.amount || "");
+  });
 
-  $("saveBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); saveReminder(); });
+  $("saveBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    saveReminder();
+  });
 });
     
   </script>
