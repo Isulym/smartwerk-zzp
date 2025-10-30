@@ -39,6 +39,8 @@
   </header>
 
   <main>
+    <form id="filtersForm" onsubmit="return false">
+
     <div class="toolbar">
       <input type="text" id="search" placeholder="🔍 Search by description or ID...">
       <select id="filterStatus">
@@ -75,6 +77,7 @@
       <p>VAT: <span id="sumVat">€0.00</span></p>
       <p><strong>Total: <span id="sumTotal">€0.00</span></strong></p>
     </div>
+      </form>
   </main>
 
   <div class="details-modal" id="detailsModal">
@@ -130,10 +133,10 @@ function loadExpenses(uid){
   const body = $("expensesBody");
   body.innerHTML = "";
 
-  if (!list.length) {
-    body.innerHTML = "<tr><td colspan='12'>No expenses yet.</td></tr>";
-    return;
-  }
+  if (list.length === 0) {
+  body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#94a3b8;">No reminders found</td></tr>`;
+  return;
+}
 
   let sub = 0, vat = 0, total = 0;
 
