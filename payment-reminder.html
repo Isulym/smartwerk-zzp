@@ -66,7 +66,7 @@
     <!-- Message -->
     <section>
       <h2>💬 Message</h2>
-      <textarea id="message" name="message" placeholder="Message body..."></textarea>
+      <textarea id="message" name="message" autocomplete="off" placeholder="Message body..."></textarea>
       <div class="actions">
         <button id="aiFillBtn" type="button" onclick="aiFill()">🤖 AI Fill</button>
         <button id="aiDraftBtn" type="button" onclick="aiDraft()">✍️ AI Draft</button>
@@ -96,8 +96,8 @@
 
     <!-- Actions -->
     <section class="step actions">
-      <button id="saveBtn" class="btn-primary">💾 Save Reminder</button>
-      <a href="payment-reminder-list.html" class="btn">📋 Saved Reminders</a>
+      <button id="saveBtn" name="saveBtn" type="submit" class="btn-primary">💾 Save Reminder</button>
+      <a href="payment-reminder-list.html" class="btn" role="button">📋 Saved Reminders</a>
     </section>
 
         </form>
