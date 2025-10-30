@@ -17,21 +17,22 @@
   </header>
 
   <main>
+      <form id="reminderForm" onsubmit="return false">
     <!-- Business Info -->
     <section>
       <h2>🏢 Business Info</h2>
-       <input id="businessName" placeholder="Full Name / Business Name"/>
-       <input id="email" placeholder="Business Email"/>
-       <input id="businessAddress" placeholder="Business Address"/>
-       <input id="businessPhone" placeholder="Business Phone"/>
+      <input id="businessName" placeholder="Full Name / Business Name" autocomplete="businessName" />
+      <input id="email" placeholder="Business Email" autocomplete="email" />
+      <input id="businessAddress" placeholder="Business Address" autocomplete="street-address" />
+      <input id="businessPhone" placeholder="Business Phone" autocomplete="tel" />
     </section>
 
     <!-- Client Info -->
     <section>
       <h2>👤 Client Info</h2>
-      <input id="clientName" placeholder="Client Name"/>
-      <input id="clientEmail" placeholder="Client Email"/>
-      <input id="clientAddress" placeholder="Client Address"/>
+      <input id="clientName" placeholder="Client Name" autocomplete="name" />
+      <input id="clientEmail" placeholder="Client Email" autocomplete="email" />
+     <input id="clientAddress" placeholder="Client Address" autocomplete="street-address" />
     </section>
 
     <!-- Linked Invoice -->
@@ -66,8 +67,8 @@
       <h2>💬 Message</h2>
       <textarea id="message" placeholder="Message body..."></textarea>
       <div class="actions">
-        <button type="button" onclick="aiFill()">🤖 AI Fill</button>
-        <button type="button" onclick="aiDraft()">✍️ AI Draft</button>
+        <button id="aiFillBtn" type="button" onclick="aiFill()">🤖 AI Fill</button>
+        <button id="aiDraftBtn" type="button" onclick="aiDraft()">✍️ AI Draft</button>
         <button type="button" onclick="aiStrict()">💬 Strict</button>
         <button type="button" onclick="aiFriendly()">👍 Friendly</button>
         <button type="button" onclick="translateMsg('en')">🌐 EN</button>
@@ -97,6 +98,8 @@
       <button id="saveBtn" class="btn-primary">💾 Save Reminder</button>
       <a href="payment-reminder-list.html" class="btn">📋 Saved Reminders</a>
     </section>
+
+        </form>
   </main>
 
   <footer>
@@ -108,9 +111,11 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, onSnapshot, runTransaction, serverTimestamp } 
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, onSnapshot, runTransaction, serverTimestamp, setLogLevel
+           } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-   
+     setLogLevel("error");
+
     
     /* Firebase init */
     const firebaseConfig = {
