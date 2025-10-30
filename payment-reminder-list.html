@@ -160,6 +160,10 @@
           default: return 0;
         }
       });
+      if (list.length === 0) {
+  body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#94a3b8;">No reminders found</td></tr>`;
+  return;
+}
 
       list.forEach(r=>{
         const tr = document.createElement("tr");
