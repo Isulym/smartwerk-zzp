@@ -390,19 +390,28 @@ async function loadProfileData(uid) {
     sel.innerHTML = "<option value=''>— Select Invoice —</option>";
 
     snap.docs.forEach((d) => {
-      const inv = d.data();
-      const val = inv.invoiceNumber || d.id;
-      const opt = document.createElement("option");
-      opt.value = val;
-      opt.textContent = val;
-      opt.dataset.date = inv.invoiceDate || "";
-      opt.dataset.due = inv.dueDate || "";
-      opt.dataset.amount = inv.grandTotalFormatted || String(inv.grandTotal || "");
-      if (val === saved) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  });
+    const inv = d.data();
+    const val = inv.invoiceNumber || d.id;
+    const opt = document.createElement("option");
+    opt.value = val;
+    opt.textContent = val;
 
+    // додаємо додаткові дані
+    opt.dataset.date = inv.invoiceDate || "";
+    opt.dataset.due = inv.dueDate || "";
+    opt.dataset.amount = inv.grandTotalFormatted || String(inv.grandTotal || "");
+
+    // ✅ додаємо клієнтські дані
+    opt.dataset.clientName = inv.clientName || "";
+    opt.dataset.clientEmail = inv.clientEmail || "";
+    opt.dataset.clientAddress = inv.clientAddress || "";
+
+    if (val === saved) opt.selected = true;
+    sel.appendChild(opt);
+  });
+});
+
+     
   $("linkedInvoice")?.addEventListener("change", (e) => {
   const opt = e.target.selectedOptions?.[0];
   if (!opt) return;
@@ -412,6 +421,9 @@ async function loadProfileData(uid) {
 
   // ✅ завжди оновлюємо amount при виборі інвойсу
   setVal("amount", opt.dataset.amount || "");
+  setVal("clientName", opt.dataset.clientName || "");
+  setVal("clientEmail", opt.dataset.clientEmail || "");
+  setVal("clientAddress", opt.dataset.clientAddress || "");
 });
 
   $("saveBtn")?.addEventListener("click", (e) => {
