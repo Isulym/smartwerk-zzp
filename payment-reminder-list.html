@@ -17,59 +17,64 @@
   </header>
 
   <main>
+   <section>
+  <h2>🔎 Filters & Search</h2>
+  <form id="filtersForm" onsubmit="return false">
+
+  <label for="statusFilter">Status:</label>
+  <select id="statusFilter" name="statusFilter">
+    <option value="all">All</option>
+    <option value="Draft">Draft</option>
+    <option value="Sent">Sent</option>
+    <option value="Paid">Paid</option>
+  </select>
+
+  <label for="typeFilter">Type:</label>
+  <select id="typeFilter" name="typeFilter">
+    <option value="all">All</option>
+    <option value="First Reminder">First Reminder</option>
+    <option value="Second Reminder">Second Reminder</option>
+    <option value="Final Reminder">Final Reminder</option>
+  </select>
+
+  <label for="fromDate">From:</label>
+  <input type="text" id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off">
+
+  <label for="toDate">To:</label>
+  <input type="text" id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off">
+
+  <label for="searchBox">Search:</label>
+  <input type="text" id="searchBox" name="searchBox" placeholder="Client / Reminder # / Amount" autocomplete="off">
+
+  <label for="sortBy">Sort by:</label>
+  <select id="sortBy" name="sortBy">
+    <option value="date_desc">Date ↓</option>
+    <option value="date_asc">Date ↑</option>
+    <option value="reminderNumber_desc">Reminder # ↓</option>
+    <option value="reminderNumber_asc">Reminder # ↑</option>
+    <option value="amount_desc">Amount ↓</option>
+    <option value="amount_asc">Amount ↑</option>
+  </select>
+      </form>
+</section>
+
     <section>
-      <h2>🔎 Filters & Search</h2>
-    <label for="statusFilter">Status:</label>
-<select id="statusFilter" name="statusFilter">
-  <option value="all">All</option>
-  <option value="Draft">Draft</option>
-  <option value="Sent">Sent</option>
-  <option value="Paid">Paid</option>
-</select>
-
-<label for="typeFilter">Type:</label>
-<select id="typeFilter" name="typeFilter">
-  <option value="all">All</option>
-  <option value="First Reminder">First Reminder</option>
-  <option value="Second Reminder">Second Reminder</option>
-  <option value="Final Reminder">Final Reminder</option>
-</select>
-
-<label for="fromDate">From:</label>
-<input id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD">
-
-<label for="toDate">To:</label>
-<input id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD">
-
-<label for="searchBox">Search:</label>
-<input id="searchBox" name="searchBox" placeholder="Client / Reminder # / Amount">
-
-<label for="sortBy">Sort by:</label>
-<select id="sortBy" name="sortBy">
-  <option value="date_desc">Date ↓</option>
-  <option value="date_asc">Date ↑</option>
-  <option value="reminderNumber_desc">Reminder # ↓</option>
-  <option value="reminderNumber_asc">Reminder # ↑</option>
-  <option value="amount_desc">Amount ↓</option>
-  <option value="amount_asc">Amount ↑</option>
-</select>
-    </section>
-
-    <section>
-      <table>
+     <table role="table">
         <thead>
-          <tr>
-            <th>Reminder ID</th>
-            <th>Linked Invoice</th>
-            <th>Client</th>
-            <th>Status</th>
-            <th>Type</th>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="remindersBody"></tbody>
+  <tr>
+    <th scope="col">Reminder ID</th>
+    <th scope="col">Linked Invoice</th>
+    <th scope="col">Client</th>
+    <th scope="col">Status</th>
+    <th scope="col">Type</th>
+    <th scope="col">Date</th>
+    <th scope="col">Amount</th>
+    <th scope="col">Actions</th>
+  </tr>
+</thead>
+       <tbody id="remindersBody">
+  <tr><td colspan="8" style="text-align:center;">🔄 Loading...</td></tr>
+</tbody>
       </table>
     </section>
   </main>
@@ -164,7 +169,7 @@
           <td>${r.linkedInvoice||"—"}</td>
           <td>${r.clientName||"—"}</td>
           <td>
-            <select onchange="updateReminderStatus('${r.id}', this.value)">
+            <select name="status" onchange="updateReminderStatus('${r.id}', this.value)">
               <option value="Draft" ${r.status==="Draft"?"selected":""}>Draft</option>
               <option value="Sent" ${r.status==="Sent"?"selected":""}>Sent</option>
               <option value="Paid" ${r.status==="Paid"?"selected":""}>Paid</option>
