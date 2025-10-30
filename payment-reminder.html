@@ -46,25 +46,30 @@
       <p>Invoice Amount: <span id="invoiceAmount">—</span></p>
     </section>
 
-   <!-- Reminder Details -->
-<section>
+ <section>
   <h2>⏰ Reminder Details</h2>
 
+  <label for="reminderId">Reminder ID</label>
   <input id="reminderId" name="reminderId" readonly />
+
+  <label for="reminderDate">Reminder Date</label>
   <input id="reminderDate" name="reminderDate" class="js-date" autocomplete="off" />
 
+  <label for="status">Status</label>
   <select id="status" name="status" autocomplete="off">
     <option value="Draft">Draft</option>
     <option value="Sent">Sent</option>
     <option value="Paid">Paid</option>
   </select>
 
+  <label for="type">Type</label>
   <select id="type" name="type" autocomplete="off">
     <option value="First Reminder">First Reminder</option>
     <option value="Second Reminder">Second Reminder</option>
     <option value="Final Reminder">Final Reminder</option>
   </select>
 
+  <label for="amount">Amount</label>
   <input id="amount" name="amount" autocomplete="off" />
 </section>
 
