@@ -178,12 +178,14 @@
           <td>${r.reminderDate||"—"}</td>
           <td>${fmt(r.amount)}</td>
           <td>
-            <button onclick="editReminder('${r.id}')">✏️ Edit</button>
-            <button onclick="deleteReminder('${r.id}')">🗑 Delete</button>
-            <button onclick="downloadPDF('${r.id}', true)">📄 PDF</button>
-            <button onclick="downloadPDF('${r.id}', false)">PRO 📄 PDF without branding</button>
-            <button onclick="sendReminder('${r.id}')">📧 Send</button>
-          </td>
+         <div class="actions" role="group" aria-label="Reminder actions">
+    <button type="button" onclick="editReminder('${r.id}')">✏️ Edit</button>
+    <button type="button" onclick="deleteReminder('${r.id}')">🗑 Delete</button>
+    <button type="button" onclick="downloadPDF('${r.id}', true)">📄 PDF</button>
+    <button type="button" onclick="downloadPDF('${r.id}', false)">PRO 📄 PDF without branding</button>
+    <button type="button" onclick="sendReminder('${r.id}')">📧 Send</button>
+         </div>
+</td>
         `;
         body.appendChild(tr);
       });
