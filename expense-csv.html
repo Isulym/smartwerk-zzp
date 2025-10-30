@@ -34,138 +34,157 @@
   </header>
 
   <main>
-    <!-- BUSINESS INFO -->
-    <section>
-      <h2>🏢 Business Info</h2>
-      <div class="grid-2">
-        <div>
-          <label>Business Name</label>
-          <input id="businessName" placeholder="Your business or full name"/>
-        </div>
-        <div>
-          <label>Email</label>
-          <input id="email" placeholder="your@email.com"/>
-        </div>
-      </div>
-      <label>Address</label>
-      <input id="businessAddress" placeholder="Street, City"/>
-    </section>
+  <!-- BUSINESS INFO -->
+<section>
+  <h2>🏢 Business Info</h2>
+  <div class="grid-2">
+    <div>
+      <label for="businessName">Business Name</label>
+      <input id="businessName" name="businessName"type="text" placeholder="Your business or full name" autocomplete="organization" required/>
+    </div>
+
+    <div>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" placeholder="your@email.com"autocomplete="email" required/>
+    </div>
+  </div>
+
+  <div>
+    <label for="businessAddress">Business Address</label>
+    <input id="businessAddress" name="businessAddress"type="text" placeholder="Street, City"autocomplete="street-address"required/>
+  </div>
+</section>
 
     <!-- EXPENSE DETAILS -->
     <section>
-      <h2>💸 Expense Details</h2>
-      <div class="grid-2">
-        <div>
-          <label>Expense ID</label>
-          <input id="expenseId" readonly placeholder="EXP-2025-001"/>
-        </div>
-        <div>
-          <label>Date</label>
-          <input type="date" id="date"/>
-        </div>
-      </div>
+  <h2>💸 Expense Details</h2>
 
-      <div class="grid-2">
-        <div>
-          <label>Expense Name / Description</label>
-          <input id="description" placeholder="e.g. Adobe subscription"/>
-        </div>
-        <div>
-          <label>Expense Type</label>
-          <select id="type">
-            <option>One-time</option>
-            <option>Monthly</option>
-            <option>Annual</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Category</label>
-          <input id="category" placeholder="Select or use Smart Suggest"/>
-        </div>
-        <div>
-          <label>Country / Location</label>
-          <select id="country">
-            <option>Netherlands</option>
-            <option>Belgium</option>
-            <option>Germany</option>
-            <option>France</option>
-            <option>Spain</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Amount (excl. VAT)</label>
-          <input id="amount" type="number" placeholder="0.00" step="0.01" min="0"/>
-        </div>
-        <div>
-          <label>VAT %</label>
-          <select id="vat">
-            <option value="0">0%</option>
-            <option value="9">9%</option>
-            <option value="21" selected>21%</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Invoice Attached</label>
-          <select id="invoiceAttached"><option>No</option><option>Yes</option></select>
-        </div>
-        <div>
-          <label>Payment Method</label>
-          <select id="paymentMethod">
-            <option>Bank</option><option>Credit Card</option><option>Cash</option>
-            <option>PayPal</option><option>Other</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label>Payment Status</label>
-          <select id="status">
-            <option>Paid</option><option>Pending</option><option>Overdue</option><option>Scheduled</option>
-          </select>
-        </div>
-        <div>
-          <label>Notes</label>
-          <input id="notes" placeholder="Optional notes..."/>
-        </div>
-      </div>
-
-      <div style="margin-top:15px;">
-        <p>Subtotal: <span id="subtotalDisplay">€0.00</span></p>
-        <p>VAT: <span id="vatDisplay">€0.00</span></p>
-        <p><strong>Total: <span id="totalDisplay">€0.00</span></strong></p>
-      </div>
-
-      <div class="actions">
-        <button id="saveBtn" class="btn-primary">💾 Save Expense</button>
-        <button id="viewBtn" class="btn">📂 View Saved</button>
-        <button id="smartSuggestBtn" class="btn">🤖 Smart Suggest</button>
-      </div>
-      <div id="smartHint" class="hint"></div>
-    </section>
-  </main>
-
-  <!-- Smart Suggest Modal -->
-  <div id="smartSuggestModal" aria-hidden="true">
-    <div class="modal-content">
-      <h3>🤖 Smart Suggest Category</h3>
-      <button class="suggest-btn" data-cat="Office & Supplies">🧾 Office & Supplies</button>
-      <button class="suggest-btn" data-cat="Travel & Transport">🚗 Travel & Transport</button>
-      <button class="suggest-btn" data-cat="Meals & Entertainment">☕ Meals & Entertainment</button>
-      <button class="suggest-btn" data-cat="Software & Tools">💻 Software & Tools</button>
-      <button class="suggest-btn" data-cat="Accounting & Legal">🧮 Accounting & Legal</button>
-      <button class="btn" id="closeSuggest">✖ Close</button>
+  <div class="grid-2">
+    <div>
+      <label for="expenseId">Expense ID</label>
+      <input id="expenseId" name="expenseId" readonly placeholder="EXP-2025-001" type="text" autocomplete="off" />
+    </div>
+    <div>
+      <label for="date">Date</label>
+      <input id="date" name="date" type="date" required autocomplete="off" />
     </div>
   </div>
+
+  <div class="grid-2">
+    <div>
+      <label for="description">Expense Name / Description</label>
+      <input id="description" name="description" placeholder="e.g. Adobe subscription" type="text" required autocomplete="off" />
+    </div>
+    <div>
+      <label for="type">Expense Type</label>
+      <select id="type" name="type" required>
+        <option>One-time</option>
+        <option>Monthly</option>
+        <option>Annual</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <label for="category">Category</label>
+      <input id="category" name="category" placeholder="Select or use Smart Suggest" type="text" autocomplete="off" />
+    </div>
+    <div>
+      <label for="country">Country / Location</label>
+      <select id="country" name="country" autocomplete="country">
+        <option>Netherlands</option>
+        <option>Belgium</option>
+        <option>Germany</option>
+        <option>France</option>
+        <option>Spain</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <label for="amount">Amount (excl. VAT)</label>
+      <input id="amount" name="amount" type="number" placeholder="0.00" step="0.01" min="0" required autocomplete="off" />
+    </div>
+    <div>
+      <label for="vat">VAT %</label>
+      <select id="vat" name="vat" required>
+        <option value="0">0%</option>
+        <option value="9">9%</option>
+        <option value="21" selected>21%</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <label for="invoiceAttached">Invoice Attached</label>
+      <select id="invoiceAttached" name="invoiceAttached">
+        <option>No</option>
+        <option>Yes</option>
+      </select>
+    </div>
+    <div>
+      <label for="paymentMethod">Payment Method</label>
+      <select id="paymentMethod" name="paymentMethod" required>
+        <option>Bank</option>
+        <option>Credit Card</option>
+        <option>Cash</option>
+        <option>PayPal</option>
+        <option>Other</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <label for="status">Payment Status</label>
+      <select id="status" name="status" required>
+        <option>Paid</option>
+        <option>Pending</option>
+        <option>Overdue</option>
+        <option>Scheduled</option>
+      </select>
+    </div>
+    <div>
+      <label for="notes">Notes</label>
+      <input id="notes" name="notes" placeholder="Optional notes..." type="text" autocomplete="off" />
+    </div>
+  </div>
+
+  <div style="margin-top:15px;">
+    <p>Subtotal: <span id="subtotalDisplay">€0.00</span></p>
+    <p>VAT: <span id="vatDisplay">€0.00</span></p>
+    <p><strong>Total: <span id="totalDisplay">€0.00</span></strong></p>
+  </div>
+
+  <div class="actions">
+    <button id="saveBtn" name="saveBtn" class="btn-primary" type="submit">💾 Save Expense</button>
+    <button id="viewBtn" name="viewBtn" class="btn" type="button">📂 View Saved</button>
+    <button id="smartSuggestBtn" name="smartSuggestBtn" class="btn" type="button">🤖 Smart Suggest</button>
+  </div>
+
+  <div id="smartHint" class="hint" role="note" aria-live="polite"></div>
+</section>
+  </main>
+
+ <!-- Smart Suggest Modal -->
+<div id="smartSuggestModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="suggestTitle" aria-hidden="true">
+  <div class="modal-content">
+    <h3 id="suggestTitle">🤖 Smart Suggest Category</h3>
+    
+    <div role="group" aria-label="Suggested categories">
+      <button class="suggest-btn" type="button" data-cat="Office & Supplies">🧾 Office & Supplies</button>
+      <button class="suggest-btn" type="button" data-cat="Travel & Transport">🚗 Travel & Transport</button>
+      <button class="suggest-btn" type="button" data-cat="Meals & Entertainment">☕ Meals & Entertainment</button>
+      <button class="suggest-btn" type="button" data-cat="Software & Tools">💻 Software & Tools</button>
+      <button class="suggest-btn" type="button" data-cat="Accounting & Legal">🧮 Accounting & Legal</button>
+    </div>
+
+    <button id="closeSuggest" type="button" class="btn" aria-label="Close Smart Suggest Modal">✖ Close</button>
+  </div>
+</div>
 
   <footer><p>© 2025 SmartWerk</p></footer>
 
@@ -268,10 +287,25 @@
       const cat   = $("category");
       const hint  = $("smartHint");
 
-      open?.addEventListener("click", ()=> modal.classList.add("active"));
-      close?.addEventListener("click",()=> modal.classList.remove("active"));
-      modal?.addEventListener("click",(e)=>{ if(e.target===modal) modal.classList.remove("active"); });
+     open?.addEventListener("click", () => {
+  modal.classList.add("active");
+  modal.removeAttribute("hidden");
+  modal.setAttribute("aria-hidden", "false");
+});
 
+close?.addEventListener("click", () => {
+  modal.classList.remove("active");
+  modal.setAttribute("aria-hidden", "true");
+  modal.setAttribute("hidden", "");
+});
+
+modal?.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.classList.remove("active");
+    modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("hidden", "");
+  }
+});
       document.querySelectorAll(".suggest-btn").forEach(btn=>{
         btn.addEventListener("click", ()=>{
           const val = btn.dataset.cat;
