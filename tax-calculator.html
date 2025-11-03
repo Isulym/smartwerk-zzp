@@ -39,10 +39,10 @@
 </div>
      
        <section class="collapsible">
- <button type="button" class="section-toggle">
-  <span>👤 Client Info</span>
-  <span class="toggle-icon">▶️</span>
-</button>
+  <button type="button" class="section-toggle">
+    <span>🏢 Business Info</span>
+    <span class="toggle-icon">▶️</span>
+  </button>
   <div class="section-content">
   <input id="businessName" placeholder="Full Name / Business Name" autocomplete="off" />
   <input id="kvkNumber" placeholder="KvK Number" autocomplete="off" />
@@ -865,8 +865,9 @@ window.validateState = validateState; // залишаємо це
     if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
     runValidationUI();
   });
-    setupCollapsibles();
 });
+    setupCollapsibles();
+    }
     
 
     // 3) Кнопка Export PDF
