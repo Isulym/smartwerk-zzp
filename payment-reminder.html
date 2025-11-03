@@ -20,20 +20,24 @@
       <form id="reminderForm" onsubmit="return false">
    
    <!-- Business Info -->
-<section>
-  <h2>🏢 Business Info</h2>
+ <section class="collapsible">
+  <button type="button" class="section-toggle">🏢 Business Info</button>
+  <div class="section-content">
   <input id="businessName" name="businessName" placeholder="Full Name / Business Name" autocomplete="organization" />
   <input id="email" name="email" placeholder="Business Email" autocomplete="email" />
   <input id="businessAddress" name="businessAddress" placeholder="Business Address" autocomplete="street-address" />
   <input id="businessPhone" name="businessPhone" placeholder="Business Phone" autocomplete="tel" />
+    </div>
 </section>
 
 <!-- Client Info -->
-<section>
-  <h2>👤 Client Info</h2>
+ <section class="collapsible">
+  <button type="button" class="section-toggle">👤 Client Info</button>
+  <div class="section-content">
   <input id="clientName" name="clientName" placeholder="Client Name" autocomplete="name" />
   <input id="clientEmail" name="clientEmail" placeholder="Client Email" autocomplete="email" />
   <input id="clientAddress" name="clientAddress" placeholder="Client Address" autocomplete="street-address" />
+      </div>
 </section>
 
     <!-- Linked Invoice -->
@@ -378,6 +382,15 @@ async function loadProfileData(uid) {
     location.href = "login.html";
     return;
   }
+
+       document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".section-toggle").forEach(button => {
+      button.addEventListener("click", () => {
+        const content = button.nextElementSibling;
+        content.classList.toggle("open");
+      });
+    });
+  });
 
   await loadProfileData(user.uid);
   await loadReminderForEdit(user.uid);
