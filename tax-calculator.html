@@ -842,16 +842,7 @@ window.validateState = validateState; // залишаємо це
     }
   }
 
-  function setupCollapsibles() {
-  document.querySelectorAll(".section-toggle").forEach(button => {
-    button.addEventListener("click", () => {
-      const content = button.nextElementSibling;
-      const icon = button.querySelector('.toggle-icon');
-      const isOpen = content.classList.toggle("open");
-      if (icon) icon.textContent = isOpen ? "🔽" : "▶️";
-    });
-  });
-}
+ 
 
   function attachHandlers(){
     // 1) Autocalc + перерахунок на будь-яке введення
@@ -866,7 +857,6 @@ window.validateState = validateState; // залишаємо це
     runValidationUI();
   });
 });
-    setupCollapsibles();
     }
     
 
