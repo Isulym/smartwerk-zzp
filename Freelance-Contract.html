@@ -58,10 +58,9 @@
       </div>
     </section>
 
-    <section class="block">
-  <h2>🏢 Business Info</h2>
-
-  <div class="grid-2">
+    <section class="collapsible">
+  <button type="button" class="section-toggle">🏢 Business Info</button>
+  <div class="section-content">
     <div>
       <label for="businessName">Business Name</label>
       <input id="businessName" name="businessName" readonly />
@@ -70,7 +69,7 @@
       <label for="kvk">KVK Number</label>
       <input id="kvk" name="kvk" readonly />
     </div>
-  </div>
+  
 
   <div class="grid-2">
     <div>
@@ -96,6 +95,7 @@
 
   <label for="businessAddress">Address</label>
   <input id="businessAddress" name="businessAddress" readonly />
+    </div>
 </section>
        <section class="block">
   <h2>👤 Client Info</h2>
@@ -470,6 +470,17 @@ async function saveContract(uid, id = null) {
     $("loadingBox").style.display = "none";
   }
 }
+
+  document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".section-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+      const content = button.nextElementSibling;
+      const icon = button.querySelector('.toggle-icon');
+      const isOpen = content.classList.toggle("open");
+      icon.textContent = isOpen ? "🔽" : "▶️";
+    });
+  });
+});
 
 onAuthStateChanged(auth, async user => {
   if (!user) return location.href = "login.html";
