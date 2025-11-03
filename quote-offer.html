@@ -21,7 +21,10 @@
       <form id="quoteForm" onsubmit="return false;">
     <!-- Business Info -->
      <section class="collapsible">
-  <button type="button" class="section-toggle">🏢 Business Info</button>
+  <button type="button" class="section-toggle">
+  <span>🏢 Business Info</span>
+  <span class="toggle-icon">▶️</span>
+</button>
   <div class="section-content">
     
       <input id="businessName" name="businessName" placeholder="Business Name" autocomplete="organization"/>
@@ -36,7 +39,10 @@
 
     <!-- Client Info -->
      <section class="collapsible">
-  <button type="button" class="section-toggle">👤 Client Info</button>
+  <button type="button" class="section-toggle">
+  <span>👤 Client Info</span>
+  <span class="toggle-icon">▶️</span>
+</button>
   <div class="section-content">
       <input id="clientName" name="clientName" placeholder="Client Name" autocomplete="name"/>
       <input id="clientEmail" name="clientEmail" placeholder="Client Email" autocomplete="email"/>
@@ -381,13 +387,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
      document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".section-toggle").forEach(button => {
-      button.addEventListener("click", () => {
-        const content = button.nextElementSibling;
-        content.classList.toggle("open");
-      });
+  document.querySelectorAll(".section-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+      const content = button.nextElementSibling;
+      const icon = button.querySelector('.toggle-icon');
+      const isOpen = content.classList.toggle("open");
+      icon.textContent = isOpen ? "🔽" : "▶️";
     });
   });
+});
     
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
