@@ -21,8 +21,9 @@
   <main>
     <form id="invoiceForm" onsubmit="return false;">
     <!-- Business Info -->
-    <section>
-  <h2>🏢 Business Info</h2>
+    <section class="collapsible">
+  <button type="button" class="section-toggle">🏢 Business Info</button>
+  <div class="section-content">
 
   <label for="businessName">Business Name</label>
   <input id="businessName" name="businessName" placeholder="Full Name / Business Name" autocomplete="organization" />
@@ -44,6 +45,8 @@
 
   <label for="businessPhone">Business Phone</label>
   <input id="businessPhone" name="businessPhone" placeholder="Business Phone" type="tel" autocomplete="tel" />
+      </div>
+
 </section>
 
     <!-- Client Info -->
@@ -487,6 +490,15 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ Client data autofilled from clients-list");
   }
 });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".section-toggle").forEach(button => {
+      button.addEventListener("click", () => {
+        const content = button.nextElementSibling;
+        content.classList.toggle("open");
+      });
+    });
+  });
     
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
