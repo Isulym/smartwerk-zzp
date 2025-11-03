@@ -344,3 +344,48 @@ input.js-date::placeholder,
   background-color: #2a66db;
   color: white;
 }
+/* === Collapsible Sections === */
+.collapsible {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  margin: 16px 0;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,.2);
+}
+
+.section-toggle {
+  width: 100%;
+  background: none;
+  color: var(--txt);
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  background-color: #1a2233;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-toggle:hover {
+  background-color: #222c45;
+}
+
+.section-content {
+  padding: 16px 18px;
+  display: none;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.section-content.open {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
