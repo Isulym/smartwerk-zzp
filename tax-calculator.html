@@ -842,6 +842,17 @@ window.validateState = validateState; // залишаємо це
     }
   }
 
+  function setupCollapsibles() {
+  document.querySelectorAll(".section-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+      const content = button.nextElementSibling;
+      const icon = button.querySelector('.toggle-icon');
+      const isOpen = content.classList.toggle("open");
+      if (icon) icon.textContent = isOpen ? "🔽" : "▶️";
+    });
+  });
+}
+
   function attachHandlers(){
     // 1) Autocalc + перерахунок на будь-яке введення
   
@@ -854,6 +865,7 @@ window.validateState = validateState; // залишаємо це
     if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
     runValidationUI();
   });
+    setupCollapsibles();
 });
     
 
@@ -920,16 +932,7 @@ async function clearHistory() {
   await loadHistory();
 }
 
- document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".section-toggle").forEach(button => {
-    button.addEventListener("click", () => {
-      const content = button.nextElementSibling;
-      const icon = button.querySelector('.toggle-icon');
-      const isOpen = content.classList.toggle("open");
-      icon.textContent = isOpen ? "🔽" : "▶️";
-    });
-  });
-});
+
 
 // ✅ Прив’язуємо до кнопки обидві дії
 // ✅ Вже не викликаємо calculateTax() тут повторно!
