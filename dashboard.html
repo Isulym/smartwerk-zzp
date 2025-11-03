@@ -366,5 +366,26 @@ window.logEvent = logEvent;
     // Logout
     $("logoutBtn").addEventListener("click",async()=>{await signOut(auth);location.href="login.html";});
   </script>
+  <script>
+  const toggle = document.getElementById("themeToggle");
+  const savedTheme = localStorage.getItem("theme");
+
+  // 1. Автозастосування збереженої теми
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+    if (toggle) toggle.checked = true;
+  }
+
+  // 2. Відстеження перемикача
+  toggle?.addEventListener("change", function () {
+    if (this.checked) {
+      document.body.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  });
+</script>
 </body>
 </html>
