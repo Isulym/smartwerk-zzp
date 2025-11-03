@@ -170,3 +170,12 @@
   background-color: #2a66db;
   color: white;
 }
+.section-content {
+  display: none;
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+}
+
+.section-content.open {
+  display: block;
+}
