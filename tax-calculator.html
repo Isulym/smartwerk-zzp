@@ -899,38 +899,77 @@ document.addEventListener("DOMContentLoaded", function(){
   exposeGlobals();
   attachHandlers();
   if (typeof window.autoCalcIncome === "function") window.autoCalcIncome();
-  runValidationUI();
-
-  // ✅ Прив’язуємо інші кнопки після завантаження DOM
-  document.getElementById('btn-ai')?.addEventListener('click', function(){
+  runValidationUI(); // без auto-submit!
+});
+document.getElementById('btn-ai').addEventListener('click', function(){
+    // формуємо payload (у тебе вже є функція openAIChat – можна її викликати)
+    // Або просто відкриваємо сторінку, якщо payload вже збережений:
     window.open('./ai-assistant.html','_blank');
   });
+  
 
-  document.getElementById("btn-clear-history")?.addEventListener("click", () => {
-    if (confirm("Are you sure you want to delete all history?")) {
-      clearHistory();
+  // На випадок, якщо скрипти вище завантажаться пізніше — зробимо кілька спроб
+  var tries = 0;
+  var t = setInterval(function(){
+    tries++;
+    exposeGlobals();
+    if (window.calculateTax && (document.readyState === "complete" || document.readyState === "interactive")){
+      try { attachHandlers(); if (window.autoCalcIncome) window.autoCalcIncome();  runValidationUI(); } catch(e){}
+      clearInterval(t);
     }
-  });
+    if (tries > 20) clearInterval(t); // ~10 секунд максимум
+  }, 500);
 
-  document.getElementById("btn-load-history")?.addEventListener("click", () => {
-    loadHistory();
-  });
 
-  document.getElementById("btn-tax-guide")?.addEventListener("click", () => {
+async function clearHistory() {
+  const db = window.smartwerkDb;
+  const user = window.smartwerkUser && window.smartwerkUser();
+  if (!db || !user) return;
+
+  const snap = await getDocs(collection(db, "users", user.uid, "tax_calculations"));
+  const deletions = snap.docs.map(doc => deleteDoc(doc.ref));
+  await Promise.all(deletions);
+  console.log("🧹 History cleared");
+  await loadHistory();
+}
+
+
+
+// ✅ Прив’язуємо до кнопки обидві дії
+// ✅ Вже не викликаємо calculateTax() тут повторно!
+
+document.getElementById("btn-clear-history")?.addEventListener("click", () => {
+  if (confirm("Are you sure you want to delete all history?")) {
+    clearHistory();
+  }
+});
+
+// ✅ НОВИЙ БЛОК — ручне оновлення історії
+document.getElementById("btn-load-history")?.addEventListener("click", () => {
+  loadHistory();
+});
+document.getElementById("btn-tax-guide")?.addEventListener("click", () => {
     window.open("tax-guide.html", "_blank");
   });
 
-  document.getElementById("btn-calc")?.addEventListener("click", async () => {
-    if (typeof window.calculateTax === "function") await window.calculateTax();
-    runValidationUI();
-    const el = document.getElementById("calcStatus");
-    if (el) {
-      el.textContent = "✅ Calculated & saved. History updated.";
-      el.style.display = "block";
-      setTimeout(() => { el.style.display = "none"; }, 5000);
-    }
-    await loadHistory();
-  });
+    // Показати повідомлення
+// ✅ Прив’язуємо до кнопки обидві дії
+document.getElementById("btn-calc")?.addEventListener("click", async () => {
+  if (typeof window.calculateTax === "function") await window.calculateTax();
+
+  // ✅ Валідація — окремо
+  runValidationUI();
+
+  // ✅ Показати повідомлення
+  const el = document.getElementById("calcStatus");
+  if (el) {
+    el.textContent = "✅ Calculated & saved. History updated.";
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 5000);
+  }
+
+  // ✅ Оновити історію тільки зараз
+  await loadHistory();
 });
 
 
