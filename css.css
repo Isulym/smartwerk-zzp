@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartWerk Unified Theme</title>
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --text: #111827;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+      --input-bg: #f1f5f9;
+      --button-bg: #3b82f6;
+      --button-text: #ffffff;
+      --button-hover: #2563eb;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --text: #f1f5f9;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --input-bg: #334155;
+      --button-bg: #3b82f6;
+      --button-text: #ffffff;
+      --button-hover: #60a5fa;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--button-hover);
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      margin-bottom: 1rem;
+      background-color: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    .button {
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      padding: 0.5rem 1.25rem;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .button:hover {
+      background-color: var(--button-hover);
+    }
+
+    .section-toggle {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      color: var(--text);
+      background-color: var(--input-bg);
+      border-radius: 0.375rem;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+    }
+
+    .section-content {
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .section-content.open {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <button class="section-toggle">🏢 Business Info</button>
+    <div class="section-content open">
+      <label for="businessName">Business Name</label>
+      <input id="businessName" placeholder="Acme Corp" />
+
+      <label for="email">Email</label>
+      <input id="email" placeholder="email@example.com" type="email" />
+
+      <label for="iban">IBAN</label>
+      <input id="iban" placeholder="NL00BANK0123456789" />
+
+      <button class="button">Save</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", currentTheme);
+
+      const toggleButton = document.createElement("button");
+      toggleButton.textContent = currentTheme === "dark" ? "🌙 Dark" : "☀️ Light";
+      toggleButton.className = "theme-toggle";
+
+      toggleButton.addEventListener("click", () => {
+        const newTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        toggleButton.textContent = newTheme === "dark" ? "🌙 Dark" : "☀️ Light";
+      });
+
+      document.body.appendChild(toggleButton);
+
+      // Toggle sections
+      document.querySelectorAll(".section-toggle").forEach(button => {
+        button.addEventListener("click", () => {
+          const content = button.nextElementSibling;
+          content.classList.toggle("open");
+        });
+      });
+    });
+  </script>
+</body>
+</html>
