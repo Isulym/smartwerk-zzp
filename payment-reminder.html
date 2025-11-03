@@ -376,6 +376,15 @@ async function loadProfileData(uid) {
       setupSignature("signatureBusiness","signatureBusinessDate");
       setupSignature("signatureClient","signatureClientDate");
 
+       document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".section-toggle").forEach(button => {
+      button.addEventListener("click", () => {
+        const content = button.nextElementSibling;
+        content.classList.toggle("open");
+      });
+    });
+  });
+
       // Інвойси в селекті
    onAuthStateChanged(auth, async (user)=>{
   if (!user) {
@@ -388,14 +397,6 @@ async function loadProfileData(uid) {
   await loadProfileData(user.uid);
   await loadReminderForEdit(user.uid);
 
-      document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".section-toggle").forEach(button => {
-      button.addEventListener("click", () => {
-        const content = button.nextElementSibling;
-        content.classList.toggle("open");
-      });
-    });
-  });
 
   // 🔄 Інвойси в селекті — ПЕРЕНЕСЕНО СЮДИ
   onSnapshot(collection(db, "users", user.uid, "invoices"), (snap) => {
