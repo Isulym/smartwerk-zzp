@@ -383,7 +383,12 @@ async function loadProfileData(uid) {
     return;
   }
 
-       document.addEventListener("DOMContentLoaded", () => {
+      
+
+  await loadProfileData(user.uid);
+  await loadReminderForEdit(user.uid);
+
+      document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".section-toggle").forEach(button => {
       button.addEventListener("click", () => {
         const content = button.nextElementSibling;
@@ -391,9 +396,6 @@ async function loadProfileData(uid) {
       });
     });
   });
-
-  await loadProfileData(user.uid);
-  await loadReminderForEdit(user.uid);
 
   // 🔄 Інвойси в селекті — ПЕРЕНЕСЕНО СЮДИ
   onSnapshot(collection(db, "users", user.uid, "invoices"), (snap) => {
