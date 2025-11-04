@@ -268,7 +268,7 @@ textarea {
 .signatures-wrap canvas.signature {
   border: 1px solid var(--line);
   border-radius: 6px;
-  background-color: #0e1014;
+  background-color: #ffffff; /* 🟢 зробили білий фон */
   width: 100%;
   max-width: 320px;
 }
@@ -284,7 +284,7 @@ textarea {
   transition: background 0.2s ease;
 }
 
-signatures-wrap button:hover {
+.signatures-wrap button:hover {
   background: var(--accent-hover);
 }
 
