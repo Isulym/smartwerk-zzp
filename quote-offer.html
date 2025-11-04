@@ -84,21 +84,22 @@
       <textarea id="note" name="note" placeholder="Notes..." autocomplete="off"></textarea>
     </section>
 
-   <section>
+  <!-- Signatures -->
+<section class="signatures-wrap">
   <h2>✍️ Signatures</h2>
-  <div class="signatures">
-    <div class="signature-block">
-      <h3>Business</h3>
-      <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
-      <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
-      <p>Date: <span id="signatureBusinessDate"></span></p>
-    </div>
-    <div class="signature-block">
-      <h3>Client</h3>
-      <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-      <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
-      <p>Date: <span id="signatureClientDate"></span></p>
-    </div>
+
+  <div class="signature-box">
+    <h3>Business</h3>
+    <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
+    <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
+    <p>Date: <span id="signatureBusinessDate"></span></p>
+  </div>
+
+  <div class="signature-box">
+    <h3>Client</h3>
+    <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+    <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
+    <p>Date: <span id="signatureClientDate"></span></p>
   </div>
 </section>
 
@@ -387,14 +388,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-     document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".section-toggle").forEach(button => {
-    button.addEventListener("click", () => {
-      const content = button.nextElementSibling;
-      const icon = button.querySelector('.toggle-icon');
+     document.querySelectorAll(".section-toggle").forEach(button => {
+  button.addEventListener("click", () => {
+    const content = button.closest("section").querySelector(".section-content");
+    const icon = button.querySelector('.toggle-icon');
+
+    if (content) {
       const isOpen = content.classList.toggle("open");
       icon.textContent = isOpen ? "🔽" : "▶️";
-    });
+    }
   });
 });
     
