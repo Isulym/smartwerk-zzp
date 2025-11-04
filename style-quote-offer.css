@@ -198,18 +198,17 @@ textarea {
     text-align: center;
   }
 }
-section.signatures {
+.signatures {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   margin-top: 1.5rem;
 }
-
 section.signatures h3 {
   margin-bottom: 0.5rem;
 }
 
-section.signatures canvas.signature {
+.signatures canvas.signature {
   border: 1px solid var(--line);
   border-radius: 8px;
   background-color: #0e1014;
@@ -217,7 +216,7 @@ section.signatures canvas.signature {
   max-width: 300px;
 }
 
-section.signatures button {
+.signatures button {
   margin-top: 0.5rem;
   background: var(--accent);
   color: white;
@@ -228,11 +227,11 @@ section.signatures button {
   transition: background 0.2s ease;
 }
 
-section.signatures button:hover {
+.signatures button:hover {
   background: var(--accent-hover);
 }
 
-section.signatures p {
+.signatures p {
   margin-top: 0.5rem;
   color: var(--muted);
   font-size: 13px;
