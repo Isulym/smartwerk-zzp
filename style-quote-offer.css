@@ -204,7 +204,8 @@ textarea {
   gap: 2rem;
   margin-top: 1.5rem;
 }
-section.signatures h3 {
+
+.signatures h3 {
   margin-bottom: 0.5rem;
 }
 
@@ -236,6 +237,7 @@ section.signatures h3 {
   color: var(--muted);
   font-size: 13px;
 }
+
 @media (max-width: 768px) {
   .signatures {
     grid-template-columns: 1fr;
