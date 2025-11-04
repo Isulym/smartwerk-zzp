@@ -265,7 +265,7 @@ textarea {
   align-items: flex-start;
 }
 
-..signatures-wrap canvas.signature {
+.signatures-wrap canvas.signature {
   border: 2px solid var(--line);
   border-radius: 8px;
   background-color: white; /* білий фон для підпису */
