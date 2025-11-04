@@ -237,3 +237,8 @@ section.signatures p {
   color: var(--muted);
   font-size: 13px;
 }
+@media (max-width: 768px) {
+  .signatures {
+    grid-template-columns: 1fr;
+  }
+}
