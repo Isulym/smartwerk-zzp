@@ -198,56 +198,7 @@ textarea {
     text-align: center;
   }
 }
-.signatures {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 1.5rem;
-}
 
-.signatures h3 {
-  margin-bottom: 0.5rem;
-}
-
-.signatures canvas.signature {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background-color: #0e1014;
-  width: 100%;
-  max-width: 300px;
-}
-
-.signatures button {
-  margin-top: 0.5rem;
-  background: var(--accent);
-  color: white;
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.signatures button:hover {
-  background: var(--accent-hover);
-}
-
-.signatures p {
-  margin-top: 0.5rem;
-  color: var(--muted);
-  font-size: 13px;
-}
-.signature-block {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-@media (max-width: 768px) {
-  .signatures {
-    grid-template-columns: 1fr;
-  }
-}
 /* === Collapsible Sections === */
 .collapsible {
   border: 1px solid var(--line);
