@@ -72,7 +72,7 @@
         </thead>
         <tbody id="itemsBody"></tbody>
       </table>
-      <button type="button" onclick="addItem()">➕ Add Item</button>
+      <button type="button" class="btn" onclick="addItem()">➕ Add Item</button>
     </section>
 
     <!-- Summary -->
@@ -84,7 +84,7 @@
       <textarea id="note" name="note" placeholder="Notes..." autocomplete="off"></textarea>
     </section>
 
-  <!-- Signatures -->
+<!-- Signatures -->
 <section class="signatures-wrap">
   <h2>✍️ Signatures</h2>
 
@@ -105,7 +105,7 @@
 
     <!-- Actions -->
     <section class="step actions">
-      <button id="saveBtn" class="btn-primary">💾 Save Quote</button>
+      <button id="saveBtn" class="btn">💾 Save Quote</button>
       <a href="quote-offer-list.html" class="btn">📋 Saved Quotes</a>
     </section>
         
@@ -388,12 +388,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-     document.querySelectorAll(".section-toggle").forEach(button => {
+    document.querySelectorAll(".section-toggle").forEach(button => {
   button.addEventListener("click", () => {
-    const content = button.closest("section").querySelector(".section-content");
+    const content = button.nextElementSibling; // 🟢 наступний елемент після кнопки
     const icon = button.querySelector('.toggle-icon');
 
-    if (content) {
+    if (content && content.classList.contains("section-content")) {
       const isOpen = content.classList.toggle("open");
       icon.textContent = isOpen ? "🔽" : "▶️";
     }
