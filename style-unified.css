@@ -1,0 +1,155 @@
+:root {
+  --bg: #121212;
+  --fg: #f5f5f5;
+  --card: #1e1e1e;
+  --accent: #4fc3f7;
+  --btn-bg: #333;
+  --btn-hover: #555;
+  --danger: #c62828;
+  --border: #2a2a2a;
+}
+
+body.light-theme {
+  --bg: #ffffff;
+  --fg: #222;
+  --card: #f1f1f1;
+  --accent: #1976d2;
+  --btn-bg: #e0e0e0;
+  --btn-hover: #cfcfcf;
+  --danger: #d32f2f;
+  --border: #ccc;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  color: var(--fg);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+input, select, textarea {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 8px;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+section, .card {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+button, .btn {
+  background: var(--btn-bg);
+  color: var(--fg);
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+button:hover, .btn:hover {
+  background: var(--btn-hover);
+}
+
+.btn.danger {
+  background: var(--danger);
+}
+.btn.danger:hover {
+  background: #a31414;
+}
+.btn.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+.btn.small {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+}
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  background: var(--btn-bg);
+  color: var(--fg);
+  text-align: left;
+}
+tr:hover {
+  background: var(--btn-hover);
+}
+
+.section-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  background: var(--btn-bg);
+  color: var(--fg);
+  border: none;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.section-content {
+  display: none;
+}
+.section-content.open {
+  display: block;
+}
+.toggle-icon {
+  font-size: 1rem;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 6px;
+}
