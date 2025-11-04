@@ -11,7 +11,6 @@
   <header>
     <h1>📄 SmartWerk Quote / Offer</h1>
     <nav>
-      <a href="index.html" class="btn">← Main Page</a>
       <a href="dashboard.html" class="btn">← Dashboard</a>
       <a href="quote-offer-list.html" class="btn">📋 Saved Quotes</a>
     </nav>
@@ -20,12 +19,11 @@
   <main>
       <form id="quoteForm" onsubmit="return false;">
     <!-- Business Info -->
-     <section class="collapsible">
   <section class="collapsible">
-  <button class="section-toggle">
-    <span>🏢 Business Info</span>
-    <span class="toggle-icon">▶️</span>
-  </button>
+  <button type="button" class="section-toggle">
+  <span>🏢 Business Info</span>
+  <span class="toggle-icon">▶️</span>
+</button>
   <div class="section-content">
     
       <input id="businessName" name="businessName" placeholder="Business Name" autocomplete="organization"/>
