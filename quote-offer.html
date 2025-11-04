@@ -90,14 +90,14 @@
   <div class="signature-box">
     <h3>Business</h3>
     <canvas id="signatureBusiness" class="signature"></canvas>
-    <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
+    <button type="button" onclick="window.clearSignature('signatureBusiness')">Clear</button>
     <p>Date: <span id="signatureBusinessDate"></span></p>
   </div>
 
   <div class="signature-box">
     <h3>Client</h3>
     <canvas id="signatureClient" class="signature"></canvas>
-    <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
+    <button type="button" onclick="window.clearSignature('signatureClient')">Clear</button>
     <p>Date: <span id="signatureClientDate"></span></p>
   </div>
 </section>
@@ -242,6 +242,19 @@ function setupSignature(canvasId, dateId) {
     move(e);
   });
 }
+    window.clearSignature = (id) => {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+
+  if (id === "signatureBusiness") {
+    document.getElementById("signatureBusinessDate").innerText = "";
+  }
+  if (id === "signatureClient") {
+    document.getElementById("signatureClientDate").innerText = "";
+  }
+};
 
     /* NUMBER GENERATION */
     async function previewNextQuoteNumber(uid){
