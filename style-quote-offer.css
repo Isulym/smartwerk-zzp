@@ -299,3 +299,6 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+form > section {
+  grid-column: span 2;
+}
