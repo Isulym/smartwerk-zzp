@@ -315,8 +315,21 @@ textarea {
 }
 
 @media (max-width: 768px) {
-  section.signatures-wrap {
+  .signatures-wrap {
     grid-template-columns: 1fr;
+  }
+
+  .signature-box canvas.signature {
+    height: 120px;
+  }
+
+  .signature-box {
+    width: 100%;
+  }
+
+  .signature-box button {
+    width: 100%;
+    text-align: center;
   }
 }
 form > section {
@@ -357,4 +370,5 @@ form > section {
 #itemsBody button:hover {
   background-color: #b91c1c;
 }
+
 
