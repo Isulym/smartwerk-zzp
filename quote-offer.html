@@ -84,24 +84,20 @@
       <textarea id="note" name="note" placeholder="Notes..." autocomplete="off"></textarea>
     </section>
 
-    <!-- Signatures -->
-    <section>
-  <h2>✍️ Signatures</h2>
-  <div class="signatures">
-    <div>
-      <h3>Business</h3>
-      <canvas id="signatureBusiness" name="signatureBusiness" class="signature" width="300" height="100"></canvas>
-      <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
-      <p>Date: <span id="signatureBusinessDate"></span></p>
-    </div>
-    <div>
-      <h3>Client</h3>
-      <canvas id="signatureClient" name="signatureClient" class="signature" width="300" height="100"></canvas>
-      <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
-      <p>Date: <span id="signatureClientDate"></span></p>
-    </div>
+   <div class="signatures">
+  <div class="signature-block">
+    <h3>Business</h3>
+    <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
+    <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
+    <p>Date: <span id="signatureBusinessDate"></span></p>
   </div>
-</section>
+  <div class="signature-block">
+    <h3>Client</h3>
+    <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
+    <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
+    <p>Date: <span id="signatureClientDate"></span></p>
+  </div>
+</div>
 
     <!-- Actions -->
     <section class="step actions">
