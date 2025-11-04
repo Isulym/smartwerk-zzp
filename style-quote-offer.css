@@ -30,20 +30,19 @@ body {
 }
 
 .btn {
-  padding: 8px 18px;
-  font-size: 14px;
+  padding: 8px 16px;
+  background-color: var(--accent);
   color: white;
-  background: var(--accent);
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 8px var(--shadow);
-  transition: all 0.2s ease-in-out;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
+ background-color: var(--accent-hover);
 }
 
 .btn.ghost {
@@ -327,5 +326,35 @@ form > section {
   border: 1px solid var(--line);
   border-radius: 12px;
   margin-bottom: 2rem;
+}
+#itemsBody input,
+#itemsBody select {
+  padding: 6px;
+  margin: 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background-color: #1a2233;
+  color: var(--text);
+}
+
+#itemsBody td {
+  vertical-align: middle;
+}
+
+#itemsBody .item-total {
+  white-space: nowrap;
+}
+
+#itemsBody button {
+  padding: 4px 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  background-color: var(--danger);
+  color: #fff;
+  cursor: pointer;
+}
+
+#itemsBody button:hover {
+  background-color: #b91c1c;
 }
 
