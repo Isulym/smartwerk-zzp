@@ -280,16 +280,13 @@ textarea {
 }
 
 .section-content {
-  padding: 16px 18px;
   display: none;
-  animation: fadeIn 0.25s ease-in-out;
 }
-
 .section-content.open {
   display: block;
 }
 /* ================== SIGNATURES SECTION ================== */
-section.signatures-wrap {
+.signatures-wrap {
   margin-top: 2rem;
   background-color: var(--card);
   padding: 1.5rem;
@@ -300,24 +297,24 @@ section.signatures-wrap {
   gap: 2rem;
 }
 
-section.signatures-wrap h2 {
+.signatures-wrap h2 {
   grid-column: span 2;
   margin-bottom: 1rem;
   color: var(--text);
 }
 
-section.signatures-wrap h3 {
+.signatures-wrap h3 {
   margin-bottom: 0.5rem;
   font-size: 16px;
 }
 
-section.signatures-wrap .signature-box {
+.signatures-wrap .signature-box {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-section.signatures-wrap canvas.signature {
+.signatures-wrap canvas.signature {
   border: 1px solid var(--line);
   border-radius: 6px;
   background-color: #0e1014;
@@ -325,7 +322,7 @@ section.signatures-wrap canvas.signature {
   max-width: 320px;
 }
 
-section.signatures-wrap button {
+.signatures-wrap button {
   margin-top: 0.5rem;
   background: var(--accent);
   color: white;
@@ -336,11 +333,11 @@ section.signatures-wrap button {
   transition: background 0.2s ease;
 }
 
-section.signatures-wrap button:hover {
+signatures-wrap button:hover {
   background: var(--accent-hover);
 }
 
-section.signatures-wrap p {
+.signatures-wrap p {
   margin-top: 0.5rem;
   font-size: 13px;
   color: var(--muted);
