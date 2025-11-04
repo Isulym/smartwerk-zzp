@@ -184,18 +184,64 @@ setLogLevel("error");
     window.updateTotals=updateTotals;
 
     /* SIGNATURES */
-    function setupSignature(canvasId,dateId){
-      const c=$(canvasId); const ctx=c.getContext("2d");
-      let drawing=false;
-      const start=()=>{drawing=true;ctx.beginPath();};
-      const end=()=>{if(!drawing)return;drawing=false;$(dateId).innerText=new Date().toLocaleDateString("nl-NL");};
-      const move=(e)=>{if(!drawing)return;const r=c.getBoundingClientRect();const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#000";ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};
-      c.addEventListener("mousedown",start);c.addEventListener("mouseup",end);c.addEventListener("mouseleave",()=>drawing=false);c.addEventListener("mousemove",move);
-      c.addEventListener("touchstart",(e)=>{e.preventDefault();start();});
-      c.addEventListener("touchend",(e)=>{e.preventDefault();end();});
-      c.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
-    }
-    window.clearSignature=(id)=>{const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height);if(id==="signatureBusiness")$("signatureBusinessDate").innerText="";if(id==="signatureClient")$("signatureClientDate").innerText="";};
+function setupSignature(canvasId, dateId) {
+  const c = document.getElementById(canvasId);
+  const ctx = c.getContext("2d");
+
+  // ✅ Встановлюємо реальні розміри з CSS
+  const style = getComputedStyle(c);
+  const width = parseInt(style.width);
+  const height = parseInt(style.height || 100); // запасний варіант
+  c.width = width;
+  c.height = height;
+
+  let drawing = false;
+
+  const start = () => {
+    drawing = true;
+    ctx.beginPath();
+  };
+
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    document.getElementById(dateId).innerText = new Date().toLocaleDateString("nl-NL");
+  };
+
+  const move = (e) => {
+    if (!drawing) return;
+    const r = c.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  // 🖱️ Mouse
+  c.addEventListener("mousedown", start);
+  c.addEventListener("mouseup", end);
+  c.addEventListener("mouseleave", () => (drawing = false));
+  c.addEventListener("mousemove", move);
+
+  // 📱 Touch
+  c.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    start();
+  });
+  c.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    end();
+  });
+  c.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    move(e);
+  });
+}
 
     /* NUMBER GENERATION */
     async function previewNextQuoteNumber(uid){
