@@ -243,35 +243,24 @@ textarea {
   border-radius: 12px;
   border: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 🔥 адаптивна сітка */
   gap: 2rem;
-}
-
-.signatures-wrap h2 {
-  grid-column: span 2;
-  margin-bottom: 1rem;
-  color: var(--text);
 }
 
 .signature-box {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: flex-start;
   width: 100%;
-}
-
-.signature-box h3 {
-  margin-bottom: 0.5rem;
-  font-size: 16px;
 }
 
 .signature-box canvas.signature {
-  width: 100%;
-  height: 100px;
-  max-width: 320px;
-  background: white;
   border: 2px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
+  background-color: white; /* щоб підпис було видно */
+  width: 100%;
+  height: 120px;
+  max-width: 100%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -284,6 +273,7 @@ textarea {
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s ease;
+  width: auto; /* ✅ не розтягувати */
 }
 
 .signature-box button:hover {
@@ -298,16 +288,8 @@ textarea {
 
 /* MOBILE FIX */
 @media (max-width: 768px) {
-  .signatures-wrap {
-    grid-template-columns: 1fr;
-  }
-
-  .signature-box {
+  .signature-box button {
     width: 100%;
-  }
-
-  .signature-box canvas.signature {
-    height: 120px;
   }
 }
 form > section {
