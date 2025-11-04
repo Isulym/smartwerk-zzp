@@ -236,6 +236,7 @@ textarea {
   display: block;
 }
 /* ================== SIGNATURES SECTION ================== */
+/* === Signatures Section === */
 .signatures-wrap {
   margin-top: 2rem;
   background-color: var(--card);
@@ -267,21 +268,11 @@ textarea {
 .signatures-wrap canvas.signature {
   border: 2px solid var(--line);
   border-radius: 8px;
-  background-color: white; /* білий фон для підпису */
+  background-color: white;
   width: 100%;
+  height: 100px;
   max-width: 320px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-.signature-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-
-.signature-box button:hover {
-  background: var(--accent-hover);
 }
 
 .signatures-wrap button {
@@ -310,19 +301,14 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .signature-box canvas.signature {
+  .signatures-wrap canvas.signature {
     height: 120px;
   }
 
-  .signatures-wrap .signature-box {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-  .signature-box button {
+  .signatures-wrap button {
     width: 100%;
-    text-align: center;
+    padding: 10px;
+    font-size: 14px;
   }
 }
 form > section {
