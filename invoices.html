@@ -532,5 +532,14 @@ document.addEventListener("DOMContentLoaded", () => {
       $("saveBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); saveInvoice(); });
     });
   </script>
+
+  <script>
+  // Завжди зчитує тему з localStorage
+  document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("theme-dark");
+    }
+  });
+</script>
 </body>
 </html>
