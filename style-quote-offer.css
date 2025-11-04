@@ -288,3 +288,66 @@ textarea {
 .section-content.open {
   display: block;
 }
+/* ================== SIGNATURES SECTION ================== */
+section.signatures-wrap {
+  margin-top: 2rem;
+  background-color: var(--card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+section.signatures-wrap h2 {
+  grid-column: span 2;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+section.signatures-wrap h3 {
+  margin-bottom: 0.5rem;
+  font-size: 16px;
+}
+
+section.signatures-wrap .signature-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+section.signatures-wrap canvas.signature {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background-color: #0e1014;
+  width: 100%;
+  max-width: 320px;
+}
+
+section.signatures-wrap button {
+  margin-top: 0.5rem;
+  background: var(--accent);
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+section.signatures-wrap button:hover {
+  background: var(--accent-hover);
+}
+
+section.signatures-wrap p {
+  margin-top: 0.5rem;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@media (max-width: 768px) {
+  section.signatures-wrap {
+    grid-template-columns: 1fr;
+  }
+}
