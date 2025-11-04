@@ -279,15 +279,6 @@ textarea {
   align-items: center;
 }
 
-.signature-box button {
-  margin-top: 0.5rem;
-  padding: 6px 14px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
 
 .signature-box button:hover {
   background: var(--accent-hover);
@@ -323,9 +314,11 @@ textarea {
     height: 120px;
   }
 
-  .signature-box {
-    width: 100%;
-  }
+  .signatures-wrap .signature-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
   .signature-box button {
     width: 100%;
