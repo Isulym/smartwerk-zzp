@@ -321,5 +321,9 @@ textarea {
   }
 }
 form > section {
-  grid-column: span 2;
+  padding: 1.5rem;
+  background-color: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 2rem;
 }
