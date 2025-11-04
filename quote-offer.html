@@ -21,10 +21,11 @@
       <form id="quoteForm" onsubmit="return false;">
     <!-- Business Info -->
      <section class="collapsible">
-  <button type="button" class="section-toggle">
-  <span>🏢 Business Info</span>
-  <span class="toggle-icon">▶️</span>
-</button>
+  <section class="collapsible">
+  <button class="section-toggle">
+    <span>🏢 Business Info</span>
+    <span class="toggle-icon">▶️</span>
+  </button>
   <div class="section-content">
     
       <input id="businessName" name="businessName" placeholder="Business Name" autocomplete="organization"/>
@@ -39,10 +40,10 @@
 
     <!-- Client Info -->
      <section class="collapsible">
-  <button type="button" class="section-toggle">
-  <span>👤 Client Info</span>
-  <span class="toggle-icon">▶️</span>
-</button>
+  <button class="section-toggle">
+    <span>👤 Client Info</span>
+    <span class="toggle-icon">▶️</span>
+  </button>
   <div class="section-content">
       <input id="clientName" name="clientName" placeholder="Client Name" autocomplete="name"/>
       <input id="clientEmail" name="clientEmail" placeholder="Client Email" autocomplete="email"/>
@@ -390,7 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".section-toggle").forEach(button => {
   button.addEventListener("click", () => {
-    const content = button.nextElementSibling; // 🟢 наступний елемент після кнопки
+    const content = button.nextElementSibling;
     const icon = button.querySelector('.toggle-icon');
 
     if (content && content.classList.contains("section-content")) {
