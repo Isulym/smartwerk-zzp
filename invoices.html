@@ -465,78 +465,74 @@ location.href="invoices-list.html";
 
     /* ========== LOAD FOR EDIT ========== */
    async function loadForEdit(uid){
-  const id = localStorage.getItem("editInvoiceId");
-  if (!id) return;
+      const id = localStorage.getItem("editInvoiceId");
+      if(!id) return;
+      const ref = doc(db,"users",uid,"invoices",id);
+      const snap = await getDoc(ref);
+      if(!snap.exists()) { localStorage.removeItem("editInvoiceId"); return; }
+      const inv = snap.data();
 
-  const ref = doc(db, "users", uid, "invoices", id);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    localStorage.removeItem("editInvoiceId");
-    return;
-  }
+      // fill
+      $("businessName").value = inv.businessName||"";
+      $("kvk").value = inv.kvk||"";
+      $("iban").value = inv.iban||"";
+      $("btw").value = inv.btw||"";
+      $("email").value = inv.email||"";
+      $("businessAddress").value = inv.businessAddress||"";
+      $("businessPhone").value = inv.businessPhone||"";
 
-  const inv = snap.data(); // ✅ це твій інвойс
+      $("clientName").value = inv.clientName||"";
+      $("clientEmail").value = inv.clientEmail||"";
+      $("clientPhone").value = inv.clientPhone||"";
+      $("clientAddress").value = inv.clientAddress||"";
 
-  // fill fields
-  $("businessName").value = inv.businessName || "";
-  $("kvk").value = inv.kvk || "";
-  $("iban").value = inv.iban || "";
-  $("btw").value = inv.btw || "";
-  $("email").value = inv.email || "";
-  $("businessAddress").value = inv.businessAddress || "";
-  $("businessPhone").value = inv.businessPhone || "";
+      $("invoiceDate").value = inv.invoiceDate||"";
+      $("dueDate").value     = inv.dueDate||"";
+      $("invoiceNumber").value = inv.invoiceNumber||"";
+      $("status").value      = inv.status||"Draft";
+      $("note").value        = inv.note||"";
 
-  $("clientName").value = inv.clientName || "";
-  $("clientEmail").value = inv.clientEmail || "";
-  $("clientPhone").value = inv.clientPhone || "";
-  $("clientAddress").value = inv.clientAddress || "";
+      $("itemsBody").innerHTML="";
+      (inv.items||[]).forEach(it=>addItem(it.desc,it.qty,it.price,it.vat));
+      if(!(inv.items||[]).length) addItem();
 
-  $("invoiceDate").value = inv.invoiceDate || "";
-  $("dueDate").value = inv.dueDate || "";
-  $("invoiceNumber").value = inv.invoiceNumber || "";
-  $("status").value = inv.status || "Draft";
-  $("note").value = inv.note || "";
+      // redraw signatures if present
+      if(inv.signatures?.business){
+  const img = new Image();
+  img.onload = () => {
+    const c = $("signatureBusiness");
+    const ctx = c.getContext("2d");
 
-  $("itemsBody").innerHTML = "";
-  (inv.items || []).forEach(it => addItem(it.desc, it.qty, it.price, it.vat));
-  if (!(inv.items || []).length) addItem();
+    // 🔄 Синхронізуємо розміри перед малюванням
+    c.width = c.offsetWidth;
+    c.height = c.offsetHeight;
 
-  // ✅ ПРАВИЛЬНО: inv, не q
-  if (inv.signatures?.business) {
-    const img = new Image();
-    img.onload = () => {
-      const c = $("signatureBusiness");
-      const ctx = c.getContext("2d");
-
-      c.width = c.offsetWidth;
-      c.height = c.offsetHeight;
-
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.drawImage(img, 0, 0, c.width, c.height);
-    };
-    img.src = inv.signatures.business;
-    $("signatureBusinessDate").innerText = inv.signatures.businessDate || "";
-  }
-
-  if (inv.signatures?.client) {
-    const img = new Image();
-    img.onload = () => {
-      const c = $("signatureClient");
-      const ctx = c.getContext("2d");
-
-      c.width = c.offsetWidth;
-      c.height = c.offsetHeight;
-
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.drawImage(img, 0, 0, c.width, c.height);
-    };
-    img.src = inv.signatures.client;
-    $("signatureClientDate").innerText = inv.signatures.clientDate || "";
-  }
-
-  // ⏱️ Recalculate totals
-  updateTotals();
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+  };
+  img.src = inv.signatures.business;
+  $("signatureBusinessDate").innerText = inv.signatures.businessDate || "";
 }
+
+if(inv.signatures?.client){
+  const img = new Image();
+  img.onload = () => {
+    const c = $("signatureClient");
+    const ctx = c.getContext("2d");
+
+    c.width = c.offsetWidth;
+    c.height = c.offsetHeight;
+
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+  };
+  img.src = inv.signatures.client;
+  $("signatureClientDate").innerText = inv.signatures.clientDate || "";
+}
+
+      // totals (recalc)
+      updateTotals();
+    }
 
     
 
