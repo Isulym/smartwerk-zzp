@@ -190,11 +190,17 @@ function setupSignature(canvasId, dateId) {
 
   function resizeCanvas() {
     const rect = c.getBoundingClientRect();
-    c.width = rect.width;
-    c.height = rect.height;
+    const ratio = window.devicePixelRatio || 1;
+
+    c.width = rect.width * ratio;
+    c.height = rect.height * ratio;
+
+    c.style.width = `${rect.width}px`;
+    c.style.height = `${rect.height}px`;
+
+    ctx.scale(ratio, ratio);
   }
 
-  // 🔄 Resize once and on resize
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
 
@@ -225,13 +231,11 @@ function setupSignature(canvasId, dateId) {
     ctx.moveTo(x, y);
   };
 
-  // Mouse events
   c.addEventListener("mousedown", start);
   c.addEventListener("mouseup", end);
-  c.addEventListener("mouseleave", () => drawing = false);
+  c.addEventListener("mouseleave", () => (drawing = false));
   c.addEventListener("mousemove", move);
 
-  // Touch events
   c.addEventListener("touchstart", (e) => {
     e.preventDefault();
     start();
