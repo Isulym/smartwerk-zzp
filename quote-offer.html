@@ -198,7 +198,7 @@ function setupSignature(canvasId, dateId) {
     c.style.width = `${rect.width}px`;
     c.style.height = `${rect.height}px`;
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // ⬅️ скидає всі попередні трансформації
     ctx.scale(ratio, ratio);
   }
 
@@ -232,11 +232,13 @@ function setupSignature(canvasId, dateId) {
     ctx.moveTo(x, y);
   };
 
+  // Mouse
   c.addEventListener("mousedown", start);
   c.addEventListener("mouseup", end);
   c.addEventListener("mouseleave", () => (drawing = false));
   c.addEventListener("mousemove", move);
 
+  // Touch
   c.addEventListener("touchstart", (e) => {
     e.preventDefault();
     start();
