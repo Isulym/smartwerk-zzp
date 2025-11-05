@@ -149,7 +149,7 @@
       <textarea id="legalTerms" name="legalTerms" rows="4" autocomplete="off">This contract is governed by the laws of the Netherlands...</textarea>
     </section>
 
-    <section class="signatures">
+  <section class="signatures">
   <h2>✍️ Signatures</h2>
   <div class="signature-box">
     <h3>Freelancer</h3>
@@ -213,40 +213,87 @@ let contractToEdit = null;
 let loadedClients = {};
 let freelancerStampBase64 = "";
 
-window.clearSignature = function(id) {
-  const c = $(id);
-  c.getContext("2d").clearRect(0, 0, c.width, c.height);
-  if (id === "signatureFreelancer") $("signatureFreelancerDate").textContent = "";
-  if (id === "signatureClient") $("signatureClientDate").textContent = "";
-}
 
 function setupSignature(canvasId, dateId) {
-  const c = $(canvasId);
+  const c = document.getElementById(canvasId);
   const ctx = c.getContext("2d");
+
+  function resizeCanvas() {
+    const rect = c.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+
+    c.width = rect.width * ratio;
+    c.height = rect.height * ratio;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Скидає попередній scale
+    ctx.scale(ratio, ratio);
+  }
+
+  resizeCanvas();
+  
+
   let drawing = false;
-  const start = () => { drawing = true; ctx.beginPath(); };
+
+  const start = () => {
+    drawing = true;
+    ctx.beginPath();
+  };
+
   const end = () => {
     if (!drawing) return;
     drawing = false;
-    const now = new Date().toLocaleDateString();
-$(dateId).textContent = new Date().toLocaleDateString("nl-NL");
+    document.getElementById(dateId).innerText = new Date().toLocaleDateString("nl-NL");
   };
-  const move = e => {
+
+  const move = (e) => {
     if (!drawing) return;
     const r = c.getBoundingClientRect();
     const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
     const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
-    ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
   };
+
+  // Mouse
   c.addEventListener("mousedown", start);
   c.addEventListener("mouseup", end);
-  c.addEventListener("mouseleave", () => drawing = false);
+  c.addEventListener("mouseleave", () => (drawing = false));
   c.addEventListener("mousemove", move);
-  c.addEventListener("touchstart", e => { e.preventDefault(); start(); });
-  c.addEventListener("touchend", e => { e.preventDefault(); end(); });
-  c.addEventListener("touchmove", e => { e.preventDefault(); move(e); });
+
+  // Touch
+  c.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    start();
+  });
+  c.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    end();
+  });
+  c.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    move(e);
+  });
 }
+
+// ✅ Очистити підпис
+window.clearSignature = (id) => {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+
+  if (id === "signatureBusiness") {
+    document.getElementById("signatureBusinessDate").innerText = "";
+  }
+  if (id === "signatureClient") {
+    document.getElementById("signatureClientDate").innerText = "";
+  }
+};
 
 function setupImageUpload() {
   const input = $("uploadStamp");
