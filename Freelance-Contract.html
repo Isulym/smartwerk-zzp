@@ -23,46 +23,12 @@
   <main>
     <form id="contractForm" onsubmit="return false">
 
-    <section class="block">
-      <h2>📋 Contract Overview</h2>
-      <div class="grid-3">
-        <div>
-          <label for="contractId">Contract ID</label>
-          <input id="contractId" name="contractId" readonly autocomplete="off" />
-        </div>
-        <div>
-          <label for="status">Status</label>
-          <select id="status" name="status" autocomplete="off">
-            <option>Draft</option>
-            <option>Sent</option>
-            <option>Signed</option>
-            <option>Completed</option>
-          </select>
-        </div>
-        <div>
-          <label for="date">Date</label>
-          <input type="date" id="date" name="date" autocomplete="off">
-        </div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label for="clientSelect">Select Client</label>
-          <select id="clientSelect" name="clientSelect" autocomplete="off">
-            <option value="">Select a client...</option>
-          </select>
-        </div>
-        <div>
-          <label for="projectTitle">Project Title</label>
-          <input id="projectTitle" name="projectTitle" placeholder="e.g. Website redesign project" autocomplete="off" />
-        </div>
-      </div>
-    </section>
-
-  <section class="collapsible">
+       <!-- Business Info -->
+    <section class="collapsible">
   <button type="button" class="section-toggle">
-    <span>🏢 Business Info</span>
-    <span class="toggle-icon">▶️</span>
-  </button>
+  <span>🏢 Business Info</span>
+  <span class="toggle-icon">▶️</span>
+</button>
   <div class="section-content">
     <div>
       <label for="businessName">Business Name</label>
@@ -100,8 +66,9 @@
   <input id="businessAddress" name="businessAddress" readonly />
     </div>
 </section>
-      <section class="collapsible">
-  <button type="button" class="section-toggle">
+      <!-- Client Info -->
+    <section class="collapsible">
+  <button class="section-toggle">
     <span>👤 Client Info</span>
     <span class="toggle-icon">▶️</span>
   </button>
@@ -127,6 +94,43 @@
   </div>
     </div>
 </section>
+
+    <section class="block">
+      <h2>📋 Contract Overview</h2>
+      <div class="grid-3">
+        <div>
+          <label for="contractId">Contract ID</label>
+          <input id="contractId" name="contractId" readonly autocomplete="off" />
+        </div>
+        <div>
+          <label for="status">Status</label>
+          <select id="status" name="status" autocomplete="off">
+            <option>Draft</option>
+            <option>Sent</option>
+            <option>Signed</option>
+            <option>Completed</option>
+          </select>
+        </div>
+        <div>
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" autocomplete="off">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label for="clientSelect">Select Client</label>
+          <select id="clientSelect" name="clientSelect" autocomplete="off">
+            <option value="">Select a client...</option>
+          </select>
+        </div>
+        <div>
+          <label for="projectTitle">Project Title</label>
+          <input id="projectTitle" name="projectTitle" placeholder="e.g. Website redesign project" autocomplete="off" />
+        </div>
+      </div>
+    </section>
+
+ 
 
     <section class="block">
       <h2>🧩 Project Details</h2>
