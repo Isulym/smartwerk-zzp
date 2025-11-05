@@ -45,19 +45,27 @@ header nav {
   flex-wrap: wrap;
 }
 .btn {
-  background: #475569;
-  color: #fff;
-  padding: 9px 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
+  padding: 8px 18px;
   font-size: 14px;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  color: white;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px var(--shadow);
+  transition: all 0.2s ease-in-out;
 }
-.btn:hover { background: #64748b; transform: translateY(-1px); }
-.btn-primary { background: var(--accent); font-weight: 600; }
-.btn-primary:hover { background: var(--accent-hover); }
+.btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+.btn-primary {
+  background: var(--accent);
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
 
 /* MAIN WRAPPER */
 main {
