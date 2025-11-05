@@ -128,20 +128,20 @@
     </section>
 
     <!-- Signatures -->
-    <section class="signatures-wrap">
+   <section class="signatures-wrap">
   <h2>✍️ Signatures</h2>
 
   <div class="signature-box">
     <h3>Business</h3>
-    <canvas id="signatureBusiness" class="signature" width="300" height="100"></canvas>
-    <button type="button" onclick="clearSignature('signatureBusiness')">Clear</button>
+    <canvas id="signatureBusiness" class="signature"></canvas>
+    <button type="button" onclick="window.clearSignature('signatureBusiness')">Clear</button>
     <p>Date: <span id="signatureBusinessDate"></span></p>
   </div>
 
   <div class="signature-box">
     <h3>Client</h3>
-    <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-    <button type="button" onclick="clearSignature('signatureClient')">Clear</button>
+    <canvas id="signatureClient" class="signature"></canvas>
+    <button type="button" onclick="window.clearSignature('signatureClient')">Clear</button>
     <p>Date: <span id="signatureClientDate"></span></p>
   </div>
 </section>
@@ -227,41 +227,86 @@ setLogLevel("error");
     window.updateTotals = updateTotals;
 
     /* ========== SIGNATURES ========== */
-    function setupSignature(canvasId, dateId){
-      const c  = $(canvasId);
-      const ctx= c.getContext("2d");
-      let drawing = false;
+   function setupSignature(canvasId, dateId) {
+  const c = document.getElementById(canvasId);
+  const ctx = c.getContext("2d");
 
-      const start = ()=>{ drawing=true; ctx.beginPath(); };
-      const end   = ()=>{
-        if(!drawing) return;
-        drawing=false;
-        const now=new Date().toLocaleDateString("nl-NL");
-        $(dateId).innerText = now;
-      };
-      const move  = (e)=>{
-        if(!drawing) return;
-        const r=c.getBoundingClientRect();
-        const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-        const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
-        ctx.lineWidth=2; ctx.lineCap="round"; ctx.strokeStyle="#000";
-        ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y);
-      };
+  function resizeCanvas() {
+    const rect = c.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
 
-      c.addEventListener("mousedown", start);
-      c.addEventListener("mouseup", end);
-      c.addEventListener("mouseleave", ()=>drawing=false);
-      c.addEventListener("mousemove", move);
-      // touch
-      c.addEventListener("touchstart", (e)=>{e.preventDefault(); start();});
-      c.addEventListener("touchend",   (e)=>{e.preventDefault(); end();});
-      c.addEventListener("touchmove",  (e)=>{e.preventDefault(); move(e);});
-    }
-    window.clearSignature = (id)=>{
-      const c=$(id); c.getContext("2d").clearRect(0,0,c.width,c.height);
-      if(id==="signatureBusiness") $("signatureBusinessDate").innerText="";
-      if(id==="signatureClient")  $("signatureClientDate").innerText="";
-    };
+    c.width = rect.width * ratio;
+    c.height = rect.height * ratio;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Скидає попередній scale
+    ctx.scale(ratio, ratio);
+  }
+
+  resizeCanvas();
+  
+
+  let drawing = false;
+
+  const start = () => {
+    drawing = true;
+    ctx.beginPath();
+  };
+
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    document.getElementById(dateId).innerText = new Date().toLocaleDateString("nl-NL");
+  };
+
+  const move = (e) => {
+    if (!drawing) return;
+    const r = c.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  // Mouse
+  c.addEventListener("mousedown", start);
+  c.addEventListener("mouseup", end);
+  c.addEventListener("mouseleave", () => (drawing = false));
+  c.addEventListener("mousemove", move);
+
+  // Touch
+  c.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    start();
+  });
+  c.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    end();
+  });
+  c.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    move(e);
+  });
+}
+
+// ✅ Очистити підпис
+window.clearSignature = (id) => {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+
+  if (id === "signatureBusiness") {
+    document.getElementById("signatureBusinessDate").innerText = "";
+  }
+  if (id === "signatureClient") {
+    document.getElementById("signatureClientDate").innerText = "";
+  }
+};
 
     /* ========== OCR ========== */
     window.processReceipt = function(){
@@ -516,8 +561,6 @@ document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href="login.html"; return; }
       initDates();
-      setupSignature("signatureBusiness","signatureBusinessDate");
-      setupSignature("signatureClient","signatureClientDate");
       if(!document.querySelector("#itemsBody tr")) addItem();
       updateTotals();
 
@@ -525,6 +568,8 @@ document.addEventListener("DOMContentLoaded", () => {
       await previewNextInvoiceNumber(user.uid);
       await loadForEdit(user.uid);
       await loadProfileData(user.uid);
+      setupSignature("signatureBusiness","signatureBusinessDate");
+      setupSignature("signatureClient","signatureClientDate");
     });
 
     // кнопка Save
