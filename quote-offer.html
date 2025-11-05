@@ -450,9 +450,6 @@ async function loadBusinessInfo(uid){
   $("businessAddress").value = p.businessAddress || "";
   $("businessPhone").value = p.businessPhone || "";
 }
-onAuthStateChanged(auth, async (user)=>{
-  if(user){ await loadBusinessInfo(user.uid); }
-});
 
 async function logEvent(uid, type, message){
   try{
@@ -497,12 +494,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!document.querySelector("#itemsBody tr")) addItem();
   updateTotals();
 
-  await previewNextQuoteNumber(user.uid);
-  await loadQuoteForEdit(user.uid);
-
     setupSignature("signatureBusiness", "signatureBusinessDate");
     setupSignature("signatureClient", "signatureClientDate");
- 
+
+  await previewNextQuoteNumber(user.uid);
+  await loadBusinessInfo(user.uid);
+  await loadQuoteForEdit(user.uid);    
+
 });
 
     document.addEventListener("DOMContentLoaded", ()=>{
