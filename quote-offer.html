@@ -475,11 +475,9 @@ document.addEventListener("DOMContentLoaded", () => {
   await previewNextQuoteNumber(user.uid);
   await loadQuoteForEdit(user.uid);
 
-  // ⬇️ ТІЛЬКИ ПІСЛЯ ВСЬОГО — чекаємо DOM і тоді ініціалізуємо підпис
-  document.addEventListener("DOMContentLoaded", () => {
     setupSignature("signatureBusiness", "signatureBusinessDate");
     setupSignature("signatureClient", "signatureClientDate");
-  });
+ 
 });
 
     document.addEventListener("DOMContentLoaded", ()=>{
