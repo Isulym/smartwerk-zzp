@@ -146,31 +146,39 @@ textarea {
 
 /* SIGNATURES */
 .signatures {
-  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.signature-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .signature {
-  background: #ffffff;
-  border: 2px dashed #94a3b8;
+  border: 2px solid var(--border);
   border-radius: 8px;
-  cursor: crosshair;
-  display: block;
-  margin: 8px auto 6px;
-  transition: 0.2s ease;
-  box-shadow: 0 0 10px rgba(255,255,255,0.08);
+  background-color: white;
+  width: 100%;
+  height: 120px;
+  max-width: 100%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
-.signature:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 12px rgba(59,130,246,0.2);
+.signature-box button {
+  margin-top: 0.5rem;
 }
-.signatures h3 {
-  margin-bottom: 6px;
-  color: #93c5fd;
-  font-weight: 500;
+.signature-box p {
+  font-size: 13px;
+  color: var(--text-muted);
 }
-.signatures p {
-  color: #cbd5e1;
-  font-size: 14px;
-  margin-bottom: 8px;
+@media (max-width: 768px) {
+  .signatures {
+    grid-template-columns: 1fr;
+  }
+  .signature {
+    height: 120px;
+  }
 }
 .btn-clear {
   background: #475569;
@@ -238,19 +246,26 @@ section.block {
   }
 
   .section-toggle {
-    display: flex;
-    justify-content: space-between;
-    background: #1e293b;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    color: white;
-    width: 100%;
-  }
-
-  .toggle-icon {
-    transition: transform 0.3s ease;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 14px 18px;
+  background-color: var(--bg-block);
+  color: var(--text-light);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.section-toggle:hover {
+  background-color: #2c3e50;
+}
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
 
   .section-content.open + .toggle-icon {
     transform: rotate(90deg);
