@@ -69,8 +69,10 @@ header nav {
 
 /* MAIN WRAPPER */
 main {
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 /* BLOCKS */
@@ -279,14 +281,21 @@ section.block {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .page-title {
-  font-size: 22px; /* ⬅️ менше ніж у h1 */
+  font-size: 20px;
   font-weight: 600;
   margin: 0;
   color: var(--text);
+}
+
+.topbar-buttons {
+  display: flex;
+  gap: 10px;
 }
 /* === Collapsible Sections === */
 .collapsible {
@@ -297,6 +306,17 @@ section.block {
   overflow: hidden;
   box-shadow: 0 8px 30px rgba(0,0,0,.2);
 }
+.collapsible .section-content {
+  padding: 1rem;
+}
+
+.collapsible .section-content > div {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.collapsible {
+  margin-bottom: 2rem;
+}
 h1, h2 {
   margin: 1rem 0 0.5rem;
   font-weight: 500;
@@ -304,5 +324,5 @@ h1, h2 {
 }
 
 h1 {
-  font-size: 26px;
+  font-size: 20px;
 }
