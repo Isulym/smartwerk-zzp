@@ -388,12 +388,15 @@ function fillForm(data) {
   $("signatureFreelancerDate").textContent = data.freelancerDate || "";
   $("signatureClientDate").textContent = data.clientDate || "";
 
-  if (data.signatureFreelancer) {
+ if (data.signatureFreelancer) {
   const img = new Image();
   img.onload = () => {
-    const ctx = $("signatureFreelancer").getContext("2d");
-    ctx.clearRect(0, 0, 300, 100);
-    ctx.drawImage(img, 0, 0);
+    const canvas = $("signatureFreelancer");
+    const ctx = canvas.getContext("2d");
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   };
   img.src = data.signatureFreelancer;
 }
@@ -401,9 +404,12 @@ function fillForm(data) {
 if (data.signatureClient) {
   const img = new Image();
   img.onload = () => {
-    const ctx = $("signatureClient").getContext("2d");
-    ctx.clearRect(0, 0, 300, 100);
-    ctx.drawImage(img, 0, 0);
+    const canvas = $("signatureClient");
+    const ctx = canvas.getContext("2d");
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   };
   img.src = data.signatureClient;
 }
