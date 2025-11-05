@@ -153,15 +153,17 @@ textarea {
   padding: 1.5rem;
   border-radius: 12px;
   border: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex; /* зміна на flex */
+  justify-content: space-between; /* або center */
+  flex-wrap: wrap;
   gap: 2rem;
 }
-
 .signature-box {
+  flex: 1 1 320px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center; /* ⬅️ центр підпису */
+  align-items: center; /* center замість flex-start */
 }
 
 .signature-box canvas.signature {
