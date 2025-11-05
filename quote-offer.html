@@ -192,8 +192,8 @@ function setupSignature(canvasId, dateId) {
   const style = getComputedStyle(c);
   const width = parseInt(style.width);
   const height = parseInt(style.height || 100); // запасний варіант
-  c.width = width;
-  c.height = height;
+  c.width = c.offsetWidth;
+  c.height = c.offsetHeight;
 
   let drawing = false;
 
