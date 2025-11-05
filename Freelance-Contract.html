@@ -145,23 +145,21 @@
       <textarea id="legalTerms" name="legalTerms" rows="4" autocomplete="off">This contract is governed by the laws of the Netherlands...</textarea>
     </section>
 
-    <section class="block signatures">
-      <h2>✍️ Signatures</h2>
-      <div class="grid-2">
-        <div>
-          <h3>Freelancer</h3>
-          <canvas id="signatureFreelancer" class="signature" width="300" height="100"></canvas>
-          <button type="button" class="btn-clear" onclick="clearSignature('signatureFreelancer')">🧹 Clear</button>
-          <p>Date: <span id="signatureFreelancerDate"></span></p>
-        </div>
-        <div>
-          <h3>Client</h3>
-          <canvas id="signatureClient" class="signature" width="300" height="100"></canvas>
-          <button type="button" class="btn-clear" onclick="clearSignature('signatureClient')">🧹 Clear</button>
-          <p>Date: <span id="signatureClientDate"></span></p>
-        </div>
-      </div>
-    </section>
+    <section class="signatures">
+  <h2>✍️ Signatures</h2>
+  <div class="signature-box">
+    <h3>Freelancer</h3>
+    <canvas id="signatureFreelancer" class="signature"></canvas>
+    <button type="button" class="btn" onclick="clearSignature('signatureFreelancer')">🧹 Clear</button>
+    <p>Date: <span id="signatureFreelancerDate"></span></p>
+  </div>
+  <div class="signature-box">
+    <h3>Client</h3>
+    <canvas id="signatureClient" class="signature"></canvas>
+    <button type="button" class="btn" onclick="clearSignature('signatureClient')">🧹 Clear</button>
+    <p>Date: <span id="signatureClientDate"></span></p>
+  </div>
+</section>
 
     <section class="block">
       <h2>📎 Stamp / Upload Logo</h2>
