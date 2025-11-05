@@ -84,7 +84,7 @@
     </section>
 
 <!-- Signatures -->
-<section class="signatures-wrap">
+<<section class="signatures-wrap">
   <h2>✍️ Signatures</h2>
 
   <div class="signature-box">
@@ -195,10 +195,7 @@ function setupSignature(canvasId, dateId) {
     c.width = rect.width * ratio;
     c.height = rect.height * ratio;
 
-    c.style.width = `${rect.width}px`;
-    c.style.height = `${rect.height}px`;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // ⬅️ скидає всі попередні трансформації
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Скидає попередній scale
     ctx.scale(ratio, ratio);
   }
 
@@ -252,12 +249,20 @@ function setupSignature(canvasId, dateId) {
     move(e);
   });
 }
-    window.clearSignature = (id) => {
+
+// ✅ Очистити підпис
+window.clearSignature = (id) => {
   const c = document.getElementById(id);
+  if (!c) return;
   const ctx = c.getContext("2d");
   ctx.clearRect(0, 0, c.width, c.height);
-  if (id === "signatureBusiness") document.getElementById("signatureBusinessDate").innerText = "";
-  if (id === "signatureClient") document.getElementById("signatureClientDate").innerText = "";
+
+  if (id === "signatureBusiness") {
+    document.getElementById("signatureBusinessDate").innerText = "";
+  }
+  if (id === "signatureClient") {
+    document.getElementById("signatureClientDate").innerText = "";
+  }
 };
 
     /* NUMBER GENERATION */
