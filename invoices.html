@@ -586,12 +586,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if(!document.querySelector("#itemsBody tr")) addItem();
       updateTotals();
 
+      setupSignature("signatureBusiness","signatureBusinessDate");
+      setupSignature("signatureClient","signatureClientDate");
+
       // preview номер + якщо редагування — завантажити документ
       await previewNextInvoiceNumber(user.uid);
       await loadForEdit(user.uid);
       await loadProfileData(user.uid);
-      setupSignature("signatureBusiness","signatureBusinessDate");
-      setupSignature("signatureClient","signatureClientDate");
+      
     });
 
     // кнопка Save
