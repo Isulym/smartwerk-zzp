@@ -550,11 +550,12 @@ onAuthStateChanged(auth, async user => {
 
   const editId = localStorage.getItem("editContractId");
 
-  setupSignature("signatureFreelancer", "signatureFreelancerDate");
-  setupSignature("signatureClient", "signatureClientDate");
   setupImageUpload();
   await loadBusinessInfo(uid);
   await loadClients(uid);
+
+   setupSignature("signatureFreelancer", "signatureFreelancerDate");
+  setupSignature("signatureClient", "signatureClientDate");
 
   if (editId) {
   const snap = await getDoc(doc(db, "users", uid, "contracts", editId));
