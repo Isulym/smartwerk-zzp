@@ -188,12 +188,15 @@ function setupSignature(canvasId, dateId) {
   const c = document.getElementById(canvasId);
   const ctx = c.getContext("2d");
 
-  // ✅ Встановлюємо реальні розміри з CSS
-  const style = getComputedStyle(c);
-  const width = parseInt(style.width);
-  const height = parseInt(style.height || 100); // запасний варіант
-  c.width = c.offsetWidth;
-  c.height = c.offsetHeight;
+  function resizeCanvas() {
+    const rect = c.getBoundingClientRect();
+    c.width = rect.width;
+    c.height = rect.height;
+  }
+
+  // 🔄 Resize once and on resize
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
 
   let drawing = false;
 
@@ -222,13 +225,13 @@ function setupSignature(canvasId, dateId) {
     ctx.moveTo(x, y);
   };
 
-  // 🖱️ Mouse
+  // Mouse events
   c.addEventListener("mousedown", start);
   c.addEventListener("mouseup", end);
-  c.addEventListener("mouseleave", () => (drawing = false));
+  c.addEventListener("mouseleave", () => drawing = false);
   c.addEventListener("mousemove", move);
 
-  // 📱 Touch
+  // Touch events
   c.addEventListener("touchstart", (e) => {
     e.preventDefault();
     start();
@@ -244,16 +247,10 @@ function setupSignature(canvasId, dateId) {
 }
     window.clearSignature = (id) => {
   const c = document.getElementById(id);
-  if (!c) return;
   const ctx = c.getContext("2d");
   ctx.clearRect(0, 0, c.width, c.height);
-
-  if (id === "signatureBusiness") {
-    document.getElementById("signatureBusinessDate").innerText = "";
-  }
-  if (id === "signatureClient") {
-    document.getElementById("signatureClientDate").innerText = "";
-  }
+  if (id === "signatureBusiness") document.getElementById("signatureBusinessDate").innerText = "";
+  if (id === "signatureClient") document.getElementById("signatureClientDate").innerText = "";
 };
 
     /* NUMBER GENERATION */
