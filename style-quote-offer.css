@@ -266,7 +266,7 @@ textarea {
   background-color: white;
   width: 100%;
   aspect-ratio: 3 / 1; /* ✅ Рівні пропорції на всіх екранах */
-  max-width: 260px;
+  max-width: 300px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   touch-action: none; /* 🔧 для мобільних */
 }
