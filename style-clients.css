@@ -126,3 +126,11 @@ footer {
     text-align: center;
   }
 }
+header h1 {
+  font-size: 22px;
+  margin: 0.8rem 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
