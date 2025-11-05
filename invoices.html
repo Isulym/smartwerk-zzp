@@ -470,7 +470,7 @@ location.href="invoices-list.html";
       const ref = doc(db,"users",uid,"invoices",id);
       const snap = await getDoc(ref);
       if(!snap.exists()) { localStorage.removeItem("editInvoiceId"); return; }
-      const inv = snap.data();
+      const q = snap.data();
 
       // fill
       $("businessName").value = inv.businessName||"";
