@@ -11,11 +11,13 @@
 </head>
 <body>
   <header>
-    <h1>📄 Freelance Contract</h1>
-    <nav>
-      <a href="dashboard.html" class="btn">← Dashboard</a>
-      <a href="Freelance-Contract-list.html" class="btn btn-primary">📂 View Saved Contracts</a>
-    </nav>
+   <div class="topbar">
+  <h1 class="page-title">📝 Freelance Contract</h1>
+  <div class="actions">
+    <a href="dashboard.html" class="btn">← Dashboard</a>
+    <a href="Freelance-Contract-list.html" class="btn">📄 Saved Contracts</a>
+  </div>
+</div>
   </header>
   <div id="errorBox" style="display:none;color:red;text-align:center;margin-top:1rem;"></div>
 <div id="loadingBox" style="display:none;text-align:center;margin-top:1rem;">Saving...</div>
@@ -149,18 +151,18 @@
       <textarea id="legalTerms" name="legalTerms" rows="4" autocomplete="off">This contract is governed by the laws of the Netherlands...</textarea>
     </section>
 
-  <section class="signatures">
+  <section class="signatures-wrap">
   <h2>✍️ Signatures</h2>
   <div class="signature-box">
     <h3>Freelancer</h3>
     <canvas id="signatureFreelancer" class="signature"></canvas>
-    <button type="button" class="btn" onclick="clearSignature('signatureFreelancer')">🧹 Clear</button>
+    <button onclick="clearSignature('signatureFreelancer')">Clear</button>
     <p>Date: <span id="signatureFreelancerDate"></span></p>
   </div>
   <div class="signature-box">
     <h3>Client</h3>
     <canvas id="signatureClient" class="signature"></canvas>
-    <button type="button" class="btn" onclick="clearSignature('signatureClient')">🧹 Clear</button>
+    <button onclick="clearSignature('signatureClient')">Clear</button>
     <p>Date: <span id="signatureClientDate"></span></p>
   </div>
 </section>
