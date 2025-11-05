@@ -243,9 +243,10 @@ textarea {
   border-radius: 12px;
   border: 1px solid var(--line);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 🔥 адаптивна сітка */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
 }
+
 .signature-box {
   display: flex;
   flex-direction: column;
@@ -253,18 +254,28 @@ textarea {
   width: 100%;
 }
 
+.signature-box h3 {
+  margin-bottom: 0.5rem;
+}
+
 .signature-box canvas.signature {
   border: 2px solid var(--line);
   border-radius: 8px;
-  background-color: white; /* щоб підпис було видно */
+  background-color: white;
   width: 100%;
-  height: 120px;
-  max-width: 100%;
+  aspect-ratio: 3 / 1; /* ✅ Рівні пропорції на всіх екранах */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  touch-action: none; /* 🔧 для мобільних */
 }
 
 .signature-box button {
-  align-self: flex-start;
+  margin-top: 0.5rem;
+  background: var(--accent);
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .signature-box button:hover {
@@ -275,13 +286,6 @@ textarea {
   margin-top: 0.5rem;
   font-size: 13px;
   color: var(--muted);
-}
-
-/* MOBILE FIX */
-@media (max-width: 768px) {
-  .signature-box button {
-    width: 100%;
-  }
 }
 form > section {
   grid-column: span 2;
