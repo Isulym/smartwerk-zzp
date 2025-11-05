@@ -198,6 +198,7 @@ function setupSignature(canvasId, dateId) {
     c.style.width = `${rect.width}px`;
     c.style.height = `${rect.height}px`;
 
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(ratio, ratio);
   }
 
@@ -458,19 +459,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-    
     onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href="login.html"; return; }
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
 
-      flatpickr(".js-date",{dateFormat:"Y-m-d"});
-      setupSignature("signatureBusiness","signatureBusinessDate");
-      setupSignature("signatureClient","signatureClientDate");
-      if(!document.querySelector("#itemsBody tr")) addItem();
-      updateTotals();
+  flatpickr(".js-date", { dateFormat: "Y-m-d" });
 
-      await previewNextQuoteNumber(user.uid);
-      await loadQuoteForEdit(user.uid);
-    });
+  if (!document.querySelector("#itemsBody tr")) addItem();
+  updateTotals();
+
+  await previewNextQuoteNumber(user.uid);
+  await loadQuoteForEdit(user.uid);
+
+  // ⬇️ ТІЛЬКИ ПІСЛЯ ВСЬОГО — чекаємо DOM і тоді ініціалізуємо підпис
+  document.addEventListener("DOMContentLoaded", () => {
+    setupSignature("signatureBusiness", "signatureBusinessDate");
+    setupSignature("signatureClient", "signatureClientDate");
+  });
+});
 
     document.addEventListener("DOMContentLoaded", ()=>{
   $("saveBtn")?.addEventListener("click",(e)=>{e.preventDefault();saveQuote();});
