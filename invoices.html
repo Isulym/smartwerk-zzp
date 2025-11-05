@@ -497,18 +497,38 @@ location.href="invoices-list.html";
       if(!(inv.items||[]).length) addItem();
 
       // redraw signatures if present
-      if(inv.signatures?.business){
-        const img=new Image();
-        img.onload=()=>{ const c=$("signatureBusiness"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
-        img.src=inv.signatures.business;
-        $("signatureBusinessDate").innerText = inv.signatures.businessDate || "";
-      }
-      if(inv.signatures?.client){
-        const img=new Image();
-        img.onload=()=>{ const c=$("signatureClient"); const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); };
-        img.src=inv.signatures.client;
-        $("signatureClientDate").innerText = inv.signatures.clientDate || "";
-      }
+      if(q.signatures?.business){
+  const img = new Image();
+  img.onload = () => {
+    const c = $("signatureBusiness");
+    const ctx = c.getContext("2d");
+
+    // 🔄 Синхронізуємо розміри перед малюванням
+    c.width = c.offsetWidth;
+    c.height = c.offsetHeight;
+
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+  };
+  img.src = q.signatures.business;
+  $("signatureBusinessDate").innerText = q.signatures.businessDate || "";
+}
+
+if(q.signatures?.client){
+  const img = new Image();
+  img.onload = () => {
+    const c = $("signatureClient");
+    const ctx = c.getContext("2d");
+
+    c.width = c.offsetWidth;
+    c.height = c.offsetHeight;
+
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+  };
+  img.src = q.signatures.client;
+  $("signatureClientDate").innerText = q.signatures.clientDate || "";
+}
 
       // totals (recalc)
       updateTotals();
