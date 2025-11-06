@@ -19,33 +19,44 @@
   <main>
     <!-- Filters -->
     <section>
-      <h2>🔎 Filters & Search</h2>
-      <label>Status:
-        <select id="statusFilter" name="statusFilter">
-          <option value="all">All</option>
-          <option value="Draft">Draft</option>
-          <option value="Sent">Sent</option>
-          <option value="Accepted">Accepted</option>
-          <option value="Rejected">Rejected</option>
-        </select>
-      </label>
-     <label>From: <input id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD"></label>
-     <label>To: <input id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD"></label>
-     <label>Search: <input id="searchBox" name="searchQuery" placeholder="Client / Quote # / Amount"></label>
-      <label>Sort by:
-        <select id="sortBy" name="sortBy">
-          <option value="date_desc">Date ↓</option>
-          <option value="date_asc">Date ↑</option>
-          <option value="quoteNumber_desc">Quote # ↓</option>
-          <option value="quoteNumber_asc">Quote # ↑</option>
-          <option value="amount_desc">Amount ↓</option>
-          <option value="amount_asc">Amount ↑</option>
-        </select>
-      </label>
-        <button type="button" onclick="resetFilters()">♻️ Reset</button>
+     <section class="filters">
+  <h3>🔎 Filters & Search</h3>
+      
+  <label>From:
+    <input id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD">
+  </label>
 
-    </section>
+  <label>To:
+    <input id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD">
+  </label>
 
+  <label>Status:
+    <select id="statusFilter" name="statusFilter">
+      <option value="all">All</option>
+      <option value="Draft">Draft</option>
+      <option value="Sent">Sent</option>
+      <option value="Accepted">Accepted</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+  </label>
+
+  <label>Search:
+    <input id="searchBox" name="searchQuery" placeholder="Client / Quote # / Amount">
+  </label>
+
+  <label>Sort by:
+    <select id="sortBy" name="sortBy">
+      <option value="date_desc">Date ↓</option>
+      <option value="date_asc">Date ↑</option>
+      <option value="quoteNumber_desc">Quote # ↓</option>
+      <option value="quoteNumber_asc">Quote # ↑</option>
+      <option value="amount_desc">Amount ↓</option>
+      <option value="amount_asc">Amount ↑</option>
+    </select>
+  </label>
+
+  <button type="button" onclick="resetFilters()">♻️ Reset</button>
+</section>
     <!-- Table -->
     <section>
       <table>
