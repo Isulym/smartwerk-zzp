@@ -197,49 +197,59 @@ footer {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 1rem 1.2rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 6px var(--shadow);
+  padding: 1.2rem;
+  margin-bottom: 1.8rem;
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .filters h3 {
-  font-size: 15px;
+  margin: 0 0 1rem;
   color: var(--muted);
-  margin-bottom: 0.8rem;
+  font-size: 15px;
   font-weight: 500;
 }
 
-.filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
 }
 
-.filter-row input,
-.filter-row select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
+.filter-grid label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.filter-grid input,
+.filter-grid select {
+  width: 100%;
+  padding: 8px 10px;
   background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
   color: var(--text);
   font-size: 13px;
-  min-width: 140px;
-  flex: 1;
-  max-width: 220px;
 }
 
-.filters .btn.reset {
+.btn-wrapper {
+  display: flex;
+  align-items: end;
+  padding-top: 8px;
+}
+
+.btn.reset {
+  width: 100%;
   padding: 8px 14px;
   font-size: 13px;
   background: transparent;
   border: 1px solid var(--line);
   color: var(--muted);
   border-radius: 6px;
-  white-space: nowrap;
 }
 
-.filters .btn.reset:hover {
+.btn.reset:hover {
   background: var(--line);
   color: var(--text);
 }
