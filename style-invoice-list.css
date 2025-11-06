@@ -178,3 +178,41 @@ footer {
     width: 100%;
   }
 }
+.flatpickr-input {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.flatpickr-input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+#filterFrom,
+#filterTo,
+#filterStatus {
+  width: 160px;
+}
+
+#searchInput {
+  flex-grow: 2;
+}
+
+#sortBy {
+  width: 200px;
+}
+.btn.reset {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.btn.reset:hover {
+  background: var(--line);
+  color: var(--text);
+}
