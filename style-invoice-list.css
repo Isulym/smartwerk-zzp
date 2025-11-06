@@ -330,3 +330,8 @@ footer {
   background: #1e293b;
   color: #f0f2f5;
 }
+.js-date {
+  max-width: 160px; /* або 140px */
+  width: 100%;
+  box-sizing: border-box;
+}
