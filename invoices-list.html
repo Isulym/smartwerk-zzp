@@ -7,6 +7,11 @@
    <link rel="stylesheet" href="style-invoice-list.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 </head>
 <body>
 <header>
@@ -20,8 +25,8 @@
 <section class="filters-bar">
   <h3>📅 Filters & Search</h3>
   <div class="filters-row">
-    <input type="date" id="fromDate" placeholder="From" />
-    <input type="date" id="toDate" placeholder="To" />
+    <input type="text" id="fromDate" class="js-date" placeholder="From date" />
+    <input type="text" id="toDate" class="js-date" placeholder="To date" />
     <select id="statusFilter">
       <option value="all">All</option>
       <option value="Draft">Draft</option>
@@ -322,6 +327,10 @@ window.resetFilters = () => {
 // ==== Realtime ====
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
+flatpickr(".js-date", {
+  dateFormat: "Y-m-d"
+});
+  
   const colRef = collection(db, "users", user.uid, "invoices");
   const q = query(colRef, orderBy("invoiceDate", "desc"));
   onSnapshot(q, snap => {
