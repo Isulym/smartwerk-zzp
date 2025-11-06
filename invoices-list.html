@@ -22,11 +22,15 @@
   </div>
 </header>
 
-<section class="filters-bar">
-  <h3>📅 Filters & Search</h3>
-  <div class="filters-row">
-    <input type="text" id="fromDate" class="js-date" placeholder="From date" />
-    <input type="text" id="toDate" class="js-date" placeholder="To date" />
+ <section>
+     <section class="filters">     
+  <label>From:
+    <input id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD">
+  </label>
+
+  <label>To:
+    <input id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD">
+  </label>
     <select id="statusFilter">
       <option value="all">All</option>
       <option value="Draft">Draft</option>
@@ -34,7 +38,7 @@
       <option value="Paid">Paid</option>
       <option value="Reminder Sent">Reminder Sent</option>
     </select>
-    <input type="text" id="searchBox" placeholder="Search client / number / amount" />
+    <input type="text" id="searchBox" placeholder="Search client / Invoice # / amount" />
     <select id="sortBy">
       <option value="invoiceNumber_desc">Invoice # (new)</option>
       <option value="invoiceNumber_asc">Invoice # (old)</option>
