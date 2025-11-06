@@ -18,30 +18,32 @@
 </header>
 
 <section class="filters">
-  <h3>📅 Filters & Search</h3>
-  From: <input type="date" id="fromDate">
-  To: <input type="date" id="toDate">
-  <label>Status:
+  <h3>🔍 Filters</h3>
+  <div class="filter-row">
+    <input type="date" id="fromDate" placeholder="From">
+    <input type="date" id="toDate" placeholder="To">
+
     <select id="statusFilter">
-      <option value="all">All</option>
+      <option value="all">All Statuses</option>
       <option value="Draft">Draft</option>
       <option value="Sent">Sent</option>
       <option value="Paid">Paid</option>
       <option value="Reminder Sent">Reminder Sent</option>
     </select>
-  </label>
-  <label>Search: <input type="text" id="searchBox" placeholder="Client, number, amount"></label>
-  <label>Sort by:
+
+    <input type="text" id="searchBox" placeholder="Search client, #, amount" />
+
     <select id="sortBy">
       <option value="invoiceNumber_desc">Invoice # (new)</option>
       <option value="invoiceNumber_asc">Invoice # (old)</option>
       <option value="date_desc">Date (new)</option>
       <option value="date_asc">Date (old)</option>
-      <option value="amount_desc">Amount (high → low)</option>
-      <option value="amount_asc">Amount (low → high)</option>
+      <option value="amount_desc">Amount (↓)</option>
+      <option value="amount_asc">Amount (↑)</option>
     </select>
-  </label>
-  <button onclick="resetFilters()">♻️ Reset</button>
+
+    <button class="btn reset" onclick="resetFilters()">♻️ Reset</button>
+  </div>
 </section>
 
 <section>
