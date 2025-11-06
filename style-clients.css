@@ -134,3 +134,39 @@ header h1 {
   align-items: center;
   gap: 8px;
 }
+#smartSuggestModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#smartSuggestModal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--card);
+  padding: 20px;
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.suggest-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
