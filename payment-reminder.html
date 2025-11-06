@@ -89,12 +89,9 @@
       <textarea id="message" name="message" autocomplete="off" placeholder="Message body..."></textarea>
       <div class="actions">
         <button type="button" class="btn" onclick="aiFill()">🤖 AI Fill</button>
-       
-        <button id="aiDraftBtn" type="button" onclick="aiDraft()">✍️ AI Draft</button>
-        <button type="button" onclick="aiStrict()">💬 Strict</button>
-        <button type="button" onclick="aiFriendly()">👍 Friendly</button>
-        <button type="button" onclick="translateMsg('en')">🌐 EN</button>
-        <button type="button" onclick="translateMsg('nl')">🌐 NL</button>
+        <button type="button" class="btn" onclick="aiDraft()">✍️ AI Draft</button>
+        <button type="button" class="btn" onclick="aiStrict()">💬 Strict</button>
+        <button type="button" class="btn" onclick="aiFriendly()">👍 Friendly</button>
       </div>
     </section>
 
@@ -427,10 +424,7 @@ window.saveReminder = saveReminder;
     window.aiDraft    = ()=> setVal("message","We kindly remind you of your pending invoice. Please pay before the due date.");
     window.aiStrict   = ()=> setVal("message","FINAL NOTICE: Your invoice is overdue. Please transfer the outstanding amount immediately.");
     window.aiFriendly = ()=> setVal("message","Hey! Just a friendly reminder  Don’t forget to complete your payment.");
-    window.translateMsg=(lang)=>{
-      if(lang==="nl") setVal("message","Beste klant,\n\nDit is een herinnering voor uw openstaande factuur. Gelieve zo snel mogelijk te betalen.\n\nMet vriendelijke groet,\nSmartWerk");
-      if(lang==="en") setVal("message","Dear client,\n\nThis is a reminder for your outstanding invoice. Please make the payment soon.\n\nBest regards,\nSmartWerk");
-    };
+    
     // 🌿 Автоматичне заповнення даних клієнта, якщо прийшли з clients-list
 document.addEventListener("DOMContentLoaded", () => {
   const savedClient = localStorage.getItem("selectedClient");
