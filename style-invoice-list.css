@@ -197,47 +197,48 @@ footer {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 1rem;
+  padding: 1rem 1.2rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 6px var(--shadow);
 }
 
 .filters h3 {
   font-size: 15px;
-  margin-bottom: 0.8rem;
   color: var(--muted);
+  margin-bottom: 0.8rem;
   font-weight: 500;
 }
 
-.filters .filter-row {
+.filter-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
 }
 
-.filters input,
-.filters select {
-  padding: 8px 10px;
-  font-size: 13px;
+.filter-row input,
+.filter-row select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
   background: var(--bg);
   color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  flex: 1;
-  min-width: 140px;
-}
-
-.filters .btn {
-  padding: 8px 14px;
   font-size: 13px;
+  min-width: 140px;
+  flex: 1;
+  max-width: 220px;
 }
 
 .filters .btn.reset {
+  padding: 8px 14px;
+  font-size: 13px;
   background: transparent;
   border: 1px solid var(--line);
   color: var(--muted);
+  border-radius: 6px;
+  white-space: nowrap;
 }
+
 .filters .btn.reset:hover {
   background: var(--line);
   color: var(--text);
