@@ -19,30 +19,43 @@
 
 <section class="filters">
   <h3>🔍 Filters & Search</h3>
-  <div class="filter-row">
-    <input type="date" id="fromDate" placeholder="From">
-    <input type="date" id="toDate" placeholder="To">
-
-    <select id="statusFilter">
-      <option value="all">All Statuses</option>
-      <option value="Draft">Draft</option>
-      <option value="Sent">Sent</option>
-      <option value="Paid">Paid</option>
-      <option value="Reminder Sent">Reminder Sent</option>
-    </select>
-
-    <input type="text" id="searchBox" placeholder="Search client, #, amount" />
-
-    <select id="sortBy">
-      <option value="invoiceNumber_desc">Invoice # (new)</option>
-      <option value="invoiceNumber_asc">Invoice # (old)</option>
-      <option value="date_desc">Date (new)</option>
-      <option value="date_asc">Date (old)</option>
-      <option value="amount_desc">Amount (↓)</option>
-      <option value="amount_asc">Amount (↑)</option>
-    </select>
-
-    <button class="btn reset" onclick="resetFilters()">♻️ Reset</button>
+  <div class="filter-grid">
+    <div>
+      <label for="fromDate">From</label>
+      <input type="date" id="fromDate" />
+    </div>
+    <div>
+      <label for="toDate">To</label>
+      <input type="date" id="toDate" />
+    </div>
+    <div>
+      <label for="statusFilter">Status</label>
+      <select id="statusFilter">
+        <option value="all">All</option>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
+        <option value="Reminder Sent">Reminder Sent</option>
+      </select>
+    </div>
+    <div>
+      <label for="searchBox">Search</label>
+      <input type="text" id="searchBox" placeholder="Client, number, amount" />
+    </div>
+    <div>
+      <label for="sortBy">Sort by</label>
+      <select id="sortBy">
+        <option value="invoiceNumber_desc">Invoice # (new)</option>
+        <option value="invoiceNumber_asc">Invoice # (old)</option>
+        <option value="date_desc">Date (new)</option>
+        <option value="date_asc">Date (old)</option>
+        <option value="amount_desc">Amount (↓)</option>
+        <option value="amount_asc">Amount (↑)</option>
+      </select>
+    </div>
+    <div class="btn-wrapper">
+      <button class="btn reset" onclick="resetFilters()">♻️ Reset</button>
+    </div>
   </div>
 </section>
 
