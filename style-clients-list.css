@@ -142,3 +142,110 @@ footer {
     margin-bottom: 0.8rem;
   }
 }
+.kpi-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.kpi-card h3 {
+  margin: 0 0 0.4rem;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.kpi-card p {
+  font-size: 22px;
+  margin: 0;
+  color: var(--text);
+  font-weight: bold;
+}
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin: 1.5rem 0;
+}
+
+.search-bar input,
+.search-bar select {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+table th, table td {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+table th {
+  background: var(--card);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.status.active {
+  background: #10b98133;
+  color: #10b981;
+}
+
+.status.prospect {
+  background: #fbbf2433;
+  color: #fbbf24;
+}
+
+.status.inactive {
+  background: #ef444433;
+  color: #ef4444;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.actions .btn {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.btn-danger {
+  background: var(--danger);
+}
+
+.btn-danger:hover {
+  background: #d9363b;
+}
