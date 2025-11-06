@@ -416,6 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // === 🔄 AUTO-FILL BUSINESS INFO from profile.html ===
+  // === 🔄 AUTO-FILL BUSINESS INFO from profile.html ===
 async function loadProfileData(uid) {
   try {
     const ref = doc(db, "users", uid);
@@ -433,16 +434,16 @@ async function loadProfileData(uid) {
     console.error("Profile load error:", e);
   }
 }
-      flatpickr(".js-date",{ dateFormat:"Y-m-d" });
-      setupSignature("signatureBusiness","signatureBusinessDate");
-      setupSignature("signatureClient","signatureClientDate");
 
-     document.addEventListener("DOMContentLoaded", () => {
+// === DATE PICKERS ===
+flatpickr(".js-date", { dateFormat: "Y-m-d" });
+
+// === COLLAPSIBLES ===
+document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".section-toggle").forEach(button => {
     button.addEventListener("click", () => {
       const content = button.nextElementSibling;
       const icon = button.querySelector('.toggle-icon');
-
       if (content) {
         const isOpen = content.classList.toggle("open");
         icon.textContent = isOpen ? "🔽" : "▶️";
@@ -451,71 +452,63 @@ async function loadProfileData(uid) {
   });
 });
 
-      // Інвойси в селекті
-   onAuthStateChanged(auth, async (user)=>{
+// === MAIN FIREBASE AUTH HANDLER ===
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     location.href = "login.html";
     return;
   }
 
+  const uid = user.uid;
+
   flatpickr(".js-date", { dateFormat: "Y-m-d" });
+  await loadProfileData(uid);
+  await loadReminderForEdit(uid);
 
-  if (!document.querySelector("#itemsBody tr")) addItem();
-  updateTotals();
+  setupSignature("signatureBusiness", "signatureBusinessDate");
+  setupSignature("signatureClient", "signatureClientDate");
 
-  await loadProfileData(user.uid);
-  await loadReminderForEdit(user.uid);
-
-    setupSignature("signatureBusiness", "signatureBusinessDate");
-    setupSignature("signatureClient", "signatureClientDate");
- 
-});
-      
-
-  // 🔄 Інвойси в селекті — ПЕРЕНЕСЕНО СЮДИ
-  onSnapshot(collection(db, "users", user.uid, "invoices"), (snap) => {
+  // === LOAD INVOICES LIST INTO SELECT ===
+  onSnapshot(collection(db, "users", uid, "invoices"), (snap) => {
     const sel = $("linkedInvoice");
     if (!sel) return;
     const saved = sel.value;
     sel.innerHTML = "<option value=''>— Select Invoice —</option>";
 
     snap.docs.forEach((d) => {
-    const inv = d.data();
-    const val = inv.invoiceNumber || d.id;
-    const opt = document.createElement("option");
-    opt.value = val;
-    opt.textContent = val;
+      const inv = d.data();
+      const val = inv.invoiceNumber || d.id;
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
 
-    // додаємо додаткові дані
-    opt.dataset.date = inv.invoiceDate || "";
-    opt.dataset.due = inv.dueDate || "";
-    opt.dataset.amount = inv.grandTotalFormatted || String(inv.grandTotal || "");
+      // додаємо додаткові дані
+      opt.dataset.date = inv.invoiceDate || "";
+      opt.dataset.due = inv.dueDate || "";
+      opt.dataset.amount = inv.grandTotalFormatted || String(inv.grandTotal || "");
+      opt.dataset.clientName = inv.clientName || "";
+      opt.dataset.clientEmail = inv.clientEmail || "";
+      opt.dataset.clientAddress = inv.clientAddress || "";
 
-    // ✅ додаємо клієнтські дані
-    opt.dataset.clientName = inv.clientName || "";
-    opt.dataset.clientEmail = inv.clientEmail || "";
-    opt.dataset.clientAddress = inv.clientAddress || "";
-
-    if (val === saved) opt.selected = true;
-    sel.appendChild(opt);
+      if (val === saved) opt.selected = true;
+      sel.appendChild(opt);
+    });
   });
-});
 
-     
+  // === HANDLE INVOICE CHANGE ===
   $("linkedInvoice")?.addEventListener("change", (e) => {
-  const opt = e.target.selectedOptions?.[0];
-  if (!opt) return;
-  setText("invoiceDate", opt.dataset.date || "");
-  setText("dueDate", opt.dataset.due || "");
-  setText("invoiceAmount", opt.dataset.amount || "");
+    const opt = e.target.selectedOptions?.[0];
+    if (!opt) return;
+    setText("invoiceDate", opt.dataset.date || "");
+    setText("dueDate", opt.dataset.due || "");
+    setText("invoiceAmount", opt.dataset.amount || "");
+    setVal("amount", opt.dataset.amount || "");
+    setVal("clientName", opt.dataset.clientName || "");
+    setVal("clientEmail", opt.dataset.clientEmail || "");
+    setVal("clientAddress", opt.dataset.clientAddress || "");
+  });
 
-  // ✅ завжди оновлюємо amount при виборі інвойсу
-  setVal("amount", opt.dataset.amount || "");
-  setVal("clientName", opt.dataset.clientName || "");
-  setVal("clientEmail", opt.dataset.clientEmail || "");
-  setVal("clientAddress", opt.dataset.clientAddress || "");
-});
-
+  // === SAVE BUTTON ===
   $("saveBtn")?.addEventListener("click", (e) => {
     e.preventDefault();
     saveReminder();
