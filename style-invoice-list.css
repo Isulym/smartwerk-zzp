@@ -252,3 +252,46 @@ footer {
   background: var(--line);
   color: var(--text);
 }
+/* === FLATPICKR DARK THEME FIX === */
+.flatpickr-calendar {
+  background: #1e293b;
+  color: #f0f2f5;
+  border: 1px solid #2d3147;
+  box-shadow: 0 0 12px rgba(0,0,0,0.4);
+  border-radius: 10px;
+  font-family: 'Segoe UI', sans-serif;
+  z-index: 9999;
+}
+
+.flatpickr-calendar .flatpickr-day {
+  background: transparent;
+  color: #f0f2f5;
+  border-radius: 6px;
+}
+
+.flatpickr-day.today {
+  border: 1px solid var(--accent);
+}
+
+.flatpickr-day.selected {
+  background: var(--accent);
+  color: #fff;
+}
+
+.flatpickr-day:hover {
+  background: #334155;
+  cursor: pointer;
+}
+
+.flatpickr-months, .flatpickr-weekdays {
+  background: #1e293b;
+  color: #f0f2f5;
+}
+
+.flatpickr-input[readonly] {
+  color: #f0f2f5;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
