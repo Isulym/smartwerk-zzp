@@ -290,23 +290,52 @@ window.clearSignature = (id) => {
       setVal("amount", typeof r.amount==="number" ? r.amount.toFixed(2) : (r.amount||""));
       setVal("message", r.message);
 
-      // Signatures
-      if(r.signatures?.business){
-        const img=new Image();
-        img.onload=()=>{ const c=$("signatureBusiness"); if(!c) return;
-          const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0);
-        };
-        img.src = r.signatures.business;
-        setText("signatureBusinessDate", r.signatures.businessDate);
-      }
-      if(r.signatures?.client){
-        const img=new Image();
-        img.onload=()=>{ const c=$("signatureClient"); if(!c) return;
-          const ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height); ctx.drawImage(img,0,0);
-        };
-        img.src = r.signatures.client;
-        setText("signatureClientDate", r.signatures.clientDate);
-      }
+     // Signatures
+if (r.signatures?.business) {
+  const img = new Image();
+  img.onload = () => {
+    const c = $("signatureBusiness");
+    if (!c) return;
+
+    const ctx = c.getContext("2d");
+
+    // 🔄 Встановлюємо canvas розмір відповідно до його стилю
+    const rect = c.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    c.width = rect.width * ratio;
+    c.height = rect.height * ratio;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(ratio, ratio);
+
+    // 🔁 Тепер малюємо підпис
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, rect.width, rect.height);
+  };
+  img.src = r.signatures.business;
+  setText("signatureBusinessDate", r.signatures.businessDate || "");
+}
+
+if (r.signatures?.client) {
+  const img = new Image();
+  img.onload = () => {
+    const c = $("signatureClient");
+    if (!c) return;
+
+    const ctx = c.getContext("2d");
+
+    const rect = c.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    c.width = rect.width * ratio;
+    c.height = rect.height * ratio;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(ratio, ratio);
+
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, rect.width, rect.height);
+  };
+  img.src = r.signatures.client;
+  setText("signatureClientDate", r.signatures.clientDate || "");
+}
     }
     async function logActivity(uid, type, message) {
   try {
