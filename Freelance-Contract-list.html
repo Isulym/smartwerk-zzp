@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📋 SmartWerk — Saved Contracts</title>
-   <link rel="stylesheet" href="style-Freelance-Contract.css" />
+   <link rel="stylesheet" href="style-clients-list.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -16,16 +16,16 @@
    </div>
 </header>
   
-<div class="filters">
-  <input type="text" id="searchInput" placeholder="Search contracts...">
-  <select id="statusFilter">
-    <option value="">All Statuses</option>
-    <option>Draft</option>
-    <option>Sent</option>
-    <option>Signed</option>
-    <option>Completed</option>
-  </select>
-</div>
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search contracts...">
+    <select id="statusFilter">
+      <option value="">All Statuses</option>
+      <option value="Draft">Draft</option>
+      <option value="Sent">Sent</option>
+      <option value="Signed">Signed</option>
+      <option value="Completed">Completed</option>
+    </select>
+  </div>
 
 <table>
   <thead>
@@ -43,7 +43,9 @@
   </tbody>
 </table>
 
-<canvas id="chart" height="100"></canvas>
+<div class="chart-container">
+    <canvas id="chart"></canvas>
+  </div>
 
 <footer>© 2025 SmartWerk</footer>
 
