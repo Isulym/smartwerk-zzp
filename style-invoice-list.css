@@ -428,7 +428,7 @@ td select {
   color: var(--text);
   transition: border-color 0.2s ease;
   text-transform: capitalize;
-  box-shadow: 0 1px 4px var(--shadow);
+  
 }
 
 
