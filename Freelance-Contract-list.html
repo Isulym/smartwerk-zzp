@@ -3,34 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📄 Freelance Contracts List</title>
+  <title>📋 SmartWerk — Saved Contracts</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { background: #0f172a; color: #e5e7eb; font-family: 'Inter', sans-serif; padding: 20px; }
-    h1 { margin-bottom: 10px; }
-    .btn { background: #334155; color: #fff; padding: 6px 12px; border-radius: 6px; text-decoration: none; margin-right: 8px; }
-    .btn-primary { background: #3b82f6; }
-    .btn-danger { background: #dc2626; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 10px; text-align: left; }
-    th { background: #1e293b; text-transform: uppercase; font-size: 12px; color: #93c5fd; }
-    tr:nth-child(even) { background: #1e293b; }
-    tr:hover { background: #334155; }
-    .status { font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 13px; display: inline-block; }
-    .status.Draft { background: #475569; color: #fff; }
-    .status.Sent { background: #78350f; color: #facc15; }
-    .status.Signed { background: #15803d; color: #bbf7d0; }
-    .status.Completed { background: #14532d; color: #86efac; }
-    input, select { background: #1e293b; border: none; color: #e5e7eb; padding: 6px 8px; border-radius: 6px; }
-    .filters { margin-top: 10px; display: flex; gap: 10px; }
-    footer { margin-top: 40px; text-align: center; color: #64748b; font-size: 13px; }
-  </style>
 </head>
 <body>
-<h1>📄 Freelance Contracts</h1>
-<a href="dashboard.html" class="btn">← Dashboard</a>
-<a href="Freelance-Contract.html" class="btn btn-primary">＋ New Contract</a>
-
+      <header>
+<h1>📋 SmartWerk — Saved Contracts</h1>
+ <div class="header-actions">
+   <a href="Freelance-Contract.html" class="btn btn-primary">➕ New Contract</a>
+   <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
+   </div>
+</header>
+  
 <div class="filters">
   <input type="text" id="searchInput" placeholder="Search contracts...">
   <select id="statusFilter">
