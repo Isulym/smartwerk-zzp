@@ -16,72 +16,82 @@
     </div>
   </header>
 
-  <main>
-    <form id="filtersForm" onsubmit="return false">
+  <main class="wrap">
+  <header class="topbar">
+    <h1>📬 Payment Reminders</h1>
+    <div class="header-actions">
+      <a href="payment-reminder.html" class="btn btn-primary" onclick="localStorage.removeItem('editReminderId')">➕ New Reminder</a>
+      <a href="dashboard.html" class="btn">🏠 Dashboard</a>
+    </div>
+  </header>
 
-<section id="filtersForm">
-  <h2>🔎 Filters & Search</h2>
-  <label for="statusFilter">Status:</label>
-  <select id="statusFilter" name="statusFilter">
-    <option value="all">All</option>
-    <option value="Draft">Draft</option>
-    <option value="Sent">Sent</option>
-    <option value="Paid">Paid</option>
-  </select>
+  <section class="filters">
+   
+ <label>From:<input type="text" id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off">
+    </label>
 
-  <label for="typeFilter">Type:</label>
-  <select id="typeFilter" name="typeFilter">
-    <option value="all">All</option>
-    <option value="First Reminder">First Reminder</option>
-    <option value="Second Reminder">Second Reminder</option>
-    <option value="Final Reminder">Final Reminder</option>
-  </select>
+  <label>To:<input type="text" id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off">
+    </label>
+    
+    <label>Status:
+      <select id="statusFilter" name="statusFilter">
+        <option value="all">All</option>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Paid">Paid</option>
+      </select>
+    </label>
 
-  <label for="fromDate">From:</label>
-  <input type="text" id="fromDate" name="fromDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off">
+    <label>Type:
+      <select id="typeFilter" name="typeFilter">
+        <option value="all">All</option>
+        <option value="First Reminder">First Reminder</option>
+        <option value="Second Reminder">Second Reminder</option>
+        <option value="Final Reminder">Final Reminder</option>
+      </select>
+    </label>
 
-  <label for="toDate">To:</label>
-  <input type="text" id="toDate" name="toDate" class="js-date" placeholder="YYYY-MM-DD" autocomplete="off">
+  
+    <label>Search:
+      <input type="text" id="searchBox" name="searchBox" placeholder="Search client / Reminder # / Amount" autocomplete="off">
+    </label>
 
-  <label for="searchBox">Search:</label>
-  <input type="text" id="searchBox" name="searchBox" placeholder="Client / Reminder # / Amount" autocomplete="off">
+    <label>Sort by:
+      <select id="sortBy" name="sortBy">
+        <option value="date_desc">Date (new)</option>
+        <option value="date_asc">Date (old)</option>
+        <option value="reminderNumber_desc">Reminder # (new)</option>
+        <option value="reminderNumber_asc">Reminder # (old)</option>
+        <option value="amount_desc">Amount ↓</option>
+        <option value="amount_asc">Amount ↑</option>
+      </select>
+    </label>
+  </section>
 
-  <label for="sortBy">Sort by:</label>
-  <select id="sortBy" name="sortBy">
-    <option value="date_desc">Date ↓</option>
-    <option value="date_asc">Date ↑</option>
-    <option value="reminderNumber_desc">Reminder # ↓</option>
-    <option value="reminderNumber_asc">Reminder # ↑</option>
-    <option value="amount_desc">Amount ↓</option>
-    <option value="amount_asc">Amount ↑</option>
-  </select>
-</section>
+  <section>
+    <table role="table">
+      <thead>
+        <tr>
+          <th>Reminder ID</th>
+          <th>Invoice</th>
+          <th>Client</th>
+          <th>Status</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="remindersBody">
+        <tr><td colspan="8" style="text-align:center;">🔄 Loading...</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
 
-    <section>
-     <table role="table">
-        <thead>
-  <tr>
-    <th scope="col">Reminder ID</th>
-    <th scope="col">Linked Invoice</th>
-    <th scope="col">Client</th>
-    <th scope="col">Status</th>
-    <th scope="col">Type</th>
-    <th scope="col">Date</th>
-    <th scope="col">Amount</th>
-    <th scope="col">Actions</th>
-  </tr>
-</thead>
-       <tbody id="remindersBody">
-  <tr><td colspan="8" style="text-align:center;">🔄 Loading...</td></tr>
-</tbody>
-      </table>
-    </section>
-      </form>
-  </main>
-
-  <footer>
-    <p>© 2025 SmartWerk</p>
-  </footer>
+<footer>
+  <p>© 2025 SmartWerk</p>
+</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
