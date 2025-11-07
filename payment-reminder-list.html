@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartWerk — Payment Reminders</title>
-  <link rel="stylesheet" href="style-invoices.css"/>
+  <link rel="stylesheet" href="style-invoice-list.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
   <header>
-    <h1>📋 SmartWerk — Payment Reminders</h1>
-    <nav>
-      <a href="dashboard.html" class="btn">← Dashboard</a>
+    <h1>📋 SmartWerk — Saved Payment Reminders</h1>
+     <div class="header-actions">
       <a href="payment-reminder.html" class="btn" onclick="localStorage.removeItem('editReminderId')">➕ New Reminder</a>
-    </nav>
+       <a href="dashboard.html" class="btn">← Dashboard</a>
+    </div>
   </header>
 
   <main>
@@ -21,8 +21,6 @@
 
 <section id="filtersForm">
   <h2>🔎 Filters & Search</h2>
-  
-
   <label for="statusFilter">Status:</label>
   <select id="statusFilter" name="statusFilter">
     <option value="all">All</option>
