@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartWerk — Payment Reminders</title>
   <link rel="stylesheet" href="style-invoice-list.css"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 </head>
 <body>
    <main class="wrap">
@@ -281,7 +284,7 @@
 
     onAuthStateChanged(auth,(user)=>{
       if(!user){ location.href="login.html"; return; }
-      flatpickr(".js-date",{ dateFormat:"Y-m-d" });
+      flatpickr(".js-date", {dateFormat: "Y-m-d"});
       startRealtime(user.uid);
       ["statusFilter","typeFilter","fromDate","toDate","searchBox","sortBy"].forEach(id=>{
         $(id).addEventListener("input", render);
