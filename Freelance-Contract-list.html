@@ -85,7 +85,7 @@ function renderRow(d) {
       <td>
         <button class="btn" onclick="editContract('${d.id}')">✏️ Edit</button>
         <button class="btn btn-danger" onclick="deleteContract('${d.id}')">🗑 Delete</button>
-        <button onclick="downloadContractPDF('${d.id}')">📄 PDF</button>
+        <button class="btn" onclick="downloadContractPDF('${d.id}')',true)">📄 PDF</button>
       </td>
     </tr>`;
 }
