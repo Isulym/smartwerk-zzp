@@ -253,4 +253,7 @@ header {
   gap: 10px;
   flex-wrap: wrap;
 }
-
+header h1 {
+  font-size: 20px; /* Було 24px */
+  margin: 0;
+}
