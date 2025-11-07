@@ -417,5 +417,18 @@ section table th {
 .actions .btn-danger:hover {
   background: #d9363b;
 }
+td select {
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background-color: var(--card);
+  color: var(--text);
+  transition: border-color 0.2s ease;
+  text-transform: capitalize;
+  box-shadow: 0 1px 4px var(--shadow);
+}
 
 
