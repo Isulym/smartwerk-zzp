@@ -418,41 +418,48 @@ section table th {
   background: #d9363b;
 }
 
-.status {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
+/* Загальний стиль для селектів в таблиці */
+td select {
+  padding: 6px 10px;
+  border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
-  text-transform: capitalize;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+  cursor: pointer;
   border: 1px solid transparent;
+  background-color: var(--card);
+  color: var(--text);
+  transition: border-color 0.2s ease;
+  text-transform: capitalize;
+  box-shadow: 0 1px 4px var(--shadow);
 }
 
-/* Draft: Сірий */
-.status.draft {
+/* Фокус (підсвітка при редагуванні) */
+td select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Кольори по статусу */
+td select[data-status="Draft"] {
+  border-color: #475569;
   background-color: #334155;
   color: #cbd5e1;
-  border-color: #475569;
 }
 
-/* Sent: Синій */
-.status.sent {
+td select[data-status="Sent"] {
+  border-color: #3b82f6;
   background-color: #1e40af;
   color: #bfdbfe;
-  border-color: #3b82f6;
 }
 
-/* Accepted: Зелений */
-.status.accepted {
+td select[data-status="Accepted"] {
+  border-color: #10b981;
   background-color: #065f46;
   color: #a7f3d0;
-  border-color: #10b981;
 }
 
-/* Rejected: Червоний */
-.status.rejected {
+td select[data-status="Rejected"] {
+  border-color: #ef4444;
   background-color: #7f1d1d;
   color: #fecaca;
-  border-color: #ef4444;
 }
