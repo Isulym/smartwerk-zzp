@@ -13,21 +13,22 @@
   
 </head>
 <body>
-  <header class="main-header">
-   <h1>Tax Calculator</h1>
- <div class="header-actions">
- 
-    <a href="index.html" class="btn">← Main Page</a>
-    <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
+ <header class="main-header">
+  <div class="header-top">
+    <h1>📊 Tax Calculator</h1>
+    <div class="header-actions">
+      <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="header-bottom">
     <p class="info">
-  📌 After the calculation, you can export the report or submit the declaration manually via
-  <a href="https://mijn.belastingdienst.nl" target="_blank">Belastingdienst</a>.
-      <!-- 📖 Button to open the Tax Submission Guide -->
-<button id="btn-tax-guide">📖 Open Tax Submission Guide</button>
-</p>
-  
-</div>
-    </header>
+      📌 After the calculation, you can export the report or submit the declaration manually via
+      <a href="https://mijn.belastingdienst.nl" target="_blank">Belastingdienst</a>.
+    </p>
+    <button id="btn-tax-guide" class="btn btn-secondary">📖 Open Tax Submission Guide</button>
+  </div>
+</header>
      
   <section 
   <input id="businessName" placeholder="Full Name / Business Name" autocomplete="off" />
