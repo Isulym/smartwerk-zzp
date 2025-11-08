@@ -613,17 +613,25 @@ window.exportPDF = () => {
 
 
     
-onAuthStateChanged(auth, user => {
-  if (!user) return location.href = "login.html";
+ onAuthStateChanged(auth, user => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
 
-  flatpickr(".js-date", {
-  dateFormat: "Y-m-d"
-});
-  
+  // ✅ Ініціалізація flatpickr
+  flatpickr("#customFrom", { dateFormat: "Y-m-d" });
+  flatpickr("#customTo", { dateFormat: "Y-m-d" });
+
+  // ✅ Завантаження даних
   loadBookkeeperData(user.uid);
 
+  // ✅ Слухачі подій на фільтри
   ["clientFilter", "filterBy", "customFrom", "customTo"].forEach(id => {
-    $(id).onchange = () => loadBookkeeperData(user.uid);
+    const el = $(id);
+    if (el) {
+      el.addEventListener("change", () => loadBookkeeperData(user.uid));
+    }
   });
 });
 
