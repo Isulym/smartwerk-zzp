@@ -280,3 +280,31 @@ canvas#incomeByClientChart {
   border-radius: 8px;
   padding: 10px;
 }
+.chart-grid {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+  flex-wrap: wrap; /* ⬅️ адаптація на мобілках */
+}
+
+.chart-box {
+  flex: 1 1 400px; /* Мінімальна ширина блоку */
+  background: #1e293b;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px #334155;
+}
+
+.chart-box h2 {
+  margin-bottom: 12px;
+  color: #93c5fd;
+  font-size: 16px;
+}
+
+.chart-box canvas {
+  width: 100% !important;
+  max-height: 220px;
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 8px;
+}
