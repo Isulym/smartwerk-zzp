@@ -270,3 +270,13 @@ main, .wrap {
   gap: 10px;
   flex-wrap: wrap;
 }
+canvas#summaryChart,
+canvas#incomeByClientChart {
+  max-height: 220px;
+  height: 220px;
+  width: 100%;
+  margin-top: 10px;
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 10px;
+}
