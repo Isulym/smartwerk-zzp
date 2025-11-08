@@ -319,10 +319,7 @@ h3 {
   flex-wrap: wrap;
 }
 
-.header-actions .btn {
-  padding: 6px 12px;
-  font-size: 13px;
-}
+
 .header-top {
   display: flex;
   justify-content: space-between;
