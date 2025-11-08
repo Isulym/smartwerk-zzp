@@ -170,3 +170,19 @@ header h1 {
   font-size: 15px;
   cursor: pointer;
 }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 1.5rem 1rem;
+  flex-wrap: wrap;
+}
+header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
