@@ -203,7 +203,9 @@
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  justify-content: flex-end; /* Вирівнює вправо */
+  gap: 10px;                 /* Відстань між кнопками */
+  flex-wrap: wrap;           /* Для мобільної адаптації */
   margin-top: 10px;
 }
 
@@ -260,4 +262,15 @@
 .btn:hover {
   background-color: #2a66db;
   transform: translateY(-1px);
+}
+@media (max-width: 600px) {
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .header-actions .btn {
+    width: 100%;
+    text-align: right;
+  }
 }
