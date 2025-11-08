@@ -337,6 +337,11 @@ section.block {
   font-weight: 500;
   color: var(--text);
 }
-
+a.btn, a.btn:focus, a.btn:active, a.btn:visited {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent; /* Safari iOS/macOS */
+  text-decoration: none;
+}
 
 
