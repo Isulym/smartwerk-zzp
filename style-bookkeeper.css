@@ -343,3 +343,14 @@ canvas#incomeByClientChart {
 .btn-primary:hover {
   background-color: #2563eb;
 }
+main {
+  flex: 1;
+}
+
+footer {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 1rem;
+  background: transparent;
+}
