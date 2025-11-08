@@ -1,24 +1,23 @@
 :root {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --input: #334155;
-  --text: #e5e7eb;
-  --muted: #94a3b8;
+  --bg-dark: #0f172a;
+  --bg-block: #1e293b;
+  --text-light: #e5e7eb;
+  --text-muted: #94a3b8;
   --accent: #3b82f6;
   --accent-hover: #2563eb;
-  --btn: #475569;
-  --btn-hover: #64748b;
-  --success: #10b981;
-  --radius: 12px;
-  --shadow: 0 4px 12px rgba(0,0,0,0.2);
+  --border: #334155;
+  --input-bg: #334155;
+  --input-light: #f8fafc;
+  --shadow: rgba(0, 0, 0, 0.3);
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', system-ui, sans-serif;
-  padding: 20px;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  font-family: "Inter", system-ui, sans-serif;
   margin: 0;
+  padding: 30px 20px 80px;
+  line-height: 1.6;
 }
 
 /* HEADER */
