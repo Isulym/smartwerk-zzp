@@ -7,29 +7,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    body { background: #0f172a; color: #e5e7eb; font-family: 'Inter', sans-serif; padding: 20px; }
-    h1 { margin-bottom: 10px; }
-    .btn { background: #334155; color: #fff; padding: 6px 12px; border-radius: 6px; text-decoration: none; margin-right: 8px; }
-    .btn-primary { background: #3b82f6; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 20px; }
-    .card { background: #1e293b; padding: 16px; border-radius: 8px; box-shadow: 0 0 0 1px #334155; }
-    .card h2 { font-size: 16px; color: #93c5fd; margin-bottom: 4px; }
-    .card p { font-size: 20px; font-weight: bold; }
-    .filters { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-    select, input[type="date"] { background: #1e293b; border: none; color: #e5e7eb; padding: 6px 8px; border-radius: 6px; }
-    canvas { background: #1e293b; border-radius: 8px; padding: 10px; margin-top: 30px; }
-    .section { margin-top: 40px; }
-    footer { margin-top: 40px; text-align: center; color: #64748b; font-size: 13px; }
-    .alerts ul { list-style-type: disc; padding-left: 20px; }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+   <!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <link rel="stylesheet" href="style-bookkeeper.css" />
 </head>
 <body>
+   <header class="main-header">
   <h1>📊 Business Summary</h1>
-  <a href="dashboard.html" class="btn">← Back to Dashboard</a>
-  <button id="exportCSV" class="btn">📁 Export CSV</button>
+      <div class="header-actions">
+  <a href="dashboard.html" class="btn btn-primary">🏠 Back to Dashboard</a>
+  <button id="exportCSV" class="btn btn-primary">📁 Export CSV</button>
   <button id="exportPDF" class="btn btn-primary">📄 Export PDF</button>
   <button id="exportPDFPro" class="btn btn-primary">📄 Export PDF (Pro)</button>
+        </div>
+     </header>
+
+  <section>
   <div class="filters">
     <label>
       Period:
@@ -40,24 +37,28 @@
         <option value="lastMonth">Last Month</option>
       </select>
     </label>
-    <label>
-      From: <input type="date" id="customFrom">
+    <label>From: 
+       <input type="text" id="customFrom" class="js-date" placeholder="YYYY-MM-DD">
     </label>
-    <label>
-      To: <input type="date" id="customTo">
+    <label>To: 
+     <input type="text" id="customTo" class="js-date" placeholder="YYYY-MM-DD">
     </label>
   </div>
+     </section>
 
+   <section>
   <div class="stats">
     <div class="card"><h2>Total Income</h2><p id="totalIncome">€0</p></div>
     <div class="card"><h2>Total Expenses</h2><p id="totalExpenses">€0</p></div>
     <div class="card"><h2>Profit</h2><p id="netProfit">€0</p></div>
     <div class="card"><h2>Total VAT</h2><p id="totalVat">€0</p></div>
   </div>
+   </section>
 
-  <div class="section">
+  <div class="chart-grid">
+  <div class="chart-box">
     <h2>📊 Income vs Expenses</h2>
-    <canvas id="summaryChart" height="100"></canvas>
+    <canvas id="summaryChart"></canvas>
   </div>
 
  <div class="section alerts">
@@ -436,6 +437,10 @@ window.exportPDF = () => {
   
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
+
+  flatpickr(".js-date", {
+  dateFormat: "Y-m-d"
+});
   loadSmartSuggestions(user.uid);
   
 
