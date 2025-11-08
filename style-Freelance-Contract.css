@@ -339,15 +339,13 @@ section.block {
 .collapsible {
   margin-bottom: 2rem;
 }
-h1, h2 {
+ h2 {
   margin: 1rem 0 0.5rem;
   font-weight: 500;
   color: var(--text);
 }
 
-h1 {
-  font-size: 20px;
-}
+
 header {
   display: flex;
   justify-content: space-between;
