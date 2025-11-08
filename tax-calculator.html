@@ -664,22 +664,22 @@ function exportPDF(){
   });
 
   // ————— Reporting Notes
-//  const notes = V("reportingNotes");
-//  if (notes) {
-  //  y += 8;
-  //  doc.setFontSize(11);
-  //  doc.text("Reporting Notes", 15, y); y += 6;
-//    doc.setFontSize(10);
-//    doc.setTextColor(50);
- //   doc.splitTextToSize(notes, 180).forEach(line => {
- //     doc.text(line, 15, y);
-  //    y += 5;
- //   });
-//    doc.setTextColor(0);
-//  }
+  const notes = V("reportingNotes");
+  if (notes) {
+    y += 8;
+    doc.setFontSize(11);
+    doc.text("Reporting Notes", 15, y); y += 6;
+    doc.setFontSize(10);
+    doc.setTextColor(50);
+    doc.splitTextToSize(notes, 180).forEach(line => {
+    doc.text(line, 15, y);
+     y += 5;
+    });
+   doc.setTextColor(0);
+  }
 
   // ————— Cap Warning
-  const capNote = (document.getElementById("capWarning")?.textContent || "").trim();
+ /* const capNote = (document.getElementById("capWarning")?.textContent || "").trim();
   if (capNote) {
     y += 8;
     doc.setFontSize(11);
@@ -691,7 +691,7 @@ function exportPDF(){
       y += 5;
     });
     doc.setTextColor(0);
-  }
+  }*/
 
   // ————— Footer disclaimer
   y += 10;
