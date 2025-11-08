@@ -1,5 +1,5 @@
 
- :root {
+:root {
   --bg: #0e1014;
   --card: #151823;
   --line: #232a42;
@@ -12,12 +12,10 @@
 }
 
 body {
-  background: var(--bg-dark);
-  color: var(--text-light);
-  font-family: "Inter", system-ui, sans-serif;
   margin: 0;
-  padding: 30px 20px 80px;
-  line-height: 1.6;
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
 
 /* HEADER */
