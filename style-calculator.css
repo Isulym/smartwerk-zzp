@@ -17,6 +17,7 @@
     font-family: var(--font);
     background-color: var(--bg);
     color: #f0f0f0;
+     overflow-x: hidden; /* блокуватиме горизонтальний скрол */
   }
 
   h2, h3 {
@@ -193,6 +194,9 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  gap: 10px;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .main-header h1 {
@@ -203,10 +207,8 @@
 
 .header-actions {
   display: flex;
-  justify-content: flex-end; /* Вирівнює вправо */
-  gap: 10px;                 /* Відстань між кнопками */
-  flex-wrap: wrap;           /* Для мобільної адаптації */
-  margin-top: 10px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .header-bottom {
