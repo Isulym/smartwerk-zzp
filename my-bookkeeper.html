@@ -16,16 +16,14 @@
   <link rel="stylesheet" href="style-bookkeeper.css" />
 </head>
 <body>
-  <header class="page-header">
+  <header class="main-header">
   <h1>📒 My Bookkeeper</h1>
   <div class="header-actions">
     <a href="dashboard.html" class="btn btn-primary">🏠 Back to Dashboard</a>
+    <button class="btn btn-primary" onclick="exportCSV()">📁 Export CSV</button>
+    <button class="btn btn-primary" onclick="exportPDF()">📄 Export PDF</button>
   </div>
 </header>
-   <div class="actions">
-  <button class="btn btn-primary" onclick="exportCSV()">📁 Export CSV</button>
-  <button class="btn btn-primary" onclick="exportPDF()">📄 Export PDF</button>
-     </div>
 
    <section>
   <div class="filters">
