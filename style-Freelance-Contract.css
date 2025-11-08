@@ -1,21 +1,24 @@
-
 :root {
-  --bg: #0e1014;
-  --card: #151823;
-  --line: #232a42;
-  --text: #f0f2f5;
-  --muted: #9aa3b2;
-  --accent: #3b79ff;
-  --accent-hover: #2a66db;
-  --danger: #ff4d4f;
-  --shadow: rgba(0, 0, 0, 0.2);
+  --bg: #0f172a;
+  --card: #1e293b;
+  --input: #334155;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --btn: #475569;
+  --btn-hover: #64748b;
+  --success: #10b981;
+  --radius: 12px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 20px;
+  margin: 0;
 }
 
 /* HEADER */
