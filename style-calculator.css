@@ -207,8 +207,11 @@
 
 .header-actions {
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .header-bottom {
@@ -273,7 +276,7 @@
 
   .header-actions .btn {
     width: 100%;
-    text-align: right;
+    text-align: center;
   }
 }
 .grid-2 {
