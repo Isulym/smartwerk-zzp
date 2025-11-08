@@ -8,14 +8,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+   <!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <link rel="stylesheet" href="bookkeeper.css" />
 </head>
 <body>
+   <header>
   <h1>📒 My Bookkeeper</h1>
-  <a href="dashboard.html" class="btn">← Back to Dashboard</a>
-  <button class="btn" onclick="exportCSV()">📁 Export CSV</button>
+      <div class="header-actions">
+  <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
+         </div>
+       </header>
+   <div class="actions">
+  <button class="btn btn-primary" onclick="exportCSV()">📁 Export CSV</button>
   <button class="btn btn-primary" onclick="exportPDF()">📄 Export PDF</button>
+     </div>
 
+   <section>
   <div class="filters">
     <label>Client:
       <select id="clientFilter">
@@ -30,9 +42,12 @@
         <option value="lastMonth">Last Month</option>
       </select>
     </label>
-    <label>From: <input type="date" id="customFrom"></label>
+    <label>From: 
+      <input type="date" id="customFrom"></label>
     <label>To: <input type="date" id="customTo"></label>
   </div>
+     </section>
+
 
   <div class="stats">
     <div class="card"><h2>Total Income</h2><p id="totalIncome">€0</p></div>
@@ -598,6 +613,11 @@ window.exportPDF = () => {
     
 onAuthStateChanged(auth, user => {
   if (!user) return location.href = "login.html";
+
+  flatpickr(".js-date", {
+  dateFormat: "Y-m-d"
+});
+  
   loadBookkeeperData(user.uid);
 
   ["clientFilter", "filterBy", "customFrom", "customTo"].forEach(id => {
