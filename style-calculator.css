@@ -241,3 +241,23 @@
 .btn-secondary:hover {
   background: var(--line, #2d3147);
 }
+/* Універсальний стиль для всіх .btn */
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+  background-color: #2a66db;
+  transform: translateY(-1px);
+}
