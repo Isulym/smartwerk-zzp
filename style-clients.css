@@ -91,13 +91,6 @@ input, select, textarea {
 .btn-primary:hover {
   background: var(--accent-hover);
 }
-.btn:focus {
-  outline: none;
-  box-shadow: none;
-}
-a.btn:focus {
-  outline: none;
-}
 
 .hint {
   background: var(--success);
@@ -192,4 +185,10 @@ header h1 {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+a.btn, a.btn:focus, a.btn:active, a.btn:visited {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent; /* Safari iOS/macOS */
+  text-decoration: none;
 }
