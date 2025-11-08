@@ -350,4 +350,23 @@ a.btn, a.btn:focus, a.btn:active, a.btn:visited {
   -webkit-tap-highlight-color: transparent; /* Safari iOS/macOS */
   text-decoration: none;
 }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+footer {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 1rem;
+  background: transparent;
+}
 
