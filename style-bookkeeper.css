@@ -308,3 +308,38 @@ canvas#incomeByClientChart {
   border-radius: 8px;
   padding: 8px;
 }
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem 0.8rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.main-header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.header-actions .btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
