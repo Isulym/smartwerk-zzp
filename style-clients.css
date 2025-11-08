@@ -91,6 +91,12 @@ input, select, textarea {
 .btn-primary:hover {
   background: var(--accent-hover);
 }
+.btn:focus {
+  outline: none;
+}
+a.btn:focus {
+  outline: none;
+}
 
 .hint {
   background: var(--success);
