@@ -332,7 +332,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem 1.5rem 1rem;
+  padding: 1rem 1.5rem 0.5rem; /* Зменшено верхній та нижній відступ */
   flex-wrap: wrap;
 }
 header h1 {
