@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartWerk — Dashboard</title>
-  <link rel="stylesheet" href="style-unified.css"/>
-  <link rel="stylesheet" href="style-dashboard.css"/>
+  <link rel="stylesheet" href="style-unified.css" />
+  <link rel="stylesheet" href="style-dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Sidebar & Main Container -->
   <div class="dashboard">
+    <!-- Sidebar -->
     <aside class="sidebar">
       <header>
-        <img src="image.png" alt="SmartWerk Logo" width="240" height="130" /> 
+        <img src="image.png" alt="SmartWerk Logo" width="240" height="130" />
       </header>
       <button id="toggleSidebar" class="btn">📂 Menu</button>
       <nav>
@@ -50,7 +50,7 @@
           <a href="payment-reminder-list.html">📋 Saved Reminders</a>
         </div>
 
-        <button class="accordion" data-key="expenses">🧮 Expenses ▸</button>
+        <button class="accordion" data-key="Expense">🧮 Expense CSV ▸</button>
         <div class="panel">
           <a href="expense-csv.html">💸 Create Expense</a>
           <a href="expense-csv-list.html">📋 Saved Expenses</a>
@@ -70,7 +70,7 @@
           <a href="roi-estimator.html">📈 ROI Estimator</a>
         </div>
 
-        <button class="accordion" data-key="taxassistant">🧾 Tax Assistant ▸</button>
+        <button class="accordion" data-key="taxassistant">🧮 Tax Assistant ▸</button>
         <div class="panel">
           <a href="tax-calculator.html">🧮 Tax Calculator</a>
           <a href="mybusiness.html">📊 Tax Analytics</a>
@@ -93,6 +93,7 @@
       </nav>
     </aside>
 
+    <!-- Main Content -->
     <main class="main">
       <header class="topbar">
         <h1 id="welcome">Welcome 👋</h1>
@@ -104,6 +105,7 @@
         </div>
       </header>
 
+      <!-- Quick Actions -->
       <section class="quick-actions">
         <button onclick="createAction('invoices.html','Invoice')">➕ Invoice</button>
         <button onclick="createAction('quote-offer.html','Quote')">➕ Quote</button>
@@ -111,26 +113,30 @@
         <button onclick="createAction('payment-reminder.html','Reminder')">➕ Reminder</button>
       </section>
 
+      <!-- KPI Section -->
       <section class="kpi-grid">
-        <div class="kpi-card"><h3 title="All paid invoices">💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
-        <div class="kpi-card"><h3 title="Unpaid invoices">📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
-        <div class="kpi-card"><h3 title="Accepted quotes / Total">📊 Quote Win-Rate</h3><p id="kpiQuoteRate">0%</p></div>
-        <div class="kpi-card"><h3 title="Reminders you've sent">💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
-        <div class="kpi-card"><h3 title="All expenses (CSV)">📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
-        <div class="kpi-card"><h3 title="Overdue invoices">⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
-        <div class="kpi-card"><h3 title="Client with most revenue">👥 Top Client</h3><p id="kpiTopClient">—</p></div>
+        <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
+        <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
+        <div class="kpi-card"><h3>📊 Quote Win-Rate</h3><p id="kpiQuoteRate">0%</p></div>
+        <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
+        <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
+        <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
+        <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
       </section>
 
+      <!-- Charts -->
       <section class="charts">
         <div class="chart-box"><canvas id="revenueChart"></canvas></div>
         <div class="chart-box"><canvas id="invoiceStatusChart"></canvas></div>
       </section>
 
+      <!-- Suggestions -->
       <section class="suggestions">
         <h2>💡 Smart Suggestions</h2>
         <ul id="suggestionsList"></ul>
       </section>
 
+      <!-- Activity -->
       <section class="activity">
         <h2>🕒 Recent Activity</h2>
         <ul id="activityList"></ul>
