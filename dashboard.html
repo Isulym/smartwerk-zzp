@@ -16,6 +16,7 @@
        <header>
     <img src="image.png" alt="SmartWerk Logo" width="240" height="130" /> 
   </header>
+      <button id="toggleSidebar" class="btn">📂 Menu</button>
       <nav>
         <div class="topbar">
          <nav>
@@ -375,6 +376,16 @@ window.logEvent = logEvent;
     if (localStorage.getItem('theme') === 'dark') {
       document.body.classList.add('theme-dark');
     }
+  });
+</script>
+  <script>
+  const sidebar = document.querySelector(".sidebar");
+  const dashboard = document.querySelector(".dashboard");
+  const toggleBtn = document.getElementById("toggleSidebar");
+
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
+    dashboard.classList.toggle("collapsed-sidebar");
   });
 </script>
 </body>
