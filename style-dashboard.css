@@ -301,16 +301,27 @@ body {
 }
 
 .dashboard.collapsed-sidebar .main {
-  margin-left: 0 !important;
+  margin-left: 0;
 }
 
 /* Показати знову */
-@media (min-width: 769px) {
-  .sidebar.collapsed {
-    transform: translateX(0);
+@media (max-width: 768px) {
+  .dashboard.collapsed-sidebar .sidebar {
+    transform: translateX(-100%);
   }
 
   .dashboard.collapsed-sidebar .main {
-    margin-left: 260px;
+    margin-left: 0;
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .sidebar {
+    width: 260px;
+    transform: translateX(0);
   }
 }
+  
+ 
