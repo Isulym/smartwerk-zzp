@@ -37,9 +37,7 @@ body {
   z-index: 999;
 }
 
-.sidebar.collapsed {
-  transform: translateX(-100%);
-}
+
 
 .sidebar header {
   display: flex;
@@ -139,9 +137,6 @@ body {
   transition: margin-left 0.3s ease;
 }
 
-.dashboard.collapsed-sidebar .main {
-  margin-left: 0;
-}
 
 .topbar {
   display: flex;
@@ -291,11 +286,8 @@ body {
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-  .dashboard.collapsed-sidebar .sidebar {
-    transform: translateX(-100%);
-  }
-
-  .main {
+ 
+ .main {
     margin-left: 0;
     padding: 1rem;
   }
