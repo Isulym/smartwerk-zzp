@@ -311,8 +311,8 @@ body {
   }
 
   .dashboard.collapsed-sidebar .main {
-    margin-left: 0;
-  }
+  margin-left: 0 !important;
+}
 
   .main {
     margin-left: 0;
