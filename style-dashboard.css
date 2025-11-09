@@ -251,3 +251,32 @@ body {
     left: 0;
   }
 }
+.panel {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  padding-left: 10px;
+}
+
+.accordion {
+  background: transparent;
+  color: var(--text, #f0f2f5);
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 0;
+  cursor: pointer;
+  width: 100%;
+  transition: color 0.2s ease;
+}
+
+.accordion:hover {
+  color: var(--accent, #3b79ff);
+}
+
+.accordion.open + .panel {
+  max-height: 500px; /* або більше, залежно від вмісту */
+}
