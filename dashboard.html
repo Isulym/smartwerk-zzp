@@ -2,146 +2,343 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SmartWerk — Dashboard</title>
-  <link rel="stylesheet" href="style-unified.css" />
+
+  <!-- Styles -->
+ 
   <link rel="stylesheet" href="style-dashboard.css" />
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="dashboard">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <header>
-        <img src="image.png" alt="SmartWerk Logo" width="240" height="130" />
-      </header>
-      <button id="toggleSidebar" class="btn">📂 Menu</button>
-      <nav>
-        <a href="index.html" class="btn-primary">← Home</a>
-        <a href="dashboard.html" class="nav-root">🏠 Dashboard</a>
 
-        <button class="accordion" data-key="clients">👥 Clients ▸</button>
-        <div class="panel">
-          <a href="clients.html">➕ Create Client</a>
-          <a href="clients-list.html">📋 Saved Clients</a>
-        </div>
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <header>
+      <img src="image.png" alt="SmartWerk Logo" width="240" height="130" />
+    </header>
+    <button id="toggleSidebar" class="btn">📂 Menu</button>
+    <nav>
+      <a href="index.html" class="btn-primary">← Home</a>
+      <a href="dashboard.html" class="nav-root">🏠 Dashboard</a>
 
-        <button class="accordion" data-key="invoices">💰 Invoices ▸</button>
-        <div class="panel">
-          <a href="invoices.html">📄 Create Invoice</a>
-          <a href="invoices-list.html">📋 Saved Invoices</a>
-        </div>
+      <button class="accordion" data-key="clients">👥 Clients ▸</button>
+      <div class="panel">
+        <a href="clients.html">➕ Create Client</a>
+        <a href="clients-list.html">📋 Saved Clients</a>
+      </div>
 
-        <button class="accordion" data-key="quotes">📑 Quotes ▸</button>
-        <div class="panel">
-          <a href="quote-offer.html">📄 Create Quote</a>
-          <a href="quote-offer-list.html">📋 Saved Quotes</a>
-        </div>
+      <button class="accordion" data-key="invoices">💰 Invoices ▸</button>
+      <div class="panel">
+        <a href="invoices.html">📄 Create Invoice</a>
+        <a href="invoices-list.html">📋 Saved Invoices</a>
+      </div>
 
-        <button class="accordion" data-key="contracts">📃 Contracts ▸</button>
-        <div class="panel">
-          <a href="Freelance-Contract.html">📄 Create Contract</a>
-          <a href="Freelance-Contract-list.html">📋 Saved Contracts</a>
-        </div>
+      <button class="accordion" data-key="quotes">📑 Quotes ▸</button>
+      <div class="panel">
+        <a href="quote-offer.html">📄 Create Quote</a>
+        <a href="quote-offer-list.html">📋 Saved Quotes</a>
+      </div>
 
-        <button class="accordion" data-key="reminders">📬 Reminders ▸</button>
-        <div class="panel">
-          <a href="payment-reminder.html">💸 Create Reminder</a>
-          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
-        </div>
+      <button class="accordion" data-key="contracts">📃 Contracts ▸</button>
+      <div class="panel">
+        <a href="Freelance-Contract.html">📄 Create Contract</a>
+        <a href="Freelance-Contract-list.html">📋 Saved Contracts</a>
+      </div>
 
-        <button class="accordion" data-key="Expense">🧮 Expense CSV ▸</button>
-        <div class="panel">
-          <a href="expense-csv.html">💸 Create Expense</a>
-          <a href="expense-csv-list.html">📋 Saved Expenses</a>
-        </div>
+      <button class="accordion" data-key="reminders">📬 Reminders ▸</button>
+      <div class="panel">
+        <a href="payment-reminder.html">💸 Create Reminder</a>
+        <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+      </div>
 
-        <button class="accordion" data-key="templates">📂 Templates ▸</button>
-        <div class="panel">
-          <a href="email-gemeente.html">📩 Email to Gemeente</a>
-          <a href="cv.html">📄 CV / Portfolio</a>
-          <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
-        </div>
+      <button class="accordion" data-key="Expense">🧮 Expense CSV ▸</button>
+      <div class="panel">
+        <a href="expense-csv.html">💸 Create Expense</a>
+        <a href="expense-csv-list.html">📋 Saved Expenses</a>
+      </div>
 
-        <button class="accordion" data-key="analytics">📊 Analytics ▸</button>
-        <div class="panel">
-          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-          <a href="summary.html">📊 Summary</a>
-          <a href="roi-estimator.html">📈 ROI Estimator</a>
-        </div>
+      <button class="accordion" data-key="analytics">📊 Analytics ▸</button>
+      <div class="panel">
+        <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+        <a href="summary.html">📊 Summary</a>
+        <a href="roi-estimator.html">📈 ROI Estimator</a>
+      </div>
 
-        <button class="accordion" data-key="taxassistant">🧮 Tax Assistant ▸</button>
-        <div class="panel">
-          <a href="tax-calculator.html">🧮 Tax Calculator</a>
-          <a href="mybusiness.html">📊 Tax Analytics</a>
-          <a href="tax-guide.html">📂 Tax Guide</a>
-        </div>
+      <button class="accordion" data-key="taxassistant">🧮 Tax Assistant ▸</button>
+      <div class="panel">
+        <a href="tax-calculator.html">🧮 Tax Calculator</a>
+        <a href="mybusiness.html">📊 Tax Analytics</a>
+        <a href="tax-guide.html">📂 Tax Guide</a>
+      </div>
 
-        <button class="accordion" data-key="settings">⚙️ Settings ▸</button>
-        <div class="panel">
-          <a href="profile.html">👤 Profile</a>
-          <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
-        </div>
+      <button class="accordion" data-key="templates">📂 Templates ▸</button>
+      <div class="panel">
+        <a href="email-gemeente.html">📩 Email to Gemeente</a>
+        <a href="cv.html">📄 CV / Portfolio</a>
+        <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
+      </div>
 
-        <button class="accordion" data-key="help">❓ Help ▸</button>
-        <div class="panel">
-          <a href="pricing.html">💳 Upgrade to PRO</a>
-          <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
-        </div>
+      <button class="accordion" data-key="settings">⚙️ Settings ▸</button>
+      <div class="panel">
+        <a href="profile.html">👤 Profile</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+      </div>
 
-        <button id="logoutBtn" class="logout">🚪 Logout</button>
-      </nav>
-    </aside>
+      <button class="accordion" data-key="help">❓ Help ▸</button>
+      <div class="panel">
+        <a href="pricing.html">💳 Upgrade to PRO</a>
+        <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
+      </div>
 
-    <!-- Main Content -->
-    <main class="main">
-      <header class="topbar">
-        <h1 id="welcome">Welcome 👋</h1>
-        <div class="plan-box">
-          <span id="planName" class="badge">FREE</span>
-          <div class="progress-bar"><div id="planProgress"></div></div>
-          <small id="planUsage">0/25</small>
-          <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
-        </div>
-      </header>
+      <button id="logoutBtn" class="logout">🚪 Logout</button>
+    </nav>
+  </aside>
+    <!-- Main -->
+  <main class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <h1 id="welcome">Welcome 👋</h1>
+      <div class="plan-box">
+        <span id="planName" class="badge">FREE</span>
+        <div class="progress-bar"><div id="planProgress"></div></div>
+        <small id="planUsage">0/25</small>
+        <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
+      </div>
+    </header>
 
-      <!-- Quick Actions -->
-      <section class="quick-actions">
-        <button onclick="createAction('invoices.html','Invoice')">➕ Invoice</button>
-        <button onclick="createAction('quote-offer.html','Quote')">➕ Quote</button>
-        <button onclick="createAction('Freelance-Contract.html','Contract')">➕ Contract</button>
-        <button onclick="createAction('payment-reminder.html','Reminder')">➕ Reminder</button>
-      </section>
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <button onclick="createAction('invoices.html','Invoice')">➕ Invoice</button>
+      <button onclick="createAction('quote-offer.html','Quote')">➕ Quote</button>
+      <button onclick="createAction('Freelance-Contract.html','Contract')">➕ Contract</button>
+      <button onclick="createAction('payment-reminder.html','Reminder')">➕ Reminder</button>
+    </section>
 
-      <!-- KPI Section -->
-      <section class="kpi-grid">
-        <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
-        <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
-        <div class="kpi-card"><h3>📊 Quote Win-Rate</h3><p id="kpiQuoteRate">0%</p></div>
-        <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
-        <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
-        <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
-        <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
-      </section>
+    <!-- KPI Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
+      <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
+      <div class="kpi-card"><h3>📊 Quote Win-Rate</h3><p id="kpiQuoteRate">0%</p></div>
+      <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
+      <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
+      <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
+      <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
+    </section>
 
-      <!-- Charts -->
-      <section class="charts">
-        <div class="chart-box"><canvas id="revenueChart"></canvas></div>
-        <div class="chart-box"><canvas id="invoiceStatusChart"></canvas></div>
-      </section>
+    <!-- Charts -->
+    <section class="charts">
+      <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+      <div class="chart-box"><canvas id="invoiceStatusChart"></canvas></div>
+    </section>
 
-      <!-- Suggestions -->
-      <section class="suggestions">
-        <h2>💡 Smart Suggestions</h2>
-        <ul id="suggestionsList"></ul>
-      </section>
+    <!-- Smart Suggestions -->
+    <section class="suggestions">
+      <h2>💡 Smart Suggestions</h2>
+      <ul id="suggestionsList">
+        <li>✅ All good. Keep it up!</li>
+      </ul>
+    </section>
 
-      <!-- Activity -->
-      <section class="activity">
-        <h2>🕒 Recent Activity</h2>
-        <ul id="activityList"></ul>
-      </section>
-    </main>
-  </div>
+    <!-- Recent Activity -->
+    <section class="activity">
+      <h2>🕒 Recent Activity</h2>
+      <ul id="activityList">
+        <li>Loading...</li>
+      </ul>
+    </section>
+  </main>
+</div> <!-- End of .dashboard -->
+  <!-- Firebase + Theme + Sidebar Logic -->
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy,
+    addDoc, serverTimestamp, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const app = getApps().length ? getApp() : initializeApp({
+    apiKey: "AIzaSyAp397Ax_jaMI85vOXicOi61g64HvvA_Kg",
+    authDomain: "smartwerk8520.firebaseapp.com",
+    projectId: "smartwerk8520",
+    appId: "1:607670981972:web:c07103c981c86860d724c1"
+  });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const $ = id => document.getElementById(id);
+
+  let gInvoices = [], gQuotes = [], gReminders = 0, gExpensesTotal = 0, gRevenue = 0;
+  let gPlan = "FREE", gUsageLimit = 25;
+
+  function formatEUR(n) {
+    return "€" + (parseFloat(n || 0)).toFixed(2);
+  }
+
+  async function countDocs(uid, coll) {
+    const snap = await getDocs(collection(db, "users", uid, coll));
+    return snap.size;
+  }
+
+  function updateChart(canvasId, labels, data, type = "line") {
+    const ctx = $(canvasId).getContext("2d");
+    return new Chart(ctx, {
+      type,
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
+          borderColor: "#3b82f6",
+          label: type === "doughnut" ? undefined : "Revenue",
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: type === "doughnut" } }
+      }
+    });
+  }
+
+  function updateSuggestions() {
+    const ul = $("suggestionsList");
+    ul.innerHTML = "";
+    let overdue = gInvoices.filter(i => {
+      const d = new Date(i.dueDate || "");
+      return i.status !== "Paid" && d.toString() !== "Invalid Date" && d < new Date();
+    }).length;
+    if (overdue > 0) ul.innerHTML += `<li>📌 ${overdue} overdue invoices — send reminders.</li>`;
+    if (gReminders === 0 && overdue > 0) ul.innerHTML += `<li>⚠️ Overdue invoices exist but no reminders sent.</li>`;
+    if (gQuotes.length && gQuotes.filter(q => q.status === "Accepted").length / gQuotes.length < 0.3)
+      ul.innerHTML += `<li>📉 Low quote win rate — optimize your offers.</li>`;
+    if (gExpensesTotal > gRevenue)
+      ul.innerHTML += `<li>📊 Expenses exceed revenue this month.</li>`;
+    if (ul.innerHTML === "") ul.innerHTML = "<li>✅ All good. Keep it up!</li>";
+  }
+
+  async function createAction(url, type) {
+    const user = auth.currentUser;
+    if (!user) return location.href = "login.html";
+    const total = await countDocs(user.uid, "invoices") +
+                  await countDocs(user.uid, "quotes") +
+                  await countDocs(user.uid, "contracts") +
+                  await countDocs(user.uid, "reminders");
+    if (gPlan === "FREE" && total >= gUsageLimit)
+      return alert("⚠️ Free plan limit reached. Upgrade to PRO.");
+    await addDoc(collection(db, "users", user.uid, "events"), {
+      type: "Navigation", message: `Created ${type}`, createdAt: serverTimestamp()
+    });
+    location.href = url;
+  }
+  window.createAction = createAction;
+
+  onAuthStateChanged(auth, async user => {
+    if (!user) return location.href = "login.html";
+    const profileSnap = await getDoc(doc(db, "users", user.uid));
+    const profile = profileSnap.exists() ? profileSnap.data() : {};
+    $("welcome").textContent = `Welcome, ${profile.fullName || "User"} 👋`;
+    gPlan = (profile.plan || "FREE").toUpperCase();
+    $("planName").textContent = gPlan;
+    gUsageLimit = gPlan === "PRO" ? Infinity : 25;
+
+    $("planUsage").textContent = gPlan === "PRO" ? "Unlimited" : "0/" + gUsageLimit;
+
+    onSnapshot(collection(db, "users", user.uid, "invoices"), snap => {
+      gInvoices = snap.docs.map(d => d.data());
+      gRevenue = gInvoices.reduce((a, b) => a + parseFloat(b.grandTotal || 0), 0);
+      const unpaid = gInvoices.filter(i => i.status !== "Paid")
+                               .reduce((a, b) => a + parseFloat(b.grandTotal || 0), 0);
+      const overdue = gInvoices.filter(i => new Date(i.dueDate) < new Date() && i.status !== "Paid").length;
+      const byMonth = {};
+      gInvoices.forEach(i => {
+        const m = (i.invoiceDate || "").slice(0, 7);
+        byMonth[m] = (byMonth[m] || 0) + parseFloat(i.grandTotal || 0);
+      });
+      const byStatus = { Draft: 0, Sent: 0, Paid: 0, Overdue: 0 };
+      gInvoices.forEach(i => {
+        const due = new Date(i.dueDate);
+        if (i.status === "Paid") byStatus.Paid++;
+        else if (due.toString() !== "Invalid Date" && due < new Date()) byStatus.Overdue++;
+        else byStatus[i.status || "Draft"]++;
+      });
+
+      $("kpiRevenue").textContent = formatEUR(gRevenue);
+      $("kpiUnpaid").textContent = formatEUR(unpaid);
+      $("kpiOverdue").textContent = overdue;
+      $("kpiTopClient").textContent = gInvoices.reduce((top, curr) =>
+        parseFloat(curr.grandTotal || 0) > parseFloat(top.amount || 0)
+          ? { name: curr.clientName, amount: curr.grandTotal }
+          : top, { name: "—", amount: 0 }).name;
+
+      updateChart("revenueChart", Object.keys(byMonth), Object.values(byMonth));
+      updateChart("invoiceStatusChart", Object.keys(byStatus), Object.values(byStatus), "doughnut");
+      updateSuggestions();
+    });
+
+    onSnapshot(collection(db, "users", user.uid, "quotes"), snap => {
+      gQuotes = snap.docs.map(d => d.data());
+      const accepted = gQuotes.filter(q => q.status === "Accepted").length;
+      const rate = gQuotes.length ? Math.round(accepted / gQuotes.length * 100) : 0;
+      $("kpiQuoteRate").textContent = `${rate}%`;
+      updateSuggestions();
+    });
+
+    onSnapshot(collection(db, "users", user.uid, "reminders"), snap => {
+      gReminders = snap.size;
+      $("kpiReminders").textContent = gReminders;
+      updateSuggestions();
+    });
+
+    onSnapshot(collection(db, "users", user.uid, "expenses"), snap => {
+      gExpensesTotal = snap.docs.reduce((sum, d) => sum + parseFloat(d.data().amount || 0), 0);
+      $("kpiExpenses").textContent = formatEUR(gExpensesTotal);
+      updateSuggestions();
+    });
+
+    onSnapshot(query(collection(db, "users", user.uid, "events"), orderBy("createdAt", "desc")), snap => {
+      const ul = $("activityList");
+      ul.innerHTML = "";
+      snap.docs.slice(0, 5).forEach(doc => {
+        const e = doc.data();
+        const date = e.createdAt?.toDate?.().toLocaleString?.() || "—";
+        const li = document.createElement("li");
+        li.textContent = `${date} — ${e.type || "Event"} — ${e.message || ""}`;
+        ul.appendChild(li);
+      });
+    });
+  });
+
+  $("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    location.href = "login.html";
+  });
+</script>
+
+<script>
+  // Theme Toggle
+  function toggleTheme() {
+    document.body.classList.toggle('theme-dark');
+    localStorage.setItem('theme', document.body.classList.contains('theme-dark') ? 'dark' : 'light');
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('theme-dark');
+    }
+
+    const sidebar = document.querySelector(".sidebar");
+    const dashboard = document.querySelector(".dashboard");
+    const toggleBtn = document.getElementById("toggleSidebar");
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
+      dashboard.classList.toggle("collapsed-sidebar");
+    });
+  });
+</script>
 </body>
 </html>
