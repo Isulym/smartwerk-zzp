@@ -32,6 +32,7 @@
       </div>
 
       <button class="accordion" data-key="invoices">💰 Invoices ▸</button>
+      <button class="accordion" data-key="invoices">💰 Invoices ▸</button>
       <div class="panel">
         <a href="invoices.html">📄 Create Invoice</a>
         <a href="invoices-list.html">📋 Saved Invoices</a>
@@ -339,6 +340,52 @@
       dashboard.classList.toggle("collapsed-sidebar");
     });
   });
+</script>
+  <script>
+function setArrow(btn, open) {
+  const base = btn.textContent.replace(/(▸|▾)$/, '').trim();
+  btn.textContent = base + (open ? ' ▾' : ' ▸');
+}
+
+function toggleAccordion(btn) {
+  const panel = btn.nextElementSibling;
+  const alreadyOpen = btn.classList.contains("open");
+
+  // Закрити всі інші
+  document.querySelectorAll(".accordion").forEach(b => {
+    b.classList.remove("open");
+    setArrow(b, false);
+    const p = b.nextElementSibling;
+    if (p) p.style.maxHeight = null;
+  });
+
+  // Відкрити, якщо не було відкрито
+  if (!alreadyOpen) {
+    btn.classList.add("open");
+    setArrow(btn, true);
+    panel.style.maxHeight = panel.scrollHeight + "px";
+    localStorage.setItem("sw_open_group", btn.dataset.key || "");
+  } else {
+    localStorage.removeItem("sw_open_group");
+  }
+}
+
+// ініціалізація при завантаженні
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".accordion").forEach(btn => {
+    btn.addEventListener("click", () => toggleAccordion(btn));
+  });
+
+  const remembered = localStorage.getItem("sw_open_group");
+  if (remembered) {
+    const btn = document.querySelector(`.accordion[data-key="${remembered}"]`);
+    if (btn && btn.nextElementSibling) {
+      btn.classList.add("open");
+      setArrow(btn, true);
+      btn.nextElementSibling.style.maxHeight = btn.nextElementSibling.scrollHeight + "px";
+    }
+  }
+});
 </script>
 </body>
 </html>
