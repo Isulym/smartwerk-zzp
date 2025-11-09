@@ -333,6 +333,11 @@
     const dashboard = document.querySelector(".dashboard");
     const toggleBtn = document.getElementById("toggleSidebar");
 
+     if (!toggleBtn) {
+        console.error("❌ Кнопка #toggleSidebar не знайдена в DOM.");
+        return;
+      }
+
     // Відновити попередній стан (згорнуте меню)
     if (localStorage.getItem("sidebarCollapsed") === "true") {
       sidebar.classList.add("collapsed");
