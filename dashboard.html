@@ -322,39 +322,36 @@
 </script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // Theme toggle
-    if (localStorage.getItem('theme') === 'dark') {
-      document.body.classList.add('theme-dark');
+ document.addEventListener("DOMContentLoaded", () => {
+  // Theme toggle
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('theme-dark');
+  }
+
+  const sidebar = document.querySelector(".sidebar");
+  const dashboard = document.querySelector(".dashboard");
+  const toggleBtn = document.getElementById("toggleSidebar");
+
+  if (!sidebar || !dashboard || !toggleBtn) {
+    console.error("❌ Не знайдено необхідні елементи");
+    return;
+  }
+
+  // Відновлення попереднього стану
+  if (localStorage.getItem("sidebarCollapsed") === "true") {
+    dashboard.classList.add("collapsed-sidebar");
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    dashboard.classList.toggle("collapsed-sidebar");
+
+    if (dashboard.classList.contains("collapsed-sidebar")) {
+      localStorage.setItem("sidebarCollapsed", "true");
+    } else {
+      localStorage.removeItem("sidebarCollapsed");
     }
-
-    // Sidebar toggle
-    const sidebar = document.querySelector(".sidebar");
-    const dashboard = document.querySelector(".dashboard");
-    const toggleBtn = document.getElementById("toggleSidebar");
-
-     if (!toggleBtn) {
-        console.error("❌ Кнопка #toggleSidebar не знайдена в DOM.");
-        return;
-      }
-
-    // Відновити попередній стан (згорнуте меню)
-    if (localStorage.getItem("sidebarCollapsed") === "true") {
-      sidebar.classList.add("collapsed");
-      dashboard.classList.add("collapsed-sidebar");
-    }
-
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("collapsed");
-      dashboard.classList.toggle("collapsed-sidebar");
-
-      // Зберегти або видалити стан
-      if (sidebar.classList.contains("collapsed")) {
-        localStorage.setItem("sidebarCollapsed", "true");
-      } else {
-        localStorage.removeItem("sidebarCollapsed");
-      }
-    });
+  });
+});
 
     // Accordion меню
     function setArrow(btn, open) {
