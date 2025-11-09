@@ -344,9 +344,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   toggleBtn.addEventListener("click", () => {
-    dashboard.classList.toggle("collapsed-sidebar");
-    localStorage.setItem("sidebarCollapsed", dashboard.classList.contains("collapsed-sidebar"));
-  });
+  sidebar.classList.toggle("collapsed");
+  dashboard.classList.toggle("collapsed-sidebar");
+
+  const isCollapsed = sidebar.classList.contains("collapsed");
+  localStorage.setItem("sidebarCollapsed", isCollapsed);
+});
 
   // ===== Accordion =====
   function setArrow(btn, open) {
