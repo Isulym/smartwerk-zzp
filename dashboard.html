@@ -1,129 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🚀 SmartWerk Dashboard</title>
-  <link rel="stylesheet" href="style-dashboard.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartWerk — Dashboard</title>
+  <link rel="stylesheet" href="style-unified.css"/>
+  <link rel="stylesheet" href="style-dashboard.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+  <!-- Sidebar & Main Container -->
+  <div class="dashboard">
+    <aside class="sidebar">
+      <header>
+        <img src="image.png" alt="SmartWerk Logo" width="240" height="130" /> 
+      </header>
+      <button id="toggleSidebar" class="btn">📂 Menu</button>
+      <nav>
+        <a href="index.html" class="btn-primary">← Home</a>
+        <a href="dashboard.html" class="nav-root">🏠 Dashboard</a>
 
-<div class="dashboard">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">📊 SmartWerk</div>
-    <nav>
-      <a href="dashboard.html" class="active"><i class="fas fa-chart-line"></i> Dashboard</a>
-      <a href="clients-list.html"><i class="fas fa-users"></i> Clients</a>
-      <a href="invoices-list.html"><i class="fas fa-file-invoice"></i> Invoices</a>
-      <a href="quote-offer-list.html"><i class="fas fa-quote-right"></i> Quotes</a>
-      <a href="payment-reminders.html"><i class="fas fa-bell"></i> Reminders</a>
-      <a href="contracts-list.html"><i class="fas fa-file-signature"></i> Contracts</a>
-      <a href="bookkeeper.html"><i class="fas fa-book"></i> Bookkeeper</a>
-      <a href="tax-calculator.html"><i class="fas fa-calculator"></i> Tax Tool</a>
-      <a href="expenses.html"><i class="fas fa-wallet"></i> Expenses</a>
-    </nav>
-  </aside>
+        <button class="accordion" data-key="clients">👥 Clients ▸</button>
+        <div class="panel">
+          <a href="clients.html">➕ Create Client</a>
+          <a href="clients-list.html">📋 Saved Clients</a>
+        </div>
 
-  <!-- Main Content -->
-  <main class="main">
-    <header class="topbar">
-      <button id="toggleSidebar" class="btn btn-small">📂 Menu</button>
-      <h1>Welcome Back, <span id="userName">User</span> 👋</h1>
-    </header>
+        <button class="accordion" data-key="invoices">💰 Invoices ▸</button>
+        <div class="panel">
+          <a href="invoices.html">📄 Create Invoice</a>
+          <a href="invoices-list.html">📋 Saved Invoices</a>
+        </div>
 
-    <section class="cards">
-      <div class="card kpi">
-        <h3>Total Invoices</h3>
-        <p id="kpiInvoices">0</p>
-        <span class="hint">Sent this year</span>
-      </div>
-      <div class="card kpi">
-        <h3>Pending Payments</h3>
-        <p id="kpiPending">0</p>
-        <span class="hint">Invoices unpaid</span>
-      </div>
-      <div class="card kpi">
-        <h3>Total Clients</h3>
-        <p id="kpiClients">0</p>
-        <span class="hint">Active & Prospect</span>
-      </div>
-      <div class="card kpi">
-        <h3>Upcoming Tasks</h3>
-        <p id="kpiTasks">3</p>
-        <span class="hint">Today</span>
-      </div>
-    </section>
+        <button class="accordion" data-key="quotes">📑 Quotes ▸</button>
+        <div class="panel">
+          <a href="quote-offer.html">📄 Create Quote</a>
+          <a href="quote-offer-list.html">📋 Saved Quotes</a>
+        </div>
 
-    <section class="chart-grid">
-      <div class="chart-box">
-        <h3>📈 Income & Expenses</h3>
-        <canvas id="incomeChart"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>💼 Clients by Status</h3>
-        <canvas id="clientStatusChart"></canvas>
-      </div>
-    </section>
+        <button class="accordion" data-key="contracts">📃 Contracts ▸</button>
+        <div class="panel">
+          <a href="Freelance-Contract.html">📄 Create Contract</a>
+          <a href="Freelance-Contract-list.html">📋 Saved Contracts</a>
+        </div>
 
-    <section class="quick-actions">
-      <h3>Quick Actions</h3>
-      <div class="grid">
-        <a href="invoice-create.html" class="btn">➕ New Invoice</a>
-        <a href="clients.html" class="btn">➕ New Client</a>
-        <a href="quote-create.html" class="btn">➕ New Quote</a>
-        <a href="contract-create.html" class="btn">➕ New Contract</a>
-        <a href="reminder-create.html" class="btn">➕ New Reminder</a>
-        <a href="expense-csv.html" class="btn">➕ New Expense</a>
-      </div>
-    </section>
+        <button class="accordion" data-key="reminders">📬 Reminders ▸</button>
+        <div class="panel">
+          <a href="payment-reminder.html">💸 Create Reminder</a>
+          <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+        </div>
 
-    <section class="smart-tips">
-      <h3>🧠 Smart Tips</h3>
-      <ul>
-        <li>💡 Link invoices to clients for better tracking</li>
-        <li>💡 Use reminders to reduce late payments</li>
-        <li>💡 Export Bookkeeper data monthly for backup</li>
-      </ul>
-    </section>
+        <button class="accordion" data-key="expenses">🧮 Expenses ▸</button>
+        <div class="panel">
+          <a href="expense-csv.html">💸 Create Expense</a>
+          <a href="expense-csv-list.html">📋 Saved Expenses</a>
+        </div>
 
-    <footer>
-      <p>© 2025 SmartWerk. Last updated: <span id="lastUpdated">—</span></p>
-    </footer>
-  </main>
-</div>
+        <button class="accordion" data-key="templates">📂 Templates ▸</button>
+        <div class="panel">
+          <a href="email-gemeente.html">📩 Email to Gemeente</a>
+          <a href="cv.html">📄 CV / Portfolio</a>
+          <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
+        </div>
 
-<script>
-  const sidebar = document.querySelector(".sidebar");
-  const dashboard = document.querySelector(".dashboard");
-  const toggleBtn = document.getElementById("toggleSidebar");
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("collapsed");
-    dashboard.classList.toggle("collapsed-sidebar");
-  });
-</script>
+        <button class="accordion" data-key="analytics">📊 Analytics ▸</button>
+        <div class="panel">
+          <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
+          <a href="summary.html">📊 Summary</a>
+          <a href="roi-estimator.html">📈 ROI Estimator</a>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  // Placeholder chart logic
-  const ctx1 = document.getElementById('incomeChart').getContext('2d');
-  new Chart(ctx1, {
-    type: 'bar',
-    data: { labels: ["Jan", "Feb", "Mar"], datasets: [{ label: 'Income', data: [3000, 5000, 7000], backgroundColor: '#3b82f6' }] },
-    options: { responsive: true }
-  });
+        <button class="accordion" data-key="taxassistant">🧾 Tax Assistant ▸</button>
+        <div class="panel">
+          <a href="tax-calculator.html">🧮 Tax Calculator</a>
+          <a href="mybusiness.html">📊 Tax Analytics</a>
+          <a href="tax-guide.html">📂 Tax Guide</a>
+        </div>
 
-  const ctx2 = document.getElementById('clientStatusChart').getContext('2d');
-  new Chart(ctx2, {
-    type: 'doughnut',
-    data: {
-      labels: ['Active', 'Prospect', 'Inactive'],
-      datasets: [{ data: [12, 7, 3], backgroundColor: ['#10b981', '#fbbf24', '#ef4444'] }]
-    },
-    options: { responsive: true }
-  });
-</script>
+        <button class="accordion" data-key="settings">⚙️ Settings ▸</button>
+        <div class="panel">
+          <a href="profile.html">👤 Profile</a>
+          <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+        </div>
 
+        <button class="accordion" data-key="help">❓ Help ▸</button>
+        <div class="panel">
+          <a href="pricing.html">💳 Upgrade to PRO</a>
+          <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
+        </div>
+
+        <button id="logoutBtn" class="logout">🚪 Logout</button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1 id="welcome">Welcome 👋</h1>
+        <div class="plan-box">
+          <span id="planName" class="badge">FREE</span>
+          <div class="progress-bar"><div id="planProgress"></div></div>
+          <small id="planUsage">0/25</small>
+          <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
+        </div>
+      </header>
+
+      <section class="quick-actions">
+        <button onclick="createAction('invoices.html','Invoice')">➕ Invoice</button>
+        <button onclick="createAction('quote-offer.html','Quote')">➕ Quote</button>
+        <button onclick="createAction('Freelance-Contract.html','Contract')">➕ Contract</button>
+        <button onclick="createAction('payment-reminder.html','Reminder')">➕ Reminder</button>
+      </section>
+
+      <section class="kpi-grid">
+        <div class="kpi-card"><h3 title="All paid invoices">💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
+        <div class="kpi-card"><h3 title="Unpaid invoices">📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
+        <div class="kpi-card"><h3 title="Accepted quotes / Total">📊 Quote Win-Rate</h3><p id="kpiQuoteRate">0%</p></div>
+        <div class="kpi-card"><h3 title="Reminders you've sent">💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
+        <div class="kpi-card"><h3 title="All expenses (CSV)">📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
+        <div class="kpi-card"><h3 title="Overdue invoices">⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
+        <div class="kpi-card"><h3 title="Client with most revenue">👥 Top Client</h3><p id="kpiTopClient">—</p></div>
+      </section>
+
+      <section class="charts">
+        <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+        <div class="chart-box"><canvas id="invoiceStatusChart"></canvas></div>
+      </section>
+
+      <section class="suggestions">
+        <h2>💡 Smart Suggestions</h2>
+        <ul id="suggestionsList"></ul>
+      </section>
+
+      <section class="activity">
+        <h2>🕒 Recent Activity</h2>
+        <ul id="activityList"></ul>
+      </section>
+    </main>
+  </div>
 </body>
 </html>
