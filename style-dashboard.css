@@ -309,6 +309,9 @@ body {
   .dashboard.collapsed-sidebar .sidebar {
     transform: translateX(-100%);
   }
+  .dashboard.collapsed-sidebar .toggle-button {
+    left: 70px; /* щоб не прилипала до краю на десктопі */
+  }
 
   .dashboard.collapsed-sidebar .main {
   margin-left: 0 !important;
@@ -322,6 +325,19 @@ body {
     width: 260px;
     transform: translateX(0);
   }
+}
+
+.toggle-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 2000;
+  background: var(--accent);
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
   
  
