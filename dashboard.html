@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -322,71 +322,86 @@
 </script>
 
 <script>
-  // Theme Toggle
-  function toggleTheme() {
-    document.body.classList.toggle('theme-dark');
-    localStorage.setItem('theme', document.body.classList.contains('theme-dark') ? 'dark' : 'light');
-  }
-
   document.addEventListener("DOMContentLoaded", () => {
+    // Theme toggle
     if (localStorage.getItem('theme') === 'dark') {
       document.body.classList.add('theme-dark');
     }
 
+    // Sidebar toggle
     const sidebar = document.querySelector(".sidebar");
     const dashboard = document.querySelector(".dashboard");
     const toggleBtn = document.getElementById("toggleSidebar");
+
+    // Відновити попередній стан (згорнуте меню)
+    if (localStorage.getItem("sidebarCollapsed") === "true") {
+      sidebar.classList.add("collapsed");
+      dashboard.classList.add("collapsed-sidebar");
+    }
+
     toggleBtn.addEventListener("click", () => {
       sidebar.classList.toggle("collapsed");
       dashboard.classList.toggle("collapsed-sidebar");
+
+      // Зберегти або видалити стан
+      if (sidebar.classList.contains("collapsed")) {
+        localStorage.setItem("sidebarCollapsed", "true");
+      } else {
+        localStorage.removeItem("sidebarCollapsed");
+      }
     });
-  });
-</script>
-  <script>
-function setArrow(btn, open) {
-  const base = btn.textContent.replace(/(▸|▾)$/, '').trim();
-  btn.textContent = base + (open ? ' ▾' : ' ▸');
-}
 
-function toggleAccordion(btn) {
-  const panel = btn.nextElementSibling;
-  const alreadyOpen = btn.classList.contains("open");
-
-  // Закрити всі інші
-  document.querySelectorAll(".accordion").forEach(b => {
-    b.classList.remove("open");
-    setArrow(b, false);
-    const p = b.nextElementSibling;
-    if (p) p.style.maxHeight = null;
-  });
-
-  // Відкрити, якщо не було відкрито
-  if (!alreadyOpen) {
-    btn.classList.add("open");
-    setArrow(btn, true);
-    panel.style.maxHeight = panel.scrollHeight + "px";
-    localStorage.setItem("sw_open_group", btn.dataset.key || "");
-  } else {
-    localStorage.removeItem("sw_open_group");
-  }
-}
-
-// ініціалізація при завантаженні
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".accordion").forEach(btn => {
-    btn.addEventListener("click", () => toggleAccordion(btn));
-  });
-
-  const remembered = localStorage.getItem("sw_open_group");
-  if (remembered) {
-    const btn = document.querySelector(`.accordion[data-key="${remembered}"]`);
-    if (btn && btn.nextElementSibling) {
-      btn.classList.add("open");
-      setArrow(btn, true);
-      btn.nextElementSibling.style.maxHeight = btn.nextElementSibling.scrollHeight + "px";
+    // Accordion меню
+    function setArrow(btn, open) {
+      const base = btn.textContent.replace(/(▸|▾)$/, '').trim();
+      btn.textContent = base + (open ? ' ▾' : ' ▸');
     }
+
+    function toggleAccordion(btn) {
+      const panel = btn.nextElementSibling;
+      const alreadyOpen = btn.classList.contains("open");
+
+      // Закрити всі інші
+      document.querySelectorAll(".accordion").forEach(b => {
+        b.classList.remove("open");
+        setArrow(b, false);
+        const p = b.nextElementSibling;
+        if (p) p.style.maxHeight = null;
+      });
+
+      // Відкрити, якщо не було відкрито
+      if (!alreadyOpen) {
+        btn.classList.add("open");
+        setArrow(btn, true);
+        panel.style.maxHeight = panel.scrollHeight + "px";
+        localStorage.setItem("sw_open_group", btn.dataset.key || "");
+      } else {
+        localStorage.removeItem("sw_open_group");
+      }
+    }
+
+    // Прив'язка до кнопок
+    document.querySelectorAll(".accordion").forEach(btn => {
+      btn.addEventListener("click", () => toggleAccordion(btn));
+    });
+
+    // Відновити останню відкриту групу
+    const remembered = localStorage.getItem("sw_open_group");
+    if (remembered) {
+      const btn = document.querySelector(`.accordion[data-key="${remembered}"]`);
+      if (btn && btn.nextElementSibling) {
+        btn.classList.add("open");
+        setArrow(btn, true);
+        btn.nextElementSibling.style.maxHeight = btn.nextElementSibling.scrollHeight + "px";
+      }
+    }
+  });
+
+  // Theme button окремо
+  function toggleTheme() {
+    document.body.classList.toggle('theme-dark');
+    localStorage.setItem('theme', document.body.classList.contains('theme-dark') ? 'dark' : 'light');
   }
-});
 </script>
 </body>
 </html>
