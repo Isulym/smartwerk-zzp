@@ -241,7 +241,15 @@ body {
 
 @media (max-width: 768px) {
   .dashboard.collapsed-sidebar .sidebar {
-    display: none;
+  transform: translateX(-100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  background: var(--card);
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
   }
   .sidebar {
     position: fixed;
