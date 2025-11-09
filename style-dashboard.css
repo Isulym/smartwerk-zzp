@@ -305,3 +305,21 @@ body {
     height: 100vh;
   }
 }
+/* Mobile Sidebar Toggle */
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+.dashboard.collapsed-sidebar .sidebar {
+  transform: translateX(-100%);
+}
+
+.dashboard.collapsed-sidebar .main {
+  margin-left: 0 !important;
+}
+
+/* Ensure Sidebar is visible by default */
+.sidebar {
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+}
