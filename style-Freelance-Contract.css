@@ -191,6 +191,60 @@ footer {
   color: var(--muted);
   margin-top: 40px;
 }
+.signatures-wrap {
+  margin-top: 2rem;
+  background-color: var(--card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  display: flex; /* зміна на flex */
+  justify-content: space-between; /* або center */
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.signature-box {
+  flex: 1 1 320px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center замість flex-start */
+}
+
+.signature-box h3 {
+  margin-bottom: 0.5rem;
+}
+
+.signature-box canvas.signature {
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background-color: white;
+  width: 100%;
+  aspect-ratio: 3 / 1; /* ✅ Рівні пропорції на всіх екранах */
+  max-width: 320px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  touch-action: none; /* 🔧 для мобільних */
+}
+
+.signature-box button {
+  margin-top: 0.5rem;
+  background: var(--accent);
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.signature-box button:hover {
+  background: var(--accent-hover);
+}
+
+.signature-box p {
+  margin-top: 0.5rem;
+  font-size: 13px;
+  color: var(--muted);
+}
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(10px); }
