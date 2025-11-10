@@ -192,3 +192,16 @@ a.btn, a.btn:focus, a.btn:active, a.btn:visited {
   -webkit-tap-highlight-color: transparent; /* Safari iOS/macOS */
   text-decoration: none;
 }
+/* LIGHT THEME */
+.theme-light {
+  --bg: #f1f5f9;
+  --text: #1e293b;
+  --card: #ffffff;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --danger: #ef4444;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --panel-bg: #f8fafc;
+}
