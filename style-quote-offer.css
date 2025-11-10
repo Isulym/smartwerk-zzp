@@ -2,12 +2,14 @@
   --bg: #0e1014;
   --card: #151823;
   --line: #232a42;
-  --text: #f0f2f5;
   --muted: #9aa3b2;
   --accent: #3b79ff;
   --accent-hover: #2a66db;
   --danger: #ff4d4f;
   --shadow: rgba(0, 0, 0, 0.2);
+  --panel: #1a2233;
+  --panel-2: #151823;
+  --txt: var(--text);
 }
 
 body {
@@ -93,18 +95,7 @@ form {
   box-shadow: 0 2px 6px var(--shadow);
 }
 
-input, select, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  margin-bottom: 14px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #0e1014;
-  color: var(--text);
-  font-size: 14px;
-  transition: border-color 0.2s;
-}
+
 
 input:focus, select:focus, textarea:focus {
   outline: none;
@@ -141,8 +132,8 @@ textarea {
 }
 
 .status-badge.draft {
-  background: #f1c40f;
-  color: #000;
+  background: #fde047;
+  color: #1e293b;
 }
 
 .status-badge.sent {
@@ -218,7 +209,7 @@ textarea {
   text-align: left;
   border: none;
   cursor: pointer;
-  background-color: #1a2233;
+   background-color: var(--panel);
   border-bottom: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
@@ -226,7 +217,7 @@ textarea {
 }
 
 .section-toggle:hover {
-  background-color: #222c45;
+  background-color: var(--panel-2);
 }
 
 .section-content {
@@ -304,7 +295,7 @@ form > section {
   margin: 4px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background-color: #1a2233;
+  background-color: var(--card);
   color: var(--text);
 }
 
@@ -382,6 +373,9 @@ footer {
   --line: #e2e8f0;
   --shadow: rgba(0, 0, 0, 0.1);
   --panel-bg: #f8fafc;
+   --panel: #f8fafc;
+  --panel-2: #f1f5f9;
+ 
 }
 input,
 textarea,
