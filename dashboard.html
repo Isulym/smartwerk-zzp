@@ -85,7 +85,7 @@
       <button class="accordion" data-key="settings">⚙️ Settings ▸</button>
       <div class="panel">
         <a href="profile.html">👤 Profile</a>
-        <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+       <button onclick="toggleTheme()" class="btn">🌓 Toggle Theme</button>
       </div>
 
       <button class="accordion" data-key="help">❓ Help ▸</button>
@@ -397,10 +397,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===== Theme Toggle — окремо, глобально доступна =====
-function toggleTheme() {
-  document.body.classList.toggle('theme-dark');
-  localStorage.setItem('theme', document.body.classList.contains('theme-dark') ? 'dark' : 'light');
-}
+ function applyTheme(theme) {
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(theme);
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light';
+    const newTheme = currentTheme === 'theme-dark' ? 'theme-light' : 'theme-dark';
+    applyTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem('theme') || 'theme-dark';
+    applyTheme(savedTheme);
+  });
 </script>
 </body>
 </html>
