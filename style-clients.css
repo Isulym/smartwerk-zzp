@@ -13,6 +13,7 @@
   --shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
+/* ===== Основний стиль сторінки ===== */
 body {
   background: var(--bg);
   color: var(--text);
@@ -21,19 +22,33 @@ body {
   margin: 0;
 }
 
+/* ===== Заголовки ===== */
 h1, h2 {
-  color: #fff;
+  color: var(--text);
   margin-bottom: 12px;
+  font-weight: 600;
 }
 
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 18px;
+  color: var(--accent);
+}
+
+/* ===== Секції ===== */
 section {
   background: var(--card);
   padding: 20px;
   border-radius: var(--radius);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
+  border: 1px solid var(--line);
 }
 
+/* ===== Текстові елементи ===== */
 label {
   display: block;
   color: var(--muted);
@@ -41,36 +56,41 @@ label {
   margin-bottom: 4px;
 }
 
+/* ===== Інпути ===== */
 input, select, textarea {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  border: none;
-  background: var(--input);
+  border: 1px solid var(--line);
+  background: var(--card);
   color: var(--text);
   margin-bottom: 16px;
   font-size: 15px;
+  transition: border 0.2s, background 0.2s;
 }
 
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  outline: none;
+  background: var(--panel-bg);
+}
+
+/* ===== Сітка ===== */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
-}
-
+/* ===== Кнопки ===== */
 .btn {
   display: inline-block;
   padding: 8px 18px;
   font-size: 14px;
-  color: white;
-  background: var(--accent, #3b79ff);
+  color: #fff;
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -80,18 +100,11 @@ input, select, textarea {
 }
 
 .btn:hover {
-  background: var(--accent-hover, #2a66db);
+  background: var(--accent-hover);
   transform: translateY(-1px);
 }
 
-.btn-primary {
-  background: var(--accent);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-}
-
+/* ===== Хінт / повідомлення ===== */
 .hint {
   background: var(--success);
   color: #fff;
@@ -103,37 +116,39 @@ input, select, textarea {
   transition: opacity 0.3s ease;
 }
 
-footer {
-  text-align: center;
-  margin-top: 30px;
-  font-size: 13px;
-  color: var(--muted);
+/* ===== Хедер ===== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem 0.5rem;
+  flex-wrap: wrap;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn {
-    width: 100%;
-    text-align: center;
-  }
-}
 header h1 {
-  font-size: 22px;
-  margin: 0.8rem 0;
-  font-weight: 500;
+  font-size: 24px;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+a.btn, a.btn:focus, a.btn:active, a.btn:visited {
+  text-decoration: none;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ===== Модальне вікно ===== */
 #smartSuggestModal {
   position: fixed;
   inset: 0;
@@ -158,41 +173,7 @@ header h1 {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-.suggest-btn {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 15px;
-  cursor: pointer;
-}
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem 0.5rem; /* Зменшено верхній та нижній відступ */
-  flex-wrap: wrap;
-}
-header h1 {
-  font-size: 24px;
-  margin: 0;
-}
-.header-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-a.btn, a.btn:focus, a.btn:active, a.btn:visited {
-  outline: none !important;
-  box-shadow: none !important;
-  -webkit-tap-highlight-color: transparent; /* Safari iOS/macOS */
-  text-decoration: none;
-}
-/* LIGHT THEME */
+/* ===== Тема — світла ===== */
 .theme-light {
   --bg: #f1f5f9;
   --text: #1e293b;
@@ -205,6 +186,8 @@ a.btn, a.btn:focus, a.btn:active, a.btn:visited {
   --shadow: rgba(0, 0, 0, 0.1);
   --panel-bg: #f8fafc;
 }
+
+/* ===== Тема — темна ===== */
 .theme-dark {
   --bg: #0f172a;
   --text: #e2e8f0;
@@ -216,38 +199,17 @@ a.btn, a.btn:focus, a.btn:active, a.btn:visited {
   --line: #334155;
   --shadow: rgba(0, 0, 0, 0.25);
 }
-input,
-textarea,
-select {
-  background-color: var(--card);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
-  transition: border 0.2s, background 0.2s;
-  width: 100%;
-  box-sizing: border-box;
-}
 
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--accent);
-  outline: none;
-  background-color: var(--panel-bg);
-}
-
-button {
-  background-color: var(--accent);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-button:hover {
-  background-color: var(--accent-hover);
+/* ===== Адаптив ===== */
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn {
+    width: 100%;
+  }
 }
