@@ -210,14 +210,14 @@ input:focus, textarea:focus, select:focus {
   outline: none;
   background-color: var(--panel-bg, #1e293b);
 }
-tbody#expensesBody:hover {
-  background: inherit !important; /* або none */
-}
 .details-modal {
-  display: none !important;
-  pointer-events: none;
   background: transparent !important;
 }
+.details-modal.active {
+  display: flex;
+}
+
+
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .toolbar {
