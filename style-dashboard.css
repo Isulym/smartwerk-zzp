@@ -331,13 +331,30 @@ body {
   position: fixed;
   top: 10px;
   left: 10px;
-  z-index: 2000;
+  z-index: 2001;
   background: var(--accent);
   color: white;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-button:hover {
+  background: var(--accent-hover);
+}
+.sidebar {
+  width: 240px;
+  transform: translateX(0);
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+.dashboard.collapsed-sidebar .main {
+  margin-left: 0;
 }
   
  
