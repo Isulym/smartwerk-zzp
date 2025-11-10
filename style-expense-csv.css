@@ -10,18 +10,48 @@
   --shadow: rgba(0, 0, 0, 0.25);
 }
 
+/* === LIGHT THEME === */
+.theme-light {
+  --bg: #f1f5f9;
+  --text: #1e293b;
+  --card: #ffffff;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --danger: #ef4444;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --panel-bg: #f8fafc;
+}
+
+/* === BASE === */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+main {
+  flex: 1;
+  padding: 1rem 1.5rem 2rem;
+}
+footer {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 1.5rem 1rem;
+  background: transparent;
 }
 
+/* === HEADER === */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem 0.5rem; /* Зменшено верхній та нижній відступ */
+  padding: 1rem 1.5rem 0.5rem;
   flex-wrap: wrap;
 }
 header h1 {
@@ -33,32 +63,31 @@ header h1 {
   gap: 10px;
   flex-wrap: wrap;
 }
-.btn {
+
+/* === BUTTONS === */
+.btn, button {
   padding: 8px 16px;
-  background: var(--accent);
+  background-color: var(--accent);
   color: white;
   border: none;
   border-radius: 6px;
-  text-decoration: none;
   cursor: pointer;
   font-size: 14px;
-  box-shadow: 0 4px 10px var(--shadow);
   transition: background 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 10px var(--shadow);
 }
-.btn:hover {
+.btn:hover, button:hover {
   background: var(--accent-hover);
 }
-.btn-danger {
+.btn-danger, button.btn-danger {
   background: var(--danger);
 }
 .btn-danger:hover {
   background: #d9363b;
 }
 
-main {
-  padding: 1rem 1.5rem 2rem;
-}
-
+/* === TOOLBAR / FILTER === */
 .toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -80,6 +109,7 @@ main {
   color: var(--text);
 }
 
+/* === TABLE === */
 #expensesTable {
   width: 100%;
   border-collapse: collapse;
@@ -105,28 +135,14 @@ main {
 #expensesTable tr:hover td {
   background-color: #1f2937;
 }
-
 #expensesTable td button {
   padding: 6px 10px;
   font-size: 13px;
   border-radius: 6px;
-  border: none;
-  background: var(--accent);
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s ease;
   margin-right: 4px;
 }
-#expensesTable td button:hover {
-  background: var(--accent-hover);
-}
-#expensesTable td button.btn-danger {
-  background: var(--danger);
-}
-#expensesTable td button.btn-danger:hover {
-  background: #d9363b;
-}
 
+/* === SUMMARY BOX === */
 .summary {
   background: var(--card);
   border: 1px solid var(--line);
@@ -149,6 +165,7 @@ main {
   color: var(--text);
 }
 
+/* === MODAL === */
 .details-modal {
   position: fixed;
   inset: 0;
@@ -175,17 +192,26 @@ main {
   font-size: 20px;
   margin-bottom: 1rem;
 }
-.details-box button {
-  margin-top: 1.5rem;
+
+/* === INPUTS / FIELDS === */
+input, textarea, select {
+  background-color: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border 0.2s, background 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  outline: none;
+  background-color: var(--panel-bg, #1e293b);
 }
 
-footer {
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-  margin: 2rem 0;
-}
-
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
   .toolbar {
     flex-direction: column;
@@ -198,71 +224,4 @@ footer {
     width: 100%;
     text-align: center;
   }
-}
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-main {
-  flex: 1;
-}
-
-footer {
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-  padding: 1rem;
-  background: transparent;
-}
-/* LIGHT THEME */
-.theme-light {
-  --bg: #f1f5f9;
-  --text: #1e293b;
-  --card: #ffffff;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --danger: #ef4444;
-  --muted: #64748b;
-  --line: #e2e8f0;
-  --shadow: rgba(0, 0, 0, 0.1);
-  --panel-bg: #f8fafc;
-}
-input,
-textarea,
-select {
-  background-color: var(--card);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
-  transition: border 0.2s, background 0.2s;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--accent);
-  outline: none;
-  background-color: var(--panel-bg);
-}
-
-button {
-  background-color: var(--accent);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-button:hover {
-  background-color: var(--accent-hover);
 }
