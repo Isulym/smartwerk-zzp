@@ -213,6 +213,11 @@ input:focus, textarea:focus, select:focus {
 tbody#expensesBody:hover {
   background: inherit !important; /* або none */
 }
+.details-modal {
+  display: none !important;
+  pointer-events: none;
+  background: transparent !important;
+}
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .toolbar {
