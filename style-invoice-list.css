@@ -8,6 +8,9 @@
   --accent-hover: #2a66db;
   --danger: #ff4d4f;
   --shadow: rgba(0, 0, 0, 0.25);
+  --flat-bg: #1e293b;
+  --flat-text: #f0f2f5;
+  --flat-border: #2d3147;
 }
 
 body {
@@ -273,55 +276,13 @@ footer {
   background: var(--line);
   color: var(--text);
 }
+
 /* === FLATPICKR DARK THEME FIX === */
 .flatpickr-calendar {
-  background: #1e293b;
-  color: #f0f2f5;
-  border: 1px solid #2d3147;
-  box-shadow: 0 0 12px rgba(0,0,0,0.4);
-  border-radius: 10px;
-  font-family: 'Segoe UI', sans-serif;
-  z-index: 9999;
-}
-
-.flatpickr-calendar .flatpickr-day {
-  background: transparent;
-  color: #f0f2f5;
-  border-radius: 6px;
-}
-
-.flatpickr-day.today {
-  border: 1px solid var(--accent);
-}
-
-.flatpickr-day.selected {
-  background: var(--accent);
-  color: #fff;
-}
-
-.flatpickr-day:hover {
-  background: #334155;
-  cursor: pointer;
-}
-
-.flatpickr-months, .flatpickr-weekdays {
-  background: #1e293b;
-  color: #f0f2f5;
-}
-
-.flatpickr-input[readonly] {
-  color: #f0f2f5;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 10px 12px;
-}
-/* === FLATPICKR DARK THEME FIX === */
-.flatpickr-calendar {
-  background: #1e293b;
-  color: #f0f2f5;
-  border: 1px solid #2d3147;
-  box-shadow: 0 0 12px rgba(0,0,0,0.4);
+  background: var(--flat-bg);
+  color: var(--flat-text);
+  border: 1px solid var(--flat-border);
+  box-shadow: 0 0 12px var(--shadow);
   border-radius: 10px;
   font-family: 'Segoe UI', sans-serif;
   z-index: 9999;
@@ -334,7 +295,7 @@ footer {
 }
 
 .flatpickr-day.today {
-  border: 1px solid var(--accent);
+   border: 1px solid var(--accent);
 }
 
 .flatpickr-day.selected {
@@ -348,8 +309,8 @@ footer {
 
 .flatpickr-months,
 .flatpickr-weekdays {
-  background: #1e293b;
-  color: #f0f2f5;
+  background: var(--card);
+  color: var(--text);
 }
 .js-date {
   max-width: 180px; /* або 140px */
@@ -462,6 +423,9 @@ footer {
   --line: #e2e8f0;
   --shadow: rgba(0, 0, 0, 0.1);
   --panel-bg: #f8fafc;
+  --flat-bg: #ffffff;
+  --flat-text: #1e293b;
+  --flat-border: #e2e8f0;
 }
 input,
 textarea,
