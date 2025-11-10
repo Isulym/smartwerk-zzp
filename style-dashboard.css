@@ -33,6 +33,7 @@ body {
   top: 0;
   left: 0;
   z-index: 999;
+   transform: translateX(0);
 }
 
 
@@ -282,19 +283,9 @@ body {
 }
 
 
-
- 
- .main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
  /* ========== MOBILE SIDEBAR TOGGLE ========== */
 
-.sidebar {
-  transform: translateX(0);
-  transition: transform 0.3s ease;
-}
+
 
 .sidebar.collapsed {
   transform: translateX(-100%);
@@ -317,14 +308,6 @@ body {
   margin-left: 0 !important;
 }
 
-  .main {
-    margin-left: 0;
-  }
-
-  .sidebar {
-    width: 260px;
-    transform: translateX(0);
-  }
 }
 
 .toggle-button {
@@ -344,10 +327,7 @@ body {
 .toggle-button:hover {
   background: var(--accent-hover);
 }
-.sidebar {
-  width: 240px;
-  transform: translateX(0);
-}
+
 
 .sidebar.collapsed {
   transform: translateX(-100%);
