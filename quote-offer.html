@@ -508,21 +508,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
   </script>
   <script>
-  function applyTheme(theme) {
-    document.body.classList.remove('theme-light', 'theme-dark');
-    document.body.classList.add(theme);
-  }
-
-  function toggleTheme() {
-    const currentTheme = document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light';
-    const newTheme = currentTheme === 'theme-dark' ? 'theme-light' : 'theme-dark';
-    applyTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-  }
-
   document.addEventListener("DOMContentLoaded", () => {
     const savedTheme = localStorage.getItem('theme') || 'theme-dark';
-    applyTheme(savedTheme);
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(savedTheme);
   });
 </script>
 </body>
