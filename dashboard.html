@@ -1,168 +1,155 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartWerk — Dashboard</title>
-
-  <!-- Styles -->
- 
+  <title data-i18n="page_title">SmartWerk — Dashboard</title>
   <link rel="stylesheet" href="style-dashboard.css" />
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- 
 </head>
 <body>
-<button id="toggleSidebar" class="toggle-button">📂 Menu</button>
+<button id="toggleSidebar" class="toggle-button" data-i18n="toggle_menu">📂 Menu</button>
 <div class="dashboard">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <header>
       <img src="image.png" alt="SmartWerk Logo" width="240" height="130" />
     </header>
     <nav>
-      <a href="index.html" class="btn-primary">← Home</a>
-      <a href="dashboard.html" class="btn btn-primary" id="backDashboardBtn">🏠 Back to Dashboard</a>
+      <a href="index.html" class="btn-primary" data-i18n="home">← Home</a>
+      <a href="dashboard.html" class="btn btn-primary" id="backDashboardBtn" data-i18n="back_dashboard">🏠 Back to Dashboard</a>
 
-      <button class="accordion" data-key="clients">👥 Clients ▸</button>
+      <button class="accordion" data-key="clients" data-i18n="clients">👥 Clients ▸</button>
       <div class="panel">
-        <a href="clients.html">➕ Create Client</a>
-        <a href="clients-list.html">📋 Saved Clients</a>
+        <a href="clients.html" data-i18n="create_client">➕ Create Client</a>
+        <a href="clients-list.html" data-i18n="saved_clients">📋 Saved Clients</a>
       </div>
 
-     
-      <button class="accordion" data-key="invoices">💰 Invoices ▸</button>
+      <button class="accordion" data-key="invoices" data-i18n="invoices">💰 Invoices ▸</button>
       <div class="panel">
-        <a href="invoices.html">➕ Create Invoice</a>
-        <a href="invoices-list.html">📋 Saved Invoices</a>
+        <a href="invoices.html" data-i18n="create_invoice">➕ Create Invoice</a>
+        <a href="invoices-list.html" data-i18n="saved_invoices">📋 Saved Invoices</a>
       </div>
 
-      <button class="accordion" data-key="quotes">📑 Quotes ▸</button>
+      <button class="accordion" data-key="quotes" data-i18n="quotes">📑 Quotes ▸</button>
       <div class="panel">
-        <a href="quote-offer.html">➕ Create Quote</a>
-        <a href="quote-offer-list.html">📋 Saved Quotes</a>
+        <a href="quote-offer.html" data-i18n="create_quote">➕ Create Quote</a>
+        <a href="quote-offer-list.html" data-i18n="saved_quotes">📋 Saved Quotes</a>
       </div>
 
-      <button class="accordion" data-key="contracts">📃 Contracts ▸</button>
+      <button class="accordion" data-key="contracts" data-i18n="contracts">📃 Contracts ▸</button>
       <div class="panel">
-        <a href="Freelance-Contract.html">➕ Create Contract</a>
-        <a href="Freelance-Contract-list.html">📋 Saved Contracts</a>
+        <a href="Freelance-Contract.html" data-i18n="create_contract">➕ Create Contract</a>
+        <a href="Freelance-Contract-list.html" data-i18n="saved_contracts">📋 Saved Contracts</a>
       </div>
 
-      <button class="accordion" data-key="reminders">📬 Reminders ▸</button>
+      <button class="accordion" data-key="reminders" data-i18n="reminders">📬 Reminders ▸</button>
       <div class="panel">
-        <a href="payment-reminder.html">➕ Create Reminder</a>
-        <a href="payment-reminder-list.html">📋 Saved Reminders</a>
+        <a href="payment-reminder.html" data-i18n="create_reminder">➕ Create Reminder</a>
+        <a href="payment-reminder-list.html" data-i18n="saved_reminders">📋 Saved Reminders</a>
       </div>
 
-      <button class="accordion" data-key="Expense">🧮 Expense CSV ▸</button>
+      <button class="accordion" data-key="Expense" data-i18n="expense_csv">🧮 Expense CSV ▸</button>
       <div class="panel">
-        <a href="expense-csv.html">➕ Create Expense</a>
-        <a href="expense-csv-list.html">📋 Saved Expenses</a>
+        <a href="expense-csv.html" data-i18n="create_expense">➕ Create Expense</a>
+        <a href="expense-csv-list.html" data-i18n="saved_expenses">📋 Saved Expenses</a>
       </div>
 
-      <button class="accordion" data-key="analytics">📊 Analytics ▸</button>
+      <button class="accordion" data-key="analytics" data-i18n="analytics">📊 Analytics ▸</button>
       <div class="panel">
-        <a href="my-bookkeeper.html">🏆 My Bookkeeper</a>
-        <a href="summary.html">📊 Summary</a>
-        <a href="roi-estimator.html">📈 ROI Estimator</a>
+        <a href="my-bookkeeper.html" data-i18n="my_bookkeeper">🏆 My Bookkeeper</a>
+        <a href="summary.html" data-i18n="summary">📊 Summary</a>
+        <a href="roi-estimator.html" data-i18n="roi_estimator">📈 ROI Estimator</a>
       </div>
 
-      <button class="accordion" data-key="taxassistant">🧮 Tax Assistant ▸</button>
+      <button class="accordion" data-key="taxassistant" data-i18n="tax_assistant">🧮 Tax Assistant ▸</button>
       <div class="panel">
-        <a href="tax-calculator.html">🧮 Tax Calculator</a>
-        <a href="mybusiness.html">📊 Tax Analytics</a>
-        <a href="tax-guide.html">📂 Tax Guide</a>
+        <a href="tax-calculator.html" data-i18n="tax_calculator">🧮 Tax Calculator</a>
+        <a href="mybusiness.html" data-i18n="tax_analytics">📊 Tax Analytics</a>
+        <a href="tax-guide.html" data-i18n="tax_guide">📂 Tax Guide</a>
       </div>
 
-      <button class="accordion" data-key="templates">📂 Templates ▸</button>
+      <button class="accordion" data-key="templates" data-i18n="templates">📂 Templates ▸</button>
       <div class="panel">
-        <a href="email-gemeente.html">📩 Email to Gemeente</a>
-        <a href="cv.html">📄 CV / Portfolio</a>
-        <a href="ai-assistant.html">🤖 AI Assistant (PRO)</a>
+        <a href="email-gemeente.html" data-i18n="email_gemeente">📩 Email to Gemeente</a>
+        <a href="cv.html" data-i18n="cv_portfolio">📄 CV / Portfolio</a>
+        <a href="ai-assistant.html" data-i18n="ai_assistant">🤖 AI Assistant (PRO)</a>
       </div>
 
-      <button class="accordion" data-key="settings">⚙️ Settings ▸</button>
+      <button class="accordion" data-key="settings" data-i18n="settings">⚙️ Settings ▸</button>
       <div class="panel">
-        <a href="profile.html">👤 Profile</a>
-       <button onclick="toggleTheme()" class="btn">🌓 Toggle Theme</button>
+        <a href="profile.html" data-i18n="profile">👤 Profile</a>
+       <button onclick="toggleTheme()" class="btn" data-i18n="toggle_theme">🌓 Toggle Theme</button>
       </div>
 
-      <button class="accordion" data-key="help">❓ Help ▸</button>
+      <button class="accordion" data-key="help" data-i18n="help">❓ Help ▸</button>
       <div class="panel">
-        <a href="pricing.html">💳 Upgrade to PRO</a>
-        <a href="mailto:smartwerk.team@gmail.com">📧 Contact Support</a>
+        <a href="pricing.html" data-i18n="upgrade_pro">💳 Upgrade to PRO</a>
+        <a href="mailto:smartwerk.team@gmail.com" data-i18n="contact_support">📧 Contact Support</a>
       </div>
 
-      <button id="logoutBtn" class="logout">🚪 Logout</button>
+      <button id="logoutBtn" class="logout" data-i18n="logout">🚪 Logout</button>
     </nav>
   </aside>
-    <!-- Main -->
+
   <main class="main">
-    <!-- Topbar -->
     <header class="topbar">
-      <h1 id="welcome">Welcome 👋</h1>
+      <h1 id="welcome" data-i18n="welcome">Welcome 👋</h1>
       <div class="plan-box">
-        <span id="planName" class="badge">FREE</span>
+        <span id="planName" class="badge" data-i18n="plan_free">FREE</span>
         <div class="progress-bar"><div id="planProgress"></div></div>
         <small id="planUsage">0/25</small>
-        <a href="pricing.html" class="upgrade-btn">Upgrade to PRO</a>
+        <a href="pricing.html" class="upgrade-btn" data-i18n="upgrade_pro">Upgrade to PRO</a>
       </div>
       <select id="languageSwitcher" class="btn">
-  <option value="en">🇬🇧 English</option>
-  <option value="nl">🇳🇱 Nederlands</option>
-  <option value="de">🇩🇪 Deutsch</option>
-  <option value="fr">🇫🇷 Français</option>
-  <option value="pl">🇵🇱 Polski</option>
-  <option value="ru">🇷🇺 Русский</option>
-  <option value="es">🇪🇸 Español</option>
-</select>
+        <option value="en">🇬🇧 English</option>
+        <option value="nl">🇳🇱 Nederlands</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="pl">🇵🇱 Polski</option>
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="es">🇪🇸 Español</option>
+      </select>
     </header>
 
-    <!-- Quick Actions -->
     <section class="quick-actions">
-      <button onclick="createAction('clients.html','clients')">➕ Сlients</button>
-      <button onclick="createAction('invoices.html','Invoice')">➕ Invoice</button>
-      <button onclick="createAction('quote-offer.html','Quote')">➕ Quote</button>
-      <button onclick="createAction('Freelance-Contract.html','Contract')">➕ Contract</button>
-      <button onclick="createAction('payment-reminder.html','Reminder')">➕ Reminder</button>
+      <button onclick="createAction('clients.html','clients')" data-i18n="quick_clients">➕ Clients</button>
+      <button onclick="createAction('invoices.html','Invoice')" data-i18n="quick_invoice">➕ Invoice</button>
+      <button onclick="createAction('quote-offer.html','Quote')" data-i18n="quick_quote">➕ Quote</button>
+      <button onclick="createAction('Freelance-Contract.html','Contract')" data-i18n="quick_contract">➕ Contract</button>
+      <button onclick="createAction('payment-reminder.html','Reminder')" data-i18n="quick_reminder">➕ Reminder</button>
     </section>
 
-    <!-- KPI Cards -->
     <section class="kpi-grid">
-      <div class="kpi-card"><h3>💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
-      <div class="kpi-card"><h3>📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
-      <div class="kpi-card"><h3>📊 Quote Win-Rate</h3><p id="kpiQuoteRate">0%</p></div>
-      <div class="kpi-card"><h3>💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
-      <div class="kpi-card"><h3>📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
-      <div class="kpi-card"><h3>⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
-      <div class="kpi-card"><h3>👥 Top Client</h3><p id="kpiTopClient">—</p></div>
+      <div class="kpi-card"><h3 data-i18n="revenue">💰 Revenue</h3><p id="kpiRevenue">€0</p></div>
+      <div class="kpi-card"><h3 data-i18n="unpaid">📄 Unpaid</h3><p id="kpiUnpaid">€0</p></div>
+      <div class="kpi-card"><h3 data-i18n="quote_rate">📊 Quote Win-Rate</h3><p id="kpiQuoteRate">0%</p></div>
+      <div class="kpi-card"><h3 data-i18n="reminders_sent">💸 Reminders Sent</h3><p id="kpiReminders">0</p></div>
+      <div class="kpi-card"><h3 data-i18n="expenses">📉 Expenses</h3><p id="kpiExpenses">€0</p></div>
+      <div class="kpi-card"><h3 data-i18n="overdue">⏰ Overdue</h3><p id="kpiOverdue">0</p></div>
+      <div class="kpi-card"><h3 data-i18n="top_client">👥 Top Client</h3><p id="kpiTopClient">—</p></div>
     </section>
 
-    <!-- Charts -->
     <section class="charts">
       <div class="chart-box"><canvas id="revenueChart"></canvas></div>
       <div class="chart-box"><canvas id="invoiceStatusChart"></canvas></div>
     </section>
 
-    <!-- Smart Suggestions -->
     <section class="suggestions">
-      <h2>💡 Smart Suggestions</h2>
+      <h2 data-i18n="smart_suggestions">💡 Smart Suggestions</h2>
       <ul id="suggestionsList">
-        <li>✅ All good. Keep it up!</li>
+        <li data-i18n="suggestion_all_good">✅ All good. Keep it up!</li>
       </ul>
     </section>
 
-    <!-- Recent Activity -->
     <section class="activity">
-      <h2>🕒 Recent Activity</h2>
+      <h2 data-i18n="recent_activity">🕒 Recent Activity</h2>
       <ul id="activityList">
-        <li>Loading...</li>
+        <li data-i18n="loading">Loading...</li>
       </ul>
     </section>
   </main>
 </div> <!-- End of .dashboard -->
+  
   <!-- Firebase + Theme + Sidebar Logic -->
 <script type="module">
   import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
