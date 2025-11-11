@@ -1,4 +1,32 @@
-/* ===== Base Reset ===== */
+:root {
+  --bg: #121212;
+  --text: #e0e0e0;
+  --card: #1e1e1e;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --muted: #888;
+  --line: #2d2d2d;
+  --highlight: #64ffda;
+  --no-data-bg: #2b2b2b;
+  --no-data-border: #ffcc00;
+  --shadow: rgba(0,0,0,0.2);
+}
+
+/* === LIGHT THEME === */
+.theme-light {
+  --bg: #f1f5f9;
+  --text: #1e293b;
+  --card: #ffffff;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --highlight: #0f766e;
+  --no-data-bg: #fffbea;
+  --no-data-border: #facc15;
+  --shadow: rgba(0,0,0,0.05);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,25 +35,25 @@
 
 body {
   font-family: "Segoe UI", sans-serif;
-  background-color: #121212;
-  color: #e0e0e0;
+  background-color: var(--bg);
+  color: var(--text);
   line-height: 1.6;
   padding: 0 1rem;
 }
 
-/* ===== Navigation ===== */
+/* === Navigation === */
 .nav-bar {
   display: flex;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid #333;
-  background-color: #1e1e1e;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--card);
 }
 
 .nav-bar button {
-  background: #2a2a2a;
-  color: #e0e0e0;
-  border: 1px solid #444;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
   padding: 8px 14px;
   border-radius: 6px;
   font-size: 14px;
@@ -34,10 +62,10 @@ body {
 }
 
 .nav-bar button:hover {
-  background-color: #333;
+  background-color: var(--line);
 }
 
-/* ===== Main Layout ===== */
+/* === Main === */
 main {
   max-width: 960px;
   margin: 0 auto;
@@ -54,14 +82,14 @@ h1 {
 .intro {
   text-align: center;
   font-size: 0.95rem;
-  color: #bbb;
+  color: var(--muted);
   margin-bottom: 2rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* ===== KPIs Grid ===== */
+/* === KPIs === */
 .kpis {
   display: grid;
   grid-template-columns: 1fr;
@@ -70,43 +98,44 @@ h1 {
 }
 
 .kpi {
-  background-color: #1f1f1f;
+  background-color: var(--card);
   padding: 1rem;
   border-radius: 10px;
-  border: 1px solid #2d2d2d;
+  border: 1px solid var(--line);
   text-align: center;
   transition: 0.3s ease-in-out;
+  box-shadow: 0 2px 6px var(--shadow);
 }
 
 .kpi:hover {
   transform: translateY(-2px);
-  border-color: #444;
+  border-color: var(--accent-hover);
 }
 
 .kpi h3 {
   font-size: 1rem;
   margin-bottom: 0.3rem;
-  color: #fafafa;
+  color: var(--text);
 }
 
 .kpi p {
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 0.2rem;
-  color: #64ffda;
+  color: var(--highlight);
 }
 
 .kpi small {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--muted);
 }
 
-/* ===== Bar Chart ===== */
+/* === Bar Chart === */
 .bar-chart {
-  background-color: #1f1f1f;
+  background-color: var(--card);
   padding: 1.2rem;
   border-radius: 10px;
-  border: 1px solid #2d2d2d;
+  border: 1px solid var(--line);
 }
 
 .bar-chart h2 {
@@ -124,7 +153,7 @@ h1 {
 
 .bar {
   width: 36px;
-  background: linear-gradient(to top, #00bcd4, #64ffda);
+  background: linear-gradient(to top, #00bcd4, var(--highlight));
   border-radius: 6px 6px 0 0;
   transition: height 0.5s ease;
   margin-bottom: 0.4rem;
@@ -132,46 +161,22 @@ h1 {
 
 .bar-wrapper span {
   font-size: 0.85rem;
-  color: #ccc;
+  color: var(--muted);
 }
 
-/* ===== No Reports Message ===== */
+/* === No Data === */
 .no-data {
-  background: #2b2b2b;
-  color: #ffcc00;
+  background: var(--no-data-bg);
+  color: var(--no-data-border);
   padding: 1rem;
   border-radius: 8px;
   margin-top: 2rem;
-  border: 1px dashed #ffcc00;
+  border: 1px dashed var(--no-data-border);
   text-align: center;
   font-size: 0.95rem;
 }
 
-/* ===== Responsive ===== */
-
-
-@media (min-width: 900px) {
-  .kpis {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .bar-chart {
-    text-align: center;
-  }
-}
-/* LIGHT THEME */
-.theme-light {
-  --bg: #f1f5f9;
-  --text: #1e293b;
-  --card: #ffffff;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --danger: #ef4444;
-  --muted: #64748b;
-  --line: #e2e8f0;
-  --shadow: rgba(0, 0, 0, 0.1);
-  --panel-bg: #f8fafc;
-}
+/* === Inputs & Buttons (global) === */
 input,
 textarea,
 select {
@@ -191,7 +196,7 @@ textarea:focus,
 select:focus {
   border-color: var(--accent);
   outline: none;
-  background-color: var(--panel-bg);
+  background-color: var(--bg);
 }
 
 button {
@@ -206,4 +211,15 @@ button {
 
 button:hover {
   background-color: var(--accent-hover);
+}
+
+/* === Responsive === */
+@media (min-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bar-chart {
+    text-align: center;
+  }
 }
