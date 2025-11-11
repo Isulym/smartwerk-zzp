@@ -49,7 +49,7 @@ function applyTranslations(lang = "en") {
 
   document.title = `📋 SmartWerk — ${t.title}`;
   document.querySelector('h1')?.textContent = `📋 SmartWerk — ${t.title}`;
-  document.querySelector('a[href="dashboard.html"]')?.textContent = `🏠 ${t.back_to_dashboard}`;
+  document.getElementById('backDashboardBtn')?.textContent = `🏠 ${t.back_to_dashboard}`;
   document.querySelector('a[href="expense-csv.html"]')?.textContent = `➕ ${t.new_expense}`;
   document.getElementById('search')?.setAttribute('placeholder', `🔍 ${t.search_placeholder}`);
 }
