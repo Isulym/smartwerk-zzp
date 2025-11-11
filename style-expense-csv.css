@@ -141,6 +141,26 @@ header h1 {
   border-radius: 6px;
   margin-right: 4px;
 }
+/* --- Фікс чорного фону в tbody --- */
+#expensesTable tbody tr {
+  background-color: var(--card);
+  color: var(--text);
+  transition: background 0.2s;
+}
+
+#expensesTable tbody tr:hover {
+  background-color: var(--panel-bg); /* при наведенні */
+}
+
+/* --- Для світлої теми --- */
+.theme-light #expensesTable tbody tr {
+  background-color: var(--card);
+  color: var(--text);
+}
+
+.theme-light #expensesTable tbody tr:hover {
+  background-color: var(--line);
+}
 
 /* === SUMMARY BOX === */
 .summary {
