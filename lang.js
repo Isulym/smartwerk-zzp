@@ -121,7 +121,6 @@ loading: "Laden..."
 
 };
   // Add similar blocks for other languages like 'de', 'fr', etc.
-};
 
 function applyTranslations(lang = "en") {
   const dict = translations[lang] || translations["en"];
