@@ -90,6 +90,13 @@
 
   <hr />
   <p><strong>SmartWerk — Empowering Self-Employed in the Netherlands</strong></p>
+      <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem('theme') || 'theme-dark';
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(savedTheme);
+  });
+</script>
 </body>
 </html>
 
