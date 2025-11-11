@@ -211,7 +211,7 @@ input:focus, textarea:focus, select:focus {
   background-color: var(--panel-bg, #1e293b);
 }
 .details-modal {
-  background: transparent !important;
+  background: rgba(0,0,0,0.3);
 }
 .details-modal.active {
   display: flex;
