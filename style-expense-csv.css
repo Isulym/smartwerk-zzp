@@ -151,6 +151,15 @@ header h1 {
 #expensesTable tbody tr:hover {
   background-color: var(--panel-bg); /* при наведенні */
 }
+.expense-row {
+  background-color: var(--card);
+  color: var(--text);
+  transition: background 0.2s ease;
+}
+
+.expense-row:hover {
+  background-color: var(--panel-bg, #1e293b);
+}
 
 /* --- Для світлої теми --- */
 .theme-light #expensesTable tbody tr {
