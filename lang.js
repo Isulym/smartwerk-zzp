@@ -1,77 +1,146 @@
 const translations = {
   en: {
-    back_to_dashboard: "Back to Dashboard",
-    new_expense: "New Expense",
-    title: "Saved Expenses",
-    search_placeholder: "Search by description or ID..."
+    menu: "Menu",
+    back_dashboard: "Back to Dashboard",
+    home: "Home",
+    clients: "Clients",
+    create_client: "Create Client",
+    saved_clients: "Saved Clients",
+    invoices: "Invoices",
+    create_invoice: "Create Invoice",
+    saved_invoices: "Saved Invoices",
+    quotes: "Quotes",
+    create_quote: "Create Quote",
+    saved_quotes: "Saved Quotes",
+    contracts: "Contracts",
+    create_contract: "Create Contract",
+    saved_contracts: "Saved Contracts",
+    reminders: "Reminders",
+    create_reminder: "Create Reminder",
+    saved_reminders: "Saved Reminders",
+    expense: "Expense CSV",
+    create_expense: "Create Expense",
+    saved_expenses: "Saved Expenses",
+    analytics: "Analytics",
+    bookkeeper: "My Bookkeeper",
+    summary: "Summary",
+    roi: "ROI Estimator",
+    taxassistant: "Tax Assistant",
+    tax_calculator: "Tax Calculator",
+    tax_analytics: "Tax Analytics",
+    tax_guide: "Tax Guide",
+    templates: "Templates",
+    email_gemeente: "Email to Gemeente",
+    cv: "CV / Portfolio",
+    ai_assistant: "AI Assistant (PRO)",
+    settings: "Settings",
+    profile: "Profile",
+    toggle_theme: "Toggle Theme",
+    help: "Help",
+    upgrade: "Upgrade to PRO",
+    contact: "Contact Support",
+    logout: "Logout",
+    welcome: "Welcome",
+    upgrade_plan: "Upgrade to PRO",
+    quick_clients: "Clients",
+    quick_invoice: "Invoice",
+    quick_quote: "Quote",
+    quick_contract: "Contract",
+    quick_reminder: "Reminder",
+    revenue: "Revenue",
+    unpaid: "Unpaid",
+    quote_rate: "Quote Win-Rate",
+    reminders_sent: "Reminders Sent",
+    expenses: "Expenses",
+    overdue: "Overdue",
+    top_client: "Top Client",
+    suggestions: "Smart Suggestions",
+    all_good: "All good. Keep it up!",
+    recent_activity: "Recent Activity",
+    loading: "Loading..."
   },
-  nl: {
-    back_to_dashboard: "Terug naar Dashboard",
-    new_expense: "Nieuwe Uitgave",
-    title: "Opgeslagen Uitgaven",
-    search_placeholder: "Zoeken op beschrijving of ID..."
-  },
-  de: {
-    back_to_dashboard: "Zurück zum Dashboard",
-    new_expense: "Neue Ausgabe",
-    title: "Gespeicherte Ausgaben",
-    search_placeholder: "Suche nach Beschreibung oder ID..."
-  },
-  fr: {
-    back_to_dashboard: "Retour au tableau de bord",
-    new_expense: "Nouvelle dépense",
-    title: "Dépenses enregistrées",
-    search_placeholder: "Rechercher par description ou ID..."
-  },
-  pl: {
-    back_to_dashboard: "Powrót do panelu",
-    new_expense: "Nowy wydatek",
-    title: "Zapisane wydatki",
-    search_placeholder: "Szukaj według opisu lub ID..."
-  },
-  ru: {
-    back_to_dashboard: "Назад к панели",
-    new_expense: "Новый расход",
-    title: "Сохраненные расходы",
-    search_placeholder: "Поиск по описанию или ID..."
-  },
-  es: {
-    back_to_dashboard: "Volver al panel",
-    new_expense: "Nuevo gasto",
-    title: "Gastos guardados",
-    search_placeholder: "Buscar por descripción o ID..."
-  }
+   nl: {
+  menu: "Menu",
+back_dashboard: "Terug naar dashboard",
+home: "Home",
+clients: "Klanten",
+create_client: "Klant aanmaken",
+saved_clients: "Opgeslagen klanten",
+invoices: "Facturen",
+create_invoice: "Factuur aanmaken",
+saved_invoices: "Opgeslagen facturen",
+quotes: "Offertes",
+create_quote: "Offerte aanmaken",
+saved_quotes: "Opgeslagen offertes",
+contracts: "Contracten",
+create_contract: "Contract aanmaken",
+saved_contracts: "Opgeslagen contracten",
+reminders: "Herinneringen",
+create_reminder: "Herinnering aanmaken",
+saved_reminders: "Opgeslagen herinneringen",
+expense: "Onkosten CSV",
+create_expense: "Maak kosten aan",
+saved_expenses: "Opgeslagen kosten",
+analytics: "Analytics",
+bookkeeper: "Mijn boekhouder",
+summary: "Overzicht",
+roi: "ROI-calculator",
+taxassistant: "Belastingassistent",
+tax_calculator: "Belastingcalculator",
+tax_analytics: "Belastinganalyse",
+tax_guide: "Belastinggids",
+templates: "Sjablonen",
+email_gemeente: "E-mail naar gemeente",
+cv: "CV / Portfolio",
+ai_assistant: "AI Assistent (PRO)",
+settings: "Instellingen",
+profile: "Profiel",
+toggle_theme: "Thema wisselen",
+help: "Help",
+upgrade: "Upgraden naar PRO",
+contact: "Neem contact op met Support",
+logout: "Uitloggen",
+welcome: "Welkom",
+upgrade_plan: "Upgraden naar PRO",
+quick_clients: "Klanten",
+quick_invoice: "Factuur",
+quick_quote: "Offerte",
+quick_contract: "Contract",
+quick_reminder: "Herinnering",
+revenue: "Inkomsten",
+unpaid: "Onbetaald",
+quote_rate: "Winstpercentage offerte",
+reminders_sent: "Verzonden herinneringen",
+expense: "Uitgaven",
+overdue: "Overdue",
+top_client: "Topklant",
+suggestions: "Slimme suggesties",
+all_good: "Alles goed. Ga zo door!",
+recent_activity: "Recente activiteit",
+loading: "Laden..."     
+
+};
+  // Add similar blocks for other languages like 'de', 'fr', etc.
 };
 
 function applyTranslations(lang = "en") {
-  const t = translations[lang];
-  if (!t) return;
-
-  document.title = `📋 SmartWerk — ${t.title}`;
-  
-  const h1 = document.querySelector('h1');
-  if (h1) h1.textContent = `📋 SmartWerk — ${t.title}`;
-
-  const backBtn = document.getElementById('backDashboardBtn');
-  if (backBtn) backBtn.textContent = `🏠 ${t.back_to_dashboard}`;
-
-  const newExp = document.querySelector('a[href="expense-csv.html"]');
-  if (newExp) newExp.textContent = `➕ ${t.new_expense}`;
-
-  const search = document.getElementById('search');
-  if (search) search.setAttribute('placeholder', `🔍 ${t.search_placeholder}`);
+  const dict = translations[lang] || translations["en"];
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (dict[key]) el.textContent = dict[key];
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const selectedLang = localStorage.getItem('language') || 'en';
+  const selectedLang = localStorage.getItem("language") || "en";
   applyTranslations(selectedLang);
 
-  const langSelector = document.getElementById('languageSwitcher');
+  const langSelector = document.getElementById("languageSwitcher");
   if (langSelector) {
     langSelector.value = selectedLang;
     langSelector.addEventListener("change", function () {
-      localStorage.setItem('language', this.value);
-      location.reload(); // оновлення для застосування перекладу
+      localStorage.setItem("language", this.value);
+      location.reload();
     });
   }
 });
