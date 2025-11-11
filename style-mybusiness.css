@@ -240,4 +240,13 @@ button:hover {
   .bar-chart {
     text-align: center;
   }
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
 }
