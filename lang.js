@@ -48,10 +48,18 @@ function applyTranslations(lang = "en") {
   if (!t) return;
 
   document.title = `📋 SmartWerk — ${t.title}`;
-  document.querySelector('h1')?.textContent = `📋 SmartWerk — ${t.title}`;
-  document.getElementById('backDashboardBtn')?.textContent = `🏠 ${t.back_to_dashboard}`;
-  document.querySelector('a[href="expense-csv.html"]')?.textContent = `➕ ${t.new_expense}`;
-  document.getElementById('search')?.setAttribute('placeholder', `🔍 ${t.search_placeholder}`);
+  
+  const h1 = document.querySelector('h1');
+  if (h1) h1.textContent = `📋 SmartWerk — ${t.title}`;
+
+  const backBtn = document.getElementById('backDashboardBtn');
+  if (backBtn) backBtn.textContent = `🏠 ${t.back_to_dashboard}`;
+
+  const newExp = document.querySelector('a[href="expense-csv.html"]');
+  if (newExp) newExp.textContent = `➕ ${t.new_expense}`;
+
+  const search = document.getElementById('search');
+  if (search) search.setAttribute('placeholder', `🔍 ${t.search_placeholder}`);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -63,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     langSelector.value = selectedLang;
     langSelector.addEventListener("change", function () {
       localStorage.setItem('language', this.value);
-      location.reload(); // оновлює сторінку для застосування
+      location.reload(); // оновлення для застосування перекладу
     });
   }
 });
