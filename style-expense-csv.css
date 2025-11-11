@@ -133,7 +133,7 @@ header h1 {
   text-align: left;
 }
 #expensesTable tr:hover td {
-  background-color: #1f2937;
+  background-color: var(--panel-bg, #1e293b);
 }
 #expensesTable td button {
   padding: 6px 10px;
@@ -151,14 +151,15 @@ header h1 {
 #expensesTable tbody tr:hover {
   background-color: var(--panel-bg); /* при наведенні */
 }
+/* === EXPENSE ROW FIX === */
 .expense-row {
-  background-color: var(--card);
-  color: var(--text);
-  transition: background 0.2s ease;
+  background-color: var(--card) !important;
+  color: var(--text) !important;
+  transition: background-color 0.2s ease;
 }
 
 .expense-row:hover {
-  background-color: var(--panel-bg, #1e293b);
+  background-color: var(--panel-bg, #1e293b) !important;
 }
 
 /* --- Для світлої теми --- */
