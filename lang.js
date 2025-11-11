@@ -118,7 +118,7 @@ suggestions: "Slimme suggesties",
 all_good: "Alles goed. Ga zo door!",
 recent_activity: "Recente activiteit",
 loading: "Laden..."     
-
+ }
 };
   // Add similar blocks for other languages like 'de', 'fr', etc.
 
