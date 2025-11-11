@@ -130,6 +130,7 @@ function loadExpenses(uid){
     total += totalAmt;
 
     const tr = document.createElement("tr");
+    tr.classList.add("expense-row");
     tr.innerHTML = `
       <td><input type="checkbox" class="rowSelect" data-id="${exp.id}"></td>
       <td>${exp.expenseId || ""}</td>
