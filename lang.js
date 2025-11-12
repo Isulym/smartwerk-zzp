@@ -304,6 +304,7 @@ window.translations = {
     suggestion_expenses_over: "📊 Расходы превышают выручку в этом месяце.",
      recent_activity: "Недавняя активность",
     loading: "Загрузка...",
+    toggle_menu: "Меню",
     chart_title: "Доход",
     chart_labels: { draft: "Черновик", sent: "Отправлено", paid: "Оплачено", overdue: "Просрочено" },
     activity_types: { navigation: "Навигация",invoice: "Счет",event: "Событие" },
