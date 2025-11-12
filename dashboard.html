@@ -224,9 +224,10 @@
   }).length;
 
   // 📌 1. Overdue invoices
-  if (overdue > 0 && t.suggestion_overdue_invoices) {
-    ul.innerHTML += `<li>${t.suggestion_overdue_invoices.replace("{count}", overdue)}</li>`;
-  }
+  if (overdue > 0) {
+  const t = translations[lang]?.suggestion_overdue_invoices || "📌 {count} overdue invoices — send reminders.";
+  ul.innerHTML += `<li>${t.replace("{count}", overdue)}</li>`;
+}
 
   // ⚠️ 2. No reminders sent
   if (gReminders === 0 && overdue > 0 && t.suggestion_no_reminders) {
@@ -267,11 +268,12 @@
   window.createAction = createAction;
 
   onAuthStateChanged(auth, async user => {
-    const selectedLang = localStorage.getItem("language") || "en";
+   const selectedLang = localStorage.getItem("language") || "en";
+    const t = window.translations?.[selectedLang] || {};
     if (!user) return location.href = "login.html";
     const profileSnap = await getDoc(doc(db, "users", user.uid));
     const profile = profileSnap.exists() ? profileSnap.data() : {};
-    $("welcome").textContent = `${translations[selectedLang]?.welcome || "Welcome"}, ${profile.fullName || "User"} 👋`;
+    $("welcome").textContent = `${t.welcome || "Welcome"}, ${profile.fullName || "User"} 👋`;
     gPlan = (profile.plan || "FREE").toUpperCase();
     $("planName").textContent = gPlan;
     gUsageLimit = gPlan === "PRO" ? Infinity : 25;
