@@ -302,7 +302,7 @@ chargement: "Chargement...",
 menu_basculant: "Menu",
 titre_graphique: "Revenus",
 
-étiquettes_graphiques: { brouillon: "Brouillon", envoyé: "Envoyé", payé: "Payé", en retard: "En retard" },
+
 types_activité: { navigation: "Navigation", facture: "Facture", événement: "Événement" },
 
 messages_activité: {"clients_créés": "Clients_créés", "rappel_créé": "Rappel_créé",
