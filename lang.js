@@ -1,4 +1,4 @@
-const translations = {
+window.translations = {
   en: {
     menu: "Menu",
     back_dashboard: "Back to Dashboard",
@@ -62,7 +62,7 @@ const translations = {
     suggestion_overdue_invoices: "📌 {count} overdue invoices — send reminders.",
     suggestion_no_reminders: "⚠️ Overdue invoices exist but no reminders sent.",
     suggestion_low_winrate: "📉 Low quote win rate — optimize your offers.",
-    suggestion_expenses_over: "📊 Expenses exceed revenue this month.",
+    suggestion_expenses_over: "📊 Expenses exceed revenue this month."
    chart_title: "Revenue",
    chart_labels: {
   draft: "Draft",
@@ -145,7 +145,7 @@ loading: "Laden..."
 suggestion_overdue_invoices: "📌 {count} achterstallige facturen — stuur herinneringen.",
 suggestion_no_reminders: "⚠️ Achterstallige facturen maar geen herinneringen verzonden.",
 suggestion_low_winrate: "📉 Lage offerte-succesratio — optimaliseer je aanbiedingen.",
-suggestion_expenses_over: "📊 Uitgaven overschrijden de inkomsten deze maand.",
+suggestion_expenses_over: "📊 Uitgaven overschrijden de inkomsten deze maand."
  chart_title: "Inkomsten",
 chart_labels: {
   draft: "Concept",
