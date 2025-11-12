@@ -182,45 +182,73 @@
   }
 
   function updateChart(canvasId, labels, data, type = "line") {
-    const ctx = $(canvasId).getContext("2d");
-    return new Chart(ctx, {
-      type,
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
-          borderColor: "#3b82f6",
-          label: type === "doughnut" ? undefined : "Revenue",
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: type === "doughnut" } }
-      }
-    });
-  }
+  const lang = localStorage.getItem("language") || "en";
+  const t = translations[lang];
+
+  // переклад labels, якщо існує t.chart_labels
+  const translatedLabels = labels.map(label =>
+    t?.chart_labels?.[label.toLowerCase()] || label
+  );
+
+  const ctx = $(canvasId).getContext("2d");
+  return new Chart(ctx, {
+    type,
+    data: {
+      labels: translatedLabels,
+      datasets: [{
+        data,
+        backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
+        borderColor: "#3b82f6",
+        label: type === "doughnut" ? undefined : t?.chart_title || "Revenue",
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: type === "doughnut" } }
+    }
+  });
+}
 
   function updateSuggestions() {
-    const ul = $("suggestionsList");
-    ul.innerHTML = "";
-    let overdue = gInvoices.filter(i => {
-      const d = new Date(i.dueDate || "");
-      return i.status !== "Paid" && d.toString() !== "Invalid Date" && d < new Date();
-    }).length;
-    if (overdue > 0) ul.innerHTML += `<li>📌 ${overdue} overdue invoices — send reminders.</li>`;
-    if (gReminders === 0 && overdue > 0) ul.innerHTML += `<li>⚠️ Overdue invoices exist but no reminders sent.</li>`;
-    if (gQuotes.length && gQuotes.filter(q => q.status === "Accepted").length / gQuotes.length < 0.3)
-      ul.innerHTML += `<li>📉 Low quote win rate — optimize your offers.</li>`;
-    if (gExpensesTotal > gRevenue)
-      ul.innerHTML += `<li>📊 Expenses exceed revenue this month.</li>`;
-    if (ul.innerHTML === "") {
   const lang = localStorage.getItem("language") || "en";
-  ul.innerHTML = `<li>${translations[lang]?.suggestion_all_good || "✅ All good. Keep it up!"}</li>`;
-}
+  const t = translations[lang];
+  const ul = $("suggestionsList");
+  ul.innerHTML = "";
+
+  // Розрахунок прострочених інвойсів
+  let overdue = gInvoices.filter(i => {
+    const d = new Date(i.dueDate || "");
+    return i.status !== "Paid" && d.toString() !== "Invalid Date" && d < new Date();
+  }).length;
+
+  // 📌 1. Overdue invoices
+  if (overdue > 0 && t.suggestion_overdue_invoices) {
+    ul.innerHTML += `<li>${t.suggestion_overdue_invoices.replace("{count}", overdue)}</li>`;
   }
+
+  // ⚠️ 2. No reminders sent
+  if (gReminders === 0 && overdue > 0 && t.suggestion_no_reminders) {
+    ul.innerHTML += `<li>${t.suggestion_no_reminders}</li>`;
+  }
+
+  // 📉 3. Low win rate
+  const lowRate = gQuotes.length && gQuotes.filter(q => q.status === "Accepted").length / gQuotes.length < 0.3;
+  if (lowRate && t.suggestion_low_winrate) {
+    ul.innerHTML += `<li>${t.suggestion_low_winrate}</li>`;
+  }
+
+  // 📊 4. Expenses > Revenue
+  if (gExpensesTotal > gRevenue && t.suggestion_expenses_over) {
+    ul.innerHTML += `<li>${t.suggestion_expenses_over}</li>`;
+  }
+
+  // ✅ 5. Якщо все добре
+  if (ul.innerHTML === "" && t.suggestion_all_good) {
+    ul.innerHTML = `<li>${t.suggestion_all_good}</li>`;
+  }
+}
 
   async function createAction(url, type) {
     const user = auth.currentUser;
@@ -303,16 +331,24 @@
     });
 
     onSnapshot(query(collection(db, "users", user.uid, "events"), orderBy("createdAt", "desc")), snap => {
-      const ul = $("activityList");
-      ul.innerHTML = "";
-      snap.docs.slice(0, 5).forEach(doc => {
-        const e = doc.data();
-        const date = e.createdAt?.toDate?.().toLocaleString?.() || "—";
-        const li = document.createElement("li");
-        li.textContent = `${date} — ${e.type || "Event"} — ${e.message || ""}`;
-        ul.appendChild(li);
-      });
-    });
+  const lang = localStorage.getItem("language") || "en";
+  const t = translations[lang] || translations["en"];
+
+  const ul = $("activityList");
+  ul.innerHTML = "";
+
+  snap.docs.slice(0, 5).forEach(doc => {
+    const e = doc.data();
+    const date = e.createdAt?.toDate?.().toLocaleString?.() || "—";
+
+    const typeTranslated = t.activity_types?.[e.type?.toLowerCase()] || e.type || "Event";
+    const msgTranslated = t.activity_messages?.[e.message?.toLowerCase()] || e.message || "";
+
+    const li = document.createElement("li");
+    li.textContent = `${date} — ${typeTranslated} — ${msgTranslated}`;
+    ul.appendChild(li);
+  });
+});
   });
 
   $("logoutBtn").addEventListener("click", async () => {
