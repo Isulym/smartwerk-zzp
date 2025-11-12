@@ -58,118 +58,117 @@ window.translations = {
     suggestions: "Smart Suggestions",
     all_good: "All good. Keep it up!",
     recent_activity: "Recent Activity",
-    loading: "Loading..."
+    loading: "Loading...",
     suggestion_overdue_invoices: "📌 {count} overdue invoices — send reminders.",
     suggestion_no_reminders: "⚠️ Overdue invoices exist but no reminders sent.",
     suggestion_low_winrate: "📉 Low quote win rate — optimize your offers.",
-    suggestion_expenses_over: "📊 Expenses exceed revenue this month."
-   chart_title: "Revenue",
-   chart_labels: {
-  draft: "Draft",
-  sent: "Sent",
-  paid: "Paid",
-  overdue: "Overdue"
-  }
-  activity_types: {
-  navigation: "Navigation",
-  invoice: "Invoice",
-  event: "Event"
-}
-activity_messages: {
-  "created clients": "Created clients",
-  "created reminder": "Created reminder",
-  "invoice inv-2025-027 updated": "Invoice INV-2025-027 updated"
-}
-
+    suggestion_expenses_over: "📊 Expenses exceed revenue this month.",
+    chart_title: "Revenue",
+    chart_labels: {
+      draft: "Draft",
+      sent: "Sent",
+      paid: "Paid",
+      overdue: "Overdue"
+    },
+    activity_types: {
+      navigation: "Navigation",
+      invoice: "Invoice",
+      event: "Event"
+    },
+    activity_messages: {
+      "created clients": "Created clients",
+      "created reminder": "Created reminder",
+      "invoice inv-2025-027 updated": "Invoice INV-2025-027 updated"
+    }
   },
-   nl: {
-  menu: "Menu",
-back_dashboard: "Terug naar dashboard",
-home: "Home",
-clients: "Klanten",
-create_client: "Klant aanmaken",
-saved_clients: "Opgeslagen klanten",
-invoices: "Facturen",
-create_invoice: "Factuur aanmaken",
-saved_invoices: "Opgeslagen facturen",
-quotes: "Offertes",
-create_quote: "Offerte aanmaken",
-saved_quotes: "Opgeslagen offertes",
-contracts: "Contracten",
-create_contract: "Contract aanmaken",
-saved_contracts: "Opgeslagen contracten",
-reminders: "Herinneringen",
-create_reminder: "Herinnering aanmaken",
-saved_reminders: "Opgeslagen herinneringen",
-expense_csv: "Onkosten CSV",
-create_expense: "Maak kosten aan",
-saved_expenses: "Opgeslagen kosten",
-analytics: "Analytics",
-my_bookkeeper: "Mijn boekhouder",
-summary: "Overzicht",
-roi_estimator: "ROI-calculator",
-tax_assistant: "Belastingassistent",
-tax_calculator: "Belastingcalculator",
-tax_analytics: "Belastinganalyse",
-tax_guide: "Belastinggids",
-templates: "Sjablonen",
-email_gemeente: "E-mail naar gemeente",
-cv_portfolio: "CV / Portfolio",
-ai_assistant: "AI Assistent (PRO)",
-settings: "Instellingen",
-profile: "Profiel",
-toggle_theme: "Thema wisselen",
-help: "Hulp",
-upgrade_pro: "Upgraden naar PRO",
-contact_support: "Neem contact op met Support",
-logout: "Uitloggen",
-welcome: "Welkom",
-upgrade_plan: "Upgraden naar PRO",
-plan_free: "Gratis",
-quick_clients: "Klanten",
-quick_invoice: "Factuur",
-quick_quote: "Offerte",
-quick_contract: "Contract",
-quick_reminder: "Herinnering",
-revenue: "Inkomsten",
-unpaid: "Onbetaald",
-quote_rate: "Winstpercentage offerte",
-reminders_sent: "Verzonden herinneringen",
-expenses: "Uitgaven",
-overdue: "Overdue",
-top_client: "Topklant",
-smart_suggestions: "Slimme suggesties",
-suggestion_all_good: "Alles goed. Ga zo door!",
-recent_activity: "Recente activiteit",
-loading: "Laden..." 
-suggestion_overdue_invoices: "📌 {count} achterstallige facturen — stuur herinneringen.",
-suggestion_no_reminders: "⚠️ Achterstallige facturen maar geen herinneringen verzonden.",
-suggestion_low_winrate: "📉 Lage offerte-succesratio — optimaliseer je aanbiedingen.",
-suggestion_expenses_over: "📊 Uitgaven overschrijden de inkomsten deze maand."
- chart_title: "Inkomsten",
-chart_labels: {
-  draft: "Concept",
-  sent: "Verzonden",
-  paid: "Betaald",
-  overdue: "Achterstallig"
-  }
-  activity_types: {
-  navigation: "Navigatie",
-  invoice: "Factuur",
-  event: "Gebeurtenis"
-},
-activity_messages: {
-  "created clients": "Klanten aangemaakt",
-  "created reminder": "Herinnering aangemaakt",
-  "invoice inv-2025-027 updated": "Factuur INV-2025-027 bijgewerkt"
-}
-  
- }
-};
-  // Add similar blocks for other languages like 'de', 'fr', etc.
 
+  nl: {
+    menu: "Menu",
+    back_dashboard: "Terug naar dashboard",
+    home: "Home",
+    clients: "Klanten",
+    create_client: "Klant aanmaken",
+    saved_clients: "Opgeslagen klanten",
+    invoices: "Facturen",
+    create_invoice: "Factuur aanmaken",
+    saved_invoices: "Opgeslagen facturen",
+    quotes: "Offertes",
+    create_quote: "Offerte aanmaken",
+    saved_quotes: "Opgeslagen offertes",
+    contracts: "Contracten",
+    create_contract: "Contract aanmaken",
+    saved_contracts: "Opgeslagen contracten",
+    reminders: "Herinneringen",
+    create_reminder: "Herinnering aanmaken",
+    saved_reminders: "Opgeslagen herinneringen",
+    expense_csv: "Onkosten CSV",
+    create_expense: "Maak kosten aan",
+    saved_expenses: "Opgeslagen kosten",
+    analytics: "Analytics",
+    my_bookkeeper: "Mijn boekhouder",
+    summary: "Overzicht",
+    roi_estimator: "ROI-calculator",
+    tax_assistant: "Belastingassistent",
+    tax_calculator: "Belastingcalculator",
+    tax_analytics: "Belastinganalyse",
+    tax_guide: "Belastinggids",
+    templates: "Sjablonen",
+    email_gemeente: "E-mail naar gemeente",
+    cv_portfolio: "CV / Portfolio",
+    ai_assistant: "AI Assistent (PRO)",
+    settings: "Instellingen",
+    profile: "Profiel",
+    toggle_theme: "Thema wisselen",
+    help: "Hulp",
+    upgrade_pro: "Upgraden naar PRO",
+    contact_support: "Neem contact op met Support",
+    logout: "Uitloggen",
+    welcome: "Welkom",
+    upgrade_plan: "Upgraden naar PRO",
+    plan_free: "Gratis",
+    quick_clients: "Klanten",
+    quick_invoice: "Factuur",
+    quick_quote: "Offerte",
+    quick_contract: "Contract",
+    quick_reminder: "Herinnering",
+    revenue: "Inkomsten",
+    unpaid: "Onbetaald",
+    quote_rate: "Winstpercentage offerte",
+    reminders_sent: "Verzonden herinneringen",
+    expenses: "Uitgaven",
+    overdue: "Achterstallig",
+    top_client: "Topklant",
+    smart_suggestions: "Slimme suggesties",
+    suggestion_all_good: "✅ Alles goed. Ga zo door!",
+    recent_activity: "Recente activiteit",
+    loading: "Laden...",
+    suggestion_overdue_invoices: "📌 {count} achterstallige facturen — stuur herinneringen.",
+    suggestion_no_reminders: "⚠️ Achterstallige facturen maar geen herinneringen verzonden.",
+    suggestion_low_winrate: "📉 Lage offerte-succesratio — optimaliseer je aanbiedingen.",
+    suggestion_expenses_over: "📊 Uitgaven overschrijden de inkomsten deze maand.",
+    chart_title: "Inkomsten",
+    chart_labels: {
+      draft: "Concept",
+      sent: "Verzonden",
+      paid: "Betaald",
+      overdue: "Achterstallig"
+    },
+    activity_types: {
+      navigation: "Navigatie",
+      invoice: "Factuur",
+      event: "Gebeurtenis"
+    },
+    activity_messages: {
+      "created clients": "Klanten aangemaakt",
+      "created reminder": "Herinnering aangemaakt",
+      "invoice inv-2025-027 updated": "Factuur INV-2025-027 bijgewerkt"
+    }
+  }
+};
+
+// ✅ Translation Applier
 function applyTranslations(lang = "en") {
-  const dict = translations[lang] || translations["en"];
+  const dict = window.translations[lang] || window.translations["en"];
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     if (dict[key]) el.textContent = dict[key];
