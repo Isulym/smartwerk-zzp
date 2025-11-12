@@ -183,8 +183,7 @@
 
   function updateChart(canvasId, labels, data, type = "line") {
   const lang = localStorage.getItem("language") || "en";
-  const t = translations[lang];
-
+  const t = window.translations?.[lang] || {};
   // переклад labels, якщо існує t.chart_labels
   const translatedLabels = labels.map(label =>
     t?.chart_labels?.[label.toLowerCase()] || label
@@ -213,7 +212,7 @@
 
   function updateSuggestions() {
   const lang = localStorage.getItem("language") || "en";
-  const t = translations[lang];
+  const t = window.translations?.[lang] || {};
   const ul = $("suggestionsList");
   ul.innerHTML = "";
 
@@ -224,10 +223,9 @@
   }).length;
 
   // 📌 1. Overdue invoices
-  if (overdue > 0) {
-  const t = translations[lang]?.suggestion_overdue_invoices || "📌 {count} overdue invoices — send reminders.";
-  ul.innerHTML += `<li>${t.replace("{count}", overdue)}</li>`;
-}
+  if (overdue > 0 && t.suggestion_overdue_invoices) {
+    ul.innerHTML += `<li>${t.suggestion_overdue_invoices.replace("{count}", overdue)}</li>`;
+  }
 
   // ⚠️ 2. No reminders sent
   if (gReminders === 0 && overdue > 0 && t.suggestion_no_reminders) {
@@ -334,7 +332,7 @@
 
     onSnapshot(query(collection(db, "users", user.uid, "events"), orderBy("createdAt", "desc")), snap => {
   const lang = localStorage.getItem("language") || "en";
-  const t = translations[lang] || translations["en"];
+  const t = window.translations?.[lang] || {};
 
   const ul = $("activityList");
   ul.innerHTML = "";
