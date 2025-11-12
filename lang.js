@@ -69,17 +69,18 @@ const translations = {
   sent: "Sent",
   paid: "Paid",
   overdue: "Overdue"
+  }
   activity_types: {
   navigation: "Navigation",
   invoice: "Invoice",
   event: "Event"
-},
+}
 activity_messages: {
   "created clients": "Created clients",
   "created reminder": "Created reminder",
   "invoice inv-2025-027 updated": "Invoice INV-2025-027 updated"
 }
-}
+
   },
    nl: {
   menu: "Menu",
@@ -151,6 +152,7 @@ chart_labels: {
   sent: "Verzonden",
   paid: "Betaald",
   overdue: "Achterstallig"
+  }
   activity_types: {
   navigation: "Navigatie",
   invoice: "Factuur",
@@ -160,7 +162,6 @@ activity_messages: {
   "created clients": "Klanten aangemaakt",
   "created reminder": "Herinnering aangemaakt",
   "invoice inv-2025-027 updated": "Factuur INV-2025-027 bijgewerkt"
-}
 }
   
  }
