@@ -216,7 +216,10 @@
       ul.innerHTML += `<li>📉 Low quote win rate — optimize your offers.</li>`;
     if (gExpensesTotal > gRevenue)
       ul.innerHTML += `<li>📊 Expenses exceed revenue this month.</li>`;
-    if (ul.innerHTML === "") ul.innerHTML = "<li>✅ All good. Keep it up!</li>";
+    if (ul.innerHTML === "") {
+  const lang = localStorage.getItem("language") || "en";
+  ul.innerHTML = `<li>${translations[lang]?.suggestion_all_good || "✅ All good. Keep it up!"}</li>`;
+}
   }
 
   async function createAction(url, type) {
@@ -239,7 +242,7 @@
     if (!user) return location.href = "login.html";
     const profileSnap = await getDoc(doc(db, "users", user.uid));
     const profile = profileSnap.exists() ? profileSnap.data() : {};
-    $("welcome").textContent = `Welcome, ${profile.fullName || "User"} 👋`;
+    $("welcome").textContent = `${translations[selectedLang]?.welcome || "Welcome"}, ${profile.fullName || "User"} 👋`;
     gPlan = (profile.plan || "FREE").toUpperCase();
     $("planName").textContent = gPlan;
     gUsageLimit = gPlan === "PRO" ? Infinity : 25;
