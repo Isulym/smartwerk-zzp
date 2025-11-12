@@ -59,6 +59,27 @@ const translations = {
     all_good: "All good. Keep it up!",
     recent_activity: "Recent Activity",
     loading: "Loading..."
+    suggestion_overdue_invoices: "📌 {count} overdue invoices — send reminders.",
+    suggestion_no_reminders: "⚠️ Overdue invoices exist but no reminders sent.",
+    suggestion_low_winrate: "📉 Low quote win rate — optimize your offers.",
+    suggestion_expenses_over: "📊 Expenses exceed revenue this month.",
+   chart_title: "Revenue",
+   chart_labels: {
+  draft: "Draft",
+  sent: "Sent",
+  paid: "Paid",
+  overdue: "Overdue"
+  activity_types: {
+  navigation: "Navigation",
+  invoice: "Invoice",
+  event: "Event"
+},
+activity_messages: {
+  "created clients": "Created clients",
+  "created reminder": "Created reminder",
+  "invoice inv-2025-027 updated": "Invoice INV-2025-027 updated"
+}
+}
   },
    nl: {
   menu: "Menu",
@@ -119,7 +140,29 @@ top_client: "Topklant",
 smart_suggestions: "Slimme suggesties",
 suggestion_all_good: "Alles goed. Ga zo door!",
 recent_activity: "Recente activiteit",
-loading: "Laden..."     
+loading: "Laden..." 
+suggestion_overdue_invoices: "📌 {count} achterstallige facturen — stuur herinneringen.",
+suggestion_no_reminders: "⚠️ Achterstallige facturen maar geen herinneringen verzonden.",
+suggestion_low_winrate: "📉 Lage offerte-succesratio — optimaliseer je aanbiedingen.",
+suggestion_expenses_over: "📊 Uitgaven overschrijden de inkomsten deze maand.",
+ chart_title: "Inkomsten",
+chart_labels: {
+  draft: "Concept",
+  sent: "Verzonden",
+  paid: "Betaald",
+  overdue: "Achterstallig"
+  activity_types: {
+  navigation: "Navigatie",
+  invoice: "Factuur",
+  event: "Gebeurtenis"
+},
+activity_messages: {
+  "created clients": "Klanten aangemaakt",
+  "created reminder": "Herinnering aangemaakt",
+  "invoice inv-2025-027 updated": "Factuur INV-2025-027 bijgewerkt"
+}
+}
+  
  }
 };
   // Add similar blocks for other languages like 'de', 'fr', etc.
