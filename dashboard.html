@@ -239,6 +239,7 @@
   window.createAction = createAction;
 
   onAuthStateChanged(auth, async user => {
+    const selectedLang = localStorage.getItem("language") || "en";
     if (!user) return location.href = "login.html";
     const profileSnap = await getDoc(doc(db, "users", user.uid));
     const profile = profileSnap.exists() ? profileSnap.data() : {};
