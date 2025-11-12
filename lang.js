@@ -166,6 +166,7 @@ window.translations = {
 
   de: {
     menu: "Menü",
+    profile: "Profil",
     back_dashboard: "Zurück zum Dashboard",
     home: "Startseite",
     clients: "Kunden",
