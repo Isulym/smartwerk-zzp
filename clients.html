@@ -226,7 +226,9 @@
           }
         }
       } else {
-        messages.push("Enter an email for better suggestions");
+        const lang = localStorage.getItem("language") || "en";
+        const t = window.translations?.[lang] || {};
+        messages.push(t.enter_email_suggestion || "Enter an email for better suggestions");
       }
 
       hint.textContent = "✅ " + messages.join(" · ");
