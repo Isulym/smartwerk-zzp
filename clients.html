@@ -65,15 +65,15 @@
   <div class="grid-2">
         <div>
           <label for="country" data-i18n="country">Country</label>
-          <select id="country" autocomplete="country-name">
-            <option value="" data-i18n="select_country">Select Country</option>
-            <option data-i18n="netherlands">Netherlands</option>
-            <option data-i18n="belgium">Belgium</option>
-            <option data-i18n="germany">Germany</option>
-            <option data-i18n="spain">Spain</option>
-            <option data-i18n="poland">Poland</option>
-            <option data-i18n="france">France</option>
-            <option data-i18n="uk">UK</option>
+          <select id="country">
+           <option value="">Select Country</option>
+           <option value="nl" data-i18n="netherlands">Netherlands</option>
+           <option value="be" data-i18n="belgium">Belgium</option>
+           <option value="de" data-i18n="germany">Germany</option>
+          <option value="fr" data-i18n="france">France</option>
+          <option value="es" data-i18n="spain">Spain</option>
+          <option value="pl" data-i18n="poland">Poland</option>
+          <option value="uk" data-i18n="uk">United Kingdom</option>
           </select>
         </div>
         <div>
@@ -198,13 +198,16 @@
         const ends = (t) => domain.endsWith(t);
 
         const countryMap = {
-          ".nl": "Netherlands", ".be": "Belgium", ".de": "Germany",
-          ".fr": "France", ".es": "Spain", ".pl": "Poland",
-          ".uk": "United Kingdom", ".co.uk": "United Kingdom"
-        };
-        for (const [suffix, country] of Object.entries(countryMap)) {
-          if (ends(suffix) && $("country")) $("country").value = country;
-        }
+  ".nl": "nl", ".be": "be", ".de": "de",
+  ".fr": "fr", ".es": "es", ".pl": "pl",
+  ".uk": "uk", ".co.uk": "uk"
+};
+for (const [suffix, code] of Object.entries(countryMap)) {
+  if (ends(suffix) && $("country")) {
+    $("country").value = code;
+    messages.push(`🌍 Country auto-filled from domain: ${code.toUpperCase()}`);
+  }
+}
 
         const isFree = /(gmail|yahoo|outlook|hotmail|icloud)\./.test(domain);
         if (isFree) {
