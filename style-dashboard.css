@@ -181,9 +181,10 @@ body {
 .suggestions h2, .activity h2 { font-size: 16px; margin-bottom: 10px; }
 .suggestions ul, .activity ul { list-style-type: disc; padding-left: 1.2rem; font-size: 14px; color: var(--muted); }
 
-.btn,
-button {
-  background: var(--accent);
+
+
+.btn-primary {
+ background: var(--accent);
   color: white;
   padding: 8px 14px;
   border: none;
@@ -195,25 +196,8 @@ button {
   transition: background 0.2s ease;
 }
 
-.btn:hover,
-button:hover {
-  background: var(--accent-hover);
-}
+.
 
-.btn-primary {
-  background: var(--accent);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-}
-
-.btn-danger {
-  background: var(--danger);
-}
-.btn-danger:hover {
-  background: #d9363b;
-}
 
 .theme-dark {
   --bg: #0f172a;
