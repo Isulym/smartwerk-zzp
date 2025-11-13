@@ -123,6 +123,7 @@ window.translations = {
     save_client: "Save Client",
     update_client: "Update Client",
     smart_suggest: "Smart Suggest",
+    enter_email_suggestion: "Enter an email for better suggestions",
     footer: "© 2025 SmartWerk"
   },
 
@@ -249,6 +250,7 @@ window.translations = {
     save_client: "Klant opslaan",
     update_client: "Klant bijwerken",
     smart_suggest: "Slimme suggestie",
+    enter_email_suggestion: "Voer een e-mail in voor betere suggesties",
     footer: "© 2025 SmartWerk"
   },
 de: {
@@ -373,6 +375,7 @@ de: {
   save_client: "Kunde speichern",
   update_client: "Kunde aktualisieren",
   smart_suggest: "Intelligente Vorschläge",
+  enter_email_suggestion: "Geben Sie eine E-Mail-Adresse ein für bessere Vorschläge",
   footer: "© 2025 SmartWerk"
 },
   fr: {
@@ -497,6 +500,7 @@ de: {
   save_client: "Enregistrer le client",
   update_client: "Mettre à jour le client",
   smart_suggest: "Suggestion intelligente",
+  enter_email_suggestion: "Saisissez un e-mail pour de meilleures suggestions",
   footer: "© 2025 SmartWerk"
 },
   pl: {
@@ -621,6 +625,7 @@ de: {
   save_client: "Zapisz klienta",
   update_client: "Zaktualizuj klienta",
   smart_suggest: "Inteligentna sugestia",
+  enter_email_suggestion: "Wprowadź adres e-mail, aby uzyskać lepsze sugestie",
   footer: "© 2025 SmartWerk"
 },
  
@@ -747,6 +752,7 @@ de: {
   save_client: "Сохранить клиента",
   update_client: "Обновить клиента",
   smart_suggest: "Умная подсказка",
+  enter_email_suggestion: "Введите электронную почту для лучших подсказок",
   footer: "© 2025 SmartWerk"
 },
  es: {
@@ -871,6 +877,7 @@ de: {
   save_client: "Guardar cliente",
   update_client: "Actualizar cliente",
   smart_suggest: "Sugerencia inteligente",
+  enter_email_suggestion: "Ingrese un correo electrónico para obtener mejores sugerencias",
   footer: "© 2025 SmartWerk"
 }
    }
