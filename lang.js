@@ -207,8 +207,8 @@ window.translations = {
       "created reminder": "Herinnering aangemaakt",
       "invoice inv-2025-027 updated": "Factuur INV-2025-027 bijgewerkt"
     },
-    page_title: "SmartWerk — Klant toevoegen",
-    add_client: "SmartWerk — Klant toevoegen",
+    add_client_title: "SmartWerk — Klant toevoegen",
+    add_client_title: "SmartWerk — Klant toevoegen",
     back_dashboard: "Terug naar dashboard",
     saved_clients: "Opgeslagen klanten",
     client_info: "Klantinformatie",
