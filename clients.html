@@ -210,7 +210,9 @@
         if (isFree) {
           if ($("status")) $("status").value = "Prospect";
           if ($("tags") && !val("tags")) $("tags").value = "Prospect";
-          messages.push("Freemail detected → Status: Prospect");
+          const lang = localStorage.getItem("language") || "en";
+          const t = window.translations?.[lang] || {};
+          messages.push(t.freemail_detected || "Freemail detected → Status: Prospect");
         } else {
           if ($("tags") && !val("tags")) $("tags").value = domain.split(".")[0];
           messages.push("Tags suggested from domain");
