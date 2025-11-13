@@ -124,6 +124,7 @@ window.translations = {
     update_client: "Update Client",
     smart_suggest: "Smart Suggest",
     enter_email_suggestion: "Enter an email for better suggestions",
+    freemail_detected: "Freemail detected → Status: Prospect",
     footer: "© 2025 SmartWerk"
   },
 
@@ -251,6 +252,7 @@ window.translations = {
     update_client: "Klant bijwerken",
     smart_suggest: "Slimme suggestie",
     enter_email_suggestion: "Voer een e-mail in voor betere suggesties",
+    freemail_detected: "Freemail gedetecteerd → Status: Prospect",
     footer: "© 2025 SmartWerk"
   },
 de: {
@@ -376,6 +378,7 @@ de: {
   update_client: "Kunde aktualisieren",
   smart_suggest: "Intelligente Vorschläge",
   enter_email_suggestion: "Geben Sie eine E-Mail-Adresse ein für bessere Vorschläge",
+  freemail_detected: "Freemail erkannt → Status: Interessent",
   footer: "© 2025 SmartWerk"
 },
   fr: {
@@ -501,6 +504,7 @@ de: {
   update_client: "Mettre à jour le client",
   smart_suggest: "Suggestion intelligente",
   enter_email_suggestion: "Saisissez un e-mail pour de meilleures suggestions",
+  freemail_detected: "Adresse gratuite détectée → Statut : Prospect",
   footer: "© 2025 SmartWerk"
 },
   pl: {
@@ -626,6 +630,7 @@ de: {
   update_client: "Zaktualizuj klienta",
   smart_suggest: "Inteligentna sugestia",
   enter_email_suggestion: "Wprowadź adres e-mail, aby uzyskać lepsze sugestie",
+    freemail_detected: "Wykryto darmowy e‑mail → Status: Prospekt",
   footer: "© 2025 SmartWerk"
 },
  
@@ -753,6 +758,7 @@ de: {
   update_client: "Обновить клиента",
   smart_suggest: "Умная подсказка",
   enter_email_suggestion: "Введите электронную почту для лучших подсказок",
+   freemail_detected: "Обнаружен бесплатный email → Статус: Перспективный клиент",
   footer: "© 2025 SmartWerk"
 },
  es: {
@@ -878,6 +884,7 @@ de: {
   update_client: "Actualizar cliente",
   smart_suggest: "Sugerencia inteligente",
   enter_email_suggestion: "Ingrese un correo electrónico para obtener mejores sugerencias",
+   freemail_detected: "Correo gratuito detectado → Estado: Prospecto",
   footer: "© 2025 SmartWerk"
 }
    }
