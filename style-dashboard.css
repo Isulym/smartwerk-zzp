@@ -181,7 +181,28 @@ body {
 .suggestions h2, .activity h2 { font-size: 16px; margin-bottom: 10px; }
 .suggestions ul, .activity ul { list-style-type: disc; padding-left: 1.2rem; font-size: 14px; color: var(--muted); }
 
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 2px 6px var(--shadow);
+  border: none;
+}
 
+.btn-primary {
+  background-color: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+}
 
 .theme-dark {
   --bg: #0f172a;
