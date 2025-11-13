@@ -602,7 +602,7 @@ de: {
   select_country: "Wybierz kraj",
   netherlands: "Holandia",
   belgium: "Belgia",
-  Germany: "Niemcy",
+  germany: "Niemcy",
   france: "Francja",
   spain: "Hiszpania",
   poland: "Polska",
