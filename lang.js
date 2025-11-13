@@ -487,6 +487,7 @@ messages_activité: {"clients_créés": "Clients_créés", "rappel_créé": "Rap
     "invoice inv-2025-027 updated": "Factura INV-2025-027 actualizada"
   }
 }
+   }
 
 // 🧠 Apply Translations
 function applyTranslations(lang = "en") {
