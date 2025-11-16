@@ -889,7 +889,7 @@ status_inactive: "Неактивен",
 total: "Всего",
 search_placeholder: "Поиск...",
 filter_all_statuses: "Все статусы",
-client_id: "ID клиента",
+
 company_name: "Имя / Компания",
 email: "Эл. почта",
 phone: "Телефон",
