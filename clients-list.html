@@ -3,71 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📋 SmartWerk — Saved Clients</title>
+  <title data-i18n="clients_list_title">📋 SmartWerk — Saved Clients</title>
   <link rel="stylesheet" href="style-clients-list.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header>
-  <h1>📋 SmartWerk — Saved Clients</h1>
-  <div class="header-actions">
-    <a href="clients.html" class="btn btn-primary">➕ New Client</a>
-     <a href="dashboard.html" class="btn">🏠 Back to Dashboard</a>
-    <button id="refreshBtn" class="btn">🔄 Refresh</button>
-  </div>
-        </header>
-
+  <header>
+    <h1 data-i18n="clients_list_title">📋 SmartWerk — Saved Clients</h1>
+    <div class="header-actions">
+      <a href="clients.html" class="btn btn-primary" data-i18n="new_client">➕ New Client</a>
+      <a href="dashboard.html" class="btn" data-i18n="back_dashboard">🏠 Back to Dashboard</a>
+      <button id="refreshBtn" class="btn" data-i18n="refresh">🔄 Refresh</button>
+    </div>
+  </header>
 
   <!-- KPI -->
   <section class="kpi-container">
-    <div class="kpi-card"><h3>🟢 Active</h3><p id="kpi-active">0</p></div>
-    <div class="kpi-card"><h3>🟡 Prospect</h3><p id="kpi-prospect">0</p></div>
-    <div class="kpi-card"><h3>🔴 Inactive</h3><p id="kpi-inactive">0</p></div>
-    <div class="kpi-card"><h3>👥 Total</h3><p id="kpi-total">0</p></div>
+    <div class="kpi-card"><h3 data-i18n="status_active">🟢 Active</h3><p id="kpi-active">0</p></div>
+    <div class="kpi-card"><h3 data-i18n="status_prospect">🟡 Prospect</h3><p id="kpi-prospect">0</p></div>
+    <div class="kpi-card"><h3 data-i18n="status_inactive">🔴 Inactive</h3><p id="kpi-inactive">0</p></div>
+    <div class="kpi-card"><h3 data-i18n="total">👥 Total</h3><p id="kpi-total">0</p></div>
   </section>
 
   <!-- Chart -->
   <div class="chart-container">
-  <canvas id="clientChart"></canvas>
-</div>
-  
+    <canvas id="clientChart"></canvas>
+  </div>
+
   <main>
+    <!-- Search -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Search..." data-i18n-placeholder="search_placeholder" style="flex:1;">
+      <select id="statusFilter" data-i18n="status_filter">
+        <option value="" data-i18n="filter_all_statuses">All Statuses</option>
+        <option data-i18n="status_active">Active</option>
+        <option data-i18n="status_prospect">Prospect</option>
+        <option data-i18n="status_inactive">Inactive</option>
+      </select>
+    </div>
 
-  <!-- Search -->
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="🔍 Search..." style="flex:1;">
-    <select id="statusFilter">
-      <option value="">All Statuses</option>
-      <option>Active</option>
-      <option>Prospect</option>
-      <option>Inactive</option>
-    </select>
-  </div>
+    <!-- Table -->
+    <table id="clientsTable">
+      <thead>
+        <tr>
+          <th data-i18n="client_id">Client ID</th>
+          <th data-i18n="company_name">Name / Company</th>
+          <th data-i18n="email">Email</th>
+          <th data-i18n="phone">Phone</th>
+          <th data-i18n="status">Status</th>
+          <th data-i18n="country">Country</th>
+          <th data-i18n="actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="clientsBody">
+        <tr><td colspan="7" style="text-align:center;color:#94a3b8;" data-i18n="loading">Loading...</td></tr>
+      </tbody>
+    </table>
 
-  <!-- Table -->
-  <table id="clientsTable">
-    <thead>
-      <tr>
-        <th>Client ID</th>
-        <th>Name / Company</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Status</th>
-        <th>Country</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="clientsBody">
-      <tr><td colspan="7" style="text-align:center;color:#94a3b8;">Loading...</td></tr>
-    </tbody>
-  </table>
+    <div id="msg" data-i18n="synced">✅ Synced with Cloud</div>
+  </main>
 
-  <div id="msg">✅ Synced with Cloud</div>
-
-      </main>
-
-  <footer><p>© 2025 SmartWerk</p></footer>
-  </div>
+  <footer><p data-i18n="footer">© 2025 SmartWerk</p></footer>
+</body>
+</html>
   <script type="module">
  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   
@@ -98,9 +96,11 @@ const $ = (id) => document.getElementById(id);
 let currentUid = null;
 let chart = null;
 
-function showMsg(txt) {
+function showMsg(key) {
+  const lang = localStorage.getItem("language") || "en";
+  const t = window.translations?.[lang] || {};
   const m = $("msg");
-  m.textContent = txt;
+  m.textContent = t[key] || key;
   m.style.display = "block";
   setTimeout(() => (m.style.display = "none"), 2500);
 }
@@ -142,7 +142,7 @@ function updateKPI(clients) {
 async function loadClients(uid) {
   if (!uid) return;
   const tbody = $("clientsBody");
-  tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>Loading...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>${t.loading || "Loading..."}</td></tr>`;
   try {
     const snap = await getDocs(collection(db, "users", uid, "clients"));
     const arr = [];
@@ -150,10 +150,10 @@ async function loadClients(uid) {
     window._clients = arr;
     renderClients(arr);
     updateKPI(arr);
-    showMsg("✅ Clients synced");
+    showMsg("synced");
   } catch (e) {
     console.error("❌ Load error:", e);
-    tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#ef4444;'>Error loading clients</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#ef4444;'>${t.load_error || "Error loading clients"}</td></tr>`;
   }
 }
 
@@ -170,7 +170,7 @@ function renderClients(list) {
   });
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>No clients found</td></tr>`;
+   tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>${t.no_clients_found || "No clients found"}</td></tr>`;
     updateKPI(filtered);
     return;
   }
@@ -270,7 +270,7 @@ window.editClient = (id) => {
 };
 
 window.deleteClient = async (id) => {
-  if (!confirm("Delete this client?")) return;
+ if (!confirm(t.delete_confirm || "Delete this client?")) return;
   const user = auth.currentUser;
   await deleteDoc(doc(db, "users", user.uid, "clients", id));
   showMsg("🗑 Client deleted");
@@ -288,9 +288,9 @@ window.exportClientPDF = (id, withBranding = true) => {
     doc.setFillColor(...blue);
     doc.rect(0, 0, 210, 25, "F");
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18).text("SmartWerk — Client Summary", 15, 17);
+    doc.setFontSize(18).text(t.pdf_title_brand || "SmartWerk — Client Summary", 15, 17);
   } else {
-    doc.setFontSize(18).setTextColor(0, 0, 0).text("Client Summary", 15, 17);
+    doc.setFontSize(18).text(t.pdf_title_basic || "Client Summary", 15, 17);
   }
 
   const rows = [
@@ -316,12 +316,12 @@ window.exportClientPDF = (id, withBranding = true) => {
     alternateRowStyles: { fillColor: [245, 245, 245] }
   });
 
-  if (withBranding) doc.setFontSize(9).setTextColor(100).text("Generated by SmartWerk © 2025", 14, 290);
+ if (withBranding) doc.setFontSize(9).setTextColor(100).text(t.pdf_footer || "Generated by SmartWerk © 2025", 14, 290);
   const filename = withBranding
     ? `SmartWerk_Client_${c.clientId || "info"}.pdf`
     : `Client_${c.clientId || "info"}_PRO.pdf`;
   doc.save(filename);
-  showMsg(withBranding ? "📄 PDF exported" : "💎 PRO PDF exported");
+ showMsg(withBranding ? "pdf_exported" : "pro_pdf_exported");
 };
 
 onAuthStateChanged(auth, async (user) => {
