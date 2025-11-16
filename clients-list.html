@@ -141,7 +141,10 @@ function updateKPI(clients) {
 }
 
 async function loadClients(uid) {
+  
   if (!uid) return;
+  const lang = localStorage.getItem("language") || "en";
+const t = window.translations?.[lang] || {};
   const tbody = $("clientsBody");
   tbody.innerHTML = `<tr><td colspan='7' style='text-align:center;color:#94a3b8;'>${t.loading || "Loading..."}</td></tr>`;
   try {
