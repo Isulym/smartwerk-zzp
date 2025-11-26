@@ -1,52 +1,156 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar country</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <link href = "style.css" rel="stylesheet" type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #111;
+            color: #ffffff;
+        }
+
+        header {
+            background-color: #333333;
+            padding: 10px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .hero {
+            margin-top: 50px; /* висота меню */
+            height: 400px;
+            background-image: url("avatar-header.jpg"); /* заміни на свій файл */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 40px;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 20px auto 60px;
+            padding: 0 20px;
+        }
+
+        .intro {
+            margin-bottom: 40px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .intro p {
+            margin-bottom: 10px;
+        }
+
+        .band-box {
+            background: linear-gradient(#ff5a26, #e43100);
+            color: #ffffff;
+            border-radius: 20px;
+            padding: 30px 40px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+
+        .band-box h2 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .band-box ul {
+            margin-left: 25px;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #dddddd;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-  <nav>
-    <ul>
-    <li><a href="avatar.html" class="nav">Home pagina</a></li>
-    <li><a href="Avatar merch.html" class="nav">Avatar merch</a></li>
-    <li>  <a href="Albums.html" class="nav">Avatar albums</a></li>
-    </ul>
-  </nav>
-  <div class="banner">
-    <h1>Avatar country</h1>
-</div>
-<br>
-<br>
+<header>
+    <nav>
+        <ul>
+            <li><a href="#">Home pagina</a></li>
+            <li><a href="#">Avatar merch</a></li>
+            <li><a href="#">Avatar albums</a></li>
+        </ul>
+    </nav>
+</header>
 
-<br>
-<p><br>
-    <strong>Avatar</strong> is een Zweedse metalband uit Göteborg, opgericht in 2001.
-    Ze staan bekend om hun unieke mix van melodische death metal, theatrale optredens en een opvallende visuele stijl
-    geleid door frontman Johannes Eckerström, die vaak optreedt in clown-achtige make-up.
-</p>
-<p>
-    Door de jaren heen heeft Avatar internationaal succes geboekt met tours door Europa, Noord-Amerika en Azië.
-    Hun liveshows combineren muziek, kostuums en theatrale elementen waardoor ze uitgroeiden tot een van de meest herkenbare
-    acts binnen de moderne metalscene.
-</p>
-  <div class="band-info">
-      <h2>Alle bandleden van Avatar</h2>
-      <ul>
-          <li>Johannes Eckerström, zanger en trompet/piano (2001-heden)</li>
-          <li>Henrik Sandelin, basist en backing vocals (2003-heden)</li>
-          <li>Jonas "Kungen" Jarlsby, gitarist (2001-heden)</li>
-          <li>John Alfredsson, drummer (2001-heden)</li>
-          <li>Tim Öhrström, gitarist en backing vocals (2011-heden)</li>
-      </ul>
-  </div>
-  <footer>
-    Avatar country fanwebsite
-    <br>
+<section class="hero">
+    <h1>Avatar country</h1>
+</section>
+
+<main>
+    <section class="intro">
+        <p>
+            Avatar is een Zweedse metalband uit Göteborg, opgericht in 2001. Ze staan bekend om hun
+            unieke mix van melodische death metal, theatrale optredens en een opvallende visuele stijl
+            geleid door frontman Johannes Eckerström, die vaak optreedt in clown-achtige make-up.
+        </p>
+        <p>
+            Door de jaren heen heeft Avatar internationaal succes geboekt met tours door Europa,
+            Noord-Amerika en Azië. Hun liveshows combineren muziek, kostuums en theatrale elementen
+            waardoor ze uitgroeiden tot een van de meest herkenbare acts binnen de moderne metalscene.
+        </p>
+    </section>
+
+    <section class="band-box">
+        <h2>Alle bandleden van Avatar</h2>
+        <ul>
+            <li>Johannes Eckerström, zanger en trompet/piano (2001-heden)</li>
+            <li>Henrik Sandelin, bassist en backing vocals (2003-heden)</li>
+            <li>Jonas "Kungen" Jarlsby, gitarist (2001-heden)</li>
+            <li>John Alfredsson, drummer (2001-heden)</li>
+            <li>Tim Öhrström, gitarist en backing vocals (2011-heden)</li>
+        </ul>
+    </section>
+</main>
+
+<footer>
+    Avatar country fanwebsite<br>
     2025, Marianna Blazhyn en Kyan Ederveen
-    <br>
-    @
 </footer>
+
 </body>
 </html>
